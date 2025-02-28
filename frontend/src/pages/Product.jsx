@@ -153,15 +153,15 @@ const Product = () => {
         {/* product image */}
         <div className='flex-1 flex flex-col-reverse gap-3 sm:flex-row w-[100%] sm:w-[605px]'>
           <div className='w-full md:w-[20%] h-[100%] flex flex-col gap-2'>
-            <div className='flex gap-0 md:gap-2 ml-0 sm:flex-col md:overflow-x-auto sm:overflow-y-scroll justify-between w-[100%] h-[100%]'>
+            <div className='flex gap-0 md:gap-0 ml-0 sm:flex-col md:overflow-x-auto sm:overflow-y-scroll justify-between w-[100%] h-[100%]'>
               {
                 productData.image.map((item, index) => (
-                  <img onClick={() => setImage(item)} src={item} key={index} alt="product-image" className='w-[22%] h-[24%] md:w-[100%] md:h-[23%] flex-shrink-0 cursor-pointer shadow-lg' />
+                  <img onClick={() => setImage(item)} src={item} key={index} alt="product-image" className='w-[22%] h-[24%] md:w-[100%] md:h-[24%] flex-shrink-0 cursor-pointer shadow-lg' />
                 ))
               }
             </div>
           </div>
-          <div className='w-[100%] md:w-[80%] h-[100%] flex justify-center'>
+          <div className='w-[100%] md:w-[80%] h-[100%] md:h-[600px] flex justify-center'>
             <img src={image} className='h-[100%] shadow-lg' alt="product-image" />
           </div>
         </div>

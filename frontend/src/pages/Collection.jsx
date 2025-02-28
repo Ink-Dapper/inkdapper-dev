@@ -156,7 +156,7 @@ const Collection = () => {
         <div className="md:flex justify-between text-sm sm:text-base md:text-2xl mb-4 relative">
           <Title text1={'ALL'} text2={'COLLECTIONS'} />
           {/* product sort */}
-          <div className='absolute lg:static -top-2 right-0 md:-top-4'>
+          <div className='absolute lg:static -top-10 right-0 md:-top-4'>
             <FormControl sx={{ m: 1, minWidth: {xs:140, sm:180}, fontSize : {xs:10, sm:14} }} size="small">
               <InputLabel id="demo-select-small-label" sx={{fontSize : {xs:14, sm: 18}, top : {xs:3, sm:0}, left : {xs:-3} }} >Filter</InputLabel>
               <Select

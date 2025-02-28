@@ -55,7 +55,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory }) => {
       <Link onClick={() => scrollToTop()} className={`text-gray-700 cursor-pointer`} to={`/product/${id}`}>
         <div className='transition-shadow shadow-lg shadow-gray-400 rounded-b-md'>
           <div className="overflow-hidden h-52 sm:h-80 bg-gray-200 flex justify-center items-center rounded-t-md relative product-image">
-            <img src={image[0]} alt={name} className="transition-all ease-in-out h-[100%] object-cover relative z-10" />
+            <img src={image[0]} alt={name} className="transition-all ease-in-out h-[100%] object-cover relative z-10" style={{ width: '-webkit-fill-available' }} />
             {/* <img src={assets.inkdapper_logo} alt="logo" className='w-full p-12 rotate-12 opacity-10 absolute'/> */}
           </div>
           <div className='border-l-2 border-l-gray-950 border-t-2 border-t-gray-950 rounded-b-md relative'>
