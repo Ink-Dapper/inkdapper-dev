@@ -67,24 +67,18 @@ const placeOrder = async (req, res) => {
           ${orderData.items
             .map(
               (item) => `
-            <img src="${item.image}" alt="${
-                item.name
-              }" style="width: 100px; height: 100px; object-fit: cover; margin-left: 15px;" /> <br>
-            <ul style="list-style-type: none; padding: 0;">
-              <li><strong>Product Name:</strong> ${item.name} </li>
-              <li><strong>Size:</strong> ${item.size} </li>
-              <li><strong>Quantity:</strong> ${item.quantity}</li>
-              <li><strong>Price:</strong> ${item.price}</li>
-              <li><strong>Order Date:</strong> ${new Date(
-                orderData.date
-              ).toLocaleDateString()}</li>
-              <li><strong>Expected Delivery Date:</strong> ${new Date(
-                orderData.expectedDeliveryDate
-              ).toLocaleDateString()}</li>
-              <li style="margin-top: 10px; bottom-border: 1px solid #000;padding-top: 10px;"><strong>Total Price:</strong> ${
-                item.price * item.quantity
-              }</li>
-            </ul>
+            <div style="margin-bottom: 20px;">
+              <img src="${item.image[0]}" alt="${item.name}" style="width: 100px; height: 100px; object-fit: cover; margin-left: 15px;" /> <br>
+              <ul style="list-style-type: none; padding: 0;">
+                <li><strong>Product Name:</strong> ${item.name} </li>
+                <li><strong>Size:</strong> ${item.size} </li>
+                <li><strong>Quantity:</strong> ${item.quantity}</li>
+                <li><strong>Price:</strong> ${item.price}</li>
+                <li><strong>Order Date:</strong> ${new Date(orderData.date).toLocaleDateString()}</li>
+                <li><strong>Expected Delivery Date:</strong> ${new Date(orderData.expectedDeliveryDate).toLocaleDateString()}</li>
+                <li style="margin-top: 10px; bottom-border: 1px solid #000;padding-top: 10px;"><strong>Total Price:</strong> ${item.price * item.quantity}</li>
+              </ul>
+            </div>
           `
             )
             .join("")}
@@ -145,6 +139,11 @@ const verifyRazorpay = async (req, res) => {
       amount,
       address,
     } = req.body;
+
+    if (!razorpay_order_id) {
+      return res.json({ success: false, message: "Order ID is required" });
+    }
+
     const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
 
     if (orderInfo.status === "paid") {
@@ -184,25 +183,19 @@ const verifyRazorpay = async (req, res) => {
             ${orderData.items
               .map(
                 (item) => `
-              <img src="${item.image}" alt="${
-                  item.name
-                }" style="width: 100px; height: 100px; object-fit: cover; margin-left: 15px;" /> <br>
-              <ul style="list-style-type: none; padding: 0;">
-                <li><strong>Product Name:</strong> ${item.name} </li>
-                <li><strong>Size:</strong> ${item.size} </li>
-                <li><strong>Quantity:</strong> ${item.quantity}</li>
-                <li><strong>Price:</strong> ${item.price}</li>
-                <li><strong>Order Date:</strong> ${new Date(
-                  orderData.date
-                ).toLocaleDateString()}</li>
-                <li><strong>Expected Delivery Date:</strong> ${new Date(
-                  orderData.expectedDeliveryDate
-                ).toLocaleDateString()}</li>
-                <li style="margin-top: 10px; bottom-border: 1px solid #000;padding-top: 10px;"><strong>Total Price:</strong> ${
-                  item.price * item.quantity
-                }</li>
-                <li><strong>Payment Method:</strong> Razorpay</li>
-              </ul>
+              <div style="margin-bottom: 20px;">
+                <img src="${item.image}" alt="${item.name}" style="width: 100px; height: 100px; object-fit: cover; margin-left: 15px;" /> <br>
+                <ul style="list-style-type: none; padding: 0;">
+                  <li><strong>Product Name:</strong> ${item.name} </li>
+                  <li><strong>Size:</strong> ${item.size} </li>
+                  <li><strong>Quantity:</strong> ${item.quantity}</li>
+                  <li><strong>Price:</strong> ${item.price}</li>
+                  <li><strong>Order Date:</strong> ${new Date(orderData.date).toLocaleDateString()}</li>
+                  <li><strong>Expected Delivery Date:</strong> ${new Date(orderData.expectedDeliveryDate).toLocaleDateString()}</li>
+                  <li style="margin-top: 10px; bottom-border: 1px solid #000;padding-top: 10px;"><strong>Total Price:</strong> ${item.price * item.quantity}</li>
+                  <li><strong>Payment Method:</strong> Razorpay</li>
+                </ul>
+              </div>
             `
               )
               .join("")}

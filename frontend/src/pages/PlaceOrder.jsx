@@ -39,27 +39,39 @@ const PlaceOrder = () => {
       order_id: order.id,
       receipt: order.receipt,
       handler: async (response) => {
-        console.log(response)
+        console.log('Razorpay response:', response);
         try {
-          const { data } = await axios.post(backendUrl + '/api/order/verify-razorpay', { ...response, ...orderData }, { headers: { token } })
+          const { data } = await axios.post(backendUrl + '/api/order/verify-razorpay', { ...response, ...orderData, razorpay_order_id: order.id }, { headers: { token } });
           if (data.success) {
-            console.log(data)
-            setCartItems({})
-            navigate('/orders')
-            toast.success('Payment successful')
+            console.log('Verification successful:', data);
+            setCartItems({});
+            navigate('/orders');
+            toast.success('Payment successful');
           } else {
-            navigate('/place-order')
-            toast.error('Payment failed, please try again')
+            console.log('Verification failed:', data);
+            navigate('/place-order');
+            toast.error('Payment failed, please try again');
           }
         } catch (error) {
-          console.log(error)
-          toast.error('Payment failed')
+          console.error('Verification error:', error);
+          toast.error('Payment failed');
         }
-      }
-    }
-    const rzp = new window.Razorpay(options)
-    rzp.open()
-  }
+      },
+      prefill: {
+        name: formData.firstName + ' ' + formData.lastName,
+        email: formData.email,
+        contact: formData.phone,
+      },
+      notes: {
+        address: formData.street + ', ' + formData.city + ', ' + formData.state + ', ' + formData.zipcode + ', ' + formData.country,
+      },
+      theme: {
+        color: '#F37254',
+      },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
 
   const onSubmitHandler = async (event) => {
     event.preventDefault()

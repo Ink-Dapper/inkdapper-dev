@@ -20,9 +20,11 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
   const [reviewImage1, setReviewImage1] = useState(null)
   const [reviewImage2, setReviewImage2] = useState(null)
   const [reviewImage3, setReviewImage3] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
     try {
       const formData = new FormData()
       formData.append('name', name)
@@ -52,33 +54,78 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
     } catch (error) {
       console.error(error)
       toast.error('Failed to update product')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
     <div className='fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center'>
-      <div className='bg-white h-[560px] p-4 top-20 rounded-md w-1/2 relative'>
+      <div className='bg-white h-[560px] p-4 top-20 rounded-md w-[65%] relative'>
         <h2 className='text-2xl font-bold mb-2'>Edit Product</h2>
         <form onSubmit={handleSubmit}>
-          <div className='w-full'>
-            <p className='mb-2 font-medium'>Product name</p>
-            <input onChange={(e) => setName(e.target.value)} value={name} className='w-full max-w-[500px] px-3 py-2 mb-3' type="text" placeholder='Type here' required />
-          </div>
+          <div className='flex gap-5'>
+            <div className='w-full'>
+              <div className='w-full'>
+                <p className='mb-2 font-medium'>Product name</p>
+                <input onChange={(e) => setName(e.target.value)} value={name} className='w-full max-w-[500px] px-3 py-2 mb-3' type="text" placeholder='Type here' required />
+              </div>
 
-          <div className='w-full'>
-            <p className='my-2 font-medium'>Product description</p>
-            <textarea onChange={(e) => setDescription(e.target.value)} value={description} className='w-full max-w-[500px] px-3 py-2 mb-3' type="text" placeholder='Write content here' required />
-          </div>
+              <div className='w-full'>
+                <p className='my-2 font-medium'>Product description</p>
+                <textarea onChange={(e) => setDescription(e.target.value)} value={description} className='w-full max-w-[500px] px-3 py-2 mb-3' type="text" placeholder='Write content here' required />
+              </div>
 
-          <div className='w-full'>
-            <p className='my-2 font-medium'>Product Code</p>
-            <input onChange={(e) => setCode(e.target.value)} value={code} className='w-full max-w-[500px] px-3 py-2 uppercase mb-3' type="text" placeholder='Type Product code' required />
+              <div className='w-full'>
+                <p className='my-2 font-medium'>Product Code</p>
+                <input onChange={(e) => setCode(e.target.value)} value={code} className='w-full max-w-[500px] px-3 py-2 uppercase mb-3' type="text" placeholder='Type Product code' required />
+              </div>
+            </div>
+            <div className='w-[600px]'>
+              <div className='w-full'>
+                <p className='my-2 font-medium'>Product Images</p>
+                <div className='flex gap-2'>
+                  <label htmlFor="image1">
+                    <img className='w-20 h-20 object-cover' src={image1 ? URL.createObjectURL(image1) : product.image[0]} alt="Image 1" />
+                    <input onChange={(e) => setImage1(e.target.files[0])} type="file" id='image1' hidden />
+                  </label>
+                  <label htmlFor="image2">
+                    <img className='w-20 h-20 object-cover' src={image2 ? URL.createObjectURL(image2) : product.image[1]} alt="Image 2" />
+                    <input onChange={(e) => setImage2(e.target.files[0])} type="file" id='image2' hidden />
+                  </label>
+                  <label htmlFor="image3">
+                    <img className='w-20 h-20 object-cover' src={image3 ? URL.createObjectURL(image3) : product.image[2]} alt="Image 3" />
+                    <input onChange={(e) => setImage3(e.target.files[0])} type="file" id='image3' hidden />
+                  </label>
+                  <label htmlFor="image4">
+                    <img className='w-20 h-20 object-cover' src={image4 ? URL.createObjectURL(image4) : product.image[3]} alt="Image 4" />
+                    <input onChange={(e) => setImage4(e.target.files[0])} type="file" id='image4' hidden />
+                  </label>
+                </div>
+              </div>
+              <div className='w-full'>
+                <p className='my-2 font-medium'>Review Images</p>
+                <div className='flex gap-2'>
+                  <label htmlFor="reviewImage1">
+                    <img className='w-20 h-20 object-cover' src={reviewImage1 ? URL.createObjectURL(reviewImage1) : product.reviewImage[0]} alt="Review Image 1" />
+                    <input onChange={(e) => setReviewImage1(e.target.files[0])} type="file" id='reviewImage1' hidden />
+                  </label>
+                  <label htmlFor="reviewImage2">
+                    <img className='w-20 h-20 object-cover' src={reviewImage2 ? URL.createObjectURL(reviewImage2) : product.reviewImage[1]} alt="Review Image 2" />
+                    <input onChange={(e) => setReviewImage2(e.target.files[0])} type="file" id='reviewImage2' hidden />
+                  </label>
+                  <label htmlFor="reviewImage3">
+                    <img className='w-20 h-20 object-cover' src={reviewImage3 ? URL.createObjectURL(reviewImage3) : product.reviewImage[2]} alt="Review Image 3" />
+                    <input onChange={(e) => setReviewImage3(e.target.files[0])} type="file" id='reviewImage3' hidden />
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
-
           <div className='flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
             <div>
               <p className='my-2 font-medium'>Product category</p>
-              <select onChange={(e) => setCategory(e.target.value)} className='w-full px-3 py-2 mb-3'>
+              <select onChange={(e) => setCategory(e.target.value)} value={category} className='w-full px-3 py-2 mb-3'>
                 <option value="Men">Men</option>
                 <option value="Women">Women</option>
               </select>
@@ -86,7 +133,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
 
             <div>
               <p className='my-2 font-medium'>Sub category</p>
-              <select onChange={(e) => setSubCategory(e.target.value)} className='w-full px-3 py-2 mb-3'>
+              <select onChange={(e) => setSubCategory(e.target.value)} value={subCategory} className='w-full px-3 py-2 mb-3'>
                 <option value="Customtshirt">Custom T-shirt</option>
                 <option value="Oversizedtshirt">Over Sized T-shirt</option>
                 <option value="Quotesdesigns">Quotes Designs</option>
@@ -131,8 +178,8 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
             </div>
           </div>
 
-          <button type='submit' className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 absolute bottom-4 right-4'>
-            Update Product
+          <button type='submit' className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 absolute bottom-4 right-4' disabled={isLoading}>
+            {isLoading ? 'Updating...' : 'Update Product'}
           </button>
         </form>
         <button onClick={close} className=' hover:bg-red-700 hover:text-white text-black font-bold text-2xl py-2 px-2 rounded absolute top-4 right-4'>

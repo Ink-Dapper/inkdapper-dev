@@ -7,7 +7,8 @@ import {
   editProduct,
   addBanner,
   listBanner,
-  deleteBanner
+  deleteBanner,
+  updateBanner,
 } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminAuth.js";
@@ -26,18 +27,13 @@ productRouter.post("/add",adminAuth,
   ]),addProduct
 );
 productRouter.post("/add-banner",adminAuth,
-  upload.fields([
-    { name: "imageBanner1", maxCount: 1 },
-    { name: "imageBanner2", maxCount: 1 },
-    { name: "imageBanner3", maxCount: 1 },
-    { name: "imageBanner4", maxCount: 1 },
-  ]),addBanner
-);
+  upload.single('imageBanner'), addBanner);
 productRouter.post("/remove", adminAuth, removeProduct);
 productRouter.post("/single", singleProduct);
 productRouter.get("/list", listProducts);
 productRouter.get("/banner-list", listBanner);
 productRouter.delete("/delete-banner/:id", adminAuth, deleteBanner);
+productRouter.put('/update-banner/:id', upload.single('imageBanner'), updateBanner);
 productRouter.put("/edit/:id",adminAuth,
   upload.fields([
     { name: "image1", maxCount: 1 },

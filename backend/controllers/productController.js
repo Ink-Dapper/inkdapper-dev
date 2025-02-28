@@ -81,26 +81,18 @@ const addProduct = async (req, res) => {
 // function for add banner
 const addBanner = async (req, res) => {
   try {
-    const imageBanner1 = req.files.imageBanner1 && req.files.imageBanner1[0];
-    const imageBanner2 = req.files.imageBanner2 && req.files.imageBanner2[0];
-    const imageBanner3 = req.files.imageBanner3 && req.files.imageBanner3[0];
-    const imageBanner4 = req.files.imageBanner4 && req.files.imageBanner4[0];
+    const imageBanner = req.file;
 
-    const imagesBanner = [imageBanner1, imageBanner2, imageBanner3, imageBanner4].filter(
-      (item) => item !== undefined
-    );
+    if (!imageBanner) {
+      return res.status(400).json({ success: false, message: "No image provided" });
+    }
 
-    let imagesBannerUrl = await Promise.all(
-      imagesBanner.map(async (item) => {
-        let result = await cloudinary.uploader.upload(item.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      })
-    );
+    let result = await cloudinary.uploader.upload(imageBanner.path, {
+      resource_type: "image",
+    });
 
     const bannerData = {
-      imageBanner: imagesBannerUrl,
+      imageBanner: [result.secure_url],
     };
 
     console.log(bannerData);
@@ -114,7 +106,32 @@ const addBanner = async (req, res) => {
   }
 };
 
-//function for list products
+// function for update banner
+const updateBanner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const banner = await AddBannerModel.findById(id);
+
+    if (!banner) {
+      return res.status(404).json({ success: false, message: 'Banner not found' });
+    }
+
+    if (req.file) {
+      let result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "image",
+      });
+      banner.imageBanner = [result.secure_url];
+    }
+
+    await banner.save();
+    res.json({ success: true, message: 'Banner updated successfully', banner });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// function for list products
 const listProducts = async (req, res) => {
   try {
     const products = await productModel.find({});
@@ -125,7 +142,7 @@ const listProducts = async (req, res) => {
   }
 };
 
-//function for list Banner
+// function for list Banner
 const listBanner = async (req, res) => {
   try {
     const banners = await AddBannerModel.find({});
@@ -136,7 +153,7 @@ const listBanner = async (req, res) => {
   }
 };
 
-//function for  removing products
+// function for removing products
 const removeProduct = async (req, res) => {
   try {
     await productModel.findByIdAndDelete(req.body.id);
@@ -147,7 +164,7 @@ const removeProduct = async (req, res) => {
   }
 };
 
-//function for  single products
+// function for single products
 const singleProduct = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -220,4 +237,4 @@ const deleteBanner = async (req, res) => {
   }
 };
 
-export { addProduct, listProducts, removeProduct, singleProduct, editProduct, addBanner, listBanner, deleteBanner };
+export { addProduct, listProducts, removeProduct, singleProduct, editProduct, addBanner, listBanner, deleteBanner, updateBanner };
