@@ -53,7 +53,7 @@ const ProfileListItems = () => {
                         index === 3 ? 'w-56 h-64 md:w-64 md:h-64' :
                           index === 4 ? 'w-56 h-64 md:w-56 md:h-56' : 'md:w-48 md:h-48'
                     }`}>
-                  <img src={item.items[0].image[0]} alt="" className='w-auto h-64 md:w-[100%] md:h-[100%] rounded-md object-contain transition-shadow shadow-[5px_5px_rgba(0,0,0,_0.4)] bg-[#ECECEC] hover:shadow-[2px_2px_rgba(0,0,0,_0.4)]' />
+                  <img src={item.items[0].image[0]} alt="" className='w-auto h-64 md:w-[100%] md:h-[100%] rounded-md object-cover transition-shadow shadow-[5px_5px_rgba(0,0,0,_0.4)] bg-[#ECECEC] hover:shadow-[2px_2px_rgba(0,0,0,_0.4)]' />
                 </Link>
               ))
             }
@@ -74,7 +74,7 @@ const ProfileListItems = () => {
                         index === 3 ? 'w-56 h-64 md:w-80 md:h-80' :
                           index === 4 ? 'w-56 h-64 md:w-72 md:h-72' : 'md:w-56 md:h-56'
                     }`} onClick={scrollToTop()}>
-                  <img src={item.items[0].image[0]} alt="" className='w-auto h-64 md:w-[100%] md:h-[100%] rounded-md object-contain transition-shadow shadow-[5px_5px_rgba(0,0,0,_0.4)] bg-[#ECECEC] hover:shadow-[2px_2px_rgba(0,0,0,_0.4)]' />
+                  <img src={item.items[0].image[0]} alt="" className='w-auto h-64 md:w-[100%] md:h-[100%] rounded-md object-cover transition-shadow shadow-[5px_5px_rgba(0,0,0,_0.4)] bg-[#ECECEC] hover:shadow-[2px_2px_rgba(0,0,0,_0.4)]' />
                 </Link>
               )).reverse()
             }
