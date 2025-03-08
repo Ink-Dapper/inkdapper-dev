@@ -179,48 +179,53 @@ const singleProduct = async (req, res) => {
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, beforePrice, price, code, category, subCategory, sizes, bestseller } = req.body
+    const { name, description, beforePrice, price, code, category, subCategory, sizes, bestseller } = req.body;
 
+    // Find the existing product
+    const existingProduct = await productModel.findById(id);
+    if (!existingProduct) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Prepare the updated product data
     let productData = {
       name,
       description,
       category,
-      //beforePrice: Number(beforePrice),
+      beforePrice: Number(beforePrice),
       price: Number(price),
       code,
       subCategory,
       bestseller: bestseller === "true" ? true : false,
       sizes: JSON.parse(sizes),
-    }
+      image: existingProduct.image, // Start with existing images
+      reviewImage: existingProduct.reviewImage // Start with existing review images
+    };
 
     // Handle image updates
     const imageFields = ['image1', 'image2', 'image3', 'image4', 'reviewImage1', 'reviewImage2', 'reviewImage3'];
     for (let field of imageFields) {
       if (req.files[field]) {
-        let result = await cloudinary.uploader.upload(req.files[field][0].path, {resource_type: 'image'})
+        let result = await cloudinary.uploader.upload(req.files[field][0].path, { resource_type: 'image' });
         if (field.startsWith('reviewImage')) {
-          if (!productData.reviewImage) productData.reviewImage = [];
-          productData.reviewImage.push(result.secure_url);
+          const index = parseInt(field.replace('reviewImage', '')) - 1;
+          productData.reviewImage[index] = result.secure_url;
         } else {
-          if (!productData.image) productData.image = [];
-          productData.image.push(result.secure_url);
+          const index = parseInt(field.replace('image', '')) - 1;
+          productData.image[index] = result.secure_url;
         }
       }
     }
 
+    // Update the product in the database
     const updatedProduct = await productModel.findByIdAndUpdate(id, productData, { new: true });
 
-    if (!updatedProduct) {
-      return res.status(404).json({ success: false, message: "Product not found" });
-    }
-
     res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
-}
+};
 
 const deleteBanner = async (req, res) => {
   try {

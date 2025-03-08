@@ -8,6 +8,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
   const [name, setName] = useState(product.name)
   const [description, setDescription] = useState(product.description)
   const [price, setPrice] = useState(product.price)
+  const [beforePrice, setBeforePrice] = useState(product.beforePrice) // New state for beforePrice
   const [code, setCode] = useState(product.code)
   const [category, setCategory] = useState(product.category)
   const [subCategory, setSubCategory] = useState(product.subCategory)
@@ -30,6 +31,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
       formData.append('name', name)
       formData.append('description', description)
       formData.append('price', price)
+      formData.append('beforePrice', beforePrice) // Include beforePrice in form data
       formData.append('code', code)
       formData.append('category', category)
       formData.append('subCategory', subCategory)
@@ -149,6 +151,11 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
               <p className='my-2 font-medium'>Product Price</p>
               <input onChange={(e) => setPrice(e.target.value)} value={price} className='w-full py-2 px-3 sm:w-[120px] mb-3' type="number" placeholder='399' />
             </div>
+
+            <div>
+              <p className='my-2 font-medium'>Before Price</p> {/* New input for beforePrice */}
+              <input onChange={(e) => setBeforePrice(e.target.value)} value={beforePrice} className='w-full py-2 px-3 sm:w-[120px] mb-3' type="number" placeholder='499' />
+            </div>
           </div>
 
           <div className='flex gap-10'>
@@ -167,9 +174,9 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
                 <div onClick={() => setSizes(prev => prev.includes("XL") ? prev.filter(item => item !== "XL") : [...prev, "XL"])}>
                   <p className={`${sizes.includes("XL") ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>XL</p>
                 </div>
-                <div onClick={() => setSizes(prev => prev.includes("XXL") ? prev.filter(item => item !== "XXL") : [...prev, "XXL"])}>
+                {/* <div onClick={() => setSizes(prev => prev.includes("XXL") ? prev.filter(item => item !== "XXL") : [...prev, "XXL"])}>
                   <p className={`${sizes.includes("XXL") ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>XXL</p>
-                </div>
+                </div> */}
               </div>
             </div>
             <div className='flex flex-col-reverse justify-center items-start gap-2'>
