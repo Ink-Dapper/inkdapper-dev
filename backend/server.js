@@ -19,13 +19,11 @@ const port = process.env.PORT || 4000
 connectDB()
 connectCloudinary()
 
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-
 // middlewares
 app.use(express.json())
 app.use(cors())
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 //api endpoints
 app.use('/api/user', userRouter)
