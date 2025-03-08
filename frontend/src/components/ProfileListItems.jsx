@@ -68,11 +68,11 @@ const ProfileListItems = () => {
             {
               orderDataOne.map((item, index) => (
                 <Link key={index} to={`/product/${item.items[0]._id}`}
-                  className={`${index === 2 ? 'w-56 h-64 md:w-96 md:h-96' :
-                    index === 1 ? 'w-56 h-64 md:w-80 md:h-80' :
-                      index === 0 ? 'w-56 h-64 md:w-72 md:h-72' :
-                        index === 3 ? 'w-56 h-64 md:w-80 md:h-80' :
-                          index === 4 ? 'w-56 h-64 md:w-72 md:h-72' : 'md:w-56 md:h-56'
+                  className={`${index === 2 ? 'w-52 h-64 md:w-96 md:h-96' :
+                    index === 1 ? 'w-52 h-64 md:w-80 md:h-80' :
+                      index === 0 ? 'w-52 h-64 md:w-72 md:h-72' :
+                        index === 3 ? 'w-52 h-64 md:w-80 md:h-80' :
+                          index === 4 ? 'w-52 h-64 md:w-72 md:h-72' : 'md:w-52 md:h-56'
                     }`} onClick={scrollToTop()}>
                   <img src={item.items[0].image[0]} alt="" className='w-auto h-64 md:w-[100%] md:h-[100%] rounded-md object-cover transition-shadow shadow-[5px_5px_rgba(0,0,0,_0.4)] bg-[#ECECEC] hover:shadow-[2px_2px_rgba(0,0,0,_0.4)]' />
                 </Link>
