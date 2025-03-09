@@ -19,14 +19,6 @@ const port = process.env.PORT || 4000
 connectDB()
 connectCloudinary()
 
-// Free the port if already in use
-try {
-  execSync(`fuser -k ${port}/tcp`);
-  console.log(`Port ${port} freed up.`);
-} catch (err) {
-  console.log(`Port ${port} was not in use.`);
-}
-
 // middlewares
 app.use(express.json())
 app.use(cors())
