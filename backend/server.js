@@ -21,10 +21,10 @@ connectCloudinary()
 
 // Free the port if already in use
 try {
-  execSync(`fuser -k ${PORT}/tcp`);
-  console.log(`Port ${PORT} freed up.`);
+  execSync(`fuser -k ${port}/tcp`);
+  console.log(`Port ${port} freed up.`);
 } catch (err) {
-  console.log(`Port ${PORT} was not in use.`);
+  console.log(`Port ${port} was not in use.`);
 }
 
 // middlewares
