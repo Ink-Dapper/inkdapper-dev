@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, memo } from 'react';
+import React, { useContext, useEffect, useRef, memo } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import Title from '../components/Title';
 import ProfileListItems from '../components/ProfileListItems';
@@ -6,10 +6,18 @@ import CreditPoints from '../components/CreditPoints';
 
 const Profile = () => {
   const { usersDetails, orderCount, fetchOrderDetails, getCreditScore } = useContext(ShopContext);
+  const effectRan = useRef(false);
 
   useEffect(() => {
-    getCreditScore();
-    fetchOrderDetails();
+    if (effectRan.current === false) {
+      getCreditScore();
+      fetchOrderDetails();
+      effectRan.current = true;
+    }
+
+    return () => {
+      effectRan.current = false;
+    };
   }, []);
 
   return (
