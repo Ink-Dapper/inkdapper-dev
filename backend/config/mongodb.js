@@ -1,17 +1,53 @@
-import mongoose from 'mongoose';
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
+import connectDB from './config/mongodb.js';
+import connectCloudinary from './config/cloudinary.js';
+import userRouter from './routes/userRoute.js';
+import productRouter from './routes/productRoute.js';
+import cartRouter from './routes/cartRoute.js';
+import orderRouter from './routes/orderRoute.js';
+import wishlistRouter from './routes/wishlistRoute.js';
+import reviewRouter from './routes/reviewRoute.js';
+import bodyParser from 'body-parser';
+import newsLetterRoute from './routes/newsLetterRoute.js';
+import emailRouter from './routes/emailRoute.js';
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
-    });
-    console.log('MongoDB connected');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-  }
+// App config
+const app = express();
+const port = process.env.PORT || 4000;
+connectDB();
+connectCloudinary();
+
+// CORS configuration
+const corsOptions = {
+  origin: 'https://inkdapper.com', // Allow requests from this origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  allowedHeaders: 'Content-Type,Authorization,token'
 };
 
-export default connectDB;
+// middlewares
+app.use(express.json());
+app.use(cors(corsOptions));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+//api endpoints
+app.use('/api/user', userRouter);
+app.use('/api/product', productRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/order', orderRouter);
+app.use('/api/wishlist', wishlistRouter);
+app.use('/api/review', reviewRouter);
+app.use('/api/newsletter', newsLetterRoute);
+app.use('/api/email', emailRouter);
+
+app.get('/', (req, res) => {
+  res.send('Api Working');
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
