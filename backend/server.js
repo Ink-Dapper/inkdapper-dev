@@ -24,14 +24,6 @@ app.use(express.json())
 app.use(cors())
 app.use(bodyParser.json());
 
-// Serve .jsx files with the correct MIME type
-app.use((req, res, next) => {
-  if (req.url.endsWith('.jsx')) {
-    res.type('text/javascript');
-  }
-  next();
-});
-
 //api endpoints
 app.use('/api/user', userRouter)
 app.use('/api/product', productRouter)
