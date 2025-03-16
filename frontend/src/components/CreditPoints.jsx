@@ -8,7 +8,6 @@ const CreditPoints = () => {
   useEffect(() => {
     if (token) {
       getCreditScore();
-      console.log(creditPoints);
     }
   }, [token, creditPoints]);
 

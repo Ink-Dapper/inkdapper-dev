@@ -152,7 +152,7 @@ const Navbar = () => {
         <div className="flex grid-cols-4 justify-around p-3 bg-gray-950 rounded-t-md">
           <p>
             <Link to="/">
-              <img src={assets.logo_white_only} className="w-7" />
+              <img src={assets.logo_white_only} className="w-7" alt="logo"/>
             </Link>
           </p>
           <p className="relative">
