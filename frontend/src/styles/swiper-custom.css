@@ -1,0 +1,31 @@
+/* Swiper navigation arrows */
+.swiper-button-next,
+.swiper-button-prev {
+  width: 20px;
+  /* Smaller size */
+  height: 10px;
+  /* Smaller size */
+  color: #333;
+  /* Neutral color for a clean theme */
+  opacity: 0.8;
+  /* Slight transparency for a subtle look */
+}
+
+/* Swiper pagination dots */
+.swiper-pagination-bullet {
+  width: 8px;
+  /* Smaller size */
+  height: 8px;
+  /* Smaller size */
+  background-color: #333;
+  /* Neutral color for a clean theme */
+  opacity: 0.7;
+  /* Slight transparency */
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #ff5722;
+  /* Highlight active dot with a clean accent color */
+  opacity: 1;
+  /* Fully opaque for active dot */
+}

@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { ShopContext } from '../context/ShopContext'
-import { Link } from 'react-router-dom'
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { assets } from '../assets/assets';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ShopContext } from '../context/ShopContext';
 
 const ProductItem = ({ id, image, name, price, beforePrice, subCategory }) => {
 

@@ -1,13 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { ShopContext } from '../context/ShopContext'
-import RelatedProducts from '../components/RelatedProducts'
-import { toast } from "react-toastify";
-import { Flip } from 'react-toastify';
-import ProductReviewSection from '../components/ProductReviewSection'
-import ListReviews from '../components/ListReviews'
+import React, { useContext, useEffect, useState } from 'react';
 import { FaStar } from 'react-icons/fa';
-import { assets } from '../assets/assets'
+import { Link, useParams } from 'react-router-dom';
+import { Flip, toast } from "react-toastify";
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { Navigation, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { assets } from '../assets/assets';
+import ListReviews from '../components/ListReviews';
+import ProductReviewSection from '../components/ProductReviewSection';
+import RelatedProducts from '../components/RelatedProducts';
+import { ShopContext } from '../context/ShopContext';
+import '../styles/swiper-custom.css';
 
 const Product = () => {
 
@@ -153,15 +158,43 @@ const Product = () => {
         {/* product image */}
         <div className='flex-1 flex flex-col-reverse gap-3 sm:flex-row w-[100%] sm:w-[605px]'>
           <div className='w-full md:w-[20%] h-[100%] flex flex-col gap-2'>
-            <div className='flex gap-0 md:gap-0 ml-0 sm:flex-col md:overflow-x-auto sm:overflow-y-scroll justify-between w-[100%] h-[100%]'>
-              {
-                productData.image.map((item, index) => (
-                  <img onClick={() => setImage(item)} src={item} key={index} alt="product-image" className='w-[22%] h-[24%] md:w-[100%] md:h-[24%] flex-shrink-0 cursor-pointer shadow-lg' />
-                ))
-              }
+            {/* Swiper for mobile view */}
+            <div className='block sm:hidden'> {/* Visible only on mobile */}
+              <Swiper
+                modules={[Navigation, Pagination]}
+                spaceBetween={10}
+                slidesPerView={3}
+                navigation
+                pagination={{ clickable: true }}
+                className='w-full h-full'
+              >
+                {productData.image.map((item, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      onClick={() => setImage(item)}
+                      src={item}
+                      alt="product-image"
+                      className='w-full h-auto cursor-pointer shadow-lg'
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+
+            {/* Original layout for larger screens */}
+            <div className='hidden sm:flex gap-0 md:gap-0 ml-0 sm:flex-col md:overflow-x-auto sm:overflow-y-scroll justify-between w-[100%] h-[100%]'>
+              {productData.image.map((item, index) => (
+                <img
+                  onClick={() => setImage(item)}
+                  src={item}
+                  key={index}
+                  alt="product-image"
+                  className='w-[22%] h-[24%] md:w-[100%] md:h-[24%] flex-shrink-0 cursor-pointer shadow-lg'
+                />
+              ))}
             </div>
           </div>
-          <div className='w-[100%] md:w-[80%] h-[100%] md:h-[600px] flex justify-center'>
+          <div className='w-[100%] md:w-[80%] h-[100%] md:h-[100%] flex justify-center'>
             <img src={image} className='h-[100%] shadow-lg' alt="product-image" />
           </div>
         </div>
