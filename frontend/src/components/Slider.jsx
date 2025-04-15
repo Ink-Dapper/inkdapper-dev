@@ -46,20 +46,21 @@ const Slider = () => {
   }, [sliderImagesList]); // Restart interval when images are updated
 
   return (
-    <div>
-      <div className="relative overflow-hidden">
-        <div
-          className="flex transition-transform duration-1000"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-          {sliderImagesList.map((slide, index) => (
-            <img
-              key={index}
-              src={slide.imageBanner ? slide.imageBanner[0] : slide.image}
-              alt={`Slide ${index + 1}`}
-              className="w-full object-cover"
-            />
-          ))}
-        </div>
+    <div className="relative overflow-hidden">
+      <div className="flex transition-transform duration-1000"
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+        {sliderImagesList.map((slide, index) => (
+          <img
+            key={index}
+            src={slide.imageBanner ? slide.imageBanner[0] : slide.image}
+            alt={`Slide ${index + 1}`}
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchpriority={index === 0 ? "high" : "auto"}
+            className="w-full object-cover"
+            width="1200"
+            height="600"
+          />
+        ))}
       </div>
     </div>
   );
