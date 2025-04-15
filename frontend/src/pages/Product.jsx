@@ -175,7 +175,7 @@ const Product = () => {
                 {productData.image.map((item, index) => (
                   <SwiperSlide key={index}>
                     <img
-                      src={item}
+                      src={image} // Use the selected image state
                       alt="product-image"
                       className='w-full h-full object-contain shadow-lg'
                     />
@@ -197,7 +197,7 @@ const Product = () => {
                 {productData.image.map((item, index) => (
                   <SwiperSlide key={index}>
                     <img
-                      onClick={() => setImage(item)}
+                      onClick={() => setImage(item)} // Update the main image on click
                       src={item}
                       alt="product-thumbnail"
                       className='w-full h-auto cursor-pointer shadow-lg'
@@ -344,16 +344,36 @@ const Product = () => {
         </div>
       )}
 
-      {/* Modal Component */}
+      {/* Popup Modal with Swiper for Mobile */}
       {isModalOpenOne && (
         <div className='fixed inset-0 bg-black bg-opacity-50 z-20 flex items-center justify-center'>
-          <div className='bg-white p-4 rounded md:w-[500px] relative'>
-            <button onClick={closeModalOne} className='absolute top-2 right-4 px-2 bg-gray-500 text-white'>X</button>
-            <img src={productData.reviewImage[currentImageIndex]} alt='product-image' className='mt-6' />
-            <div className='flex justify-between mt-4'>
-              <button onClick={showPrevImage} className='px-4 py-2 bg-gray-500 text-white'>Prev</button>
-              <button onClick={showNextImage} className='px-4 py-2 bg-gray-500 text-white'>Next</button>
-            </div>
+          <div className='bg-white p-4 pt-10 rounded w-[95%] sm:w-[500px] relative'>
+            <button
+              onClick={closeModalOne}
+              className='absolute top-2 right-4 px-2 py-[0.1rem] bg-gray-500 text-white rounded-full'
+            >
+              X
+            </button>
+            <Swiper
+              modules={[Pagination, Navigation]}
+              spaceBetween={10}
+              slidesPerView={1}
+              navigation
+              pagination={{ clickable: true }}
+              className='w-full h-auto'
+              initialSlide={currentImageIndex} // Start with the selected image
+              onSlideChange={(swiper) => setCurrentImageIndex(swiper.activeIndex)} // Update the current index
+            >
+              {productData.reviewImage.map((item, index) => (
+                <SwiperSlide key={index}>
+                  <img
+                    src={item}
+                    alt="product-image"
+                    className='w-full h-auto object-contain'
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       )}
