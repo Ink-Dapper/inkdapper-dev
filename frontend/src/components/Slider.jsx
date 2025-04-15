@@ -43,7 +43,7 @@ const Slider = () => {
       setCurrentIndex((prevIndex) =>
         prevIndex === sliderImagesList.length - 1 ? 0 : prevIndex + 1
       );
-    }, 6000);
+    }, 3000);
 
     return () => clearInterval(interval); // Properly clear the interval
   };
