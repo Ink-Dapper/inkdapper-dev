@@ -134,12 +134,12 @@ const Collection = () => {
               <input type="checkbox" value={'Quotesdesigns'} className='w-3' onChange={toggleSubCategory} /> Quotes Designs
             </p>
             <p className='flex gap-2'>
-              <input type="checkbox" value={'Plaintshirt'} className='w-3' onChange={toggleSubCategory} /> Plain T-shirt
+              <input type="checkbox" value={'Plaintshirt'} className='w-3' onChange={toggleSubCategory} /> Solid T-shirt
             </p>
             <p className='flex gap-2'>
               <input type="checkbox" value={'Acidwash'} className='w-3' onChange={toggleSubCategory} /> Acid Wash
             </p>
-            <p className='flex gap-2'>
+            {/* <p className='flex gap-2'>
               <input type="checkbox" value={'Polotshirt'} className='w-3' onChange={toggleSubCategory} /> Polo T-shirt
             </p>
             <p className='flex gap-2'>
@@ -147,7 +147,7 @@ const Collection = () => {
             </p>
             <p className='flex gap-2'>
               <input type="checkbox" value={'Sweattshirts'} className='w-3' onChange={toggleSubCategory} /> Sweat T-shirt
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

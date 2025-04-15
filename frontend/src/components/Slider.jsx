@@ -1,26 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { assets } from '../assets/assets';
 import axios from 'axios';
-import { ShopContext } from '../context/ShopContext';
+import React, { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { ShopContext } from '../context/ShopContext';
 
 const Slider = () => {
   const { backendUrl } = useContext(ShopContext);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sliderImagesList, setSliderImagesList] = useState([]);
-
-  // const fallbackSlides = [
-  //   { slideNo: 1, image: assets.banner_one },
-  //   { slideNo: 2, image: assets.banner_two },
-  //   { slideNo: 3, image: assets.banner_three },
-  //   { slideNo: 4, image: assets.banner_four },
-  //   { slideNo: 5, image: assets.banner_five },
-  //   { slideNo: 6, image: assets.banner_six },
-  //   { slideNo: 7, image: assets.banner_seven },
-  //   { slideNo: 8, image: assets.banner_eight },
-  //   { slideNo: 9, image: assets.banner_nine },
-  //   { slideNo: 10, image: assets.banner_ten },
-  // ];
 
   const sliderImages = async () => {
     try {

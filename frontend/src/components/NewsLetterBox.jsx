@@ -8,7 +8,7 @@ const NewsLetterBox = () => {
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const { backendUrl } = useContext(ShopContext)
+    const { backendUrl } = useContext(ShopContext);
 
     const isValidEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -30,15 +30,32 @@ const NewsLetterBox = () => {
 
     const verifyOtp = async () => {
         try {
-            const response = await axios.post('/api/newsletter/verify-otp', { email, otp });
+            const response = await axios.post(backendUrl + '/api/newsletter/verify-otp', { email, otp });
             if (response.data.success) {
                 setSuccess('Email verified successfully!');
                 setError('');
+                sendSubscriptionEmail(); // Send subscription email to admin
             } else {
                 setError('Invalid OTP. Please try again.');
             }
         } catch (err) {
             setError('Failed to verify OTP. Please try again.');
+        }
+    };
+
+    const sendSubscriptionEmail = async () => {
+        try {
+            const response = await axios.post(backendUrl + '/api/newsletter/subscribe', {
+                email,
+                adminEmail: 'admin@inkdapper.in',
+            });
+            if (response.data.success) {
+                setSuccess('Subscription successful! Admin notified.');
+            } else {
+                setError('Failed to subscribe. Please try again.');
+            }
+        } catch (err) {
+            setError('Failed to notify admin. Please try again.');
         }
     };
 
@@ -55,7 +72,7 @@ const NewsLetterBox = () => {
         <div className='text-center'>
             <p className='text-xl md:text-2xl font-medium text-gray-800'>Subscribe now & get 20% off</p>
             <p className='text-gray-400 text-xs md:text-base mt-3'>
-            Join the Ink Dapper community and unlock exclusive deals, style updates, and 20% off your first order!
+                Join the Ink Dapper community and unlock exclusive deals, style updates, and 20% off your first order!
             </p>
             {!isOtpSent ? (
                 <form onSubmit={onSubmitHandler} className='flex items-center w-full sm:w-1/2 gap-3 mx-auto border my-6 pl-3'>

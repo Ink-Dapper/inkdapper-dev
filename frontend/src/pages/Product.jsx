@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FaStar } from 'react-icons/fa';
+import { FaStar, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 import { Flip, toast } from "react-toastify";
 import 'swiper/css';
@@ -30,6 +30,7 @@ const Product = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
   const [isModalOpenOne, setIsModalOpenOne] = useState(false); // State for modal visibility
   const [currentImageIndex, setCurrentImageIndex] = useState(0); // State for current image index
+  const [isExpanded, setIsExpanded] = useState(false); // State to toggle description
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -90,9 +91,9 @@ const Product = () => {
       'Quotesdesigns': 'Quotes Designs',
       'Plaintshirt': 'Plain T-shirt',
       'Acidwash': 'Acid Wash',
-      'Polotshirt': 'Polo T-shirt',
-      'Hoddies': 'Hoodies', // Fixed spelling
-      'Sweattshirts': 'Sweat T-shirt' // Fixed spelling
+      // 'Polotshirt': 'Polo T-shirt',
+      // 'Hoddies': 'Hoodies', // Fixed spelling
+      // 'Sweattshirts': 'Sweat T-shirt' // Fixed spelling
     };
 
     // Use the mapping object to set the change text
@@ -150,6 +151,10 @@ const Product = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + productData.reviewImage.length) % productData.reviewImage.length);
   }
 
+  const toggleDescription = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return productData ? (
     <div className='border-t-2 pt-6 md:pt-10 transition-opacity ease-in duration-500 opacity-100'>
       {/* product data */}
@@ -157,9 +162,30 @@ const Product = () => {
 
         {/* product image */}
         <div className='flex-1 flex flex-col-reverse gap-3 sm:flex-row w-[100%] sm:w-[605px]'>
-          <div className='w-full md:w-[20%] h-[100%] flex flex-col gap-2'>
-            {/* Swiper for mobile view */}
-            <div className='block sm:hidden'> {/* Visible only on mobile */}
+          <div className='w-full md:w-[20%] h-[100%] flex flex-col'>
+            {/* Swiper for the big image */}
+            <div className='w-full h-full block sm:hidden'>
+              <Swiper
+                modules={[Pagination]}
+                spaceBetween={10}
+                slidesPerView={1}
+                pagination={{ clickable: true }}
+                className='w-full h-full'
+              >
+                {productData.image.map((item, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      src={item}
+                      alt="product-image"
+                      className='w-full h-full object-contain shadow-lg'
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+
+            {/* Swiper for the small images (thumbnails) */}
+            <div className='block sm:hidden mt-4'>
               <Swiper
                 modules={[Navigation, Pagination]}
                 spaceBetween={10}
@@ -173,7 +199,7 @@ const Product = () => {
                     <img
                       onClick={() => setImage(item)}
                       src={item}
-                      alt="product-image"
+                      alt="product-thumbnail"
                       className='w-full h-auto cursor-pointer shadow-lg'
                     />
                   </SwiperSlide>
@@ -188,13 +214,13 @@ const Product = () => {
                   onClick={() => setImage(item)}
                   src={item}
                   key={index}
-                  alt="product-image"
+                  alt="product-thumbnail"
                   className='w-[22%] h-[24%] md:w-[100%] md:h-[24%] flex-shrink-0 cursor-pointer shadow-lg'
                 />
               ))}
             </div>
           </div>
-          <div className='w-[100%] md:w-[80%] h-[100%] md:h-[100%] flex justify-center'>
+          <div className='w-[100%] md:w-[80%] h-[100%] md:h-[100%] flex justify-center hidden sm:block'>
             <img src={image} className='h-[100%] shadow-lg' alt="product-image" />
           </div>
         </div>
@@ -223,8 +249,29 @@ const Product = () => {
             }
             <p className='mt-2 md:mt-3 lg:mt-5 text-xl md:text-2xl lg:text-3xl font-medium'>{currency} {productData.price}</p>
           </div>
-          <p className='mt-2 md:mt-3 lg:mt-5 text-sm md:text-base text-gray-500 w-4/5 '>{productData.description}</p>
-          <div className='flex flex-col gap-4 my-1 md:mt-4 lg:mt-8 md:mb-2'>
+          <p
+            className={`mt-2 lg:mt-3 text-sm text-gray-500 w-4/5 ${isExpanded ? '' : 'line-clamp-2'
+              }`}
+          >
+            {productData.description}
+          </p>
+          {productData.description.length > 60 && ( // Show arrow buttons only if description is long
+            <button
+              onClick={toggleDescription}
+              className="text-gray-400 mt-0 text-sm flex items-center gap-1"
+            >
+              {isExpanded ? (
+                <span className="text-orange-600 mt-0 text-sm flex items-center gap-1">
+                  Read less...
+                </span>
+              ) : (
+                <span className="text-orange-600 mt-0 text-sm flex items-center gap-1">
+                  Read more...
+                </span>
+              )}
+            </button>
+          )}
+          <div className='flex flex-col gap-4 my-1 md:mt-2 lg:mt-2 md:mb-1'>
             <p>Select size</p>
             <div className='flex gap-2'>
               {
@@ -255,7 +302,7 @@ const Product = () => {
           </div>
           <hr className='mt-8 sm:w-4/5' />
           <div className='text-sm text-gray-500 mt-5 flex flex-col gap-1'>
-            <p>100% Original product.</p>
+            <p className='text-green-600 font-semibold'>100% Original product.</p>
             <p>Cash on delivery is available on this product.</p>
             <p>Easy return and exchange policy within 7 days</p>
           </div>
@@ -267,9 +314,9 @@ const Product = () => {
       <div className='gap-4 flex'>
         {
           productData.reviewImage.map((item, index) => (
-            <div className='mt-5' key={index}>
+            <div className='mt-1 md:mt-5' key={index}>
               <div className='flex flex-col gap-4'>
-                <img src={item} alt="product-image" className='w-40 h-28 md:w-40 md:h-48 object-contain cursor-pointer' onClick={() => openModalOne(index)} />
+                <img src={item} alt="product-image" className='w-32 h-40 md:w-40 md:h-48 object-contain cursor-pointer' onClick={() => openModalOne(index)} />
               </div>
             </div>
           ))
