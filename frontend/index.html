@@ -1,17 +1,189 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/ink_dapper_logo_white.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ink Dapper - Your one-stop shop for custom t-shirt branding and printing. Explore our wide range of designs and create your unique style." />
+    <meta charset="UTF-8">
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/ink_dapper_logo_white.svg"
+    >
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
+    <meta
+      name="description"
+      content="Ink Dapper - Your one-stop shop for custom t-shirt branding and printing. Explore our wide range of designs and create your unique style."
+    >
     <title>Ink Dapper</title>
-    <!-- Preload LCP image -->
-    <link rel="preload" href="/path/to/your/lcp-image.jpg" as="image">
+    <!-- Preload slider images -->
+    <link
+      rel="preload"
+      href="/src/assets/slider/banner1.webp"
+      as="image"
+      fetchpriority="high"
+    >
+    <link
+      rel="preload"
+      href="/src/assets/slider/banner2.webp"
+      as="image"
+    >
+    <!-- Preload logo to avoid flash -->
+    <link
+      rel="preload"
+      href="/src/assets/inkdapper_logo.svg"
+      as="image"
+    >
+    <style>
+      
+      .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+      }
+      
+      .loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+      }
+      
+      .logo-container {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .loader-spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #414141;
+        border-radius: 50%;
+        width: 140px;
+        height: 140px;
+        animation: spin 1.5s linear infinite;
+        position: absolute;
+      }
+      
+      .logo-container img {
+        width: 90px;
+        height: auto;
+        animation: pulse 2s infinite;
+      }
+      
+      .brand-name {
+        font-family: 'Prata', serif;
+        font-size: 32px;
+        color: #414141;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .brand-name::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #414141;
+        transform: translateX(-100%);
+        animation: line-reveal 2s infinite;
+      }
+      
+      .loading-text {
+        font-size: 14px;
+        color: #666;
+        margin-top: 10px;
+        letter-spacing: 2px;
+        animation: blink 1.5s infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.8; }
+      }
+      
+      @keyframes line-reveal {
+        0% { transform: translateX(-100%); }
+        50% { transform: translateX(0); }
+        100% { transform: translateX(100%); }
+      }
+      
+      @keyframes blink {
+        0% { opacity: 0.3; }
+        50% { opacity: 1; }
+        100% { opacity: 0.3; }
+      }
+      
+      .hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+    </style>
   </head>
   <body>
+    <!-- Page Loader -->
+    <div
+      class="loader-container"
+      id="pageLoader"
+    >
+      <div class="loader">
+        <div class="logo-container">
+          <div class="loader-spinner"></div>
+          <img
+            src="./src/assets/logo_only.png"
+            alt="Ink Dapper Logo"
+          >
+        </div>
+        <div class="brand-name">
+          <p className="text-xl md:text-3xl font-medium">
+            <span className="font-light">Ink</span>
+            Dapper
+          </p>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script
+      type="module"
+      src="/src/main.jsx"
+    ></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Loader Script -->
+    <script>
+      window.addEventListener('load', function() {
+        // Wait for all content including images to load
+        setTimeout(() => {
+          const loader = document.getElementById('pageLoader');
+          if (loader) {
+            loader.classList.add('hidden');
+            // Remove from DOM after transition completes
+            setTimeout(() => {
+              loader.style.display = 'none';
+            }, 500);
+          }
+        }, 800); // Increased timeout to ensure animations are visible
+      });
+    </script>
   </body>
 </html>
