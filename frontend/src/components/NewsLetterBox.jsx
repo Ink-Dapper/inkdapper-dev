@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { ShopContext } from '../context/ShopContext';
+import { toast } from 'react-toastify';
 
 const NewsLetterBox = () => {
     const [email, setEmail] = useState('');
@@ -17,29 +18,42 @@ const NewsLetterBox = () => {
 
     const sendOtp = async () => {
         try {
+            setError('');
             const response = await axios.post(backendUrl + '/api/newsletter/send-otp', { email });
             if (response.data.success) {
                 setIsOtpSent(true);
                 setSuccess('OTP sent to your email!');
-                setError('');
+                toast.success('OTP sent to your email!');
+                // Don't clear email here as we need it for verification
+            } else {
+                setError('Failed to send OTP. Please try again.');
+                toast.error('Failed to send OTP. Please try again.');
             }
         } catch (err) {
+            console.error('OTP send error:', err);
             setError('Failed to send OTP. Please try again.');
+            toast.error('Failed to send OTP. Please try again.');
         }
     };
 
     const verifyOtp = async () => {
         try {
+            setError('');
             const response = await axios.post(backendUrl + '/api/newsletter/verify-otp', { email, otp });
             if (response.data.success) {
                 setSuccess('Email verified successfully!');
-                setError('');
-                sendSubscriptionEmail(); // Send subscription email to admin
+                toast.success('Email verified successfully!');
+                await sendSubscriptionEmail(); // Send subscription email to admin
+                // Clear OTP field on success
+                setOtp('');
             } else {
                 setError('Invalid OTP. Please try again.');
+                toast.error('Invalid OTP. Please try again.');
             }
         } catch (err) {
+            console.error('OTP verification error:', err);
             setError('Failed to verify OTP. Please try again.');
+            toast.error('Failed to verify OTP. Please try again.');
         }
     };
 
@@ -48,14 +62,22 @@ const NewsLetterBox = () => {
             const response = await axios.post(backendUrl + '/api/newsletter/subscribe', {
                 email,
                 adminEmail: 'admin@inkdapper.in',
+                sendAutoReply: true, // Flag to indicate auto-reply is needed
             });
             if (response.data.success) {
-                setSuccess('Subscription successful! Admin notified.');
+                setSuccess('Subscription successful! Check your email for confirmation.');
+                toast.success('Subscription successful! Check your email for confirmation.');
+                // Clear email field on success after subscription is complete
+                setEmail('');
+                setIsOtpSent(false);
             } else {
                 setError('Failed to subscribe. Please try again.');
+                toast.error('Failed to subscribe. Please try again.');
             }
         } catch (err) {
+            console.error('Subscription error:', err);
             setError('Failed to notify admin. Please try again.');
+            toast.error('Failed to notify admin. Please try again.');
         }
     };
 
@@ -65,6 +87,7 @@ const NewsLetterBox = () => {
             sendOtp();
         } else {
             setError('Please enter a valid email address.');
+            toast.error('Please enter a valid email address.');
         }
     };
 
