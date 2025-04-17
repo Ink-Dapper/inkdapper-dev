@@ -133,11 +133,11 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory }) => {
 
       <Link onClick={() => scrollToTop()} className={`text-gray-700 cursor-pointer`} to={`/product/${id}`}>
         <div className='transition-shadow shadow-lg shadow-gray-400 rounded-b-md'>
-          <div className="overflow-hidden h-52 sm:h-80 bg-gray-200 flex justify-center items-center rounded-t-md relative product-image">
+          <div className="overflow-hidden h-54 sm:h-80 bg-gray-200 flex justify-center items-center rounded-t-md relative product-image">
             <img src={image[0]} alt={name} className="transition-all ease-in-out h-[100%] object-cover relative z-10" style={{ width: '-webkit-fill-available' }} />
 
             {/* Share button */}
-            <div className="absolute right-4 top-10 z-20">
+            <div className="absolute right-3 top-10 z-20">
               <button
                 onClick={(e) => handleShare(e)}
                 className="hover:text-gray-100"
