@@ -31,6 +31,8 @@ const Product = () => {
   const [isModalOpenOne, setIsModalOpenOne] = useState(false); // State for modal visibility
   const [currentImageIndex, setCurrentImageIndex] = useState(0); // State for current image index
   const [isExpanded, setIsExpanded] = useState(false); // State to toggle description
+  const [mainSwiper, setMainSwiper] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -171,12 +173,17 @@ const Product = () => {
                 slidesPerView={1}
                 pagination={{ clickable: true }}
                 className='w-full h-full'
+                onSwiper={setMainSwiper}
+                onSlideChange={(swiper) => {
+                  setActiveIndex(swiper.activeIndex);
+                  setImage(productData.image[swiper.activeIndex]);
+                }}
               >
                 {productData.image.map((item, index) => (
                   <SwiperSlide key={index}>
                     <img
-                      src={image} // Use the selected image state
-                      alt="product-image"
+                      src={item} // Use the individual image from the array
+                      alt={`${productData.name} - view ${index + 1}`}
                       className='w-full h-full object-contain shadow-lg'
                     />
                   </SwiperSlide>
@@ -187,21 +194,26 @@ const Product = () => {
             {/* Swiper for the small images (thumbnails) */}
             <div className='block sm:hidden mt-4'>
               <Swiper
-                modules={[Navigation, Pagination]}
+                modules={[Navigation]}
                 spaceBetween={10}
                 slidesPerView={3}
                 navigation
-                pagination={{ clickable: true }}
                 className='w-full h-full'
               >
                 {productData.image.map((item, index) => (
                   <SwiperSlide key={index}>
-                    <img
-                      onClick={() => setImage(item)} // Update the main image on click
-                      src={item}
-                      alt="product-thumbnail"
-                      className='w-full h-auto cursor-pointer shadow-lg'
-                    />
+                    <div className={`p-1 ${activeIndex === index ? 'border-2 border-orange-500' : ''}`}>
+                      <img
+                        onClick={() => {
+                          setImage(item);
+                          setActiveIndex(index);
+                          if (mainSwiper) mainSwiper.slideTo(index);
+                        }}
+                        src={item}
+                        alt={`${productData.name} thumbnail ${index + 1}`}
+                        className='w-full h-auto cursor-pointer shadow-lg'
+                      />
+                    </div>
                   </SwiperSlide>
                 ))}
               </Swiper>

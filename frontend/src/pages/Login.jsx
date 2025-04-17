@@ -150,8 +150,8 @@ const Login = () => {
                 className='w-full px-3 py-2 border border-gray-800'
                 placeholder='Password'
                 required
-                //onFocus={() => setIsPasswordFocused(true)}
-                //onBlur={() => setIsPasswordFocused(false)}
+              //onFocus={() => setIsPasswordFocused(true)}
+              //onBlur={() => setIsPasswordFocused(false)}
               />
               <div className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5'>
                 <button type='button' onClick={() => setShowPassword(!showPassword)} className='focus:outline-none'>
@@ -159,17 +159,17 @@ const Login = () => {
                 </button>
               </div>
             </div>
-              <div className='w-full mt-2'>
-                <div className='h-2 bg-gray-300 rounded'>
-                  <div
-                    className={`h-full rounded ${passwordStrength === 'Strong' ? 'bg-green-500' : passwordStrength === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'}`}
-                    style={{ width: passwordStrength === 'Strong' ? '100%' : passwordStrength === 'Medium' ? '66%' : '33%' }}
-                  ></div>
-                </div>
-                <p className={`text-sm mt-1 ${passwordStrength === 'Strong' ? 'text-green-500' : passwordStrength === 'Medium' ? 'text-yellow-500' : 'text-red-500'}`}>
-                  {passwordStrength} Password
-                </p>
+            <div className='w-full mt-2'>
+              <div className='h-2 bg-gray-300 rounded'>
+                <div
+                  className={`h-full rounded ${passwordStrength === 'Strong' ? 'bg-green-500' : passwordStrength === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'}`}
+                  style={{ width: passwordStrength === 'Strong' ? '100%' : passwordStrength === 'Medium' ? '66%' : '33%' }}
+                ></div>
               </div>
+              <p className={`text-sm mt-1 ${passwordStrength === 'Strong' ? 'text-green-500' : passwordStrength === 'Medium' ? 'text-yellow-500' : 'text-red-500'}`}>
+                {passwordStrength} Password
+              </p>
+            </div>
             {passwordError && <p className='text-red-500 text-sm'>{passwordError}</p>}
             <button type='submit' className='bg-black text-white font-light px-8 py-2 mt-4' disabled={isLoading}>
               {isLoading ? 'Sending...' : 'Send Verification Email'}
@@ -204,7 +204,10 @@ const Login = () => {
           </>
         )}
         {currentState === 'Verify Email' && (
-          <input onChange={(e) => setVerificationToken(e.target.value)} value={verificationToken} type="text" className='w-full px-3 py-2 border border-gray-800' placeholder='Verification Token' required />
+          <>
+            <input onChange={(e) => setVerificationToken(e.target.value)} value={verificationToken} type="text" className='w-full px-3 py-2 border border-gray-800' placeholder='Verification Token' required />
+            {currentState === 'Verify Email' && <p className='text-gray-500 text-xs mt-[-10px] md:mt-[-5px] flex justify-start w-full'>Check your email for the verification token.</p>}
+          </>
         )}
         {currentState === 'Forgot Password' && (
           <>
@@ -252,8 +255,8 @@ const Login = () => {
             </button>
           </>
         )}
-        <div className='w-full flex justify-between text-sm mt-[-8px]'>
-          <p className='cursor-pointer' onClick={() => setCurrentState('Forgot Password')}>Forgot your password?</p>
+        <div className='w-full md:flex justify-between text-sm mt-[-8px]'>
+          <p className='cursor-pointer underline pb-1' onClick={() => setCurrentState('Forgot Password')}>Forgot your password?</p>
           {currentState === 'Login' ? (
             <p onClick={() => setCurrentState('Sign Up')} className='cursor-pointer text-orange-600'>Create account</p>
           ) : (
