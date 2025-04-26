@@ -256,7 +256,7 @@ const Product = () => {
                 }}
               >
                 {productData.image.map((item, index) => (
-                  <SwiperSlide key={index}>
+                  <SwiperSlide key={index} className='relative'>
                     <img
                       src={item} // Use the individual image from the array
                       alt={`${productData.name} - view ${index + 1}`}
