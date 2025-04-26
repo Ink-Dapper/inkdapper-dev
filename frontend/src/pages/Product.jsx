@@ -262,6 +262,9 @@ const Product = () => {
                       alt={`${productData.name} - view ${index + 1}`}
                       className='w-full h-full object-contain shadow-lg'
                     />
+                    <div className='logo'>
+                      <img src={assets.logo_only} alt="logo" className="absolute bottom-3 right-3 w-6 h-[auto] z-10 opacity-70" />
+                    </div>
                   </SwiperSlide>
                 ))}
 
@@ -349,6 +352,10 @@ const Product = () => {
                         alt={`${productData.name} thumbnail ${index + 1}`}
                         className='w-full h-auto cursor-pointer shadow-lg'
                       />
+
+                      <div className='logo'>
+                        <img src={assets.logo_only} alt="logo" className="absolute bottom-3 right-3 w-3 h-[auto] z-10 opacity-70" />
+                      </div>
                     </div>
                   </SwiperSlide>
                 ))}
@@ -356,7 +363,7 @@ const Product = () => {
             </div>
 
             {/* Original layout for larger screens */}
-            <div className='hidden sm:flex gap-0 md:gap-0 ml-0 sm:flex-col md:overflow-x-auto sm:overflow-y-scroll justify-between w-[100%] h-[100%]'>
+            <div className='hidden sm:flex gap-0 md:gap-0 ml-0 sm:flex-col md:overflow-x-auto sm:overflow-y-scroll justify-between w-[100%] h-[100%] relative'>
               {productData.image.map((item, index) => (
                 <img
                   onClick={() => setImage(item)}
@@ -365,12 +372,16 @@ const Product = () => {
                   alt="product-thumbnail"
                   className='w-[22%] h-[24%] md:w-[100%] md:h-[24%] flex-shrink-0 cursor-pointer shadow-lg'
                 />
+                
               ))}
             </div>
           </div>
           <div className='w-[100%] md:w-[80%] h-[100%] flex justify-center hidden sm:block relative'>
             <img src={image} className='h-[100%] w-auto object-contain shadow-lg' alt="product-image" />
 
+            <div className='logo'>
+              <img src={assets.logo_only} alt="logo" className="absolute bottom-3 right-3 w-6 h-[auto] z-10 opacity-70" />
+            </div>
             {/* Share button */}
             <div className="absolute left-3 bottom-3 z-10">
               <button
