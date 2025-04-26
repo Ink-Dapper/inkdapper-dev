@@ -1,38 +1,39 @@
-import React, { Suspense, lazy } from 'react'
-import { Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import SearchBar from './components/SearchBar'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import React, { Suspense, lazy } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Footer from './components/Footer';
+import Navbar from './components/Navbar';
+import SearchBar from './components/SearchBar';
+import SkeletonLoader from './components/SkeletonLoader'; // Import SkeletonLoader
 
 // Lazy load pages
-const Collection = lazy(() => import('./pages/Collection'))
-const Product = lazy(() => import('./pages/Product'))
-const Cart = lazy(() => import('./pages/Cart'))
-const PlaceOrder = lazy(() => import('./pages/PlaceOrder'))
-const Orders = lazy(() => import('./pages/Orders'))
-const About = lazy(() => import('./pages/About'))
-const Contact = lazy(() => import('./pages/Contact'))
-const Home = lazy(() => import('./pages/Home'))
-const Login = lazy(() => import('./pages/Login'))
-const Profile = lazy(() => import('./pages/Profile'))
-const OrderDetails = lazy(() => import('./pages/OrderDetails'))
-const Wishlist = lazy(() => import('./pages/Wishlist'))
-const ReviewViewMore = lazy(() => import('./components/ListReviews'))
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
-const Custom = lazy(() => import('./pages/Custom'))
-const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'))
-const CancellationAndRefund = lazy(() => import('./pages/CancellationAndRefund'))
-const ShippingAndDelivery = lazy(() => import('./pages/ShippingAndDelivery'))
+const Collection = lazy(() => import('./pages/Collection'));
+const Product = lazy(() => import('./pages/Product'));
+const Cart = lazy(() => import('./pages/Cart'));
+const PlaceOrder = lazy(() => import('./pages/PlaceOrder'));
+const Orders = lazy(() => import('./pages/Orders'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Profile = lazy(() => import('./pages/Profile'));
+const OrderDetails = lazy(() => import('./pages/OrderDetails'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const ReviewViewMore = lazy(() => import('./components/ListReviews'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const Custom = lazy(() => import('./pages/Custom'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+const CancellationAndRefund = lazy(() => import('./pages/CancellationAndRefund'));
+const ShippingAndDelivery = lazy(() => import('./pages/ShippingAndDelivery'));
 
 const App = () => {
   return (
-    <div className='px-3 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]'>
+    <div className="px-3 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
       <ToastContainer />
       <Navbar />
       <SearchBar />
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<SkeletonLoader />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/collection" element={<Collection />} />
@@ -56,7 +57,7 @@ const App = () => {
       </Suspense>
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

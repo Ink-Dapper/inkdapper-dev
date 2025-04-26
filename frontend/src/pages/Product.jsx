@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import { FaStar, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { FaStar } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 import { Flip, toast } from "react-toastify";
 import 'swiper/css';
@@ -540,7 +540,11 @@ const Product = () => {
       </div>
 
       {/* ----------Display related products */}
-      <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
+      <RelatedProducts
+        category={productData.category}
+        subCategory={productData.subCategory}
+        currentProductId={productData._id}
+      />
 
       {/* Modal Component */}
       {isModalOpen && (
