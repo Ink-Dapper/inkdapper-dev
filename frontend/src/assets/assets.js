@@ -30,6 +30,7 @@ import shopping_icon from './shopping_icon.png'
 import wishlist_icon from './wishlist_icon.png'
 import shopping_icon_wish from './shopping_icon_wish.png'
 import logo_white_only from './logo_white_only.png'
+import logo_only from './logo_only.png'
 import upload_here from './upload_here.png'
 import pic_01 from './t-shirts-collection/black.png'
 import pic_02 from './t-shirts-collection/beige.png'
@@ -77,7 +78,8 @@ export const assets = {
     shopping_icon_wish,
     logo_white_only,
     upload_here,
-    product_size
+    product_size,
+    logo_only
 }
 
 export const teesCollection = [
