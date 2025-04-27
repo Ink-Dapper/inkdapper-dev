@@ -1,4 +1,3 @@
-import logo from './logo.png'
 import hero_img from './hero_img.png'
 import cart_icon from './cart_icon.png'
 import bin_icon from './bin_icon.png'
@@ -45,7 +44,6 @@ import pic_010 from './t-shirts-collection/white.png'
 import product_size from './product-sizes.jpg'
 
 export const assets = {
-    logo,
     inkdapper_logo,
     hero_img,
     cart_icon,
