@@ -16,7 +16,7 @@ const Contact = () => {
         <div className='flex flex-col justify-center items-start gap-6'>
           <p className='font-semibold text-xl text-gray-600'>Our Store</p>
           <p className='text-gray-500'>1D, Bazaar Street <br />Vettuvanam, Vellore - 635809</p>
-          <p className='text-gray-500'><a href="tel:+917010078030" className='border-b-2 border-gray-400'>Tel : +91 7010078030</a> <br /><a href="mailto:support@inkdapper.com" className='border-b-2 border-gray-400'>Email : support@inkdapper.com</a></p>
+          <p className='text-gray-500'><a href="tel:+919994005696" className='border-b-2 border-gray-400'>Tel : +91 99940 05696</a> <br /><a href="mailto:support@inkdapper.com" className='border-b-2 border-gray-400'>Email : support@inkdapper.com</a></p>
           <p className='font-semibold text-xl text-gray-600'>Careers at Ink Dapper</p>
           <p className='text-gray-500'>Learn more about our teams and job opening</p>
           <button className='border border-black px-5 md:px-8 py-2 md:py-4 text-base hover:bg-black hover:text-white transition-all duration-500'>Explores Jobs</button>
