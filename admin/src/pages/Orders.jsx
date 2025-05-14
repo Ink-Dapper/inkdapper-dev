@@ -11,6 +11,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
+import OrderSummaryPrint from './OrderSummaryPrint';
 
 const Orders = () => {
   const { orders, statusHandler } = useContext(ShopContext);
@@ -24,7 +25,7 @@ const Orders = () => {
     setOpen(true);
   }
 
-  function printSection(sectionId) {
+  function printSection(sectionId, onClose) {
     const section = document.getElementById(sectionId);
     const printWindow = window.open('', 'Order', 'height=500,width=800');
     printWindow.document.write('</head><body>');
@@ -32,6 +33,8 @@ const Orders = () => {
     printWindow.document.write('</body></html>');
     printWindow.document.close();
     printWindow.print();
+    printWindow.close();
+    if (typeof onClose === 'function') onClose();
   }
   const handleClose = () => {
     setOpen(false);
@@ -116,8 +119,8 @@ const Orders = () => {
                     (order.returnOrderStatus === "Order Returned" ? <p className='text-red-500'>Return Order Initiated</p> :
                       order.returnOrderStatus === "Return Confirmed" ? <p className='font-medium text-lg text-red-500'>Return Order Completed</p> :
                         order.returnOrderStatus === "Order Cancelled" ? <p className='font-medium text-lg text-red-500'>Order Cancelled</p> :
-                        order.returnOrderStatus === "Cancel Confirmed" ? <p className='font-medium text-lg text-red-500'>Cancel Completed</p> :
-                          <p className='font-medium text-lg text-red-500'>Return Order Initiated</p>)
+                          order.returnOrderStatus === "Cancel Confirmed" ? <p className='font-medium text-lg text-red-500'>Cancel Completed</p> :
+                            <p className='font-medium text-lg text-red-500'>Return Order Initiated</p>)
                   }
                   {order.returnOrderStatus === "Order Placed" ?
                     <div onClick={() => onPrintClick(order._id)} className='bg-gray-600 mt-4 text-white px-5 py-2 sm:px-7 text-center sm:py-2 rounded-sm text-xs sm:text-base cursor-pointer'>Print</div> : null}
@@ -136,38 +139,17 @@ const Orders = () => {
           <DialogContentText id="alert-dialog-description">
             {selectedOrder && (
               <div id="printable-section">
-                <div className='font-bold mb-4'><strong style={{ fontSize: "25px" }}>Order Summary :</strong></div>
-                <div><strong>Order ID:</strong> {selectedOrder._id}</div>
-                <div><strong>Order Date:</strong> {new Date(selectedOrder.date).toLocaleDateString()}</div>
-
-                <div className=''><strong>Items:</strong></div>
-                <ul>
-                  {selectedOrder.items.map((item, index) => (
-                    <li key={index} className='list-none'>
-                      {item.name} x {item.quantity} ({item.size})
-                    </li>
-                  ))}
-                </ul>
-
-                <div><strong>Total Amount:</strong> {currency} {selectedOrder.amount} (Inclusive of All Tax)</div>
-                <div><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</div>
-                <div><strong>Payment Status:</strong> {selectedOrder.payment ? 'Done' : 'Pending'}</div>
-
-                <div className=''><strong>Shipping Address :</strong></div>
-                <div>{selectedOrder.address.firstName} {selectedOrder.address.lastName}</div>
-                <div>{selectedOrder.address.street},<br /> {selectedOrder.address.city}, {selectedOrder.address.state}, {selectedOrder.address.zipcode},<br />{selectedOrder.address.country}. </div>
-                <div><strong>Phone:</strong> {selectedOrder.address.phone}</div>
-
-                <div className=''><strong>Billing Address :</strong><br />
-                  <span>Ink Dapper</span><br />
-                  <span>1/1, Bazaar Street, Vettuvanam</span><br />
-                  <span>Vellore, Tamil Nadu, 635809</span><br />
-                  <span>India.</span><br />
-                  <span><strong>Email:</strong>support@inkdapper.com</span><br />
-                </div>
+                <OrderSummaryPrint order={selectedOrder} currency={currency} />
               </div>
             )}
-            <button onClick={() => printSection("printable-section")} className='bg-gray-600 mt-4 text-white px-5 py-2 sm:px-7 text-center sm:py-2 rounded-sm text-xs sm:text-base cursor-pointer'>Print Order Summary</button>
+            <button
+              onClick={() => {
+                printSection("printable-section", handleClose);
+              }}
+              className='bg-gray-600 mt-4 text-white px-5 py-2 sm:px-7 text-center sm:py-2 rounded-sm text-xs sm:text-base cursor-pointer'
+            >
+              Print Order Summary
+            </button>
           </DialogContentText>
         </DialogContent>
         <DialogActions className='bg-gray-600 mt-4 text-white px-2 py-2 sm:px-2 text-center sm:py-0 rounded-sm text-xs sm:text-base cursor-pointer w-20'>
