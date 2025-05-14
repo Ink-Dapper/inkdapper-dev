@@ -47,7 +47,7 @@ const Footer = () => {
         <div>
           <p className='text-lg md:text-xl font-medium md-2 md:mb-5'>GET IN TOUCH</p>
           <ul className='flex flex-col gap-1 text-gray-600'>
-            <li><a href="tel:7010078030">Phone : <b>+91 7010078030</b></a></li>
+            <li><a href="tel:9994005696">Phone : <b>+91 9994005696</b></a></li>
             <li><a href="mailto:support@inkdapper.com">Email : <b>support@inkdapper.com</b></a></li>
           </ul>
         </div>
