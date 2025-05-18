@@ -18,7 +18,7 @@ const BestSeller = () => {
         <div className="text-center py-8 text-3xl">
             <Title text1={'BEST'} text2={'SELLER'}/>
             <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
-            <span className='font-medium'>Fan Favorites You Can’t Miss : </span>Our best-selling pieces are the proof that style and comfort go hand in hand. From custom creations to everyday essentials, these items have won the hearts of the Ink Dapper community. Check out what everyone’s loving!
+            <span className='font-medium'>Fan Favorites You Can't Miss : </span>Our best-selling pieces are the proof that style and comfort go hand in hand. From custom creations to everyday essentials, these items have won the hearts of the Ink Dapper community. Check out what everyone's loving!
             </p>
         </div>
 
@@ -28,7 +28,16 @@ const BestSeller = () => {
             {
                 bestSeller.map((item, index) =>{
                     return (
-                        <ProductItem key={index}  id={item._id} image={item.image} name={item.name} price={item.price} beforePrice={item.beforePrice} bestseller={item.bestSeller}/>
+                        <ProductItem 
+                            key={index}  
+                            id={item._id} 
+                            image={item.image} 
+                            name={item.name} 
+                            price={item.price} 
+                            beforePrice={item.beforePrice} 
+                            bestseller={item.bestSeller}
+                            soldout={item.soldout}
+                        />
                     )
                 })
             }

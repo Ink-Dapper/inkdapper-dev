@@ -242,4 +242,23 @@ const deleteBanner = async (req, res) => {
   }
 };
 
-export { addProduct, listProducts, removeProduct, singleProduct, editProduct, addBanner, listBanner, deleteBanner, updateBanner };
+const toggleSoldout = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await productModel.findById(id);
+    
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    product.soldout = !product.soldout;
+    await product.save();
+
+    res.json({ success: true, message: "Product soldout status updated", product });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export { addProduct, listProducts, removeProduct, singleProduct, editProduct, addBanner, listBanner, deleteBanner, updateBanner, toggleSoldout };
