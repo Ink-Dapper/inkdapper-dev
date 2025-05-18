@@ -32,6 +32,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     const subCategoryMap = {
       'Customtshirt': 'Custom T-shirt',
       'Oversizedtshirt': 'Oversized T-shirt',
+      'Solidoversized': 'Solid Oversized T-shirt',
       'Quotesdesigns': 'Quotes Designs',
       'Plaintshirt': 'Plain T-shirt',
       'Acidwash': 'Acid Wash',
