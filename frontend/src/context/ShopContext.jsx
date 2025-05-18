@@ -19,7 +19,7 @@ const ShopContextProvider = (props) => {
   const [token, setToken] = useState('')
   const navigate = useNavigate()
   const [reviewList, setReviewList] = useState([])
-  const [usersDetails, setUsersDetails] = useState([]);
+  const [usersDetails, setUsersDetails] = useState([])
   const [orderData, setOrderData] = useState([])
   const [orderCount, setOrderCount] = useState(0)
   const [creditPoints, setCreditPoints] = useState(0)
@@ -34,7 +34,7 @@ const ShopContextProvider = (props) => {
       const response = await axios.post(backendUrl + '/api/user/profile', {}, { headers: { token } })
       const newData = response.data;
       if (newData.users) {
-        setUsersDetails([...usersDetails, newData])
+        setUsersDetails([newData])
       }
     } catch (error) {
       console.error(error)
