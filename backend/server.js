@@ -12,17 +12,25 @@ import reviewRouter from './routes/reviewRoute.js'
 import bodyParser from 'body-parser';
 import newsLetterRoute from './routes/newsLetterRoute.js'
 import emailRouter from './routes/emailRoute.js'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 // App config
 const app = express()
 const port = process.env.PORT || 4000
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 connectDB()
 connectCloudinary()
 
 // middlewares
 app.use(express.json())
 app.use(cors())
-app.use(bodyParser.json());
+app.use(bodyParser.json())
+
+// Serve static files
+app.use(express.static(path.join(__dirname, '../frontend/dist')))
 
 //api endpoints
 app.use('/api/user', userRouter)
@@ -34,8 +42,14 @@ app.use('/api/review', reviewRouter)
 app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
 
-app.get('/',(req,res)=>{
-    res.send('Api Working')
+// Serve sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/sitemap.xml'))
+})
+
+// Handle all other routes for SPA
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'))
 })
 
 app.listen(port, ()=> {
