@@ -138,6 +138,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
               <select onChange={(e) => setSubCategory(e.target.value)} value={subCategory} className='w-full px-3 py-2 mb-3'>
                 <option value="Customtshirt">Custom T-shirt</option>
                 <option value="Oversizedtshirt">Over Sized T-shirt</option>
+                <option value="Solidoversized">Solid Oversized T-shirt</option>
                 <option value="Quotesdesigns">Quotes Designs</option>
                 <option value="Plaintshirt">Plain T-shirt</option>
                 <option value="Polotshirt">Polo T-shirt</option>

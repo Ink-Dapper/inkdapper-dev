@@ -205,6 +205,7 @@ const Add = ({ token }) => {
               onChange={(e) => setSubCategory(e.target.value)}>
               <MenuItem value="Customtshirt">Custom T-shirt</MenuItem>
               <MenuItem value="Oversizedtshirt">Over Sized T-shirt</MenuItem>
+              <MenuItem value="Solidoversized">Solid Oversized T-shirt</MenuItem>
               <MenuItem value="Quotesdesigns">Quotes Designs</MenuItem>
               <MenuItem value="Plaintshirt">Plain T-shirt</MenuItem>
               <MenuItem value="Polotshirt">Polo T-shirt</MenuItem>

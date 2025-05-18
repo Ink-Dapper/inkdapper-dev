@@ -15,6 +15,17 @@ import { ShopContext } from '../context/ShopContext';
 import '../styles/swiper-custom.css';
 import { Paintbrush, Shirt, Circle, Leaf, Calendar, Hand } from 'lucide-react';
 
+// Add this hook to detect screen size
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return isMobile;
+}
+
 const Product = () => {
 
   const { productId } = useParams()
@@ -37,6 +48,7 @@ const Product = () => {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const shareMenuRef = useRef(null);
   const [popupPosition, setPopupPosition] = useState({ left: '0', bottom: '12' });
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -94,6 +106,7 @@ const Product = () => {
     const subCategoryMap = {
       'Customtshirt': 'Custom T-shirt',
       'Oversizedtshirt': 'Oversized T-shirt',
+      'Solidoversized': 'Solid Oversized T-shirt',
       'Quotesdesigns': 'Quotes Designs',
       'Plaintshirt': 'Plain T-shirt',
       'Acidwash': 'Acid Wash',
@@ -546,47 +559,47 @@ const Product = () => {
       {/* Key Highlights Section */}
       <div className="w-full my-8">
         <h2 className="font-semibold text-xl mb-4">Key Highlights</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-6 pl-[2.2%]">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6 pl-[2.2%]">
           <div className="flex items-end gap-3 relative">
-            <Paintbrush className="w-5 h-5 text-orange-500 absolute -left-[7%] bottom-[9%]" />
+            <Paintbrush className="w-5 h-5 text-orange-500 absolute md:-left-[7%] bottom-[9%]" />
             <div>
-              <div className="text-gray-400 text-sm mb-1">Design</div>
-              <div className="font-bold text-lg">{changeText}</div>
+              <div className="text-gray-400 text-sm mb-1 pl-[32%] md:pl-[0%] w-max">Design</div>
+              <div className="font-bold text-lg pl-[32%] md:pl-[0%] w-max">{productData.design || changeText || "Custom Print"}</div>
             </div>
           </div>
           <div className="flex items-end gap-3 relative">
-            <Shirt className="w-5 h-5 text-orange-500 absolute -left-[7%] bottom-[9%]" />
+            <Shirt className="w-5 h-5 text-orange-500 absolute md:-left-[7%] bottom-[9%]" />
             <div>
-              <div className="text-gray-400 text-sm mb-1">Fit</div>
-              <div className="font-bold text-lg">{productData.fit || "Oversized"}</div>
+              <div className="text-gray-400 text-sm mb-1 pl-[32%] md:pl-[0%] w-max">Fit</div>
+              <div className="font-bold text-lg pl-[32%] md:pl-[0%] w-max">{productData.fit || "Oversized"}</div>
             </div>
           </div>
           <div className="flex items-end gap-3 relative">
-            <Circle className="w-5 h-5 text-orange-500 absolute -left-[7%] bottom-[9%]" />
+            <Circle className="w-5 h-5 text-orange-500 absolute md:-left-[7%] bottom-[9%]" />
             <div>
-              <div className="text-gray-400 text-sm mb-1">Neck</div>
-              <div className="font-bold text-lg">{productData.neck || "Round Neck"}</div>
+              <div className="text-gray-400 text-sm mb-1 pl-[32%] md:pl-[0%] w-max">Neck</div>
+              <div className="font-bold text-lg pl-[32%] md:pl-[0%] w-max">{productData.neck || "Round Neck"}</div>
             </div>
           </div>
           <div className="flex items-end gap-3 relative">
-            <Leaf className="w-5 h-5 text-orange-500 absolute -left-[7%] bottom-[9%]" />
+            <Leaf className="w-5 h-5 text-orange-500 absolute md:-left-[7%] bottom-[9%]" />
             <div>
-              <div className="text-gray-400 text-sm mb-1">Material</div>
-              <div className="font-bold text-lg">{productData.material || "Cotton"}</div>
+              <div className="text-gray-400 text-sm mb-1 pl-[58%] md:pl-[0%] w-max">Material</div>
+              <div className="font-bold text-lg pl-[58%] md:pl-[0%] w-max">{productData.material || "Cotton"}</div>
             </div>
           </div>
           <div className="flex items-end gap-3 relative">
-            <Calendar className="w-5 h-5 text-orange-500 absolute -left-[7%] bottom-[9%]" />
+            <Calendar className="w-5 h-5 text-orange-500 absolute md:-left-[7%] bottom-[9%]" />
             <div>
-              <div className="text-gray-400 text-sm mb-1">Occasion</div>
-              <div className="font-bold text-lg">{productData.occasion || "Casual Wear"}</div>
+              <div className="text-gray-400 text-sm mb-1 pl-[32%] md:pl-[0%] w-max">Occasion</div>
+              <div className="font-bold text-lg pl-[32%] md:pl-[0%] w-max">{productData.occasion || "Casual Wear"}</div>
             </div>
           </div>
           <div className="flex items-end gap-3 relative">
-            <Hand className="w-5 h-5 text-orange-500 absolute -left-[7%] bottom-[9%]" />
+            <Hand className="w-5 h-5 text-orange-500 absolute md:-left-[7%] bottom-[9%]" />
             <div>
-              <div className="text-gray-400 text-sm mb-1">Sleeve Style</div>
-              <div className="font-bold text-lg">{productData.sleeveStyle || "Half Sleeve"}</div>
+              <div className="text-gray-400 text-sm mb-1 pl-[32%] md:pl-[0%] w-max">Sleeve Style</div>
+              <div className="font-bold text-lg pl-[32%] md:pl-[0%] w-max">{productData.sleeveStyle || "Half Sleeve"}</div>
             </div>
           </div>
         </div>
@@ -602,16 +615,32 @@ const Product = () => {
           <div className="text-gray-500 text-sm mb-4">Manufacture, Care and Fit</div>
           <div className="text-gray-800 text-base mb-4 space-y-4">
             <p>Unleash your inner trendsetter with the <span className="font-semibold">Inkdapper {productData.name} T-shirt</span>! Crafted for those who love to stand out, this oversized tee combines comfort with bold, custom style. Featuring unique DTF sticker prints and a striking bleach design, it's the perfect choice for anyone who wants to express their individuality.</p>
-            <p>Made from 100% soft, breathable cotton jersey, this oversized t-shirt offers a relaxed fit for all-day comfort. The custom DTF prints and bleach effects ensure every piece is one-of-a-kind, making your look as unique as you are. Easy to care for: simply toss it in the wash with the rest of your laundry.</p>
-            <p>The oversized silhouette makes it a versatile addition to your wardrobe—pair it with jeans for a streetwear vibe or layer it for a more creative, layered look. Whether you're lounging at home, heading out with friends, or making a statement on the go, this tee brings effortless cool to any setting.</p>
-            <p>For those who believe fashion is about self-expression, this t-shirt is your invitation to break the mold. Ready to upgrade your style? Make your mark with Inkdapper's custom oversized tees!</p>
+            {(!isMobile || isExpanded) && (
+              <p>Made from 100% soft, breathable cotton jersey, this oversized t-shirt offers a relaxed fit for all-day comfort. The custom DTF prints and bleach effects ensure every piece is one-of-a-kind, making your look as unique as you are. Easy to care for: simply toss it in the wash with the rest of your laundry.</p>
+            )}
+            {isExpanded && (
+              <>
+                <p>The oversized silhouette makes it a versatile addition to your wardrobe—pair it with jeans for a streetwear vibe or layer it for a more creative, layered look. Whether you're lounging at home, heading out with friends, or making a statement on the go, this tee brings effortless cool to any setting.</p>
+                <p>For those who believe fashion is about self-expression, this t-shirt is your invitation to break the mold. Ready to upgrade your style? Make your mark with Inkdapper's custom oversized tees!</p>
+              </>
+            )}
+            {(!isExpanded && (
+              isMobile ? (
+                <button onClick={toggleDescription} className="text-orange-600 mt-2 text-sm flex items-center gap-1">Read more...</button>
+              ) : (
+                <button onClick={toggleDescription} className="text-orange-600 mt-2 text-sm flex items-center gap-1">Read more...</button>
+              )
+            ))}
+            {(isExpanded && (
+              <button onClick={toggleDescription} className="text-orange-600 mt-2 text-sm flex items-center gap-1">Read less...</button>
+            ))}
           </div>
           <div className="mb-2 mt-4">
             <span className="font-semibold">Country of Origin</span> - India
           </div>
           <div className="mb-2">
             <span className="font-semibold">Packed By</span> - Inkdapper Brands Pvt Ltd,<br />
-            1D, Bazaar Street <br />Vettuvanam, Vellore - 635809
+            1D, Bazaar Street <br />Vettuvanam,<br /> Vellore - 635809
           </div>
           <div className="mb-2">
             <span className="font-semibold">Commodity</span> - Men's T-Shirt
