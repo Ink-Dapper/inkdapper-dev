@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 
-const ProductItem = ({ id, image, name, price, beforePrice, subCategory }) => {
+const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout }) => {
   const { currency, scrollToTop, addToWishlist, token, wishlist } = useContext(ShopContext);
   const [favWishlist, setFavWishlist] = useState([]);
   const [changeText, setChangeText] = useState('');
@@ -132,13 +132,19 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory }) => {
         <FavoriteBorderIcon onClick={() => addToWishlistPage()} className={`absolute right-3 top-2 z-20 cursor-pointer`} />
       }
 
-      <Link onClick={() => scrollToTop()} className={`text-gray-700 cursor-pointer`} to={`/product/${id}`}>
+      <Link onClick={() => scrollToTop()} className={`text-gray-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`} to={`/product/${id}`}>
         <div className='transition-shadow shadow-lg shadow-gray-400 rounded-b-md'>
           <div className="overflow-hidden h-54 sm:h-80 bg-gray-200 flex justify-center items-center rounded-t-md relative product-image">
-            <img src={image[0]} alt={name} className="transition-all ease-in-out h-[100%] object-cover relative z-10" style={{ width: '-webkit-fill-available' }} />
+            <img src={image[0]} alt={name} className={`transition-all ease-in-out h-[100%] object-cover relative z-10 ${soldout ? 'opacity-50' : ''}`} style={{ width: '-webkit-fill-available' }} />
+
+            {soldout && (
+              <div className="absolute inset-0 flex items-center justify-center z-20">
+                <span className="bg-black text-white px-4 py-2 text-lg font-semibold">SOLD OUT</span>
+              </div>
+            )}
 
             <div className='logo'>
-              <img src={assets.logo_only} alt="logo" className="absolute bottom-3 right-2 w-5 h-[auto] z-10 opacity-70"/>
+              <img src={assets.logo_only} alt="logo" className="absolute bottom-3 right-2 w-5 h-[auto] z-10 opacity-70" />
             </div>
 
             {/* Share button */}

@@ -9,6 +9,7 @@ import {
   listBanner,
   deleteBanner,
   updateBanner,
+  toggleSoldout,
 } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminAuth.js";
@@ -45,5 +46,6 @@ productRouter.put("/edit/:id",adminAuth,
     { name: "reviewImage3", maxCount: 1 },
   ]),editProduct
 );
+productRouter.put("/toggle-soldout/:id", adminAuth, toggleSoldout);
 
 export default productRouter;
