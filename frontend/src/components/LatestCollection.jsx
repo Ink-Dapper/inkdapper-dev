@@ -14,10 +14,10 @@ const LatestCollection = () => {
     }, [products])
 
     return (
-        <div className='my-4 md:my-10'>
-            <div className="text-center py-8 text-2xl md:text-3xl">
+        <div className='my-2 md:my-10'>
+            <div className="flex flex-col items-center justify-center text-center py-8 text-2xl md:text-3xl">
                 <Title text1={'LATEST'} text2={'COLLECTION'} />
-                <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
+                <p className='w-full md:w-3/4 mx-4 text-xs sm:text-sm md:text-base text-gray-600'>
                     <span className='font-medium'>Elevate Your Everyday :</span> Step into style with Ink Dapper's latest collection – a blend of bold designs and effortless comfort. From custom prints to oversized essentials, we've got everything to match your vibe.
                 </p>
             </div>
