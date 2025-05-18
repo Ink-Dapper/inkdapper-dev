@@ -5,7 +5,10 @@ import compression from "vite-plugin-compression";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), compression()],
-  server: { port: 5173 },
+  server: { 
+    port: 5173,
+    host: true
+  },
   build: {
     minify: "esbuild", // Use esbuild for faster builds
     chunkSizeWarningLimit: 500, // Increase chunk size warning limit
@@ -20,8 +23,12 @@ export default defineConfig({
         },
       },
     },
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: true
   },
   optimizeDeps: {
     include: ["react", "react-dom", "react-router-dom", "react-toastify"],
   },
+  base: '/',
 });
