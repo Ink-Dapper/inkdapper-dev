@@ -18,7 +18,7 @@ const LatestCollection = () => {
             <div className="text-center py-8 text-2xl md:text-3xl">
                 <Title text1={'LATEST'} text2={'COLLECTION'} />
                 <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
-                    <span className='font-medium'>Elevate Your Everyday :</span> Step into style with Ink Dapper’s latest collection – a blend of bold designs and effortless comfort. From custom prints to oversized essentials, we’ve got everything to match your vibe.
+                    <span className='font-medium'>Elevate Your Everyday :</span> Step into style with Ink Dapper's latest collection – a blend of bold designs and effortless comfort. From custom prints to oversized essentials, we've got everything to match your vibe.
                 </p>
             </div>
 
@@ -27,7 +27,16 @@ const LatestCollection = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 gap-y-6">
                 {
                     latestProducts.map((item, index) => (
-                        <ProductItem key={index} id={item._id} image={item.image} name={item.name} price={item.price} beforePrice={item.beforePrice} changeText={item.soldout ? 'Sold Out' : ''} className={item.soldout ? 'opacity-50' : ''}/>
+                        <ProductItem
+                            key={index}
+                            id={item._id}
+                            image={item.image}
+                            name={item.name}
+                            price={item.price}
+                            beforePrice={item.beforePrice}
+                            soldout={item.soldout}
+                            subCategory={item.subCategory}
+                        />
                     ))
                 }
             </div>
