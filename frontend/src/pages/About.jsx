@@ -29,16 +29,16 @@ const About = () => {
       </div>
 
       <div className='flex flex-col md:flex-row text-sm mb-20'>
-        <div className='border px-10 md:px-12 py-8 sm:py-20 flex flex-col gap-5'>
+        <div className='border p-6 md:px-12 sm:py-20 flex flex-col gap-5'>
           <b>Quality Assurance – Made to Last:</b>
           <p className='text-gray-500'>We believe great style starts with great quality. Every piece is crafted with premium fabrics and attention to detail, ensuring your wardrobe stands the test of time.<br /><br /> <b>Soft and durable materials</b> for maximum comfort.<br /> <b>Vibrant prints and embroidery</b> that stay fresh after many wash.<br /> <b>Rigorous quality checks</b> has been performed for every item before its been packed for him.
           </p>
         </div>
-        <div className='border px-10 md:px-12 py-8 sm:py-20 flex flex-col gap-5'>
+        <div className='border p-6 md:px-12 sm:py-20 flex flex-col gap-5'>
           <b>Convenience – Easy, Fast & Seamless:</b>
           <p className='text-gray-500'>Shopping with us is simple, smooth, and stress-free, from browsing to checkout and delivery. Whether you're customizing your look or picking a pre-designed piece, we make it effortless.<br /><br /> <b>User-friendly online store</b> with easy customization tools.<br /><br /> <b>Fast shipping</b> and secure payments.<br /><br /> <b>Worldwide delivery</b> so you can shop from anywhere.</p>
         </div>
-        <div className='border px-10 md:px-12 py-8 sm:py-20 flex flex-col gap-5'>
+        <div className='border p-6 md:px-12 sm:py-20 flex flex-col gap-5'>
           <b>Exceptional Customer Service – We’re Here for You:</b>
           <p className='text-gray-500'>At Ink Dapper, our customer comes first. We're committed to providing responsive, friendly, and personalized support to make sure that every shopping experience exceeds your expectations.<br /><br /> <b>Easy returns and exchanges</b> for a hassle-free experience.<br /><br /> <b>Quick response time</b> via email and social media.<br /><br /> <b>Dedicated support team ready</b> to assist with all your needs.
           </p>

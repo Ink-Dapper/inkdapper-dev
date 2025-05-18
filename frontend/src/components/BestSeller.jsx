@@ -15,9 +15,9 @@ const BestSeller = () => {
 
   return (
     <div className='my-4 md:my-10'>
-        <div className="text-center py-8 text-3xl">
+        <div className="flex flex-col items-center justify-center text-center py-6 text-3xl">
             <Title text1={'BEST'} text2={'SELLER'}/>
-            <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600'>
+            <p className='w-full md:w-3/4 mx-4 text-xs sm:text-sm md:text-base text-gray-600'>
             <span className='font-medium'>Fan Favorites You Can't Miss : </span>Our best-selling pieces are the proof that style and comfort go hand in hand. From custom creations to everyday essentials, these items have won the hearts of the Ink Dapper community. Check out what everyone's loving!
             </p>
         </div>

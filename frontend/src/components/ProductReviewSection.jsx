@@ -62,7 +62,7 @@ const ProductReviewSection = ({ productId }) => {
   }, [usersDetails])
 
   return (
-    <div className='mt-4 md:mt-16 w-full lg:w-1/2'>
+    <div className='mt-4 md:mt-4 w-full lg:w-1/2'>
       <h2 className='font-medium text-xl md:text-2xl mb-1'>Product Reviews</h2>
       <form onSubmit={onSubmitHandler} className=''>
         <div className='label_star mt-2 w-56 flex justify-between items-center'>
