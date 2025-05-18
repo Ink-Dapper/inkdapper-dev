@@ -34,7 +34,6 @@ const corsOptions = {
 
 // middlewares
 app.use(express.json())
-<<<<<<< HEAD
 const allowedOrigins = [
   'https://inkdapper.com',
   'https://www.inkdapper.com',
@@ -58,17 +57,19 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(bodyParser.json());
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 app.use(cors());
 =======
+=======
+>>>>>>> 057426381481fe4c6cfe5adaa3fa140bcbec02b9
 app.use(cors(corsOptions))
 >>>>>>> ebd6ceb439578cbc03603b2eab53440854629b40
 app.use(bodyParser.json())
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '../frontend/dist')))
->>>>>>> ee891a0629fc8bec6c38e83f48e9c34ec8a918fa
 
 //api endpoints
 app.use('/api/user', userRouter)
