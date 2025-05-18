@@ -24,6 +24,14 @@ const __dirname = path.dirname(__filename)
 connectDB()
 connectCloudinary()
 
+// CORS configuration
+const corsOptions = {
+  origin: ['https://www.inkdapper.com', 'http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'token'],
+  credentials: true
+}
+
 // middlewares
 app.use(express.json())
 <<<<<<< HEAD
@@ -51,7 +59,11 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(bodyParser.json());
 =======
+<<<<<<< HEAD
 app.use(cors());
+=======
+app.use(cors(corsOptions))
+>>>>>>> ebd6ceb439578cbc03603b2eab53440854629b40
 app.use(bodyParser.json())
 
 // Serve static files
