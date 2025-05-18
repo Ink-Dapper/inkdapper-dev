@@ -1,7 +1,7 @@
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 import validator from "validator";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from 'nodemailer';
 
