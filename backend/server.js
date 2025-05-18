@@ -34,11 +34,37 @@ const corsOptions = {
 
 // middlewares
 app.use(express.json())
+<<<<<<< HEAD
+const allowedOrigins = [
+  'https://inkdapper.com',
+  'https://www.inkdapper.com',
+  'https://admin.inkdapper.com'
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin); // Set only one allowed origin dynamically
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, token");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(bodyParser.json());
+=======
 app.use(cors(corsOptions))
 app.use(bodyParser.json())
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '../frontend/dist')))
+>>>>>>> ee891a0629fc8bec6c38e83f48e9c34ec8a918fa
 
 //api endpoints
 app.use('/api/user', userRouter)
