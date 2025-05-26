@@ -26,7 +26,7 @@ connectCloudinary()
 
 // CORS configuration
 const corsOptions = {
-  origin: ['https://www.inkdapper.com', 'http://localhost:5173'],
+  origin: ['https://www.inkdapper.com', 'http://localhost:4000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'token'],
   credentials: true
@@ -37,7 +37,10 @@ app.use(express.json())
 const allowedOrigins = [
   'https://inkdapper.com',
   'https://www.inkdapper.com',
-  'https://admin.inkdapper.com'
+  'https://admin.inkdapper.com',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:4000'
 ];
 
 app.use((req, res, next) => {
@@ -62,7 +65,14 @@ app.use(cors(corsOptions))
 app.use(bodyParser.json())
 
 // Serve static files
-app.use(express.static(path.join(__dirname, '../frontend/dist')))
+app.use(express.static(path.join(__dirname, '../frontend/dist'), {
+  index: false,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 //api endpoints
 app.use('/api/user', userRouter)
@@ -76,13 +86,22 @@ app.use('/api/email', emailRouter)
 
 // Serve sitemap.xml
 app.get('/sitemap.xml', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/sitemap.xml'))
-})
+    res.sendFile(path.join(__dirname, '../frontend/sitemap.xml'), {
+      headers: {
+        'Content-Type': 'application/xml',
+        'Cache-Control': 'public, max-age=3600'
+      }
+    });
+});
 
 // Handle all other routes for SPA
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'))
-})
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'), {
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    });
+});
 
 app.listen(port, ()=> {
     console.log(`Server is running on port ${port}`)

@@ -4,7 +4,13 @@ import compression from "vite-plugin-compression";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), compression()],
+  plugins: [
+    react(),
+    compression({
+      algorithm: 'gzip',
+      ext: '.gz',
+    })
+  ],
   server: { 
     port: 5173,
     host: true
@@ -21,11 +27,17 @@ export default defineConfig({
           toastify: ["react-toastify"],
           // Add more chunks as needed
         },
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'style.css') return 'assets/css/[name]-[hash][extname]';
+          if (assetInfo.name === 'main.js') return 'assets/js/[name]-[hash][extname]';
+          return 'assets/[name]-[hash][extname]';
+        },
       },
     },
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: true
+    sourcemap: true,
+    emptyOutDir: true
   },
   optimizeDeps: {
     include: ["react", "react-dom", "react-router-dom", "react-toastify"],
