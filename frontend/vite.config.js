@@ -43,4 +43,10 @@ export default defineConfig({
     include: ["react", "react-dom", "react-router-dom", "react-toastify"],
   },
   base: '/',
+  // Add history fallback for SPA routing
+  preview: {
+    port: 5173,
+    strictPort: true,
+    host: true,
+  },
 });
