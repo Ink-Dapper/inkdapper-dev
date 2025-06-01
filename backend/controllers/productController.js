@@ -261,4 +261,27 @@ const toggleSoldout = async (req, res) => {
   }
 };
 
-export { addProduct, listProducts, removeProduct, singleProduct, editProduct, addBanner, listBanner, deleteBanner, updateBanner, toggleSoldout };
+// function for getting all products (for sitemap)
+const getProducts = async () => {
+  try {
+    const products = await productModel.find({}, '_id updatedAt createdAt');
+    return products;
+  } catch (error) {
+    console.error('Error getting products for sitemap:', error);
+    throw error;
+  }
+};
+
+export {
+  addProduct,
+  addBanner,
+  listProducts,
+  removeProduct,
+  singleProduct,
+  editProduct,
+  listBanner,
+  deleteBanner,
+  updateBanner,
+  toggleSoldout,
+  getProducts
+};
