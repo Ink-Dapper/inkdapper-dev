@@ -43,7 +43,25 @@ const App = () => {
             <hr />
             <div className='flex w-full'>
               <Sidebar />
-              <div className='w-[70%] mx-auto ml-[max(5vw,25px)] my-8 text-gray-600 text-base'>
+              <div className='w-[78%] mx-auto ml-[max(2vw,20px)] my-1 text-gray-600 text-base  h-[calc(95vh-40px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400'>
+                <style>
+                  {`
+                    .scrollbar-thin::-webkit-scrollbar {
+                      width: 6px;
+                    }
+                    .scrollbar-thin::-webkit-scrollbar-track {
+                      background: #f1f1f1;
+                      border-radius: 10px;
+                    }
+                    .scrollbar-thin::-webkit-scrollbar-thumb {
+                      background: #d1d5db;
+                      border-radius: 10px;
+                    }
+                    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                      background: #9ca3af;
+                    }
+                  `}
+                </style>
                 <Routes>
                   <Route path="/add" element={<Add token={token} />} />
                   <Route path="/list" element={<List token={token} />} />

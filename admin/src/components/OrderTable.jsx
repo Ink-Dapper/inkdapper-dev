@@ -53,7 +53,7 @@ const OrderTable = ({ token }) => {
   }, [token]);
 
   return (
-    <div className='relative'>
+    <div className='order-table-container'>
       {/* Filter Section */}
       <div className='flex mb-4 gap-2'>
         <div className='mb-4 flex flex-col gap-2'>
@@ -112,7 +112,7 @@ const OrderTable = ({ token }) => {
           }
         </div>
       </div>
-      <div className='w-[102%] flex items-center justify-center absolute -bottom-16'>
+      <div className='w-[95%] flex items-center justify-center absolute bottom-6'>
         <div className='w-full border p-3 bg-slate-100 grid gap-4'>
           <div className='font-medium flex gap-8 justify-end'>
             <div className='flex gap-1'>
