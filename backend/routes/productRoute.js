@@ -10,11 +10,16 @@ import {
   deleteBanner,
   updateBanner,
   toggleSoldout,
+  getProducts,
 } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminAuth.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const productRouter = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 productRouter.post("/add",adminAuth,
   upload.fields([
@@ -47,5 +52,34 @@ productRouter.put("/edit/:id",adminAuth,
   ]),editProduct
 );
 productRouter.put("/toggle-soldout/:id", adminAuth, toggleSoldout);
+
+// Generate dynamic product sitemap
+productRouter.get('/sitemap', async (req, res) => {
+    try {
+        const products = await getProducts();
+        const baseUrl = 'https://www.inkdapper.com';
+        
+        let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+
+        products.forEach(product => {
+            sitemap += `
+  <url>
+    <loc>${baseUrl}/product/${product._id}</loc>
+    <lastmod>${new Date(product.updatedAt || product.createdAt).toISOString()}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+        });
+
+        sitemap += '\n</urlset>';
+
+        res.header('Content-Type', 'application/xml');
+        res.send(sitemap);
+    } catch (error) {
+        console.error('Error generating product sitemap:', error);
+        res.status(500).send('Error generating sitemap');
+    }
+});
 
 export default productRouter;

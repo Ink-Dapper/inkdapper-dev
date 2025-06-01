@@ -46,7 +46,7 @@ const allowedOrigins = [
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin); // Set only one allowed origin dynamically
+    res.setHeader("Access-Control-Allow-Origin", origin);
   }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, token");
@@ -57,6 +57,7 @@ app.use((req, res, next) => {
 
   next();
 });
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(bodyParser.json());
@@ -84,9 +85,29 @@ app.use('/api/review', reviewRouter)
 app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
 
-// Serve sitemap.xml
+// Serve robots.txt
+app.get('/robots.txt', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/robots.txt'), {
+      headers: {
+        'Content-Type': 'text/plain',
+        'Cache-Control': 'public, max-age=3600'
+      }
+    });
+});
+
+// Serve main sitemap
 app.get('/sitemap.xml', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/sitemap.xml'), {
+      headers: {
+        'Content-Type': 'application/xml',
+        'Cache-Control': 'public, max-age=3600'
+      }
+    });
+});
+
+// Serve main pages sitemap
+app.get('/sitemap-main.xml', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/sitemap-main.xml'), {
       headers: {
         'Content-Type': 'application/xml',
         'Cache-Control': 'public, max-age=3600'
