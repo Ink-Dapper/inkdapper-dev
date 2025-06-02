@@ -65,6 +65,14 @@ app.use(cors());
 app.use(cors(corsOptions))
 app.use(bodyParser.json())
 
+// Set correct MIME type for JSX files
+app.use((req, res, next) => {
+  if (req.url.endsWith('.jsx')) {
+    res.type('application/javascript');
+  }
+  next();
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '../frontend/dist'), {
   index: false,

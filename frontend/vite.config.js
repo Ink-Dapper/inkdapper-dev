@@ -64,7 +64,15 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       }
-    }
+    },
+    middlewares: [
+      (req, res, next) => {
+        if (req.url.endsWith('.jsx')) {
+          res.setHeader('Content-Type', 'application/javascript');
+        }
+        next();
+      }
+    ]
   },
   build: {
     minify: "terser",
