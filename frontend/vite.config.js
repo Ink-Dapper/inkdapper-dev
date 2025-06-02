@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import compression from "vite-plugin-compression";
+import { compression } from "vite-plugin-compression2";
+import { imagetools } from "vite-imagetools";
 import { copyFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -10,9 +11,22 @@ export default defineConfig({
     react(),
     compression({
       algorithm: 'gzip',
-      ext: '.gz',
-      threshold: 10240, // Only compress files larger than 10kb
-      deleteOriginFile: false
+      exclude: [/\.(br)$/, /\.(gz)$/],
+      threshold: 1024,
+    }),
+    compression({
+      algorithm: 'brotliCompress',
+      exclude: [/\.(br)$/, /\.(gz)$/],
+      threshold: 1024,
+    }),
+    imagetools({
+      defaultDirectives: new URLSearchParams([
+        ['format', 'webp'],
+        ['quality', '75'],
+      ]),
+      include: /\.(jpe?g|png|gif|tiff|webp|svg)$/i,
+      exclude: /node_modules/,
+      silent: true,
     }),
     {
       name: 'copy-seo-files',
@@ -35,36 +49,71 @@ export default defineConfig({
       }
     }
   ],
-  server: { 
+  server: {
     port: 5173,
-    host: true
+    host: true,
+    headers: {
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4000',
+        changeOrigin: true,
+        secure: false
+      }
+    }
   },
   build: {
-    minify: "esbuild",
+    minify: "terser",
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
-          reactVendor: ["react", "react-dom"],
-          reactRouter: ["react-router-dom"],
-          toastify: ["react-toastify"],
-          ui: ["@headlessui/react", "@heroicons/react"],
-          utils: ["axios", "lodash"]
+          'react-vendor': ['react', 'react-dom'],
+          'react-router': ['react-router-dom'],
+          'ui-components': ['@mui/material', '@mui/icons-material', '@headlessui/react', '@heroicons/react'],
+          'utils': ['axios', 'lodash'],
+          'toastify': ['react-toastify'],
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'style.css') return 'assets/css/[name]-[hash][extname]';
           if (assetInfo.name === 'main.js') return 'assets/js/[name]-[hash][extname]';
+          if (/\.(png|jpe?g|gif|svg|webp)$/.test(assetInfo.name)) {
+            return 'assets/images/[name]-[hash][extname]';
+          }
           return 'assets/[name]-[hash][extname]';
         },
       },
     },
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false, // Disable sourcemaps in production
+    sourcemap: false,
     emptyOutDir: true,
     cssCodeSplit: true,
-    reportCompressedSize: false, // Disable compressed size reporting for faster builds
-    target: 'es2015', // Target modern browsers
+    reportCompressedSize: false,
+    target: 'es2015',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        passes: 2,
+        dead_code: true,
+        global_defs: {
+          'process.env.NODE_ENV': '"production"'
+        }
+      },
+      mangle: {
+        safari10: true
+      },
+      format: {
+        comments: false,
+        ascii_only: true
+      },
+    },
   },
   optimizeDeps: {
     include: [
@@ -77,10 +126,14 @@ export default defineConfig({
       "axios",
       "lodash"
     ],
-    exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'] // Exclude heavy dependencies
+    exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+    esbuildOptions: {
+      target: 'es2015',
+      treeShaking: true,
+      minify: true,
+    }
   },
   base: '/',
-  // Add history fallback for SPA routing
   preview: {
     port: 5173,
     strictPort: true,

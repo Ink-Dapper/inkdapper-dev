@@ -13,6 +13,20 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   const [changeText, setChangeText] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
   const shareMenuRef = useRef(null);
+  const messageChannelRef = useRef(null);
+
+  useEffect(() => {
+    // Initialize message channel
+    messageChannelRef.current = new MessageChannel();
+
+    // Cleanup function
+    return () => {
+      if (messageChannelRef.current) {
+        messageChannelRef.current.port1.close();
+        messageChannelRef.current.port2.close();
+      }
+    };
+  }, []);
 
   const addToWishlistPage = () => {
     if (!token) {
@@ -37,8 +51,8 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
       'Plaintshirt': 'Plain T-shirt',
       'Acidwash': 'Acid Wash',
       'Polotshirt': 'Polo T-shirt',
-      'Hoddies': 'Hoodies', // Fixed spelling
-      'Sweattshirts': 'Sweat T-shirt' // Fixed spelling
+      'Hoddies': 'Hoodies',
+      'Sweattshirts': 'Sweat T-shirt'
     };
 
     const newText = subCategoryMap[subCategory];
@@ -70,8 +84,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    // Instagram doesn't have a direct sharing API like WhatsApp
-    // So we'll copy the link to clipboard and notify the user
     const productUrl = `${window.location.origin}/product/${id}`;
     navigator.clipboard.writeText(productUrl);
 
@@ -86,7 +98,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     const productUrl = `${window.location.origin}/product/${id}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
 
-    // On mobile, this will open the native share dialog if supported
     if (navigator.share) {
       navigator.share({
         title: name,
@@ -94,14 +105,13 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         url: productUrl,
       })
         .then(() => setShowShareMenu(false))
-        .catch(() => {
-          // Fallback to copying to clipboard
+        .catch((error) => {
+          console.error('Error sharing:', error);
           navigator.clipboard.writeText(shareText);
           toast.info('Link copied to clipboard!', { autoClose: 1500 });
           setShowShareMenu(false);
         });
     } else {
-      // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(shareText);
       toast.info('Link copied to clipboard!', { autoClose: 1500 });
       setShowShareMenu(false);
@@ -136,16 +146,40 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
       <Link onClick={() => scrollToTop()} className={`text-gray-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`} to={`/product/${id}`}>
         <div className='transition-shadow shadow-lg shadow-gray-400 rounded-b-md'>
           <div className="overflow-hidden h-54 sm:h-80 bg-gray-200 flex justify-center items-center rounded-t-md relative product-image">
-            <img src={image[0]} alt={name} className={`transition-all ease-in-out h-[100%] object-cover relative z-10 ${soldout ? 'opacity-50' : ''}`} style={{ width: '-webkit-fill-available' }} />
+            <div className="w-full h-full relative" style={{ aspectRatio: '3/4' }}>
+              <img
+                src={image[0]}
+                alt={name}
+                className={`transition-all ease-in-out h-full w-full object-cover relative z-10 ${soldout ? 'opacity-50' : ''}`}
+                loading="lazy"
+                decoding="async"
+                width="300"
+                height="400"
+                style={{
+                  aspectRatio: '3/4',
+                  objectFit: 'cover',
+                  objectPosition: 'center'
+                }}
+              />
 
-            {soldout && (
-              <div className="absolute inset-0 flex items-center justify-center z-20">
-                <span className="bg-black text-white px-4 py-2 text-lg font-semibold">SOLD OUT</span>
+              {soldout && (
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <span className="bg-black text-white px-4 py-2 text-lg font-semibold">SOLD OUT</span>
+                </div>
+              )}
+
+              <div className='logo absolute bottom-3 right-2 z-10'>
+                <img
+                  src={assets.logo_only}
+                  alt="logo"
+                  className="w-5 h-5 opacity-70"
+                  width="20"
+                  height="20"
+                  loading="lazy"
+                  decoding="async"
+                  style={{ aspectRatio: '1/1' }}
+                />
               </div>
-            )}
-
-            <div className='logo'>
-              <img src={assets.logo_only} alt="logo" className="absolute bottom-3 right-2 w-5 h-[auto] z-10 opacity-70" />
             </div>
 
             {/* Share button */}
@@ -201,7 +235,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
             </div>
           </div>
 
-          {/* Rest of your product item code */}
           <div className='border-l-2 border-l-gray-950 border-t-2 border-t-gray-950 rounded-b-md relative'>
             <p className='pt-1 pb-1 pl-2 pr-1 md:pt-2 md:pb-2 md:pl-3 md:pr-1 text-sm md:text-base font-medium md:font-semibold truncate'>{name}</p>
             {

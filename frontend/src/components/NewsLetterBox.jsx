@@ -101,6 +101,8 @@ const NewsLetterBox = () => {
                 <form onSubmit={onSubmitHandler} className='flex items-center w-full sm:w-1/2 gap-3 mx-auto border my-6 pl-3'>
                     <input
                         type="email"
+                        id="newsletter-email"
+                        name="email"
                         placeholder="Enter your email"
                         className="w-full sm:flex-1 outline-none"
                         required
@@ -113,6 +115,8 @@ const NewsLetterBox = () => {
                 <div className='flex items-center w-full sm:w-1/2 gap-3 mx-auto border my-6 pl-3'>
                     <input
                         type="text"
+                        id="newsletter-otp"
+                        name="otp"
                         placeholder="Enter OTP"
                         className="w-full sm:flex-1 outline-none"
                         required

@@ -122,25 +122,25 @@ const Collection = () => {
           <p className='text-sm mb-3 font-medium'>TYPE</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className='flex gap-2'>
-              <input type="checkbox" value={''} className='w-3' onChange={allChecked} /> All
+              <input type="checkbox" id="filter-all" name="filter-all" value={''} className='w-3' onChange={allChecked} /> All
             </p>
             <p className='flex gap-2'>
-              <input type="checkbox" value={'Customtshirt'} className='w-3' onChange={toggleSubCategory} /> Custom T-shirt
+              <input type="checkbox" id="filter-custom-tshirt" name="filter-custom-tshirt" value={'Customtshirt'} className='w-3' onChange={toggleSubCategory} /> Custom T-shirt
             </p>
             {/* <p className='flex gap-2'>
               <input type="checkbox" value={'Oversizedtshirt'} className='w-3' onChange={toggleSubCategory} /> Over Sized T-shirt
             </p> */}
             <p className='flex gap-2'>
-              <input type="checkbox" value={'Solidoversized'} className='w-3' onChange={toggleSubCategory} /> Solid Oversized T-shirt
+              <input type="checkbox" id="filter-solid-oversized" name="filter-solid-oversized" value={'Solidoversized'} className='w-3' onChange={toggleSubCategory} /> Solid Oversized T-shirt
             </p>
             <p className='flex gap-2'>
-              <input type="checkbox" value={'Quotesdesigns'} className='w-3' onChange={toggleSubCategory} /> Quotes Designs
+              <input type="checkbox" id="filter-quotes-designs" name="filter-quotes-designs" value={'Quotesdesigns'} className='w-3' onChange={toggleSubCategory} /> Quotes Designs
             </p>
             <p className='flex gap-2'>
-              <input type="checkbox" value={'Plaintshirt'} className='w-3' onChange={toggleSubCategory} /> Solid T-shirt
+              <input type="checkbox" id="filter-plain-tshirt" name="filter-plain-tshirt" value={'Plaintshirt'} className='w-3' onChange={toggleSubCategory} /> Solid T-shirt
             </p>
             <p className='flex gap-2'>
-              <input type="checkbox" value={'Acidwash'} className='w-3' onChange={toggleSubCategory} /> Acid Wash
+              <input type="checkbox" id="filter-acid-wash" name="filter-acid-wash" value={'Acidwash'} className='w-3' onChange={toggleSubCategory} /> Acid Wash
             </p>
             {/* <p className='flex gap-2'>
               <input type="checkbox" value={'Polotshirt'} className='w-3' onChange={toggleSubCategory} /> Polo T-shirt
@@ -160,18 +160,18 @@ const Collection = () => {
           <Title text1={'ALL'} text2={'COLLECTIONS'} />
           {/* product sort */}
           <div className='absolute lg:static -top-10 right-0 md:-top-4'>
-            <FormControl sx={{ m: 1, minWidth: {xs:140, sm:180}, fontSize : {xs:10, sm:14} }} size="small">
-              <InputLabel id="demo-select-small-label" sx={{fontSize : {xs:14, sm: 18}, top : {xs:3, sm:0}, left : {xs:-3} }} >Filter</InputLabel>
+            <FormControl sx={{ m: 1, minWidth: { xs: 140, sm: 180 }, fontSize: { xs: 10, sm: 14 } }} size="small">
+              <InputLabel id="demo-select-small-label" sx={{ fontSize: { xs: 14, sm: 18 }, top: { xs: 3, sm: 0 }, left: { xs: -3 } }} >Filter</InputLabel>
               <Select
                 value={sortType}
                 labelId="demo-select-small-label"
                 id="demo-select-small"
                 label="Age"
                 onChange={(e) => SetSortType(e.target.value)}
-                sx={{ fontSize: { xs: 12, sm: 14 }, width: {xs:140, sm:'100%'}, padding: '0px' }}>
-                <MenuItem sx={{ fontSize: { xs: 12, sm: 14 }, width: {xs:140, sm:'100%'}, padding: '12px' }} value="relevant">Sort by: Relevant</MenuItem>
-                <MenuItem sx={{ fontSize: { xs: 12, sm: 14 }, width: {xs:140, sm:'100%'}, padding: '12px' }} value="low-high">Sort by: Low - High</MenuItem>
-                <MenuItem sx={{ fontSize: { xs: 12, sm: 14 }, width: {xs:140, sm:'100%'}, padding: '12px' }} value="high-low">Sort by: High - Low</MenuItem>
+                sx={{ fontSize: { xs: 12, sm: 14 }, width: { xs: 140, sm: '100%' }, padding: '0px' }}>
+                <MenuItem sx={{ fontSize: { xs: 12, sm: 14 }, width: { xs: 140, sm: '100%' }, padding: '12px' }} value="relevant">Sort by: Relevant</MenuItem>
+                <MenuItem sx={{ fontSize: { xs: 12, sm: 14 }, width: { xs: 140, sm: '100%' }, padding: '12px' }} value="low-high">Sort by: Low - High</MenuItem>
+                <MenuItem sx={{ fontSize: { xs: 12, sm: 14 }, width: { xs: 140, sm: '100%' }, padding: '12px' }} value="high-low">Sort by: High - Low</MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -181,13 +181,13 @@ const Collection = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
           {
             filterProducts.map((item, index) => {
-              return <ProductItem 
-                key={index} 
-                id={item._id} 
-                name={item.name} 
+              return <ProductItem
+                key={index}
+                id={item._id}
+                name={item.name}
                 image={item.image}
-                price={item.price} 
-                beforePrice={item.beforePrice} 
+                price={item.price}
+                beforePrice={item.beforePrice}
                 subCategory={item.subCategory}
                 soldout={item.soldout}
               />

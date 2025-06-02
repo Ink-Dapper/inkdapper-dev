@@ -76,10 +76,28 @@ const ProductReviewSection = ({ productId }) => {
         <div className='grid md:grid-rows-1 md:grid-flow-col grid-flow-row gap-3 mt-4'>
           <img src={assets.about_us} alt="review" className='w-full h-64 lg:w-44 lg:h-64 hidden md:block col-span-1 row-span-1 md:col-span-1 md:row-span-3' />
           <div className='flex flex-col items-start col-span-2 row-span-1'>
-            <input type="text" onChange={(e) => setReviewSub(e.target.value)} value={reviewSub} placeholder="Subject here..." className='w-full lg:w-[450px] h-10 border border-gray-300 p-4 outline-none' required />
+            <input
+              type="text"
+              id="review-subject"
+              name="reviewSubject"
+              onChange={(e) => setReviewSub(e.target.value)}
+              value={reviewSub}
+              placeholder="Subject here..."
+              className='w-full lg:w-[450px] h-10 border border-gray-300 p-4 outline-none'
+              required
+            />
           </div>
           <div className='flex flex-col items-start col-span-2 row-span-1'>
-            <textarea onChange={(e) => setReviewDesc(e.target.value)} value={reviewDesc} type="text" placeholder="Your review here..." className='w-full lg:w-[450px] h-36 border border-gray-300 p-4 outline-none' required></textarea>
+            <textarea
+              id="review-description"
+              name="reviewDescription"
+              onChange={(e) => setReviewDesc(e.target.value)}
+              value={reviewDesc}
+              type="text"
+              placeholder="Your review here..."
+              className='w-full lg:w-[450px] h-36 border border-gray-300 p-4 outline-none'
+              required
+            ></textarea>
           </div>
           <button type="submit" className='w-full lg:w-[450px] text-lg px-8 py-2 col-span-2 row-span-1 bg-gray-700 text-white'>Submit</button>
         </div>

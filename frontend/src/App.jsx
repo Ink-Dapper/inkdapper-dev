@@ -5,27 +5,39 @@ import 'react-toastify/dist/ReactToastify.css';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import SearchBar from './components/SearchBar';
-import SkeletonLoader from './components/SkeletonLoader'; // Import SkeletonLoader
+import SkeletonLoader from './components/SkeletonLoader';
 
-// Lazy load pages
-const Collection = lazy(() => import('./pages/Collection'));
-const Product = lazy(() => import('./pages/Product'));
-const Cart = lazy(() => import('./pages/Cart'));
-const PlaceOrder = lazy(() => import('./pages/PlaceOrder'));
-const Orders = lazy(() => import('./pages/Orders'));
-const About = lazy(() => import('./pages/About'));
-const Contact = lazy(() => import('./pages/Contact'));
-const Home = lazy(() => import('./pages/Home'));
-const Login = lazy(() => import('./pages/Login'));
-const Profile = lazy(() => import('./pages/Profile'));
-const OrderDetails = lazy(() => import('./pages/OrderDetails'));
-const Wishlist = lazy(() => import('./pages/Wishlist'));
-const ReviewViewMore = lazy(() => import('./components/ListReviews'));
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
-const Custom = lazy(() => import('./pages/Custom'));
-const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
-const CancellationAndRefund = lazy(() => import('./pages/CancellationAndRefund'));
-const ShippingAndDelivery = lazy(() => import('./pages/ShippingAndDelivery'));
+// Lazy load modals
+const NewsletterModal = lazy(() => import('./components/NewsletterModal'));
+const PriceOfferModal = lazy(() => import('./components/PriceOfferModal'));
+
+// Lazy load pages with dynamic imports and prefetching
+const Collection = lazy(() => import(/* webpackChunkName: "collection" */ './pages/Collection'));
+const Product = lazy(() => import(/* webpackChunkName: "product" */ './pages/Product'));
+const Cart = lazy(() => import(/* webpackChunkName: "cart" */ './pages/Cart'));
+const PlaceOrder = lazy(() => import(/* webpackChunkName: "place-order" */ './pages/PlaceOrder'));
+const Orders = lazy(() => import(/* webpackChunkName: "orders" */ './pages/Orders'));
+const About = lazy(() => import(/* webpackChunkName: "about" */ './pages/About'));
+const Contact = lazy(() => import(/* webpackChunkName: "contact" */ './pages/Contact'));
+const Home = lazy(() => import(/* webpackChunkName: "home" */ './pages/Home'));
+const Login = lazy(() => import(/* webpackChunkName: "login" */ './pages/Login'));
+const Profile = lazy(() => import(/* webpackChunkName: "profile" */ './pages/Profile'));
+const OrderDetails = lazy(() => import(/* webpackChunkName: "order-details" */ './pages/OrderDetails'));
+const Wishlist = lazy(() => import(/* webpackChunkName: "wishlist" */ './pages/Wishlist'));
+const ReviewViewMore = lazy(() => import(/* webpackChunkName: "reviews" */ './components/ListReviews'));
+const PrivacyPolicy = lazy(() => import(/* webpackChunkName: "privacy" */ './pages/PrivacyPolicy'));
+const Custom = lazy(() => import(/* webpackChunkName: "custom" */ './pages/Custom'));
+const TermsAndConditions = lazy(() => import(/* webpackChunkName: "terms" */ './pages/TermsAndConditions'));
+const CancellationAndRefund = lazy(() => import(/* webpackChunkName: "cancellation" */ './pages/CancellationAndRefund'));
+const ShippingAndDelivery = lazy(() => import(/* webpackChunkName: "shipping" */ './pages/ShippingAndDelivery'));
+
+// Prefetch routes on hover
+const prefetchRoute = (importFn) => {
+  const prefetch = () => {
+    importFn();
+  };
+  return prefetch;
+};
 
 const App = () => {
   return (
@@ -56,6 +68,10 @@ const App = () => {
         </Routes>
       </Suspense>
       <Footer />
+      <Suspense fallback={null}>
+        <NewsletterModal />
+        <PriceOfferModal />
+      </Suspense>
     </div>
   );
 };

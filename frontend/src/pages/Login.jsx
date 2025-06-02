@@ -139,19 +139,46 @@ const Login = () => {
         </div>
         {currentState === 'Sign Up' && (
           <>
-            <input onChange={(e) => setName(e.target.value)} value={name} type="text" className='w-full px-3 py-2 border border-gray-800' placeholder='Name' required />
-            <input onChange={(e) => setEmail(e.target.value)} value={email} type="email" className='w-full px-3 py-2 border border-gray-800' placeholder='Email' required />
-            <input onChange={(e) => setPhone(e.target.value)} value={phone} type="text" className='w-full px-3 py-2 border border-gray-800' placeholder='Phone' required /> {/* New phone input */}
+            <input
+              onChange={(e) => setName(e.target.value)}
+              value={name}
+              type="text"
+              id="signup-name"
+              name="name"
+              className='w-full px-3 py-2 border border-gray-800'
+              placeholder='Name'
+              required
+            />
+            <input
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+              type="email"
+              id="signup-email"
+              name="email"
+              className='w-full px-3 py-2 border border-gray-800'
+              placeholder='Email'
+              required
+            />
+            <input
+              onChange={(e) => setPhone(e.target.value)}
+              value={phone}
+              type="text"
+              id="signup-phone"
+              name="phone"
+              className='w-full px-3 py-2 border border-gray-800'
+              placeholder='Phone'
+              required
+            />
             <div className='relative w-full'>
               <input
                 onChange={onPasswordChange}
                 value={password}
                 type={showPassword ? 'text' : 'password'}
+                id="signup-password"
+                name="password"
                 className='w-full px-3 py-2 border border-gray-800'
                 placeholder='Password'
                 required
-              //onFocus={() => setIsPasswordFocused(true)}
-              //onBlur={() => setIsPasswordFocused(false)}
               />
               <div className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5'>
                 <button type='button' onClick={() => setShowPassword(!showPassword)} className='focus:outline-none'>
@@ -182,6 +209,8 @@ const Login = () => {
               onChange={(e) => setEmailOrPhone(e.target.value)}
               value={emailOrPhone}
               type="text"
+              id="login-email-phone"
+              name="emailOrPhone"
               className='w-full px-3 py-2 border border-gray-800'
               placeholder='Email or Phone'
               required
@@ -191,6 +220,8 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
                 type={showPassword ? 'text' : 'password'}
+                id="login-password"
+                name="password"
                 className='w-full px-3 py-2 border border-gray-800'
                 placeholder='Password'
                 required
@@ -205,7 +236,16 @@ const Login = () => {
         )}
         {currentState === 'Verify Email' && (
           <>
-            <input onChange={(e) => setVerificationToken(e.target.value)} value={verificationToken} type="text" className='w-full px-3 py-2 border border-gray-800' placeholder='Verification Token' required />
+            <input
+              onChange={(e) => setVerificationToken(e.target.value)}
+              value={verificationToken}
+              type="text"
+              id="verification-token"
+              name="verificationToken"
+              className='w-full px-3 py-2 border border-gray-800'
+              placeholder='Verification Token'
+              required
+            />
             {currentState === 'Verify Email' && <p className='text-gray-500 text-xs mt-[-10px] md:mt-[-5px] flex justify-start w-full'>Check your email for the verification token.</p>}
           </>
         )}
@@ -215,6 +255,8 @@ const Login = () => {
               onChange={(e) => setResetEmail(e.target.value)}
               value={resetEmail}
               type="email"
+              id="reset-email"
+              name="resetEmail"
               className='w-full px-3 py-2 border border-gray-800'
               placeholder='Enter your registered email'
               required
@@ -230,6 +272,8 @@ const Login = () => {
               onChange={(e) => setResetCode(e.target.value)}
               value={resetCode}
               type="text"
+              id="reset-code"
+              name="resetCode"
               className='w-full px-3 py-2 border border-gray-800'
               placeholder='Enter the reset code'
               required
@@ -238,6 +282,8 @@ const Login = () => {
               onChange={(e) => setNewPassword(e.target.value)}
               value={newPassword}
               type={showPassword ? 'text' : 'password'}
+              id="new-password"
+              name="newPassword"
               className='w-full px-3 py-2 border border-gray-800'
               placeholder='New Password'
               required
@@ -246,6 +292,8 @@ const Login = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               value={confirmPassword}
               type={showPassword ? 'text' : 'password'}
+              id="confirm-password"
+              name="confirmPassword"
               className='w-full px-3 py-2 border border-gray-800'
               placeholder='Confirm New Password'
               required

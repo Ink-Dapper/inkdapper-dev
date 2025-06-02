@@ -357,7 +357,7 @@ const Dashboard = ({ token }) => {
               <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold">
                 {productDetailsData.reduce((sum, entry) => sum + entry.value, 0).toLocaleString()}
               </text>
-              <text x="50%" y="calc(50% + 20px)" textAnchor="middle" dominantBaseline="middle" className="text-gray-500 text-sm">
+              <text x="50%" y="70%" textAnchor="middle" dominantBaseline="middle" className="text-gray-500 text-sm">
                 Total Products
               </text>
             </PieChart>

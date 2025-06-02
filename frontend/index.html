@@ -17,6 +17,13 @@
       content="Ink Dapper specializes in oversized t-shirts, acid wash tees, custom oversized clothing, and solid color tees. Redefine your street style today!"
     >
     
+    <!-- Performance Meta Tags -->
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.inkdapper.com/" />
     
@@ -47,20 +54,31 @@
     <meta name="ICBM" content="20.5937, 78.9629">
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="/src/assets/logo_only.png" as="image" fetchpriority="high">
-    <link rel="preload" href="/src/main.jsx" as="script" fetchpriority="high">
+    <link rel="preload" href="/src/assets/logo_only.png" as="image" type="image/png" fetchpriority="high">
+    <link rel="modulepreload" href="/src/main.jsx" crossorigin="anonymous">
     <link rel="preconnect" href="https://checkout.razorpay.com">
     
-    <!-- Preload fonts -->
+    <!-- Preload fonts with display swap -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Prata&display=swap" as="style">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prata&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prata&display=swap" media="print" onload="this.media='all'">
     
-    <!-- Preload slider images -->
-    <!-- <link rel="preload" href="/src/assets/slider/banner1.webp" as="image" fetchpriority="high">
-<link rel="preload" href="/src/assets/slider/banner2.webp" as="image">
-<link rel="preload" href="/src/assets/inkdapper_logo.svg" as="image"> -->
+    <!-- Resource hints -->
+    <link rel="dns-prefetch" href="https://checkout.razorpay.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Preload first slider image -->
+    <link 
+      rel="preload" 
+      href="https://res.cloudinary.com/dzqwz6oow/image/upload/v1745652199/uih9hmb3ngpc" 
+      as="image" 
+      type="image/webp"
+      fetchpriority="high"
+    />
+    
+    <!-- Inline critical CSS -->
     <style>
-      
+      /* Critical CSS for initial render */
       .loader-container {
         position: fixed;
         top: 0;
@@ -72,7 +90,6 @@
         justify-content: center;
         align-items: center;
         z-index: 9999;
-        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
       }
       
       .loader {
@@ -80,7 +97,6 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 20px;
       }
       
       .logo-container {
@@ -158,20 +174,29 @@
         opacity: 0;
         visibility: hidden;
       }
+
+      /* Prevent layout shifts */
+      img {
+        aspect-ratio: attr(width) / attr(height);
+      }
     </style>
+    
+    <!-- Defer non-critical CSS -->
+    <link rel="stylesheet" href="/src/styles/swiper-custom.css" media="print" onload="this.media='all'">
   </head>
   <body>
     <!-- Page Loader -->
-    <div
-      class="loader-container"
-      id="pageLoader"
-    >
+    <div class="loader-container" id="pageLoader">
       <div class="loader">
         <div class="logo-container">
           <div class="loader-spinner"></div>
           <img
             src="./src/assets/logo_only.png"
             alt="Ink Dapper Logo"
+            width="90"
+            height="90"
+            fetchpriority="high"
+            decoding="sync"
           >
         </div>
         <div class="brand-name">
@@ -183,26 +208,58 @@
       </div>
     </div>
     <div id="root"></div>
-    <script
-      type="module"
-      src="/src/main.jsx"
-    ></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <!-- Defer non-critical JavaScript -->
+    <script type="module" src="/src/main.jsx" defer></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+    
     <!-- Loader Script -->
     <script>
-      window.addEventListener('load', function() {
-        // Wait for all content including images to load
-        setTimeout(() => {
-          const loader = document.getElementById('pageLoader');
-          if (loader) {
-            loader.classList.add('hidden');
-            // Remove from DOM after transition completes
+      // Optimize initial load
+      document.addEventListener('DOMContentLoaded', function() {
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+          // Reduce initial load time by removing loader faster
+          setTimeout(() => {
+            loader.style.opacity = '0';
+            loader.style.transition = 'opacity 0.3s ease-out';
             setTimeout(() => {
               loader.style.display = 'none';
-            }, 500);
-          }
-        }, 800); // Increased timeout to ensure animations are visible
+            }, 300);
+          }, 500);
+        }
       });
+
+      // Preload critical images
+      const preloadImages = () => {
+        const images = document.querySelectorAll('img[data-src]');
+        images.forEach(img => {
+          if (img.dataset.src) {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+          }
+        });
+      };
+
+      // Intersection Observer for lazy loading
+      if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              if (img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+              }
+              observer.unobserve(img);
+            }
+          });
+        });
+
+        document.querySelectorAll('img[data-src]').forEach(img => {
+          imageObserver.observe(img);
+        });
+      }
     </script>
   </body>
 </html>
