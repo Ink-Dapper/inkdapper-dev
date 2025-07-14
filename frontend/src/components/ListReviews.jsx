@@ -49,7 +49,7 @@ const ReviewViewMore = () => {
                     <span>{renderStars(review.rating)}</span>
                   </div>
                   <p className='font-medium text-base pl-2 pb-1 underline'>{review.reviewSub}</p>
-                  <p className='text-sm mb-2 pl-2 text-gray-500'>{review.reviewDesc}</p>
+                  <p className='text-sm mb-6 pl-2 text-gray-500'>{review.reviewDesc}</p>
                   <div className='text-xs text-gray-400 mb-1 absolute right-0 bottom-0'>{new Date(review.date).toDateString()}</div>
                   <hr />
                 </div>
