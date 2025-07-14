@@ -36,6 +36,7 @@ const LatestCollection = () => {
                             beforePrice={item.beforePrice}
                             soldout={item.soldout}
                             subCategory={item.subCategory}
+                            slug={item.slug}
                         />
                     ))
                 }

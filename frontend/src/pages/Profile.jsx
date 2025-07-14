@@ -22,6 +22,7 @@ const Profile = () => {
 
   return (
     <div className='border-t-2 pt-4'>
+      <h1 className="sr-only">Your Profile</h1>
       {
         usersDetails.map((user) => (
           <div key={user.users._id}>

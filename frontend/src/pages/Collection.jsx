@@ -95,12 +95,14 @@ const Collection = () => {
   return (
     <div className='flex flex-col md:flex-row gap-1 md:gap-10 pt-3 md:pt-10 border-t relative'>
       {/* Filter options */}
-      <div className="w-[100%] md:w-[18%]">
+      <div className="w-[100%] md:w-[18%] md:sticky md:top-24 z-20">
+        <h2 className="header-visibility sr-only">Filters</h2>
         <p onClick={() => setShowFilter(!showFilter)} className='my-2 text-sm md:text-lg flex items-center cursor-pointer gap-2'>FILTERS
           <img src={assets.dropdown_icon} alt="filter" className={`h-3 md:hidden ${showFilter ? 'rotate-90' : ''}`} />
         </p>
         {/* category filter */}
         <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? '' : 'hidden'} md:block transition`}>
+          <h3 className="header-visibility sr-only">Categories</h3>
           <p className='text-sm mb-3 font-medium'>CATEGORIES</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className='flex gap-2'>
@@ -119,6 +121,7 @@ const Collection = () => {
         </div>
         {/* sub category filter */}
         <div className={`border border-gray-300 pl-5 py-3 my-5 ${showFilter ? '' : 'hidden'} md:block ${categoryView} transition`}>
+          <h4 className="header-visibility sr-only">Type</h4>
           <p className='text-sm mb-3 font-medium'>TYPE</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
             <p className='flex gap-2'>
@@ -157,6 +160,7 @@ const Collection = () => {
       {/* right side */}
       <div className='w-[100%] md:w-[82%]'>
         <div className="md:flex justify-between text-sm sm:text-base md:text-2xl mb-4 relative">
+          <h2 className="header-visibility sr-only">All Collections</h2>
           <Title text1={'ALL'} text2={'COLLECTIONS'} />
           {/* product sort */}
           <div className='absolute lg:static -top-10 right-0 md:-top-4'>
@@ -190,6 +194,7 @@ const Collection = () => {
                 beforePrice={item.beforePrice}
                 subCategory={item.subCategory}
                 soldout={item.soldout}
+                slug={item.slug}
               />
             })
           }

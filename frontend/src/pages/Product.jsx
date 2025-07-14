@@ -28,7 +28,7 @@ function useIsMobile() {
 
 const Product = () => {
 
-  const { productId } = useParams()
+  const { productId, slug } = useParams()
   const { products, currency, addToCart, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop } = useContext(ShopContext)
   const [productData, setProductData] = useState(false)
   const [image, setImage] = useState('')
@@ -159,7 +159,7 @@ const Product = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${productId}`;
+    const productUrl = `${window.location.origin}/product/${productId}/${productData.slug}`;
     const shareText = `Check out this amazing product: ${productData.name} - ${currency} ${productData.price}\n${productUrl}`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
@@ -174,7 +174,7 @@ const Product = () => {
 
     // Instagram doesn't have a direct sharing API like WhatsApp
     // So we'll copy the link to clipboard and notify the user
-    const productUrl = `${window.location.origin}/product/${productId}`;
+    const productUrl = `${window.location.origin}/product/${productId}/${productData.slug}`;
     navigator.clipboard.writeText(productUrl);
 
     toast.info('Link copied! Open Instagram and paste in your story or message', { autoClose: 3000 });
@@ -185,7 +185,7 @@ const Product = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${productId}`;
+    const productUrl = `${window.location.origin}/product/${productId}/${productData.slug}`;
     const shareText = `Check out this amazing product: ${productData.name} - ${currency} ${productData.price}\n${productUrl}`;
 
     // On mobile, this will open the native share dialog if supported
@@ -217,7 +217,7 @@ const Product = () => {
     getProductReviewCount()
     createNew();
     console.log(products)
-  }, [productId, products, size, getCartCount, getWishlistCount, reviewList])
+  }, [productId, products, size, getCartCount, getWishlistCount, reviewList, productData.slug])
 
   const openModal = (index) => {
     setCurrentImageIndex(index);
@@ -249,6 +249,7 @@ const Product = () => {
 
   return productData ? (
     <div className='border-t-2 pt-6 md:pt-10 transition-opacity ease-in duration-500 opacity-100'>
+      <h1 className="sr-only">Product Details</h1>
       {/* product data */}
       <div className='flex gap-5 md:gap-12 sm:gap-12 flex-col md:flex-row'>
 
@@ -540,7 +541,7 @@ const Product = () => {
 
       {/* Key Highlights Section */}
       <div className="w-full my-8">
-        <h2 className="font-semibold text-xl mb-4">Key Highlights</h2>
+        <h2 className="header-visibility sr-only">Key Highlights</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6 pl-[2.2%]">
           <div className="flex items-end gap-3 relative">
             <Paintbrush className="w-5 h-5 text-orange-500 absolute md:-left-[7%] bottom-[9%]" />
@@ -590,10 +591,7 @@ const Product = () => {
       {/* Key Highlights & Product Description Section */}
       <div className="mt-8 mb-8 w-full">
         <div className="p-1">
-          <h2 className="font-semibold text-xl mb-2 flex items-center gap-2">
-            <svg className="inline-block" width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h10v2H4z" /></svg>
-            Product Description
-          </h2>
+          <h2 className="header-visibility sr-only">Product Description</h2>
           <div className="text-gray-500 text-sm mb-4">Manufacture, Care and Fit</div>
           <div className="text-gray-800 text-base mb-4 space-y-4">
             <p>Unleash your inner trendsetter with the <span className="font-semibold">Inkdapper {productData.name} T-shirt</span>! Crafted for those who love to stand out, this oversized tee combines comfort with bold, custom style. Featuring unique DTF sticker prints and a striking bleach design, it's the perfect choice for anyone who wants to express their individuality.</p>
@@ -639,14 +637,15 @@ const Product = () => {
       </div>
 
       <div className='flex flex-col lg:flex lg:flex-row w-auto justify-between items-start lg:items-center'>
+        <h2 className="header-visibility sr-only">Product Reviews</h2>
         {/* -------------User Reviews-------------- */}
-        <ProductReviewSection productId={productData._id} className="w-1/2" />
-
+        <ProductReviewSection productId={productData._id} />
         {/* -------------User Reviews-------------- */}
-        <ListReviews className="w-1/2" />
+        <ListReviews />
       </div>
 
       {/* ----------Display related products */}
+      <h2 className="header-visibility sr-only">Related Products</h2>
       <RelatedProducts
         category={productData.category}
         subCategory={productData.subCategory}
@@ -697,7 +696,7 @@ const Product = () => {
         </div>
       )}
     </div>
-  ) : <div className='text-6xl font-semibold text-gray-400 flex items-center justify-center text-center pt-20'>Product Not Available<br /> Sorry!</div>
+  ) : <div className='text-6xl font-semibold text-gray-400 flex items-center justify-center text-center pt-20'>Product Not Available<br /> Please check the URL format: /product/:id/:slug<br /> Sorry!</div>
 }
 
 export default Product

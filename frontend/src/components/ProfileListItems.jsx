@@ -67,7 +67,7 @@ const ProfileListItems = () => {
           <div className='inline-flex md:flex gap-1 md:gap-3 mt-4 mr-4'>
             {
               orderDataOne.map((item, index) => (
-                <Link key={index} to={`/product/${item.items[0]._id}`}
+                <Link key={index} to={`/product/${item.items[0]._id}/${item.items[0].slug}`}
                   className={`${index === 2 ? 'w-52 h-64 md:w-96 md:h-96' :
                     index === 1 ? 'w-52 h-64 md:w-80 md:h-80' :
                       index === 0 ? 'w-52 h-64 md:w-72 md:h-72' :

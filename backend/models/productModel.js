@@ -14,6 +14,7 @@ const productSchema = new mongoose.Schema({
     bestseller : {type: Boolean},
     soldout : {type: Boolean, default: false},
     date : {type: Number, required: true},
+    slug: {type: String, required: false},
 })
 
 const productModel = mongoose.models.product || mongoose.model("product",productSchema);

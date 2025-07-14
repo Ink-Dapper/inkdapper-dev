@@ -38,7 +38,7 @@ const Cart = () => {
       for (const items in cartItems) {
         console.log(cartItems[items])
         for (const item in cartItems[items]) {
-          console.log(cartItems[items][item] )
+          console.log(cartItems[items][item])
           if (cartItems[items][item] > 0) {
             tempData.push({
               _id: items,
@@ -74,6 +74,7 @@ const Cart = () => {
 
   return (
     <div className='border-t p-6 md:p-14'>
+      <h1 className="sr-only">Your Cart</h1>
       <div className=' text-xl md:text-2xl lg:text-3xl mb-3'>
         <Title text1={'YOUR'} text2={'CART'} />
       </div>

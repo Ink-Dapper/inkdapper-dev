@@ -71,7 +71,7 @@ const Orders = () => {
       ...prevState,
       [item.orderId]: 'block',
     }),
-    loadOrderData());
+      loadOrderData());
     setTimeout(() => {
       setOrderStatusLoading((prevState) => ({
         ...prevState,
@@ -179,7 +179,8 @@ const Orders = () => {
   };
 
   return (
-    <div className='border-t pt-6 md:pt-16'>
+    <div className='border-t-2 pt-4'>
+      <h1 className="sr-only">Your Orders</h1>
       <div className='text-2xl'>
         <Title text1={'MY'} text2={'ORDERS'} />
       </div>

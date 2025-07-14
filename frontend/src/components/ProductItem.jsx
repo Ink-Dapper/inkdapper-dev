@@ -7,7 +7,11 @@ import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 
-const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout }) => {
+const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug }) => {
+  // Fallback: generate slug from name if slug is missing
+  let safeSlug = slug || (name ? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') : '');
+  // Remove trailing dash if present
+  if (safeSlug.endsWith('-')) safeSlug = safeSlug.slice(0, -1);
   const { currency, scrollToTop, addToWishlist, token, wishlist } = useContext(ShopContext);
   const [favWishlist, setFavWishlist] = useState([]);
   const [changeText, setChangeText] = useState('');
@@ -71,7 +75,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}`;
+    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
@@ -84,7 +88,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}`;
+    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
     navigator.clipboard.writeText(productUrl);
 
     toast.info('Link copied! Open Instagram and paste in your story or message', { autoClose: 3000 });
@@ -95,7 +99,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}`;
+    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
 
     if (navigator.share) {
@@ -143,7 +147,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         <FavoriteBorderIcon onClick={() => addToWishlistPage()} className={`absolute right-3 top-2 z-20 cursor-pointer`} />
       }
 
-      <Link onClick={() => scrollToTop()} className={`text-gray-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`} to={`/product/${id}`}>
+      <Link onClick={() => scrollToTop()} className={`text-gray-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`} to={`/product/${id}/${safeSlug}`}>
         <div className='transition-shadow shadow-lg shadow-gray-400 rounded-b-md'>
           <div className="overflow-hidden h-54 sm:h-80 bg-gray-200 flex justify-center items-center rounded-t-md relative product-image">
             <div className="w-full h-full relative" style={{ aspectRatio: '3/4' }}>

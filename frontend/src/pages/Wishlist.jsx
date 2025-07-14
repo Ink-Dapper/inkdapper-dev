@@ -53,7 +53,8 @@ const Wishlist = () => {
   }, [wishlist, products])
 
   return (
-    <div className='border-t p-4 md:p-14'>
+    <div className='border-t-2 pt-4'>
+      <h1 className="sr-only">Your Wishlist</h1>
       <div className='text-xl md:text-2xl lg:text-3xl mb-3'>
         <Title text1={'YOUR'} text2={'WISHLIST'} />
       </div>
@@ -80,7 +81,7 @@ const Wishlist = () => {
                     </div>
                     <img onClick={() => updateWishlistQuantity(item._id, 0)} src={assets.bin_icon} alt="bin_icon" className='w-4 mr-4 sm:w-5 cursor-pointer absolute top-6 right-0 md:right-3' />
                     {
-                      <Link key={index} to={`/product/${item._id}`}>
+                      <Link key={index} to={`/product/${item._id}/${item.slug}`}>
                         <span>
                           <img src={assets.shopping_icon_wish} alt="bin_icon" className='w-4 mr-4 sm:w-6 cursor-pointer absolute bottom-6 right-0 md:right-3' />
                         </span>

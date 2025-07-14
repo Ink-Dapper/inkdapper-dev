@@ -100,8 +100,7 @@ const Slider = () => {
               alt={`Slide ${index + 1}`}
               loading={index === 0 ? "eager" : "lazy"}
               fetchpriority={index === 0 ? "high" : "auto"}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${imagesLoaded[index] ? 'opacity-100' : 'opacity-0'
-                }`}
+              className={`w-full h-full object-cover${index === 0 ? '' : ' transition-opacity duration-300'}${imagesLoaded[index] ? ' opacity-100' : ' opacity-0'}`}
               width="1200"
               height="600"
               decoding={index === 0 ? "sync" : "async"}

@@ -1,11 +1,12 @@
 import React, { Suspense, lazy } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import SearchBar from './components/SearchBar';
 import SkeletonLoader from './components/SkeletonLoader';
+import NotFound from './pages/NotFound';
 
 // Lazy load modals
 const NewsletterModal = lazy(() => import('./components/NewsletterModal'));
@@ -52,7 +53,9 @@ const App = () => {
           <Route path="/custom" element={<Custom />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/product/:productId" element={<Product />} />
+          <Route path="/product/:productId/:slug" element={<Product />} />
+          {/* Optional: Keep old route for backward compatibility, redirect to new one */}
+          <Route path="/product/:productId" element={<Navigate to={(location) => `/product/${location.pathname.split('/').pop()}/${products.find(p => p._id === location.pathname.split('/').pop())?.slug || ''}`} replace />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/place-order" element={<PlaceOrder />} />
@@ -65,6 +68,7 @@ const App = () => {
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
           <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
       <Footer />
