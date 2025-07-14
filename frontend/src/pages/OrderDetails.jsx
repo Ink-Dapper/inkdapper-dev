@@ -42,7 +42,8 @@ const OrderDetails = () => {
   }, [token, productId]);
 
   return (
-    <div>
+    <div className='border-t-2 pt-4'>
+      <h1 className="sr-only">Order Details</h1>
       <div className='text-2xl'>
         <Title text1={'ORDER'} text2={'DETAILS'} />
       </div>
@@ -115,7 +116,7 @@ const OrderDetails = () => {
                 </div>
                 {console.log(order)}
                 <div className='mt-3'>
-                  <Link to={`/product/${order.items[0]._id}`}>
+                  <Link to={`/product/${order.items[0]._id}/${order.items[0].slug}`}>
                     <button type="button" className='bg-black text-white px-10 py-3 text-xl'>Buy It Again</button>
                   </Link>
                 </div>

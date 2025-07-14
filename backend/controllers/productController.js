@@ -2,6 +2,18 @@ import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
 import AddBannerModel from "../models/addBannerModel.js";
 
+// Helper function to generate slug from product name
+function slugify(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^a-z0-9\-]/g, '')    // Remove all non-alphanumeric except -
+    .replace(/\-+/g, '-')           // Replace multiple - with single -
+    .replace(/^-+/, '')              // Trim - from start of text
+    .replace(/-+$/, '');             // Trim - from end of text
+}
+
 // function for add product
 const addProduct = async (req, res) => {
   try {
@@ -65,6 +77,7 @@ const addProduct = async (req, res) => {
       image: imagesUrl,
       reviewImage: reviewImagesUrl,
       date: Date.now(),
+      slug: slugify(name),
     };
 
     console.log(productData);
@@ -199,7 +212,8 @@ const editProduct = async (req, res) => {
       bestseller: bestseller === "true" ? true : false,
       sizes: JSON.parse(sizes),
       image: existingProduct.image, // Start with existing images
-      reviewImage: existingProduct.reviewImage // Start with existing review images
+      reviewImage: existingProduct.reviewImage, // Start with existing review images
+      slug: slugify(name),
     };
 
     // Handle image updates

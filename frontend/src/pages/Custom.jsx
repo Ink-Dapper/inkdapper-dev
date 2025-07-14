@@ -130,7 +130,8 @@ const Custom = () => {
   }, [token, getCustomData])
 
   return (
-    <div className='border-t p-6 md:p-14'>
+    <div className='border-t-2 pt-4'>
+      <h1 className="sr-only">Custom T-shirt</h1>
       <div className=' text-xl md:text-2xl lg:text-3xl mb-3'>
         <Title text1={'YOUR'} text2={'CUSTOM TOOL'} />
       </div>
