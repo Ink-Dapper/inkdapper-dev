@@ -51,7 +51,7 @@ const Footer = () => {
             <li><a href="mailto:support@inkdapper.com">Email : <b>support@inkdapper.com</b></a></li>
           </ul>
           <div className='mt-5'>
-            <p className='text-lg md:text-xl font-medium md-2 md:mb-5'>FOLLOW US</p>
+            <p className='text-lg md:text-xl font-medium md-2 mb-2 md:mb-5'>FOLLOW US</p>
             <div className='flex gap-8'>
               {/* Facebook */}
               <a
