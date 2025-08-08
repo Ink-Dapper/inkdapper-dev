@@ -42,40 +42,50 @@ const prefetchRoute = (importFn) => {
 
 const App = () => {
   return (
-    <div className="px-3 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
-      <ToastContainer />
-      <Navbar />
-      <SearchBar />
-      <Suspense fallback={<SkeletonLoader />}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/collection" element={<Collection />} />
-          <Route path="/custom" element={<Custom />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/product/:productId/:slug" element={<Product />} />
-          {/* Optional: Keep old route for backward compatibility, redirect to new one */}
-          <Route path="/product/:productId" element={<Navigate to={(location) => `/product/${location.pathname.split('/').pop()}/${products.find(p => p._id === location.pathname.split('/').pop())?.slug || ''}`} replace />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/place-order" element={<PlaceOrder />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/order-details/:productId" element={<OrderDetails />} />
-          <Route path="/review-page" element={<ReviewViewMore />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-          <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
-          <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-      <Footer />
-      <Suspense fallback={null}>
-        <NewsletterModal />
-        <PriceOfferModal />
-      </Suspense>
+    <div className="app-container">
+      {/* Global Background */}
+      <div className="global-background">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 via-red-50/20 to-yellow-50/20"></div>
+        <div className="absolute top-0 left-1/4 w-72 h-72 bg-gradient-to-r from-orange-200/30 to-red-200/30 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gradient-to-r from-yellow-200/30 to-orange-200/30 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-0 w-48 h-48 bg-gradient-to-r from-red-200/30 to-pink-200/30 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-1000"></div>
+        <div className="absolute top-1/4 right-0 w-64 h-64 bg-gradient-to-r from-yellow-200/20 to-orange-200/20 rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-pulse animation-delay-3000"></div>
+        <div className="absolute bottom-1/4 left-1/2 w-56 h-56 bg-gradient-to-r from-red-200/25 to-orange-200/25 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-1500"></div>
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 px-3 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
+        <ToastContainer />
+        <Navbar />
+        <Suspense fallback={<SkeletonLoader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/collection" element={<Collection />} />
+            <Route path="/custom" element={<Custom />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/product/:productId/:slug" element={<Product />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/place-order" element={<PlaceOrder />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/order-details/:productId" element={<OrderDetails />} />
+            <Route path="/review-page" element={<ReviewViewMore />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
+            <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+        <Footer />
+        <Suspense fallback={null}>
+          <NewsletterModal />
+          <PriceOfferModal />
+        </Suspense>
+      </div>
     </div>
   );
 };

@@ -13,6 +13,237 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Global App Container */
+.app-container {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Global Background */
+.global-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+/* Ensure content sections have proper backgrounds */
+.global-background+div {
+    position: relative;
+    z-index: 1;
+}
+
+/* Content section enhancements for global background */
+section {
+    position: relative;
+    z-index: 1;
+}
+
+/* Card and component backgrounds for better visibility */
+.card,
+.bg-white,
+.bg-slate-50,
+.bg-gray-50 {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Navbar and footer enhancements */
+nav,
+footer {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Modal and overlay enhancements */
+.modal,
+.overlay,
+[role="dialog"] {
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(20px);
+}
+
+/* Form elements enhancement */
+input,
+textarea,
+select {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Button enhancements */
+button:not(.share-button) {
+    backdrop-filter: blur(5px);
+}
+
+/* Global text color improvements for better readability */
+body {
+    color: #1e293b;
+    /* slate-800 */
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #0f172a;
+    /* slate-900 */
+}
+
+/* Paragraphs and general text */
+p,
+span,
+div {
+    color: #334155;
+    /* slate-700 */
+}
+
+/* Links */
+a {
+    color: #1e293b;
+    /* slate-800 */
+}
+
+a:hover {
+    color: #ea580c;
+    /* orange-600 */
+}
+
+/* Form labels */
+label {
+    color: #475569;
+    /* slate-600 */
+    font-weight: 500;
+}
+
+/* Placeholder text */
+::placeholder {
+    color: #64748b;
+    /* slate-500 */
+}
+
+/* Selection */
+::selection {
+    background-color: #fed7aa;
+    /* orange-200 */
+    color: #1e293b;
+    /* slate-800 */
+}
+
+/* Active navigation links */
+a.active {
+    color: #ea580c;
+    /* orange-600 */
+}
+
+/* Card text */
+.card p,
+.card span {
+    color: #334155;
+    /* slate-700 */
+}
+
+/* Footer text */
+footer p,
+footer span,
+footer a {
+    color: #475569;
+    /* slate-600 */
+}
+
+/* Modal text */
+.modal p,
+.modal span {
+    color: #334155;
+    /* slate-700 */
+}
+
+/* Enhanced text contrast for better readability */
+.text-contrast {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Product card text enhancements */
+.product-card h3,
+.product-card h4 {
+    color: #0f172a;
+    /* slate-900 */
+    font-weight: 600;
+}
+
+.product-card p {
+    color: #475569;
+    /* slate-600 */
+}
+
+/* Price text */
+.price {
+    color: #ea580c;
+    /* orange-600 */
+    font-weight: 700;
+}
+
+.original-price {
+    color: #94a3b8;
+    /* slate-400 */
+    text-decoration: line-through;
+}
+
+/* Button text */
+.btn-primary {
+    color: white;
+    background: linear-gradient(135deg, #ea580c, #dc2626);
+}
+
+.btn-secondary {
+    color: #ea580c;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ea580c;
+}
+
+/* Form input focus states */
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #ea580c;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+}
+
+/* Toast notifications */
+.Toastify__toast {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #334155;
+}
+
+/* Loading states */
+.skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
 a.active hr {
     display: block;
 }
@@ -29,6 +260,53 @@ a.active hr {
 
 ::-webkit-scrollbar {
     display: none;
+}
+
+/* Hide scrollbar for horizontal scroll on mobile */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Safari and Chrome */
+}
+
+/* Custom Swiper styles for Customer Reviews slider */
+.swiper-pagination-bullet {
+    background: #d1d5db !important;
+    opacity: 0.5 !important;
+    width: 8px !important;
+    height: 8px !important;
+    margin: 0 4px !important;
+}
+
+.swiper-pagination-bullet-active {
+    background: #f97316 !important;
+    opacity: 1 !important;
+    width: 20px !important;
+    border-radius: 4px !important;
+}
+
+.swiper-button-prev-reviews,
+.swiper-button-next-reviews {
+    opacity: 0.8 !important;
+    transition: all 0.3s ease !important;
+}
+
+.swiper-button-prev-reviews:hover,
+.swiper-button-next-reviews:hover {
+    opacity: 1 !important;
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
+.swiper-button-prev-reviews.swiper-button-disabled,
+.swiper-button-next-reviews.swiper-button-disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
 }
 
 .product-image::before {
@@ -60,9 +338,329 @@ a.active hr {
     transition: all 0.5s ease-in-out;
 }
 
+/* Modern utilities */
+.line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+/* Enhanced animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Hero section animations */
+.animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease-in-out infinite;
+}
+
+@keyframes gradient-x {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+/* Product card enhancements */
+.product-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Glass morphism effect */
+.glass {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Animation delay utilities */
+.animation-delay-1000 {
+    animation-delay: 1s;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Bright shadow effects */
+.bright-shadow-purple {
+    box-shadow:
+        0 0 20px rgba(168, 85, 247, 0.4),
+        0 0 40px rgba(168, 85, 247, 0.2),
+        0 0 60px rgba(168, 85, 247, 0.1);
+}
+
+.bright-shadow-pink {
+    box-shadow:
+        0 0 20px rgba(236, 72, 153, 0.4),
+        0 0 40px rgba(236, 72, 153, 0.2),
+        0 0 60px rgba(236, 72, 153, 0.1);
+}
+
+.bright-shadow-blue {
+    box-shadow:
+        0 0 20px rgba(59, 130, 246, 0.4),
+        0 0 40px rgba(59, 130, 246, 0.2),
+        0 0 60px rgba(59, 130, 246, 0.1);
+}
+
+.bright-shadow-cyan {
+    box-shadow:
+        0 0 20px rgba(34, 211, 238, 0.4),
+        0 0 40px rgba(34, 211, 238, 0.2),
+        0 0 60px rgba(34, 211, 238, 0.1);
+}
+
+.bright-shadow-emerald {
+    box-shadow:
+        0 0 20px rgba(16, 185, 129, 0.4),
+        0 0 40px rgba(16, 185, 129, 0.2),
+        0 0 60px rgba(16, 185, 129, 0.1);
+}
+
+.bright-shadow-orange {
+    box-shadow:
+        0 0 20px rgba(249, 115, 22, 0.4),
+        0 0 40px rgba(249, 115, 22, 0.2),
+        0 0 60px rgba(249, 115, 22, 0.1);
+}
+
+/* Multi-colored bright shadow */
+.bright-shadow-multi {
+    box-shadow:
+        0 0 20px rgba(168, 85, 247, 0.3),
+        0 0 40px rgba(236, 72, 153, 0.2),
+        0 0 60px rgba(59, 130, 246, 0.1),
+        0 0 80px rgba(34, 211, 238, 0.1);
+}
+
+/* Product card text utilities */
+.product-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+    min-height: 1.5rem;
+    font-size: 16px;
+    margin-top: 6px;
+}
+
+@media (min-width: 640px) {
+    .product-name {
+        min-height: 2rem;
+    }
+}
+
+.price-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 1.25rem;
+    flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+    .price-container {
+        min-height: 1.5rem;
+    }
+}
+
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.1rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    white-space: nowrap;
+}
+
+.card-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.75rem;
+    background: white;
+}
+
+@media (min-width: 640px) {
+    .card-info-section {
+        padding: 1rem;
+    }
+}
+
+/* Mobile share button improvements */
+@media (max-width: 640px) {
+    .share-button {
+        min-width: 36px;
+        min-height: 36px;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .share-button:hover {
+        background: rgba(255, 255, 255, 1) !important;
+        transform: scale(1.1);
+    }
+}
+
+/* Adaptive color animations */
+@keyframes colorShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.adaptive-gradient {
+    background: linear-gradient(-45deg, #f97316, #ef4444, #eab308, #f97316);
+    background-size: 400% 400%;
+    animation: colorShift 8s ease-in-out infinite;
+}
+
+.adaptive-text {
+    background: linear-gradient(-45deg, #f97316, #ef4444, #eab308, #f97316);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: colorShift 6s ease-in-out infinite;
+}
+
+/* Enhanced section backgrounds */
+.section-gradient {
+    background: linear-gradient(135deg,
+            rgba(249, 115, 22, 0.05) 0%,
+            rgba(239, 68, 68, 0.05) 25%,
+            rgba(234, 179, 8, 0.05) 50%,
+            rgba(249, 115, 22, 0.05) 75%,
+            rgba(239, 68, 68, 0.05) 100%);
+}
+
+/* Floating color orbs */
+.color-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.6;
+    animation: float 6s ease-in-out infinite;
+}
+
+.color-orb:nth-child(1) {
+    background: linear-gradient(45deg, #f97316, #ef4444);
+    animation-delay: 0s;
+}
+
+.color-orb:nth-child(2) {
+    background: linear-gradient(45deg, #eab308, #f97316);
+    animation-delay: 2s;
+}
+
+.color-orb:nth-child(3) {
+    background: linear-gradient(45deg, #ef4444, #f59e0b);
+    animation-delay: 4s;
+}
+
 @media (max-width:640px) {
     a.active {
         background-color: black;
         color: white;
+
+        .menu-span {
+            color: black;
+        }
+
+        span {
+            color: white;
+        }
     }
 }

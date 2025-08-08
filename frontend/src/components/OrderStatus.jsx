@@ -30,8 +30,6 @@ const OrderStatus = ({ item, orderStatusLoading, selectedOrderId }) => {
           <p className="text-sm md:text-base">Cancel</p>
         </> :
         <>
-          <p className={`min-w-2 h-2 rounded-full ${statusClass}`}></p>
-          <p className="text-sm md:text-base">{item.status}</p>
         </>
       }
     </div>

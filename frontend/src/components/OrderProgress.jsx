@@ -1,31 +1,53 @@
 import React from 'react';
 
 const OrderProgress = ({ item }) => {
-  const orderLoadingOne = 20; // Example values, set according to your needs
-  const orderLoadingTwo = 40;
-  const orderLoadingThree = 60;
-  const orderLoadingFour = 80;
-  const orderLoadingFive = 100;
+  // Perfect progress calculation based on order status
+  const getProgressPercentage = (status) => {
+    switch (status) {
+      case 'Order placed':
+        return 20;
+      case 'Packing':
+        return 40;
+      case 'Shipped':
+        return 60;
+      case 'Out for delivery':
+        return 80;
+      case 'Delivered':
+        return 100;
+      default:
+        return 20;
+    }
+  };
 
-  const width = item.status === 'Order placed' ? orderLoadingOne :
-                item.status === 'Packing' ? orderLoadingTwo :
-                item.status === 'Shipped' ? orderLoadingThree :
-                item.status === 'Out for delivery' ? orderLoadingFour :
-                item.status === 'Delivered' ? orderLoadingFive : orderLoadingOne;
+  // Get icon states based on progress
+  const getIconStates = (status) => {
+    const progress = getProgressPercentage(status);
+    return {
+      orderPlaced: progress >= 20,
+      packing: progress >= 40,
+      shipped: progress >= 60,
+      outForDelivery: progress >= 80,
+      delivered: progress >= 100
+    };
+  };
 
-                const backgroundColor = item.status === 'Order placed' ? '#FFB26F' :
-                              item.status === 'Packing' ? '#FAB12F' :
-                              item.status === 'Shipped' ? '#FC8F54' :
-                              item.status === 'Out for delivery' ? '#FA812F' :
-                              item.status === 'Delivered' ? '#FA4032' : '#FFB26F';
+  const progressPercentage = getProgressPercentage(item.status);
+  const iconStates = getIconStates(item.status);
 
   return (
-    <div className="progress-container">
-      <div className="h-1 rounded-full" style={{
-          width: `${width}%`,
-          transition: 'width 0.5s ease-in-out', // Add transition for smooth animation
-          backgroundColor: `${backgroundColor}` // Set your desired background color
-        }}>
+    <div className="w-full h-full relative overflow-hidden rounded-full">
+      {/* Background track - always visible */}
+      <div className="absolute inset-0 bg-gray-200 rounded-full"></div>
+      
+      {/* Progress fill - shows completed portion */}
+      <div 
+        className="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 shadow-sm relative z-10"
+        style={{
+          width: `${progressPercentage}%`,
+        }}
+      >
+        {/* Add a subtle shimmer effect */}
+        <div className="w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
       </div>
     </div>
   );
