@@ -62,46 +62,98 @@ const ProductReviewSection = ({ productId }) => {
   }, [usersDetails])
 
   return (
-    <div className='mt-4 md:mt-4 w-full lg:w-1/2'>
-      <h2 className='font-medium text-xl md:text-2xl mb-1'>Product Reviews</h2>
-      <form onSubmit={onSubmitHandler} className=''>
-        <div className='label_star mt-2 w-56 flex justify-between items-center'>
-          <label htmlFor="rating" className='font-medium text-lg md:text-xl gap-1'>Ratings :</label>
-          <div className='flex gap-2'>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <FaStar key={star} className={`cursor-pointer ${rating >= star ? 'text-red-500' : 'text-gray-300'}`} onClick={() => setRating(star)} size={20} />
-            ))}
+    <div className='mt-8 md:mt-12 w-full'>
+      <div className='bg-gradient-to-br from-white to-orange-50/30 rounded-2xl p-4 md:p-8 shadow-xl border border-orange-100'>
+        <div className='flex items-center gap-3 mb-8'>
+          <div className='w-12 h-12 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl flex items-center justify-center'>
+            <FaStar className='text-white text-xl' />
+          </div>
+          <div>
+            <h2 className='font-bold text-2xl md:text-3xl text-gray-800'>Share Your Experience</h2>
+            <p className='text-gray-600 text-sm mt-1'>Help others by writing a review</p>
           </div>
         </div>
-        <div className='grid md:grid-rows-1 md:grid-flow-col grid-flow-row gap-3 mt-4'>
-          <img src={assets.about_us} alt="review" className='w-full h-64 lg:w-44 lg:h-64 hidden md:block col-span-1 row-span-1 md:col-span-1 md:row-span-3' />
-          <div className='flex flex-col items-start col-span-2 row-span-1'>
+
+        <form onSubmit={onSubmitHandler} className='space-y-6'>
+          {/* Rating Section */}
+          <div className='space-y-3'>
+            <label className='block text-sm font-semibold text-gray-700 uppercase tracking-wide'>
+              Your Rating
+            </label>
+            <div className='flex gap-3'>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  className={`transition-all duration-200 transform hover:scale-110 ${rating >= star
+                      ? 'text-amber-400 drop-shadow-lg'
+                      : 'text-gray-300 hover:text-amber-300'
+                    }`}
+                >
+                  <FaStar size={28} />
+                </button>
+              ))}
+            </div>
+            {rating > 0 && (
+              <p className='text-sm text-gray-600 mt-2'>
+                You rated this product {rating} star{rating > 1 ? 's' : ''}
+              </p>
+            )}
+          </div>
+
+          {/* Subject Input */}
+          <div className='space-y-2'>
+            <label htmlFor="review-subject" className='block text-sm font-semibold text-gray-700 uppercase tracking-wide'>
+              Review Title
+            </label>
             <input
               type="text"
               id="review-subject"
               name="reviewSubject"
               onChange={(e) => setReviewSub(e.target.value)}
               value={reviewSub}
-              placeholder="Subject here..."
-              className='w-full lg:w-[450px] h-10 border border-gray-300 p-4 outline-none'
+              placeholder="What's most important to know?"
+              className='w-full h-12 px-4 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition-all duration-200 outline-none text-gray-700 placeholder-gray-400'
               required
             />
           </div>
-          <div className='flex flex-col items-start col-span-2 row-span-1'>
+
+          {/* Description Textarea */}
+          <div className='space-y-2'>
+            <label htmlFor="review-description" className='block text-sm font-semibold text-gray-700 uppercase tracking-wide'>
+              Your Review
+            </label>
             <textarea
               id="review-description"
               name="reviewDescription"
               onChange={(e) => setReviewDesc(e.target.value)}
               value={reviewDesc}
-              type="text"
-              placeholder="Your review here..."
-              className='w-full lg:w-[450px] h-36 border border-gray-300 p-4 outline-none'
+              placeholder="Share your thoughts about this product..."
+              className='w-full h-32 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition-all duration-200 outline-none text-gray-700 placeholder-gray-400 resize-none'
               required
-            ></textarea>
+            />
           </div>
-          <button type="submit" className='w-full lg:w-[450px] text-lg px-8 py-2 col-span-2 row-span-1 bg-gray-700 text-white'>Submit</button>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className='w-full h-12 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2'
+          >
+            <FaStar className='text-sm' />
+            Submit Review
+          </button>
+        </form>
+
+        {/* Decorative Image */}
+        <div className='hidden lg:block absolute top-8 right-8 opacity-10'>
+          <img
+            src={assets.about_us}
+            alt="review"
+            className='w-32 h-32 object-cover rounded-full'
+          />
         </div>
-      </form>
+      </div>
     </div>
   )
 }

@@ -141,62 +141,255 @@ const PlaceOrder = () => {
   }, []);
 
   return (
-    <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
-      <h1 className="sr-only">Place Order</h1>
-      <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
-        <div className='text-xl sm:text-2xl my-3'>
-          <Title text1={'DELIVERY'} text2={'INFORMATION'} />
-        </div>
-        <div className='flex gap-3'>
-          <input required onChange={onChangeHandler} name='firstName' value={formData.firstName} type="text" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='First Name' />
-          <input required onChange={onChangeHandler} name='lastName' value={formData.lastName} type="text" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='Last Name' />
-        </div>
-        <input required onChange={onChangeHandler} name='email' value={formData.email} type="email" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='Email Address' />
-        <input required onChange={onChangeHandler} name='street' value={formData.street} type="text" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='Street' />
-        <div className='flex gap-3'>
-          <input required onChange={onChangeHandler} name='city' value={formData.city} type="text" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='City' />
-          <input required onChange={onChangeHandler} name='state' value={formData.state} type="text" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='State' />
-        </div>
-        <div className='flex gap-3'>
-          <input required onChange={onChangeHandler} name='zipcode' value={formData.zipcode} type="text" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='Zipcode' />
-          <input required onChange={onChangeHandler} name='country' value={formData.country} type="text" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='Country' />
-        </div>
-        <input required onChange={onChangeHandler} name='phone' value={formData.phone} type="text" className='border border-gray-300 py-1.5 px-3.5 w-full' placeholder='Phone' />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <form onSubmit={onSubmitHandler} className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12'>
+          <h1 className="sr-only">Place Order</h1>
 
-      {/* ---------Right side------- */}
-      <div className='mt-8'>
-        <div className='mt-8 min-w-80'>
-          <CartTotal
-            creditPtsVisible={creditPtsVisible}
-            setCreditPtsVisible={setCreditPtsVisible}
-          />
-        </div>
-
-        <div className='mt-12'>
-          <Title text1={'PAYMENT'} text2={'METHOD'} />
-          {/* ------------payment method------------ */}
-          <div className='flex gap-3 lg:flex-row'>
-            {/* <div onClick={() => setMethod('stripe')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
-              <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'stripe' ? 'bg-green-400' : ''} `}></p>
-              <img src={assets.stripe_logo} alt="stripe_logo" className='h-5 mx-4' />
-            </div> */}
-            <div onClick={() => setMethod('razorpay')} className={`flex items-center gap-3 border p-2 px-2 md:px-3 cursor-pointer ${method === 'razorpay' ? 'bg-orange-400' : 'border-gray-300'}`}>
-              <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'razorpay' ? 'bg-gray-600' : ''} `}></p>
-              <img src={assets.razorpay_logo} alt="razorpay_logo" className='h-5 mx-4' />
+          {/* Left Side - Delivery Information */}
+          <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+            <div className='mb-8'>
+              <div className='flex items-center gap-3 mb-2'>
+                <div className='w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center'>
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h2 className='text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent'>
+                  Delivery Information
+                </h2>
+              </div>
+              <p className='text-gray-600 text-sm'>Please provide your delivery details</p>
             </div>
-            <div onClick={() => setMethod('cod')} className={`flex items-center gap-3 border p-2 px-2 md:px-3 cursor-pointer ${method === 'cod' ? 'bg-orange-400' : 'border-gray-300'}`}>
-              <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'cod' ? 'bg-gray-600' : ''} `}></p>
-              <p className={`  ${method === 'cod' ? 'text-gray-600' : 'text-gray-500'} text-sm font-medium mx-4`}>CASH ON DELIVERY</p>
+
+            <div className='space-y-6'>
+              {/* Name Fields */}
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium text-gray-700'>First Name</label>
+                  <input
+                    required
+                    onChange={onChangeHandler}
+                    name='firstName'
+                    value={formData.firstName}
+                    type="text"
+                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    placeholder='Enter first name'
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium text-gray-700'>Last Name</label>
+                  <input
+                    required
+                    onChange={onChangeHandler}
+                    name='lastName'
+                    value={formData.lastName}
+                    type="text"
+                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    placeholder='Enter last name'
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-gray-700'>Email Address</label>
+                <input
+                  required
+                  onChange={onChangeHandler}
+                  name='email'
+                  value={formData.email}
+                  type="email"
+                  className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                  placeholder='Enter email address'
+                />
+              </div>
+
+              {/* Street Address */}
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-gray-700'>Street Address</label>
+                <input
+                  required
+                  onChange={onChangeHandler}
+                  name='street'
+                  value={formData.street}
+                  type="text"
+                  className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                  placeholder='Enter street address'
+                />
+              </div>
+
+              {/* City and State */}
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium text-gray-700'>City</label>
+                  <input
+                    required
+                    onChange={onChangeHandler}
+                    name='city'
+                    value={formData.city}
+                    type="text"
+                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    placeholder='Enter city'
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium text-gray-700'>State</label>
+                  <input
+                    required
+                    onChange={onChangeHandler}
+                    name='state'
+                    value={formData.state}
+                    type="text"
+                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    placeholder='Enter state'
+                  />
+                </div>
+              </div>
+
+              {/* Zipcode and Country */}
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium text-gray-700'>Zipcode</label>
+                  <input
+                    required
+                    onChange={onChangeHandler}
+                    name='zipcode'
+                    value={formData.zipcode}
+                    type="text"
+                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    placeholder='Enter zipcode'
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium text-gray-700'>Country</label>
+                  <input
+                    required
+                    onChange={onChangeHandler}
+                    name='country'
+                    value={formData.country}
+                    type="text"
+                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    placeholder='Enter country'
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className='space-y-2'>
+                <label className='text-sm font-medium text-gray-700'>Phone Number</label>
+                <input
+                  required
+                  onChange={onChangeHandler}
+                  name='phone'
+                  value={formData.phone}
+                  type="text"
+                  className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                  placeholder='Enter phone number'
+                />
+              </div>
             </div>
           </div>
 
-          <div className='w-full text-end mt-8'>
-            <button type='submit' className='bg-black text-white text-xs md:text-sm my-2 md:my-8 px-6 md:px-8 py-3'>PLACE ORDER</button>
+          {/* Right Side - Order Summary & Payment */}
+          <div className='space-y-6'>
+            {/* Order Summary */}
+            <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+              <CartTotal
+                creditPtsVisible={creditPtsVisible}
+                setCreditPtsVisible={setCreditPtsVisible}
+              />
+            </div>
+
+            {/* Payment Method */}
+            <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+              <div className='mb-6'>
+                <div className='flex items-center gap-3 mb-2'>
+                  <div className='w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center'>
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                  </div>
+                  <h3 className='text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent'>
+                    Payment Method
+                  </h3>
+                </div>
+                <p className='text-gray-600 text-sm'>Choose your preferred payment option</p>
+              </div>
+
+              <div className='space-y-4'>
+                {/* Razorpay Option */}
+                <div
+                  onClick={() => setMethod('razorpay')}
+                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${method === 'razorpay'
+                    ? 'border-orange-500 bg-orange-50 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-white'
+                    }`}
+                >
+                  <div className='flex items-center gap-4'>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === 'razorpay' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                      }`}>
+                      {method === 'razorpay' && (
+                        <div className='w-2 h-2 bg-white rounded-full'></div>
+                      )}
+                    </div>
+                    <img src={assets.razorpay_logo} alt="razorpay_logo" className='h-6' />
+                    <span className={`font-medium ${method === 'razorpay' ? 'text-orange-600' : 'text-gray-700'
+                      }`}>
+                      Pay Online
+                    </span>
+                  </div>
+                </div>
+
+                {/* COD Option */}
+                <div
+                  onClick={() => setMethod('cod')}
+                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${method === 'cod'
+                    ? 'border-orange-500 bg-orange-50 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-white'
+                    }`}
+                >
+                  <div className='flex items-center gap-4'>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === 'cod' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                      }`}>
+                      {method === 'cod' && (
+                        <div className='w-2 h-2 bg-white rounded-full'></div>
+                      )}
+                    </div>
+                    <div className='flex items-center gap-3'>
+                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <span className={`font-medium ${method === 'cod' ? 'text-orange-600' : 'text-gray-700'
+                        }`}>
+                        Cash on Delivery
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Place Order Button */}
+            <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+              <button
+                type='submit'
+                className='w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-4 px-6 rounded-xl hover:from-orange-600 hover:to-red-600 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2'
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                Place Order
+              </button>
+              <p className='text-xs text-gray-500 text-center mt-3'>
+                By placing your order, you agree to our terms and conditions
+              </p>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
-    </form>
+    </div>
   )
 }
 

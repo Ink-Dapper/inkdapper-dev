@@ -1627,9 +1627,6 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  'frontend@file:':
-    resolution: {directory: '', type: directory}
-
   fs-extra@10.1.0:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
     engines: {node: '>=12'}
@@ -4317,6 +4314,7 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
+<<<<<<< HEAD
   frontend@file:(@types/react@18.3.23):
     dependencies:
       '@emotion/react': 11.14.0(@types/react@18.3.23)(react@18.3.1)
@@ -4349,6 +4347,8 @@ snapshots:
       - debug
       - supports-color
 
+=======
+>>>>>>> 30fd11a3cc2394c28a629149699c68a0dc9872ed
   fs-extra@10.1.0:
     dependencies:
       graceful-fs: 4.2.11
