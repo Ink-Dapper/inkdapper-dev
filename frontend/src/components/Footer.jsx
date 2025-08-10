@@ -62,27 +62,13 @@ const Footer = () => {
                   <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Ink Dapper Store</h3>
                   <div className="space-y-1 text-gray-100">
                     <a
-                      href="https://maps.google.com/?q=1D+Bazaar+Street+Vettuvanam+Vellore+635809+Tamil+Nadu+India"
+                      href="https://maps.app.goo.gl/tY2PaHrWY7hsLT3a6"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm md:text-base hover:text-orange-300 transition-colors duration-300 cursor-pointer"
                     >
                       1D, Bazaar Street
-                    </a>
-                    <a
-                      href="https://maps.google.com/?q=1D+Bazaar+Street+Vettuvanam+Vellore+635809+Tamil+Nadu+India"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm md:text-base hover:text-orange-300 transition-colors duration-300 cursor-pointer"
-                    >
                       Vettuvanam, Vellore - 635809
-                    </a>
-                    <a
-                      href="https://maps.google.com/?q=1D+Bazaar+Street+Vettuvanam+Vellore+635809+Tamil+Nadu+India"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm md:text-base hover:text-orange-300 transition-colors duration-300 cursor-pointer"
-                    >
                       Tamil Nadu, India
                     </a>
                   </div>

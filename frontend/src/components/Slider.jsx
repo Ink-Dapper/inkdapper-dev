@@ -2,8 +2,18 @@ import axios from 'axios';
 import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { ShopContext } from '../context/ShopContext';
+import { teesCollection } from '../assets/assets';
 
-const Slider = () => {
+// Fallback slides for when no banners are available
+const fallbackSlides = [
+  { image: '/src/assets/t-shirts-collection/black.png', color: 'black' },
+  { image: '/src/assets/t-shirts-collection/red.png', color: 'red' },
+  { image: '/src/assets/t-shirts-collection/green.png', color: 'green' },
+  { image: '/src/assets/t-shirts-collection/blue.png', color: 'blue' },
+  { image: '/src/assets/t-shirts-collection/white.png', color: 'white' }
+];
+
+const Slider = ({ onColorChange }) => {
   const { backendUrl } = useContext(ShopContext);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sliderImagesList, setSliderImagesList] = useState([]);
@@ -11,6 +21,54 @@ const Slider = () => {
   const [imagesLoaded, setImagesLoaded] = useState({});
   const [isHovered, setIsHovered] = useState(false);
   const sliderRef = useRef(null);
+
+  // Function to detect color from image filename or data
+  const detectColorFromImage = (imageData) => {
+    if (!imageData) return 'teal';
+
+    // Check if it's a banner image or T-shirt image
+    const imageUrl = imageData.imageBanner ? imageData.imageBanner[0] : imageData.image;
+
+    // If the image data has a color property, use it directly
+    if (imageData.color) {
+      return imageData.color;
+    }
+
+    // Try to match with T-shirt collection colors
+    for (const tee of teesCollection) {
+      if (imageUrl && imageUrl.includes(tee.color)) {
+        return tee.color;
+      }
+    }
+
+    // Fallback color detection based on image name or default
+    if (imageUrl) {
+      const url = imageUrl.toLowerCase();
+      if (url.includes('black')) return 'black';
+      if (url.includes('white')) return 'white';
+      if (url.includes('red')) return 'red';
+      if (url.includes('green')) return 'green';
+      if (url.includes('blue')) return 'blue';
+      if (url.includes('navy')) return 'navy-blue';
+      if (url.includes('brown')) return 'brown';
+      if (url.includes('coffee')) return 'coffee';
+      if (url.includes('beige')) return 'beige';
+      if (url.includes('lavender')) return 'lavender';
+      if (url.includes('redwood')) return 'redwood';
+    }
+
+    return 'teal'; // default color
+  };
+
+  // Notify parent component of color change
+  useEffect(() => {
+    if (sliderImagesList.length > 0 && onColorChange) {
+      const currentImage = sliderImagesList[currentIndex];
+      const detectedColor = detectColorFromImage(currentImage);
+      console.log('Detected color:', detectedColor, 'for image:', currentImage);
+      onColorChange(detectedColor);
+    }
+  }, [currentIndex, sliderImagesList, onColorChange]);
 
   // Preload the first image
   useEffect(() => {
@@ -43,6 +101,7 @@ const Slider = () => {
         setSliderImagesList(fallbackSlides);
       }
     } catch (error) {
+      console.log('Using fallback slides due to error:', error);
       setSliderImagesList(fallbackSlides);
     } finally {
       setIsLoading(false);

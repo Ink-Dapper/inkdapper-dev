@@ -45,12 +45,12 @@ const App = () => {
     <div className="app-container">
       {/* Global Background */}
       <div className="global-background">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 via-red-50/20 to-yellow-50/20"></div>
-        <div className="absolute top-0 left-1/4 w-72 h-72 bg-gradient-to-r from-orange-200/30 to-red-200/30 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gradient-to-r from-yellow-200/30 to-orange-200/30 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-0 w-48 h-48 bg-gradient-to-r from-red-200/30 to-pink-200/30 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-1000"></div>
-        <div className="absolute top-1/4 right-0 w-64 h-64 bg-gradient-to-r from-yellow-200/20 to-orange-200/20 rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-pulse animation-delay-3000"></div>
-        <div className="absolute bottom-1/4 left-1/2 w-56 h-56 bg-gradient-to-r from-red-200/25 to-orange-200/25 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-1500"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-red-50/10 to-yellow-50/10"></div>
+        <div className="absolute top-0 left-1/4 w-72 h-72 bg-gradient-to-r from-orange-200/15 to-red-200/15 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gradient-to-r from-yellow-200/15 to-orange-200/15 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-0 w-48 h-48 bg-gradient-to-r from-red-200/15 to-pink-200/15 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-1000"></div>
+        <div className="absolute top-1/4 right-0 w-64 h-64 bg-gradient-to-r from-yellow-200/10 to-orange-200/10 rounded-full mix-blend-multiply filter blur-xl opacity-12 animate-pulse animation-delay-3000"></div>
+        <div className="absolute bottom-1/4 left-1/2 w-56 h-56 bg-gradient-to-r from-red-200/12 to-orange-200/12 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse animation-delay-1500"></div>
       </div>
 
       {/* Main Content */}
