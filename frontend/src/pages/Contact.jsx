@@ -40,10 +40,21 @@ const Contact = () => {
                   <p className="text-gray-600">Visit us in person</p>
                 </div>
               </div>
-              <p className="text-gray-700 text-lg leading-relaxed">
+              <p className="text-gray-700 text-lg leading-relaxed mb-4">
                 1D, Bazaar Street<br />
                 Vettuvanam, Vellore - 635809
               </p>
+              <a
+                href="https://maps.app.goo.gl/dpffYpGRsczWxq1r8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold rounded-xl hover:text-black hover:from-black-600 hover:to-amber-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m-6 3l6-3" />
+                </svg>
+                Get Directions
+              </a>
             </div>
 
             {/* Contact Details */}

@@ -128,7 +128,7 @@ const BestSeller = () => {
                             to="/collection"
                             onClick={scrollToTop}
                         >
-                            <span className="relative z-10 flex items-center gap-3 group relative inline-flex items-center justify-center px-8 py-4 md:px-10 text-lg md:text-xl font-bold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-full overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/30 transform hover:scale-105 border border-orange-400/50 cursor-pointer">
+                            <span className="relative z-10 flex items-center gap-3 group relative inline-flex items-center justify-center px-8 py-4 md:px-10 text-lg md:text-xl font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-full overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/30 transform hover:scale-105 border border-orange-400/50 cursor-pointer">
                                 View All Best Sellers
                                 <svg className="w-6 h-6 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
