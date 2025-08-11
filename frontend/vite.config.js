@@ -27,6 +27,7 @@ export default defineConfig({
       include: /\.(jpe?g|png|gif|tiff|webp|svg)$/i,
       exclude: /node_modules/,
       silent: true,
+      failOnError: false,
     }),
     {
       name: 'copy-seo-files',
@@ -72,7 +73,10 @@ export default defineConfig({
         }
         next();
       }
-    ]
+    ],
+    hmr: {
+      overlay: false
+    }
   },
   build: {
     minify: "terser",

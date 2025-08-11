@@ -8,7 +8,8 @@ import {
   List,
   ShoppingBag,
   RotateCcw,
-  XCircle
+  XCircle,
+  Mail
 } from 'lucide-react'
 
 const Sidebar = () => {
@@ -24,6 +25,11 @@ const Sidebar = () => {
         <NavLink to='/user-list' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
           <Users className='w-5 h-5' />
           <p className='hidden md:block'>Users List</p>
+        </NavLink>
+
+        <NavLink to='/newsletter-subscribers' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
+          <Mail className='w-5 h-5' />
+          <p className='hidden md:block'>Newsletter</p>
         </NavLink>
 
         <NavLink to='/add-banner' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>

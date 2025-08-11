@@ -18,6 +18,7 @@ import UserList from './pages/UserList'
 import CancelOrders from './pages/CancelOrders'
 import CancelOrderCompleted from './pages/CancelOrderCompleted'
 import BannerList from './pages/BannerList'
+import NewsletterSubscribers from './pages/NewsletterSubscribers'
 import { NotificationProvider } from './context/NotificationContext';
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL
@@ -76,6 +77,7 @@ const App = () => {
                   <Route path="/cancel-order-completed" element={<CancelOrderCompleted token={token} />} />
                   <Route path="/banner-list" element={<BannerList token={token} />} />
                   <Route path="/banner-images" element={<BannerImages token={token} />} />
+                  <Route path="/newsletter-subscribers" element={<NewsletterSubscribers token={token} />} />
                 </Routes>
               </div>
             </div>

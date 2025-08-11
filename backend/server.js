@@ -73,6 +73,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// Test endpoint to verify server is running
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Backend server is running!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Newsletter test endpoint
+app.get('/api/newsletter/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Newsletter API is working!',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '../frontend/dist'), {
   index: false,
