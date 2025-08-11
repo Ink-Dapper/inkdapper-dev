@@ -107,34 +107,34 @@ const Navbar = () => {
         <Link to="/">
           <div className="relative flex items-center justify-center px-4 py-3 group overflow-hidden">
             {/* Main Blob Background - Compact Shape */}
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-300 via-orange-500 to-orange-700 rounded-[30px_15px_40px_20px] shadow-lg hover:shadow-orange-500/30 transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-300 via-orange-500 to-orange-700 rounded-[30px_15px_40px_20px] shadow-lg transition-all duration-700"></div>
 
             {/* Floating Blob Elements - Compact */}
             <div className="absolute inset-0 rounded-[30px_15px_40px_20px] overflow-hidden">
               {/* Top Left Blob */}
-              <div className="absolute -top-2 -left-2 w-10 h-10 bg-gradient-to-br from-orange-200 to-orange-400 rounded-full blur-lg opacity-80 group-hover:opacity-95 group-hover:scale-150 group-hover:-translate-x-1 group-hover:-translate-y-1 transition-all duration-1000 group-hover:animate-bounce"></div>
+              <div className="absolute -top-2 -left-2 w-10 h-10 bg-gradient-to-br from-orange-200 to-orange-400 rounded-full blur-lg opacity-80 transition-all duration-1000"></div>
 
               {/* Bottom Right Blob */}
-              <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-300 rounded-full blur-lg opacity-70 group-hover:opacity-90 group-hover:scale-125 group-hover:translate-x-1 group-hover:translate-y-1 transition-all duration-1000 group-hover:animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-300 rounded-full blur-lg opacity-70 transition-all duration-1000" style={{ animationDelay: '0.4s' }}></div>
 
               {/* Center Right Blob */}
-              <div className="absolute top-1/2 -right-1 w-8 h-8 bg-gradient-to-br from-orange-50 to-orange-200 rounded-full blur-md opacity-60 group-hover:opacity-80 group-hover:scale-175 group-hover:translate-x-1 transition-all duration-1000 group-hover:animate-bounce" style={{ animationDelay: '0.8s' }}></div>
+              <div className="absolute top-1/2 -right-1 w-8 h-8 bg-gradient-to-br from-orange-50 to-orange-200 rounded-full blur-md opacity-60 transition-all duration-1000" style={{ animationDelay: '0.8s' }}></div>
 
               {/* Top Center Blob */}
-              <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-orange-300 rounded-full blur-sm opacity-50 group-hover:opacity-70 group-hover:scale-150 group-hover:-translate-y-1 transition-all duration-800"></div>
+              <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-orange-300 rounded-full blur-sm opacity-50 transition-all duration-800"></div>
 
               {/* Bottom Left Blob */}
-              <div className="absolute bottom-0 left-1/4 w-3 h-3 bg-orange-200 rounded-full blur-sm opacity-40 group-hover:opacity-60 group-hover:scale-200 group-hover:translate-y-1 transition-all duration-800"></div>
+              <div className="absolute bottom-0 left-1/4 w-3 h-3 bg-orange-200 rounded-full blur-sm opacity-40 transition-all duration-800"></div>
 
               {/* Middle Left Blob */}
-              <div className="absolute top-1/3 -left-1 w-2 h-2 bg-orange-100 rounded-full blur-sm opacity-30 group-hover:opacity-50 group-hover:scale-175 transition-all duration-600"></div>
+              <div className="absolute top-1/3 -left-1 w-2 h-2 bg-orange-100 rounded-full blur-sm opacity-30 transition-all duration-600"></div>
             </div>
 
             {/* Enhanced Shimmer Effect */}
-            <div className="absolute inset-0 rounded-[30px_15px_40px_20px] bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-15 -translate-x-full group-hover:translate-x-full transition-transform duration-1200"></div>
+            <div className="absolute inset-0 rounded-[30px_15px_40px_20px] bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-15 -translate-x-full transition-transform duration-1200"></div>
 
             {/* Glowing Border Effect */}
-            <div className="absolute inset-0 rounded-[30px_15px_40px_20px] bg-gradient-to-r from-orange-300/20 via-transparent to-orange-300/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute inset-0 rounded-[30px_15px_40px_20px] bg-gradient-to-r from-orange-300/20 via-transparent to-orange-300/20 opacity-0 transition-opacity duration-500"></div>
 
             {/* Logo */}
             <img src={assets.inkdapper_logo} className="md:w-10 w-8 relative z-10 drop-shadow-lg" alt="logo" />

@@ -10,7 +10,7 @@ export const ShopContext = createContext()
 const ShopContextProvider = (props) => {
 
   const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : '')
-  const backendUrl = import.meta.env.VITE_BACKEND_URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
   const [orders, setOrders] = useState([])
   const [userList, setUserList] = useState([])
   const [users, setUsers] = useState([]);

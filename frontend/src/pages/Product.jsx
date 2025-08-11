@@ -280,7 +280,7 @@ const Product = () => {
         </div>
       </div>
 
-      <div className='max-w-7xl mx-auto px-2 md:px-8 py-8'>
+      <div className='max-w-7xl mx-auto px-2 md:px-8 py-2'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12'>
 
           {/* Product Images */}
@@ -471,14 +471,14 @@ const Product = () => {
               <p className='text-gray-600 leading-relaxed'>
                 {productData.description}
               </p>
-              {productData.description.length > 100 && (
+              {/* {productData.description.length > 100 && (
                 <button
                   onClick={toggleDescription}
                   className='text-orange-600 hover:text-orange-700 font-medium text-sm transition-colors'
                 >
                   {isExpanded ? 'Show less' : 'Read more'}
                 </button>
-              )}
+              )} */}
             </div>
 
             {/* Size Selection */}
@@ -554,7 +554,7 @@ const Product = () => {
 
             {/* Action Buttons */}
             <div className='space-y-4'>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4'>
                 <button
                   onClick={addCartPageDetails}
                   className='w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'
@@ -621,7 +621,7 @@ const Product = () => {
         </div>
 
         {/* Product Features */}
-        <div className='mt-6 md:mt-16 rounded-2xl shadow-sm border border-gray-100 py-8 px-0'>
+        <div className='mt-6 md:mt-16 rounded-2xl shadow-sm border border-gray-100 py-8 px-4'>
           <h2 className='text-2xl font-bold text-gray-900 mb-8'>Product Features</h2>
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6'>
             <div className='text-center space-y-3'>

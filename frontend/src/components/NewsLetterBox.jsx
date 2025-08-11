@@ -5,93 +5,90 @@ import { toast } from 'react-toastify';
 
 const NewsLetterBox = () => {
     const [email, setEmail] = useState('');
-    const [otp, setOtp] = useState('');
-    const [isOtpSent, setIsOtpSent] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { backendUrl } = useContext(ShopContext);
+
+    // Always use hardcoded backend URL to ensure it works
+    const apiUrl = 'http://localhost:4000';
+
+    // Debug: Log the backend URL being used
+    console.log('🔧 NewsLetterBox Debug Info:');
+    console.log('Context backendUrl:', backendUrl);
+    console.log('Final apiUrl:', apiUrl);
 
     const isValidEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
     };
 
-    const sendOtp = async () => {
-        try {
-            setIsLoading(true);
-            setError('');
-            const response = await axios.post(backendUrl + '/api/newsletter/send-otp', { email });
-            if (response.data.success) {
-                setIsOtpSent(true);
-                setSuccess('OTP sent to your email!');
-                toast.success('OTP sent to your email!');
-            } else {
-                setError('Failed to send OTP. Please try again.');
-                toast.error('Failed to send OTP. Please try again.');
-            }
-        } catch (err) {
-            console.error('OTP send error:', err);
-            setError('Failed to send OTP. Please try again.');
-            toast.error('Failed to send OTP. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const verifyOtp = async () => {
-        try {
-            setIsLoading(true);
-            setError('');
-            const response = await axios.post(backendUrl + '/api/newsletter/verify-otp', { email, otp });
-            if (response.data.success) {
-                setSuccess('Email verified successfully!');
-                toast.success('Email verified successfully!');
-                await sendSubscriptionEmail();
-                setOtp('');
-            } else {
-                setError('Invalid OTP. Please try again.');
-                toast.error('Invalid OTP. Please try again.');
-            }
-        } catch (err) {
-            console.error('OTP verification error:', err);
-            setError('Failed to verify OTP. Please try again.');
-            toast.error('Failed to verify OTP. Please try again.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const sendSubscriptionEmail = async () => {
-        try {
-            const response = await axios.post(backendUrl + '/api/newsletter/subscribe', {
-                email,
-                adminEmail: 'admin@inkdapper.in',
-                sendAutoReply: true,
-            });
-            if (response.data.success) {
-                setSuccess('Subscription successful! Check your email for confirmation.');
-                toast.success('Subscription successful! Check your email for confirmation.');
-                setEmail('');
-                setIsOtpSent(false);
-            } else {
-                setError('Failed to subscribe. Please try again.');
-                toast.error('Failed to subscribe. Please try again.');
-            }
-        } catch (err) {
-            console.error('Subscription error:', err);
-            setError('Failed to notify admin. Please try again.');
-            toast.error('Failed to notify admin. Please try again.');
-        }
-    };
-
-    const onSubmitHandler = (e) => {
+    const handleSubscription = async (e) => {
         e.preventDefault();
-        if (isValidEmail(email)) {
-            sendOtp();
-        } else {
+
+        if (!isValidEmail(email)) {
             setError('Please enter a valid email address.');
             toast.error('Please enter a valid email address.');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            setError('');
+
+            console.log('=== NEWSLETTER SUBSCRIPTION DEBUG ===');
+            console.log('Email to subscribe:', email);
+            console.log('Backend URL:', apiUrl);
+            console.log('Full API URL:', apiUrl + '/api/newsletter/subscribe');
+
+            // Test backend connection first
+            try {
+                const testResponse = await axios.get(apiUrl + '/api/test');
+                console.log('✅ Backend connection test successful:', testResponse.data);
+            } catch (testError) {
+                console.error('❌ Backend connection test failed:', testError.message);
+                setError('Backend server is not running. Please try again later.');
+                toast.error('Backend server is not running. Please try again later.');
+                return;
+            }
+
+            // Now try the subscription
+            const response = await axios.post(apiUrl + '/api/newsletter/subscribe', { email });
+            console.log('✅ Subscription response:', response.data);
+
+            if (response.data.success) {
+                setSuccess('🎉 Subscription successful! Welcome to Ink Dapper newsletter!');
+                toast.success('🎉 Subscription successful! Welcome to Ink Dapper newsletter!');
+                setEmail(''); // Reset form
+            } else {
+                const errorMsg = response.data.message || 'Failed to subscribe. Please try again.';
+                setError(errorMsg);
+                toast.error(errorMsg);
+            }
+        } catch (err) {
+            console.error('❌ Subscription error details:', err);
+            console.error('Error response:', err.response?.data);
+            console.error('Error status:', err.response?.status);
+            console.error('Error code:', err.code);
+
+            let errorMessage = 'Failed to subscribe. Please try again.';
+
+            if (err.response?.data?.message) {
+                errorMessage = err.response.data.message;
+            } else if (err.code === 'NETWORK_ERROR' || err.code === 'ERR_NETWORK') {
+                errorMessage = 'Network error. Please check your connection and try again.';
+            } else if (err.response?.status === 404) {
+                errorMessage = 'Backend service not found. Please make sure the backend server is running on port 4000.';
+            } else if (err.response?.status === 500) {
+                errorMessage = 'Server error. Please try again later.';
+            } else if (err.code === 'ECONNREFUSED') {
+                errorMessage = 'Cannot connect to server. Please make sure the backend is running.';
+            }
+
+            setError(errorMessage);
+            toast.error(errorMessage);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -126,93 +123,47 @@ const NewsLetterBox = () => {
 
                 {/* Newsletter form container */}
                 <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 border border-orange-200/50 shadow-2xl hover:shadow-orange-200/20 transition-all duration-500">
-                    {!isOtpSent ? (
-                        <form onSubmit={onSubmitHandler} className="space-y-6">
-                            <div className="flex flex-col lg:flex-row gap-4 w-full">
-                                <div className="flex-1 relative">
-                                    <input
-                                        type="email"
-                                        id="newsletter-email"
-                                        name="email"
-                                        placeholder="Enter your email address"
-                                        className="w-full px-6 py-4 bg-white/90 border border-orange-200 rounded-xl text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-300 shadow-sm"
-                                        required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                                        </svg>
-                                    </div>
+                    <form onSubmit={handleSubscription} className="space-y-6">
+                        {/* Email Input */}
+                        <div className="flex flex-col lg:flex-row gap-4 w-full">
+                            <div className="flex-1 relative">
+                                <input
+                                    type="email"
+                                    id="newsletter-email"
+                                    name="email"
+                                    placeholder="Enter your email address"
+                                    className="w-full px-6 py-4 bg-white/90 border border-orange-200 rounded-xl text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-300 shadow-sm"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                    </svg>
                                 </div>
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="lg:w-auto w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            Sending...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                            </svg>
-                                            Subscribe
-                                        </>
-                                    )}
-                                </button>
                             </div>
-                        </form>
-                    ) : (
-                        <div className="space-y-6">
-                            <div className="flex flex-col lg:flex-row gap-4 w-full">
-                                <div className="flex-1 relative">
-                                    <input
-                                        type="text"
-                                        id="newsletter-otp"
-                                        name="otp"
-                                        placeholder="Enter 6-digit OTP"
-                                        className="w-full px-6 py-4 bg-white/90 border border-orange-200 rounded-xl text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-300 text-center text-lg tracking-widest shadow-sm"
-                                        required
-                                        value={otp}
-                                        onChange={(e) => setOtp(e.target.value)}
-                                        maxLength={6}
-                                    />
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="lg:w-auto w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        Subscribing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                         </svg>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={verifyOtp}
-                                    disabled={isLoading}
-                                    className="lg:w-auto w-full px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            Verifying...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Verify
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                            <p className="text-sm text-slate-600">
-                                We've sent a verification code to <span className="text-orange-600 font-medium">{email}</span>
-                            </p>
+                                        Subscribe Now
+                                    </>
+                                )}
+                            </button>
                         </div>
-                    )}
+                    </form>
 
                     {/* Status messages */}
                     {error && (
