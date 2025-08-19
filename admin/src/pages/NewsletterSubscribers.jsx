@@ -308,46 +308,43 @@ const NewsletterSubscribers = ({ token }) => {
             </button>
 
             {showFilterDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
                 <div className="py-1">
                   <button
                     onClick={() => {
                       setFilterStatus('all');
                       setShowFilterDropdown(false);
                     }}
-                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${filterStatus === 'all' ? 'bg-orange-50 text-orange-700' : 'text-gray-700'
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'all' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
                       }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      All Subscribers
-                    </div>
+                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                    <Users className="w-4 h-4" />
+                    <span className="font-medium">All Subscribers</span>
                   </button>
                   <button
                     onClick={() => {
                       setFilterStatus('active');
                       setShowFilterDropdown(false);
                     }}
-                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${filterStatus === 'active' ? 'bg-orange-50 text-orange-700' : 'text-gray-700'
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'active' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
                       }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
-                      Active Only
-                    </div>
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="font-medium">Active Only</span>
                   </button>
                   <button
                     onClick={() => {
                       setFilterStatus('inactive');
                       setShowFilterDropdown(false);
                     }}
-                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${filterStatus === 'inactive' ? 'bg-orange-50 text-orange-700' : 'text-gray-700'
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'inactive' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
                       }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Inactive Only
-                    </div>
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <Clock className="w-4 h-4" />
+                    <span className="font-medium">Inactive Only</span>
                   </button>
                 </div>
               </div>
