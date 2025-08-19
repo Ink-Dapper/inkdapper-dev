@@ -6,7 +6,8 @@ import jwt from "jsonwebtoken";
 import nodemailer from 'nodemailer';
 
 const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET);
+  const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_development';
+  return jwt.sign({ id }, jwtSecret);
 };
 
 const transporter = nodemailer.createTransport({
@@ -68,8 +69,13 @@ const loginUser = async (req, res) => {
 // Route for user profile
 const profileUser = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
     const users = await userModel.findById(userId);
+    
+    if (!users) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
     res.json({ success: true, users });
   } catch (error) {
     console.log(error);
@@ -129,11 +135,16 @@ const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Use default values if environment variables are not set
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@inkdapper.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_development';
+
     if (
-      email === process.env.ADMIN_EMAIL &&
-      password === process.env.ADMIN_PASSWORD
+      email === adminEmail &&
+      password === adminPassword
     ) {
-      const token = jwt.sign(email + password, process.env.JWT_SECRET);
+      const token = jwt.sign(email + password, jwtSecret);
       res.json({ success: true, token });
     } else {
       res.json({ success: false, message: "Invalid Credentials" });

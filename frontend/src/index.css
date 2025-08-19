@@ -78,11 +78,6 @@ select {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Button enhancements */
-button:not(.share-button) {
-    backdrop-filter: blur(5px);
-}
-
 /* Global text color improvements for better readability */
 body {
     color: #1e293b;
@@ -455,6 +450,49 @@ a.active hr {
 
 .animation-delay-2000 {
     animation-delay: 2s;
+}
+
+.animation-delay-200 {
+    animation-delay: 0.2s;
+}
+
+.animation-delay-500 {
+    animation-delay: 0.5s;
+}
+
+/* Custom shadow for scroll to top button */
+.shadow-3xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Modern scroll to top animations */
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+}
+
+/* Neumorphic shadows for modern UI */
+.shadow-neumorphic {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-neumorphic-hover {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 12px 48px rgba(139, 92, 246, 0.3),
+        0 8px 24px rgba(139, 92, 246, 0.2);
 }
 
 .animate-fadeInUp {

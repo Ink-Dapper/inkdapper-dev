@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
 import axios from 'axios';
 
 const NotificationContext = createContext();
 
-export const useNotifications = () => useContext(NotificationContext);
+const useNotifications = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
@@ -12,27 +11,16 @@ export const NotificationProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    // Initialize socket connection
-    const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:4000');
-    setSocket(newSocket);
-
-    // Listen for new orders
-    newSocket.on('newOrder', ({ notification, order }) => {
-      setNotifications(prev => [notification, ...prev]);
-      setUnreadCount(prev => prev + 1);
-    });
+    // Temporarily disable socket connection for development
+    // TODO: Add Socket.IO to backend server when needed
 
     // Load existing notifications
     fetchNotifications();
-
-    return () => {
-      newSocket.disconnect();
-    };
   }, []);
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/notifications`);
+      const response = await axios.get(`http://localhost:4000/api/notifications`);
       if (response.data.success) {
         setNotifications(response.data.notifications);
         setUnreadCount(response.data.notifications.filter(n => !n.isRead).length);
@@ -45,7 +33,7 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (notificationId) => {
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/notifications/${notificationId}/read`
+        `http://localhost:4000/api/notifications/${notificationId}/read`
       );
       if (response.data.success) {
         setNotifications(prev =>
@@ -74,4 +62,6 @@ export const NotificationProvider = ({ children }) => {
       {children}
     </NotificationContext.Provider>
   );
-}; 
+};
+
+export { useNotifications }; 

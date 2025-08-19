@@ -167,6 +167,44 @@ const updateLastEmailSent = async (subscriberId) => {
     }
 };
 
+// Check if email is already subscribed
+const checkSubscriptionStatus = async (req, res) => {
+    try {
+        console.log('Checking subscription status for:', req.body);
+        
+        const { email } = req.body;
+        
+        if (!email) {
+            console.log('Email is missing from request');
+            return res.status(400).json({ success: false, message: 'Email is required' });
+        }
+
+        console.log('Checking subscription for email:', email);
+
+        // Check if email exists
+        const existingSubscriber = await Newsletter.findOne({ email: email.toLowerCase() });
+        
+        if (existingSubscriber) {
+            console.log('Email is subscribed:', email);
+            return res.json({ 
+                success: true, 
+                isSubscribed: true,
+                message: 'Email is already subscribed to newsletter' 
+            });
+        } else {
+            console.log('Email is not subscribed:', email);
+            return res.json({ 
+                success: true, 
+                isSubscribed: false,
+                message: 'Email is not subscribed to newsletter' 
+            });
+        }
+    } catch (error) {
+        console.error('Check subscription status error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
 export { 
     subscribeToNewsletter, 
     getAllSubscribers, 
@@ -174,5 +212,6 @@ export {
     updateSubscriberStatus, 
     deleteSubscriber, 
     getSubscriberStats,
-    updateLastEmailSent
+    updateLastEmailSent,
+    checkSubscriptionStatus
 };

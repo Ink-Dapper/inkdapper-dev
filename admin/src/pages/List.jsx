@@ -4,6 +4,28 @@ import { backendUrl, currency } from '../App';
 import { toast } from 'react-toastify';
 import EditProductModal from '../components/EditProductModal';
 import { ShopContext } from '../context/ShopContext';
+import {
+  Package,
+  Tag,
+  DollarSign,
+  CheckCircle,
+  XCircle,
+  Edit3,
+  Trash2,
+  Search,
+  Filter,
+  Download,
+  MoreVertical,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  Archive,
+  RefreshCw,
+  Settings,
+  Plus,
+  Grid,
+  List as ListIcon
+} from 'lucide-react';
 
 const List = ({ token }) => {
   const { edit, trash } = useContext(ShopContext);
@@ -13,9 +35,17 @@ const List = ({ token }) => {
   const [productIdToRemove, setProductIdToRemove] = useState(null);
   const [isSoldoutModalOpen, setIsSoldoutModalOpen] = useState(false);
   const [productToToggle, setProductToToggle] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showActionDropdown, setShowActionDropdown] = useState({});
+  const [viewMode, setViewMode] = useState('table'); // 'table' or 'grid'
 
   const fetchList = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(backendUrl + '/api/product/list');
       if (response.data.success) {
         setList(response.data.products.reverse());
@@ -25,6 +55,8 @@ const List = ({ token }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,7 +64,7 @@ const List = ({ token }) => {
     try {
       const response = await axios.post(backendUrl + '/api/product/remove', { id: productIdToRemove }, { headers: { token } });
       if (response.data.success) {
-        toast.error(response.data.message);
+        toast.success(response.data.message);
         await fetchList();
       } else {
         toast.error(response.data.message);
@@ -100,45 +132,459 @@ const List = ({ token }) => {
     closeEditModal();
   };
 
+  const exportToCSV = () => {
+    const headers = ['Name', 'Category', 'Price', 'Sold Out', 'Image URL'];
+    const csvData = filteredProducts.map(product => [
+      product.name,
+      product.category,
+      `${currency}${product.price}`,
+      product.soldout ? 'Yes' : 'No',
+      product.image[0] || ''
+    ]);
+
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `products-list-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Products exported successfully');
+  };
+
+  const filteredProducts = list.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory = filterCategory === 'all' || product.category === filterCategory;
+    const matchesStatus = filterStatus === 'all' ||
+      (filterStatus === 'available' && !product.soldout) ||
+      (filterStatus === 'soldout' && product.soldout);
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  const categories = [...new Set(list.map(product => product.category))];
+  const stats = {
+    total: list.length,
+    available: list.filter(p => !p.soldout).length,
+    soldout: list.filter(p => p.soldout).length,
+    categories: categories.length
+  };
+
+  const toggleActionDropdown = (productId) => {
+    setShowActionDropdown(prev => ({
+      ...prev,
+      [productId]: !prev[productId]
+    }));
+  };
+
+  const closeAllDropdowns = () => {
+    setShowActionDropdown({});
+    setShowFilterDropdown(false);
+  };
+
   useEffect(() => {
     fetchList();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
   return (
-    <>
-      <p className='font-semibold mt-3 text-2xl mb-3'>All Products List</p>
-      <div className='flex flex-col gap-2'>
-        {/* ---------------List table title--------------- */}
-        <div className='hidden md:grid grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_0.5fr] items-center py-1 px-2 border bg-gray-100 text-sm'>
-          <b>Image</b>
-          <b>Name</b>
-          <b>Category</b>
-          <b>Price</b>
-          <b>Sold Out</b>
-          <b className='text-center'>Action</b>
-          <b className='text-center'>Edit</b>
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">All Products</h1>
+        <p className="text-gray-600">Manage your product inventory and track availability</p>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Package className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Total Products</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+            </div>
+          </div>
         </div>
 
-        {/* ---------------  product list  ----------------- */}
-        {list.map((product, index) => (
-          <div key={index} className='grid grid-cols-[1fr_3fr_1fr_1fr_1fr_1fr_0.5fr] items-center gap-2 py-1 px-2 border text-sm'>
-            <img src={product.image[0]} alt={product.name} className='w-12' />
-            <p>{product.name}</p>
-            <p className='pl-2'>{product.category}</p>
-            <p className='pl-1'>{currency}{product.price}</p>
-            <div className='flex items-center'>
-              <input
-                type="checkbox"
-                checked={product.soldout}
-                onChange={() => openSoldoutModal(product)}
-                className='w-4 h-4 cursor-pointer'
-              />
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
-            <p onClick={() => openConfirmModal(product._id)} className='flex justify-center cursor-pointer text-lg'>{trash}</p>
-            <p onClick={() => openEditModal(product)} className='flex justify-center cursor-pointer text-lg'>{edit}</p>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Available</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.available}</p>
+            </div>
           </div>
-        ))}
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+          <div className="flex items-center">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <XCircle className="w-6 h-6 text-red-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Sold Out</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.soldout}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+          <div className="flex items-center">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Tag className="w-6 h-6 text-purple-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Categories</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.categories}</p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Enhanced Filters and Search */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search products by name or category..."
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Category Filter */}
+          <div className="relative">
+            <button
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 min-w-[200px]"
+            >
+              <Filter className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-700">
+                {filterCategory === 'all' ? 'All Categories' : filterCategory}
+              </span>
+              {showFilterDropdown ? (
+                <ChevronUp className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              )}
+            </button>
+
+            {showFilterDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setFilterCategory('all');
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${filterCategory === 'all' ? 'bg-orange-50 text-orange-700' : 'text-gray-700'}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4" />
+                      All Categories
+                    </div>
+                  </button>
+                  {categories.map(category => (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        setFilterCategory(category);
+                        setShowFilterDropdown(false);
+                      }}
+                      className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${filterCategory === category ? 'bg-orange-50 text-orange-700' : 'text-gray-700'}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4" />
+                        {category}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Status Filter */}
+          <div className="relative">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 min-w-[150px]"
+            >
+              <option value="all">All Status</option>
+              <option value="available">Available</option>
+              <option value="soldout">Sold Out</option>
+            </select>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-4 py-3 transition-all duration-200 ${viewMode === 'table' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+            >
+              <ListIcon className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-4 py-3 transition-all duration-200 ${viewMode === 'grid' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+            >
+              <Grid className="w-4 h-4" />
+            </button>
+          </div>
+
+          <button
+            onClick={exportToCSV}
+            className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200 flex items-center gap-2 font-medium shadow-md hover:shadow-lg"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* Products Display */}
+      {viewMode === 'table' ? (
+        /* Table View */
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredProducts.map((product, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-12 w-12">
+                          <img
+                            src={product.image[0]}
+                            alt={product.name}
+                            className="h-12 w-12 rounded-lg object-cover border border-gray-200"
+                          />
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                          <div className="text-sm text-gray-500">Product ID: {product._id.slice(-8)}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {product.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="w-4 h-4 text-green-600" />
+                        {currency}{product.price}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={product.soldout}
+                          onChange={() => openSoldoutModal(product)}
+                          className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                        />
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
+                          }`}>
+                          {product.soldout ? 'Sold Out' : 'Available'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="relative">
+                        <button
+                          onClick={() => toggleActionDropdown(product._id)}
+                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+
+                        {showActionDropdown[product._id] && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+                            <div className="py-1">
+                              <button
+                                onClick={() => {
+                                  openEditModal(product);
+                                  closeAllDropdowns();
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                                Edit Product
+                              </button>
+                              <button
+                                onClick={() => {
+                                  // Handle view details action
+                                  toast.info('View details feature coming soon');
+                                  closeAllDropdowns();
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                              >
+                                <Eye className="w-4 h-4" />
+                                View Details
+                              </button>
+                              <button
+                                onClick={() => {
+                                  // Handle archive action
+                                  toast.info('Archive feature coming soon');
+                                  closeAllDropdowns();
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                              >
+                                <Archive className="w-4 h-4" />
+                                Archive
+                              </button>
+                              <hr className="my-1" />
+                              <button
+                                onClick={() => {
+                                  openConfirmModal(product._id);
+                                  closeAllDropdowns();
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {filteredProducts.length === 0 && (
+            <div className="text-center py-8">
+              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No products found</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Grid View */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+              <div className="relative">
+                <img
+                  src={product.image[0]}
+                  alt={product.name}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="absolute top-2 right-2">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-green-100 text-green-800'
+                    }`}>
+                    {product.soldout ? 'Sold Out' : 'Available'}
+                  </span>
+                </div>
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">{product.name}</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    {product.category}
+                  </span>
+                  <div className="flex items-center gap-1 text-lg font-bold text-green-600">
+                    <DollarSign className="w-4 h-4" />
+                    {currency}{product.price}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={product.soldout}
+                      onChange={() => openSoldoutModal(product)}
+                      className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-600">Toggle Status</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => openEditModal(product)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => openConfirmModal(product._id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+          {filteredProducts.length === 0 && (
+            <div className="col-span-full text-center py-8">
+              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No products found</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Click outside to close dropdowns */}
+      {(showFilterDropdown || Object.values(showActionDropdown).some(Boolean)) && (
+        <div
+          className="fixed inset-0 z-10"
+          onClick={closeAllDropdowns}
+        />
+      )}
+
+      {/* Edit Product Modal */}
       {editingProduct && (
         <EditProductModal
           token={token}
@@ -147,41 +593,67 @@ const List = ({ token }) => {
           onSuccess={handleEditSuccess}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
       {isConfirmModalOpen && (
-        <div className='fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center'>
-          <div className='bg-white p-4 rounded-md'>
-            <h2 className='text-xl font-bold mb-4'>Confirm Removal</h2>
-            <p className='mb-4'>Are you sure you want to remove this product?</p>
-            <div className='flex justify-end gap-2'>
-              <button onClick={closeConfirmModal} className='bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded'>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-800">Confirm Deletion</h2>
+            </div>
+            <p className="text-gray-600 mb-6">Are you sure you want to remove this product? This action cannot be undone.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={closeConfirmModal}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
+              >
                 Cancel
               </button>
-              <button onClick={removeProduct} className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'>
-                Remove
+              <button
+                onClick={removeProduct}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+              >
+                Delete
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Soldout Toggle Modal */}
       {isSoldoutModalOpen && productToToggle && (
-        <div className='fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center'>
-          <div className='bg-white p-4 rounded-md'>
-            <h2 className='text-xl font-bold mb-4'>Confirm Soldout Status</h2>
-            <p className='mb-4'>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Settings className="w-6 h-6 text-orange-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-800">Update Product Status</h2>
+            </div>
+            <p className="text-gray-600 mb-6">
               Are you sure you want to mark "{productToToggle.name}" as {productToToggle.soldout ? 'available' : 'sold out'}?
             </p>
-            <div className='flex justify-end gap-2'>
-              <button onClick={closeSoldoutModal} className='bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded'>
+            <div className="flex gap-3">
+              <button
+                onClick={closeSoldoutModal}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
+              >
                 Cancel
               </button>
-              <button onClick={toggleSoldout} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
+              <button
+                onClick={toggleSoldout}
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+              >
                 Confirm
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

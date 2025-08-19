@@ -3,51 +3,261 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
-    font-family: Outfit;
+* {
+  font-family: Outfit;
 }
 
-select,input,textarea {
-    border: 1px solid #c2c2c2;
-    outline-color: #c586a5;
-    border-radius: 4px;
+select,
+input,
+textarea {
+  border: 1px solid #c2c2c2;
+  outline-color: #c586a5;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  border-color: #c586a5;
+  box-shadow: 0 0 0 3px rgba(197, 134, 165, 0.1);
 }
 
 .active {
-    background-color: #ffebf5;
-    border-color: #c586a5;
+  background-color: #ffebf5;
+  border-color: #c586a5;
 }
 
 .order-details-table::-webkit-scrollbar {
-    width: 6px;
-    height: 8px;
+  width: 8px;
+  height: 8px;
 }
 
 .order-details-table::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,0.3);
-    border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  background: #f8fafc;
 }
 
 .order-details-table::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,0.5);
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+  background: #cbd5e1;
 }
+
+.order-details-table::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input {
-    padding: 4.4% !important;
+  padding: 4.4% !important;
 }
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Better focus states */
+button:focus,
+a:focus {
+  outline: 2px solid #c586a5;
+  outline-offset: 2px;
+}
+
+/* Improved card hover effects */
+.card-hover {
+  transition: all 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Custom scrollbar for the entire app */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 @media print {
-    body * {
-      visibility: hidden;
-    }
-    .print-section, .print-section * {
-      visibility: visible;
-    }
-    .print-section {
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
+  body * {
+    visibility: hidden;
   }
-  .css-1pk1fka {
-    padding: 9px !important;
+
+  .print-section,
+  .print-section * {
+    visibility: visible;
   }
+
+  .print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
+
+.css-1pk1fka {
+  padding: 9px !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .mobile-padding {
+    padding: 1rem;
+  }
+
+  .mobile-text {
+    font-size: 0.875rem;
+  }
+}
+
+/* Loading animation improvements */
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Chart tooltip improvements */
+.recharts-tooltip-wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Custom scrollbar for table horizontal scroll */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.scrollbar-thin::-webkit-scrollbar-corner {
+  background: #f1f5f9;
+}
+
+/* Firefox scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* Table responsive improvements */
+@media (max-width: 1024px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive table {
+    min-width: 800px;
+  }
+}
+
+/* Sticky column improvements */
+.sticky-left {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: inherit;
+}
+
+.sticky-right {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background: inherit;
+}
+
+/* Enhanced table hover effects */
+.table-row-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.table-row-hover:hover {
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Action button improvements */
+.action-button {
+  position: relative;
+  overflow: visible;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom tooltip positioning for action buttons */
+.action-tooltip {
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Responsive action buttons */
+@media (max-width: 640px) {
+  .action-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .action-button svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Focus ring improvements for action buttons */
+.action-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Smooth transitions for all interactive elements */
+.action-button,
+.action-button * {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

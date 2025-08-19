@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import SearchBar from './components/SearchBar';
 import SkeletonLoader from './components/SkeletonLoader';
+import ScrollToTop from './components/ScrollToTop';
 import NotFound from './pages/NotFound';
 
 // Lazy load modals
@@ -81,6 +82,7 @@ const App = () => {
           </Routes>
         </Suspense>
         <Footer />
+        <ScrollToTop />
         <Suspense fallback={null}>
           <NewsletterModal />
           <PriceOfferModal />

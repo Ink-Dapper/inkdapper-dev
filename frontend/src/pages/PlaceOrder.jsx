@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
+import CouponSection from '../components/CouponSection'
 import { assets } from '../assets/assets'
 import { ShopContext } from '../context/ShopContext'
 import axios from 'axios'
@@ -9,7 +10,7 @@ import { toast } from 'react-toastify'
 const PlaceOrder = () => {
 
   const [method, setMethod] = useState('cod')
-  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints } = useContext(ShopContext)
+  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart } = useContext(ShopContext)
   const [creditPtsVisible, setCreditPtsVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -44,7 +45,7 @@ const PlaceOrder = () => {
           const { data } = await axios.post(backendUrl + '/api/order/verify-razorpay', { ...response, ...orderData, razorpay_order_id: order.id }, { headers: { token } });
           if (data.success) {
             console.log('Verification successful:', data);
-            setCartItems({});
+            clearCart();
             navigate('/orders');
             toast.success('Payment successful');
           } else {
@@ -93,7 +94,7 @@ const PlaceOrder = () => {
       let orderData = {
         address: formData,
         items: orderItems,
-        amount: getCartAmount() + delivery_fee - creditPtsVisible
+        amount: getCartAmount() + delivery_fee - creditPtsVisible - couponDiscount
       }
 
       if (creditPtsVisible) {
@@ -108,7 +109,7 @@ const PlaceOrder = () => {
         case 'cod':
           const response = await axios.post(backendUrl + '/api/order/place', orderData, { headers: { token } })
           if (response.data.success) {
-            setCartItems({})
+            clearCart()
             navigate('/orders')
             toast.success('Order placed successfully')
           } else {
@@ -300,6 +301,11 @@ const PlaceOrder = () => {
                 creditPtsVisible={creditPtsVisible}
                 setCreditPtsVisible={setCreditPtsVisible}
               />
+            </div>
+
+            {/* Coupon Section */}
+            <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+              <CouponSection />
             </div>
 
             {/* Payment Method */}

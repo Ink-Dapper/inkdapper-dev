@@ -9,26 +9,24 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, navigate, setCartItems, customDataArray, updateCustomQuantity, getCustomData } = useContext(ShopContext)
+  const { products, currency, cartItems, updateQuantity, navigate, setCartItems, customDataArray, updateCustomQuantity, getCustomData, updateCartAndSave } = useContext(ShopContext)
   const [cartData, SetCartData] = useState([])
   const [showCartTotal, setShowCartTotal] = useState([])
 
   const updateSize = (productId, newSize, quantity) => {
-    setCartItems(prevCartItems => {
-      const updatedCart = { ...prevCartItems };
-      const currentSizes = updatedCart[productId];
-      if (currentSizes) {
-        const currentSizeKey = Object.keys(currentSizes).find(size => currentSizes[size] === quantity);
-        if (currentSizeKey) {
-          delete currentSizes[currentSizeKey];
-        }
-        if (!currentSizes[newSize]) {
-          currentSizes[newSize] = 0;
-        }
-        currentSizes[newSize] += quantity;
+    const updatedCart = { ...cartItems };
+    const currentSizes = updatedCart[productId];
+    if (currentSizes) {
+      const currentSizeKey = Object.keys(currentSizes).find(size => currentSizes[size] === quantity);
+      if (currentSizeKey) {
+        delete currentSizes[currentSizeKey];
       }
-      return updatedCart;
-    });
+      if (!currentSizes[newSize]) {
+        currentSizes[newSize] = 0;
+      }
+      currentSizes[newSize] += quantity;
+    }
+    updateCartAndSave(updatedCart);
   };
 
   useEffect(() => {

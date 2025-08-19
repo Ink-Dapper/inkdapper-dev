@@ -10,10 +10,20 @@ const ShopContextProvider = (props) => {
 
   const currency = '₹'
   const delivery_fee = 1
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
+  // Force localhost for development - change this when deploying to production
+  const backendUrl = 'http://localhost:4000'
   const [search, setSearch] = useState('')
   const [showSearch, setShowSearch] = useState(false)
-  const [cartItems, setCartItems] = useState({})
+  // Initialize cartItems from localStorage if available
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem('cartItems');
+      return savedCart ? JSON.parse(savedCart) : {};
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error);
+      return {};
+    }
+  });
   const [wishlist, setWishlist] = useState({})
   const [products, setProducts] = useState([])
   const [token, setToken] = useState('')
@@ -25,6 +35,8 @@ const ShopContextProvider = (props) => {
   const [creditPoints, setCreditPoints] = useState(0)
   const [getCustomData, setGetCustomData] = useState({})
   const [getCustomDataCount, setGetCustomDataCount] = useState()
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponDiscount, setCouponDiscount] = useState(0)
 
   const fetchUsersDetails = async () => {
     try {
@@ -41,6 +53,16 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  // Helper function to update cart and save to localStorage
+  const updateCartAndSave = (newCartData) => {
+    setCartItems(newCartData);
+    try {
+      localStorage.setItem('cartItems', JSON.stringify(newCartData));
+    } catch (error) {
+      console.error('Error saving cart to localStorage:', error);
+    }
+  };
+
   const addToCart = async (itemId, size) => {
     let cartData = structuredClone(cartItems)
     if (cartData[itemId]) {
@@ -54,7 +76,7 @@ const ShopContextProvider = (props) => {
       cartData[itemId] = {}
       cartData[itemId][size] = 1
     }
-    setCartItems(cartData)
+    updateCartAndSave(cartData)
     console.log(cartData)
 
     if (token) {
@@ -101,7 +123,7 @@ const ShopContextProvider = (props) => {
     }
     cartData[itemId][size] = quantity
 
-    setCartItems(cartData)
+    updateCartAndSave(cartData)
 
     if (token) {
       try {
@@ -154,7 +176,21 @@ const ShopContextProvider = (props) => {
       const response = await axios.post(backendUrl + '/api/cart/get', {}, { headers: { token } })
 
       if (response.data.success) {
-        setCartItems(response.data.cartData)
+        const backendCart = response.data.cartData;
+        // Merge with localStorage cart if it exists
+        const localStorageCart = localStorage.getItem('cartItems');
+        if (localStorageCart) {
+          try {
+            const parsedLocalCart = JSON.parse(localStorageCart);
+            const mergedCart = { ...parsedLocalCart, ...backendCart };
+            updateCartAndSave(mergedCart);
+          } catch (error) {
+            console.error('Error parsing localStorage cart:', error);
+            updateCartAndSave(backendCart);
+          }
+        } else {
+          updateCartAndSave(backendCart);
+        }
       }
     } catch (error) {
       console.log(error)
@@ -279,8 +315,8 @@ const ShopContextProvider = (props) => {
         return null;
       }
       const response = await axios.post(backendUrl + '/api/user/profile', {}, { headers: { token } });
-      if (response.data.success) {
-        setCreditPoints(response.data.users.creditPoints);
+      if (response.data.success && response.data.users) {
+        setCreditPoints(response.data.users.creditPoints || 0);
       }
     } catch (error) {
       console.error(error);
@@ -312,7 +348,7 @@ const ShopContextProvider = (props) => {
     }
     cartData[itemId][size] = quantity
 
-    setCartItems(cartData)
+    updateCartAndSave(cartData)
 
     if (token) {
       try {
@@ -332,6 +368,62 @@ const ShopContextProvider = (props) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 10, behavior: 'smooth' });
   }
+
+  // Coupon functions
+  const validateCoupon = async (couponCode) => {
+    try {
+      if (!token) {
+        toast.error('Please login to apply coupon', { autoClose: 2000 });
+        return false;
+      }
+
+      const orderAmount = getCartAmount();
+      const productIds = Object.keys(cartItems);
+
+      const response = await axios.post(
+        backendUrl + '/api/coupon/validate',
+        {
+          code: couponCode,
+          orderAmount,
+          productIds
+        },
+        { headers: { token } }
+      );
+
+      if (response.data.success) {
+        setAppliedCoupon(response.data.coupon);
+        setCouponDiscount(response.data.coupon.discountAmount);
+        toast.success(response.data.message, { autoClose: 2000 });
+        return true;
+      } else {
+        toast.error(response.data.message, { autoClose: 2000 });
+        return false;
+      }
+    } catch (error) {
+      console.error('Error validating coupon:', error);
+      console.error('Response data:', error.response?.data);
+      const errorMessage = error.response?.data?.message || 'Error applying coupon';
+      toast.error(errorMessage, { autoClose: 2000 });
+      return false;
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponDiscount(0);
+    toast.success('Coupon removed successfully', { autoClose: 2000 });
+  };
+
+  const clearCart = () => {
+    updateCartAndSave({});
+    setAppliedCoupon(null);
+    setCouponDiscount(0);
+  };
+
+  const getFinalAmount = () => {
+    const cartAmount = getCartAmount();
+    return Math.max(0, cartAmount - couponDiscount);
+  };
 
   useEffect(() => {
     if (token) {
@@ -359,18 +451,21 @@ const ShopContextProvider = (props) => {
     }
   }, []);
 
+
+
   const value = {
     products, currency, delivery_fee,
     search, setSearch, showSearch, setShowSearch,
     cartItems, addToCart, setCartItems, getCartCount,
-    updateQuantity, getCartAmount,
+    updateQuantity, getCartAmount, clearCart, updateCartAndSave,
     navigate, backendUrl, setToken, token, wishlist,
     addToWishlist, getWishlistCount, updateWishlistQuantity,
     setWishlist, reviewList, fetchReviewList, usersDetails,
     scrollToTop, productSearch, clearSearchBar, orderData,
     orderCount, creditPoints, setCreditPoints, getCustomData,
     updateCustomQuantity, customDataArray, getCreditScore,
-    fetchOrderDetails
+    fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
+    couponDiscount, getFinalAmount
   }
 
   return (

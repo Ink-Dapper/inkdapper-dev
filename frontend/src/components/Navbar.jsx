@@ -44,6 +44,7 @@ const Navbar = () => {
     getWishlistCount,
     setWishlist,
     usersDetails,
+    clearCart,
   } = useContext(ShopContext);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [value, setValue] = useState("recent");
@@ -79,7 +80,7 @@ const Navbar = () => {
     navigate("/login");
     localStorage.removeItem("token");
     setToken("");
-    setCartItems({});
+    clearCart();
     setWishlist({});
   };
 

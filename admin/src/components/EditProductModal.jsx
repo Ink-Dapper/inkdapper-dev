@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { backendUrl } from '../App'
-import { cross } from '../App'
+import { FaTimes } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 
 const EditProductModal = ({ token, product, close, onSuccess }) => {
@@ -181,7 +181,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
               </div>
             </div>
             <div className='flex flex-col-reverse justify-center items-start gap-2'>
-              <input onChange={() => setBestseller(prev => !prev)} checked={bestseller} type="checkbox" id="bestseller" className='w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500-6'/>
+              <input onChange={() => setBestseller(prev => !prev)} checked={bestseller} type="checkbox" id="bestseller" className='w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500-6' />
               <label className='cursor-pointer font-medium' htmlFor="bestseller">Add to bestseller</label>
             </div>
           </div>
@@ -191,7 +191,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
           </button>
         </form>
         <button onClick={close} className=' hover:bg-red-700 hover:text-white text-black font-bold text-2xl py-2 px-2 rounded absolute top-4 right-4'>
-          {cross}
+          <FaTimes />
         </button>
       </div>
     </div>

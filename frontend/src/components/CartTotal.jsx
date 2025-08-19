@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { ShopContext } from '../context/ShopContext'
 
 const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
-    const { currency, delivery_fee, getCartAmount, creditPoints } = useContext(ShopContext)
+    const { currency, delivery_fee, getCartAmount, creditPoints, appliedCoupon, couponDiscount } = useContext(ShopContext)
 
     return (
         <div className='w-full relative'>
@@ -63,6 +63,19 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                     <span className='text-gray-900 text-sm font-semibold'>{currency} {delivery_fee}.00</span>
                 </div>
 
+                {/* Coupon Discount */}
+                {appliedCoupon && (
+                    <div className='flex items-center justify-between p-2 bg-orange-50 rounded-lg border border-orange-200'>
+                        <div className='flex items-center gap-2'>
+                            <div className='w-5 h-5 bg-orange-100 rounded-full flex items-center justify-center'>
+                                <span className="text-orange-600 font-bold text-xs">🎫</span>
+                            </div>
+                            <span className='text-orange-700 text-sm font-medium'>Coupon ({appliedCoupon.code})</span>
+                        </div>
+                        <span className='text-orange-700 text-sm font-semibold'>-{currency} {couponDiscount}.00</span>
+                    </div>
+                )}
+
                 {/* Credit Points */}
                 {location.pathname === '/place-order' && (
                     <div className='flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-200'>
@@ -88,22 +101,22 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                         <span className='text-base font-bold text-gray-800'>Total Amount</span>
                     </div>
                     <span className='text-lg font-bold text-orange-600'>
-                        {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee - (creditPtsVisible ? creditPoints : 0)}.00
+                        {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee - (creditPtsVisible ? creditPoints : 0) - couponDiscount}.00
                     </span>
                 </div>
             </div>
 
             {/* Savings Info */}
-            {creditPtsVisible && creditPoints > 0 && (
+            {(creditPtsVisible && creditPoints > 0) || (appliedCoupon && couponDiscount > 0) ? (
                 <div className='mt-2 p-2 bg-green-50 rounded-lg border border-green-200'>
                     <div className='flex items-center gap-2'>
-                        <span className="text-green-600 font-bold text-sm">₹</span>
+                        <span className="text-green-600 font-bold text-sm">💰</span>
                         <span className='text-xs text-green-700 font-medium'>
-                            You're saving {currency} {creditPoints}.00 with credit points!
+                            You're saving {currency} {(creditPtsVisible ? creditPoints : 0) + couponDiscount}.00 total!
                         </span>
                     </div>
                 </div>
-            )}
+            ) : null}
         </div>
     )
 }

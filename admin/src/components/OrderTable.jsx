@@ -112,8 +112,11 @@ const OrderTable = ({ token }) => {
           }
         </div>
       </div>
-      <div className='w-[95%] flex items-center justify-center absolute bottom-6'>
-        <div className='w-full border p-3 bg-slate-100 grid gap-4'>
+
+      {/* Summary and Pagination Section */}
+      <div className='mt-6 space-y-4'>
+        {/* Summary Stats */}
+        <div className='w-full border p-4 bg-slate-100 rounded-lg'>
           <div className='font-medium flex gap-8 justify-end'>
             <div className='flex gap-1'>
               <p>Total Quantity : </p>
@@ -125,17 +128,23 @@ const OrderTable = ({ token }) => {
             </div>
           </div>
         </div>
+
         {/* Pagination */}
-        <div className='flex justify-center mb-4 absolute gap-2 -bottom-[12px]'>
+        <div className='flex justify-center items-center gap-4'>
           <button
             onClick={() => setSliceSectionNext(sliceSectionNext - 10)}
-            className={`bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${sliceSectionNext <= 10 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors ${sliceSectionNext <= 10 ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={sliceSectionNext <= 10}>
-            Prev
+            Previous
           </button>
+
+          <span className='text-sm text-gray-600'>
+            Page {Math.ceil(sliceSectionNext / 10)} of {Math.ceil(orders.length / 10)}
+          </span>
+
           <button
             onClick={() => setSliceSectionNext(sliceSectionNext + 10)}
-            className={`bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${sliceSection.length < 10 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors ${sliceSection.length < 10 ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={sliceSection.length < 10}>
             Next
           </button>

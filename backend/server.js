@@ -9,11 +9,13 @@ import cartRouter from './routes/cartRoute.js'
 import orderRouter from './routes/orderRoute.js'
 import wishlistRouter from './routes/wishlistRoute.js'
 import reviewRouter from './routes/reviewRoute.js'
+import couponRouter from './routes/couponRoute.js'
 import bodyParser from 'body-parser';
 import newsLetterRoute from './routes/newsLetterRoute.js'
 import emailRouter from './routes/emailRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import adminAuth from './middleware/adminAuth.js'
 
 // App config
 const app = express()
@@ -26,8 +28,8 @@ connectCloudinary()
 
 // CORS configuration
 const corsOptions = {
-  origin: ['https://www.inkdapper.com', 'http://localhost:4000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: ['https://www.inkdapper.com', 'http://localhost:4000', 'http://localhost:5173', 'http://localhost:5174'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'token'],
   credentials: true
 }
@@ -48,7 +50,7 @@ app.use((req, res, next) => {
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, token");
 
   if (req.method === "OPTIONS") {
@@ -61,8 +63,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(bodyParser.json());
-app.use(cors());
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
 app.use(bodyParser.json())
 
 // Set correct MIME type for JSX files
@@ -78,6 +79,16 @@ app.get('/api/test', (req, res) => {
   res.json({ 
     success: true, 
     message: 'Backend server is running!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Admin test endpoint
+app.get('/api/admin/test', adminAuth, (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Admin authentication is working!',
+    userId: req.userId,
     timestamp: new Date().toISOString()
   });
 });
@@ -108,6 +119,7 @@ app.use('/api/cart', cartRouter)
 app.use('/api/order', orderRouter)
 app.use('/api/wishlist', wishlistRouter)
 app.use('/api/review', reviewRouter)
+app.use('/api/coupon', couponRouter)
 app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
 
