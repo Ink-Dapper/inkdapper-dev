@@ -30,6 +30,8 @@ const Dashboard = ({ token }) => {
   const navigate = useNavigate();
   const { orders } = useContext(ShopContext);
   const [isLoading, setIsLoading] = useState(true);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showDateDropdown, setShowDateDropdown] = useState(false);
   const [orderStats, setOrderStats] = useState({
     total: 0,
     pending: 0,
@@ -38,6 +40,21 @@ const Dashboard = ({ token }) => {
     revenue: 0,
     averageOrderValue: 0
   });
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showStatusDropdown && !event.target.closest('.status-dropdown')) {
+        setShowStatusDropdown(false);
+      }
+      if (showDateDropdown && !event.target.closest('.date-dropdown')) {
+        setShowDateDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showStatusDropdown, showDateDropdown]);
 
   // Enhanced data for charts
   const productDetailsData = [
@@ -646,29 +663,85 @@ const Dashboard = ({ token }) => {
               </div>
 
               <div className='flex flex-col sm:flex-row gap-4'>
-                <div>
+                <div className="relative status-dropdown">
                   <label className='block text-sm font-medium text-gray-700 mb-2'>Status Filter</label>
-                  <select className='px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'>
-                    <option value='all'>All Orders</option>
-                    <option value='pending'>Pending</option>
-                    <option value='packing'>Packing</option>
-                    <option value='shipped'>Shipped</option>
-                    <option value='out-for-delivery'>Out for Delivery</option>
-                    <option value='delivered'>Delivered</option>
-                    <option value='returned'>Returned</option>
-                  </select>
+                  <button
+                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                    className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span className="text-sm font-medium text-gray-700">All Orders</span>
+                    </div>
+                    <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showStatusDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {showStatusDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                      <div className="py-1">
+                        {[
+                          { value: 'all', label: 'All Orders', color: 'bg-blue-500' },
+                          { value: 'pending', label: 'Pending', color: 'bg-yellow-500' },
+                          { value: 'packing', label: 'Packing', color: 'bg-orange-500' },
+                          { value: 'shipped', label: 'Shipped', color: 'bg-purple-500' },
+                          { value: 'out-for-delivery', label: 'Out for Delivery', color: 'bg-indigo-500' },
+                          { value: 'delivered', label: 'Delivered', color: 'bg-green-500' },
+                          { value: 'returned', label: 'Returned', color: 'bg-red-500' }
+                        ].map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => setShowStatusDropdown(false)}
+                            className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 text-gray-700"
+                          >
+                            <div className={`w-2 h-2 rounded-full ${option.color}`}></div>
+                            <span className="font-medium">{option.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div>
+                <div className="relative date-dropdown">
                   <label className='block text-sm font-medium text-gray-700 mb-2'>Date Range</label>
-                  <select className='px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'>
-                    <option value='today'>Today</option>
-                    <option value='week'>This Week</option>
-                    <option value='month'>This Month</option>
-                    <option value='quarter'>This Quarter</option>
-                    <option value='year'>This Year</option>
-                    <option value='custom'>Custom Range</option>
-                  </select>
+                  <button
+                    onClick={() => setShowDateDropdown(!showDateDropdown)}
+                    className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-sm font-medium text-gray-700">This Month</span>
+                    </div>
+                    <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showDateDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {showDateDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                      <div className="py-1">
+                        {[
+                          { value: 'today', label: 'Today', color: 'bg-green-500' },
+                          { value: 'week', label: 'This Week', color: 'bg-blue-500' },
+                          { value: 'month', label: 'This Month', color: 'bg-purple-500' },
+                          { value: 'quarter', label: 'This Quarter', color: 'bg-orange-500' },
+                          { value: 'year', label: 'This Year', color: 'bg-indigo-500' },
+                          { value: 'custom', label: 'Custom Range', color: 'bg-gray-500' }
+                        ].map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => setShowDateDropdown(false)}
+                            className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 text-gray-700"
+                          >
+                            <div className={`w-2 h-2 rounded-full ${option.color}`}></div>
+                            <span className="font-medium">{option.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

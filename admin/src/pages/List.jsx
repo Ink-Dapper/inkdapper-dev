@@ -41,7 +41,20 @@ const List = ({ token }) => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showActionDropdown, setShowActionDropdown] = useState({});
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'grid'
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showStatusDropdown && !event.target.closest('.status-dropdown')) {
+        setShowStatusDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showStatusDropdown]);
 
   const fetchList = async () => {
     try {
@@ -121,6 +134,10 @@ const List = ({ token }) => {
 
   const openEditModal = (product) => {
     setEditingProduct(product);
+  };
+
+  const openViewModal = (product) => {
+    setEditingProduct({ ...product, viewMode: true });
   };
 
   const closeEditModal = () => {
@@ -328,16 +345,61 @@ const List = ({ token }) => {
           </div>
 
           {/* Status Filter */}
-          <div className="relative">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 min-w-[150px]"
+          <div className="relative status-dropdown">
+            <button
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              className="flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 min-w-[180px] group"
             >
-              <option value="all">All Status</option>
-              <option value="available">Available</option>
-              <option value="soldout">Sold Out</option>
-            </select>
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${filterStatus === 'all' ? 'bg-gray-400' : filterStatus === 'available' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-sm font-medium text-gray-700">
+                  {filterStatus === 'all' ? 'All Status' : filterStatus === 'available' ? 'Available' : 'Sold Out'}
+                </span>
+              </div>
+              <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showStatusDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showStatusDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setFilterStatus('all');
+                      setShowStatusDropdown(false);
+                    }}
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'all' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                    <span className="font-medium">All Status</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFilterStatus('available');
+                      setShowStatusDropdown(false);
+                    }}
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'available' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="font-medium">Available</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFilterStatus('soldout');
+                      setShowStatusDropdown(false);
+                    }}
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'soldout' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span className="font-medium">Sold Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* View Mode Toggle */}
@@ -429,8 +491,8 @@ const List = ({ token }) => {
                           className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
                         />
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-green-100 text-green-800'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-green-100 text-green-800'
                           }`}>
                           {product.soldout ? 'Sold Out' : 'Available'}
                         </span>
@@ -460,8 +522,7 @@ const List = ({ token }) => {
                               </button>
                               <button
                                 onClick={() => {
-                                  // Handle view details action
-                                  toast.info('View details feature coming soon');
+                                  openViewModal(product);
                                   closeAllDropdowns();
                                 }}
                                 className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
@@ -521,8 +582,8 @@ const List = ({ token }) => {
                 />
                 <div className="absolute top-2 right-2">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-green-100 text-green-800'
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-green-100 text-green-800'
                     }`}>
                     {product.soldout ? 'Sold Out' : 'Available'}
                   </span>
