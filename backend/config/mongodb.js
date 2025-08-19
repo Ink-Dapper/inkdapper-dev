@@ -6,7 +6,9 @@ const connectDB = async () =>{
         console.log('Mongodb connected')
     })
 
-    await mongoose.connect(`${process.env.MONGODB_URI}/inkdapper`)
+    // Use default MongoDB URI if not set in environment
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+    await mongoose.connect(`${mongoUri}/inkdapper`)
 }
 
 export default connectDB

@@ -7,13 +7,15 @@ import OrderProgress from '../components/OrderProgress';
 import OrderStatus from '../components/OrderStatus';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const Orders = () => {
   const { backendUrl, token, currency } = useContext(ShopContext);
+  const navigate = useNavigate();
 
   const [orderData, setOrderData] = useState([]);
   const [orderStatus, setOrderStatus] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [orderStatusLoading, setOrderStatusLoading] = useState({});
   const [orderStatusLoadingTwo, setOrderStatusLoadingTwo] = useState({});
   const [showReturnConfirmation, setShowReturnConfirmation] = useState(false);
@@ -25,36 +27,44 @@ const Orders = () => {
 
   const loadOrderData = async () => {
     try {
-      if (!token) {
-        return null;
-      }
-      const response = await axios.post(backendUrl + '/api/order/user-orders', {}, { headers: { token } });
+      console.log('Loading order data with token:', token.substring(0, 20) + '...');
+      const response = await axios.post(backendUrl + '/api/order/user-details', {}, { headers: { token } });
+      console.log('Order API response:', response.data);
       if (response.data.success) {
         let allOrdersItem = [];
-        response.data.orders.map((order) => {
-          order.items.map((item) => {
-            item['status'] = order.status;
-            item['payment'] = order.payment;
-            item['paymentMethod'] = order.paymentMethod;
-            item['date'] = order.date;
-            item['deliveryDate'] = order.deliveryDate;
-            item['returnDate'] = order.returnDate;
-            item['returnOrderStatus'] = order.returnOrderStatus;
-            item['returnReason'] = order.returnReason;
-            item['expectedDeliveryDate'] = order.expectedDeliveryDate;
-            item['orderId'] = order._id;
-            allOrdersItem.push(item);
-            setOrderStatus(order.status);
-            setIsLoading(true);
-            setTimeout(() => {
-              setIsLoading(false);
-            }, 2000);
+        if (response.data.orders && Array.isArray(response.data.orders)) {
+          response.data.orders.map((order) => {
+            if (order.items && Array.isArray(order.items)) {
+              order.items.map((item) => {
+                item['status'] = order.status;
+                item['payment'] = order.payment;
+                item['paymentMethod'] = order.paymentMethod;
+                item['date'] = order.date;
+                item['deliveryDate'] = order.deliveryDate;
+                item['returnDate'] = order.returnDate;
+                item['returnOrderStatus'] = order.returnOrderStatus;
+                item['returnReason'] = order.returnReason;
+                item['expectedDeliveryDate'] = order.expectedDeliveryDate;
+                item['orderId'] = order._id;
+                allOrdersItem.push(item);
+                setOrderStatus(order.status);
+              });
+            }
           });
-        });
+        }
+        console.log('Processed orders:', allOrdersItem.length);
         setOrderData(allOrdersItem.reverse());
+        setIsLoading(false);
+      } else {
+        console.log('API returned success: false');
+        setIsLoading(false);
       }
     } catch (error) {
-      console.log(error);
+      console.log('Error loading order data:', error);
+      if (error.response) {
+        console.log('Error response:', error.response.data);
+      }
+      setIsLoading(false);
     }
   };
 
@@ -115,6 +125,7 @@ const Orders = () => {
         }
       } catch (error) {
         console.log(error);
+        toast.error('Error processing return request');
       }
     } else {
       setShowReturnConfirmation(false);
@@ -144,6 +155,7 @@ const Orders = () => {
         }
       } catch (error) {
         console.log(error);
+        toast.error('Error processing cancel request');
       }
     } else {
       setShowCancelConfirmation(false);
@@ -153,9 +165,14 @@ const Orders = () => {
   };
 
   useEffect(() => {
+    if (!token) {
+      toast.error('Please login to view your orders');
+      navigate('/login');
+      return;
+    }
     loadOrderData();
     console.log(orderData);
-  }, [token]);
+  }, [token, navigate]);
 
   // Calculate opacities based on order status
   const getOpacities = (status) => {
@@ -212,7 +229,7 @@ const Orders = () => {
     <div className='min-h-screen'>
       {/* Header Section */}
       <div className=''>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+        <div className='max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8 md:py-12'>
           <div className='text-center relative'>
             <h1 className="sr-only">Your Orders</h1>
 
@@ -273,7 +290,15 @@ const Orders = () => {
       {/* Content Section */}
       <div className='max-w-8xl mx-auto px-1 lg:px-8 py-8'>
         <div className='space-y-8'>
-          {orderData.length === 0 ? (
+          {isLoading ? (
+            <div className='text-center py-16'>
+              <div className='w-32 h-32 mx-auto mb-6 bg-white rounded-full flex items-center justify-center border-2 border-gray-200 shadow-lg'>
+                <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-green-600'></div>
+              </div>
+              <h3 className='text-2xl font-bold text-gray-900 mb-3'>Loading Orders...</h3>
+              <p className='text-gray-600 text-lg'>Please wait while we fetch your order details</p>
+            </div>
+          ) : orderData.length === 0 ? (
             <div className='text-center py-16'>
               <div className='w-32 h-32 mx-auto mb-6 bg-white rounded-full flex items-center justify-center border-2 border-gray-200 shadow-lg'>
                 <svg className='w-16 h-16 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

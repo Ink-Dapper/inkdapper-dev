@@ -14,7 +14,14 @@ import {
   Eye,
   Phone,
   MapPin,
-  Calendar
+  Calendar,
+  MoreVertical,
+  Send,
+  Archive,
+  RefreshCw,
+  Settings,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 const NewsletterSubscribers = ({ token }) => {
@@ -26,6 +33,8 @@ const NewsletterSubscribers = ({ token }) => {
   const [selectedSubscriber, setSelectedSubscriber] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showActionDropdown, setShowActionDropdown] = useState({});
   const [editForm, setEditForm] = useState({
     isActive: true,
     notes: '',
@@ -187,6 +196,18 @@ const NewsletterSubscribers = ({ token }) => {
     });
   };
 
+  const toggleActionDropdown = (subscriberId) => {
+    setShowActionDropdown(prev => ({
+      ...prev,
+      [subscriberId]: !prev[subscriberId]
+    }));
+  };
+
+  const closeAllDropdowns = () => {
+    setShowActionDropdown({});
+    setShowFilterDropdown(false);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -253,7 +274,7 @@ const NewsletterSubscribers = ({ token }) => {
         </div>
       </div>
 
-      {/* Filters and Search */}
+      {/* Enhanced Filters and Search */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
@@ -261,29 +282,85 @@ const NewsletterSubscribers = ({ token }) => {
             <input
               type="text"
               placeholder="Search by email..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex gap-2">
-            <select
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="all">All Subscribers</option>
-              <option value="active">Active Only</option>
-              <option value="inactive">Inactive Only</option>
-            </select>
+
+          {/* Modern Filter Dropdown */}
+          <div className="relative">
             <button
-              onClick={exportToCSV}
-              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 min-w-[200px]"
             >
-              <Download className="w-4 h-4" />
-              Export
+              <Filter className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-700">
+                {filterStatus === 'all' && 'All Subscribers'}
+                {filterStatus === 'active' && 'Active Only'}
+                {filterStatus === 'inactive' && 'Inactive Only'}
+              </span>
+              {showFilterDropdown ? (
+                <ChevronUp className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              )}
             </button>
+
+            {showFilterDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setFilterStatus('all');
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${filterStatus === 'all' ? 'bg-orange-50 text-orange-700' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      All Subscribers
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFilterStatus('active');
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${filterStatus === 'active' ? 'bg-orange-50 text-orange-700' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Active Only
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFilterStatus('inactive');
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors ${filterStatus === 'inactive' ? 'bg-orange-50 text-orange-700' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Inactive Only
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
+
+          <button
+            onClick={exportToCSV}
+            className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200 flex items-center gap-2 font-medium shadow-md hover:shadow-lg"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
         </div>
       </div>
 
@@ -370,28 +447,73 @@ const NewsletterSubscribers = ({ token }) => {
                     <span className="capitalize">{subscriber.source || 'website'}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
+                    <div className="relative">
                       <button
-                        onClick={() => openDetailsModal(subscriber)}
-                        className="text-blue-600 hover:text-blue-900 p-1"
-                        title="View Details"
+                        onClick={() => toggleActionDropdown(subscriber._id)}
+                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                       >
-                        <Eye className="w-4 h-4" />
+                        <MoreVertical className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => openEditModal(subscriber)}
-                        className="text-orange-600 hover:text-orange-900 p-1"
-                        title="Edit"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(subscriber._id)}
-                        className="text-red-600 hover:text-red-900 p-1"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+
+                      {showActionDropdown[subscriber._id] && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+                          <div className="py-1">
+                            <button
+                              onClick={() => {
+                                openDetailsModal(subscriber);
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Details
+                            </button>
+                            <button
+                              onClick={() => {
+                                openEditModal(subscriber);
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                              Edit Subscriber
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Handle send email action
+                                toast.info('Send email feature coming soon');
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Send className="w-4 h-4" />
+                              Send Email
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Handle archive action
+                                toast.info('Archive feature coming soon');
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Archive className="w-4 h-4" />
+                              Archive
+                            </button>
+                            <hr className="my-1" />
+                            <button
+                              onClick={() => {
+                                handleDelete(subscriber._id);
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -406,6 +528,14 @@ const NewsletterSubscribers = ({ token }) => {
           </div>
         )}
       </div>
+
+      {/* Click outside to close dropdowns */}
+      {(showFilterDropdown || Object.values(showActionDropdown).some(Boolean)) && (
+        <div
+          className="fixed inset-0 z-10"
+          onClick={closeAllDropdowns}
+        />
+      )}
 
       {/* Edit Modal */}
       {showEditModal && selectedSubscriber && (

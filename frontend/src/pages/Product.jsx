@@ -11,6 +11,7 @@ import { assets } from '../assets/assets';
 import ListReviews from '../components/ListReviews';
 import ProductReviewSection from '../components/ProductReviewSection';
 import RelatedProducts from '../components/RelatedProducts';
+
 import { ShopContext } from '../context/ShopContext';
 import '../styles/swiper-custom.css';
 import { Paintbrush, Shirt, Circle, Leaf, Calendar, Hand, Truck, Shield, RotateCcw, Heart, Share2 } from 'lucide-react';
@@ -590,6 +591,8 @@ const Product = () => {
                   </button>
                 </Link>
               </div>
+
+
 
               {/* Why Choose Us - Minimal */}
               <div className='mt-4 bg-orange-50 rounded-lg p-3 border border-orange-100'>

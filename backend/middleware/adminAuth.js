@@ -3,17 +3,29 @@ import jwt from "jsonwebtoken";
 const adminAuth = async (req,res,next) => {
     try {
         const { token } = req.headers
+        
         if(!token) {
-            return res.json({success:false, message: "Not Authorized Login Again"})
+            return res.status(401).json({success:false, message: "Not Authorized Login Again"})
         }
-        const token_decoded = jwt.verify(token, process.env.JWT_SECRET)
-        if (token_decoded !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
-            return res.json({success:false, message: "Not Authorized Login Again"})
+        
+        // Use default JWT secret if not set in environment
+        const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_development';
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@inkdapper.com';
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        
+        const token_decoded = jwt.verify(token, jwtSecret)
+        
+        if (token_decoded !== adminEmail + adminPassword) {
+            return res.status(401).json({success:false, message: "Not Authorized Login Again"})
         }
+        
+        // Set userId for admin operations (using a special admin ID)
+        req.userId = 'admin';
+        
         next()
     } catch (error) {
-        console.log(error)
-        res.json({success:false,message: error.message})
+        console.log('Admin auth error:', error)
+        res.status(401).json({success:false,message: error.message})
     }
 }
 

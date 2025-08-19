@@ -5,7 +5,8 @@ import {
     getSubscriberById,
     updateSubscriberStatus, 
     deleteSubscriber, 
-    getSubscriberStats 
+    getSubscriberStats,
+    checkSubscriptionStatus
 } from '../controllers/newsLetterController.js'
 import authUser from '../middleware/auth.js'
 import adminAuth from '../middleware/adminAuth.js'
@@ -14,6 +15,7 @@ const newsLetterRoute = express.Router()
 
 // Public routes
 newsLetterRoute.post('/subscribe', subscribeToNewsletter)
+newsLetterRoute.post('/check-subscription', checkSubscriptionStatus)
 
 // Admin routes (protected)
 newsLetterRoute.get('/subscribers', adminAuth, getAllSubscribers)

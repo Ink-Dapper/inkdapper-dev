@@ -9,68 +9,175 @@ import {
   ShoppingBag,
   RotateCcw,
   XCircle,
-  Mail
+  Mail,
+  Tag
 } from 'lucide-react'
 
 const Sidebar = () => {
   return (
-    <div className='w-[18%] border-r-2'>
-      <div className='flex flex-col gap-4 pt-6 pl-[20%] text-[15px]'>
+    <div className='w-[280px] bg-gradient-to-b from-slate-50 to-white border-r border-slate-200 shadow-sm min-h-screen flex flex-col'>
+      {/* Logo/Brand Section */}
+      <div className='p-6 border-b border-slate-200 flex-shrink-0'>
+        <div className='flex items-center gap-3'>
+          <div className='w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center'>
+            <LayoutDashboard className='w-6 h-6 text-white' />
+          </div>
+          <div>
+            <h1 className='text-xl font-bold text-slate-800'>Admin Panel</h1>
+            <p className='text-sm text-slate-500'>InkDapper</p>
+          </div>
+        </div>
+      </div>
 
-        <NavLink to='/' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <LayoutDashboard className='w-5 h-5' />
-          <p className='hidden md:block'>Dashboard</p>
+      {/* Navigation Menu */}
+      <div className='p-4 space-y-2 flex-1 overflow-y-auto'>
+        {/* Dashboard */}
+        <NavLink
+          to='/'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <LayoutDashboard className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Dashboard</span>
         </NavLink>
 
-        <NavLink to='/user-list' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <Users className='w-5 h-5' />
-          <p className='hidden md:block'>Users List</p>
+        {/* Users List */}
+        <NavLink
+          to='/user-list'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <Users className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Users List</span>
         </NavLink>
 
-        <NavLink to='/newsletter-subscribers' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <Mail className='w-5 h-5' />
-          <p className='hidden md:block'>Newsletter</p>
+        {/* Newsletter */}
+        <NavLink
+          to='/newsletter-subscribers'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <Mail className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Newsletter</span>
         </NavLink>
 
-        <NavLink to='/add-banner' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <Image className='w-5 h-5' />
-          <p className='hidden md:block'>Add Banner</p>
+        {/* Add Banner */}
+        <NavLink
+          to='/add-banner'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <Image className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Add Banner</span>
         </NavLink>
 
-        <NavLink to='/add' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <PlusCircle className='w-5 h-5' />
-          <p className='hidden md:block'>Add Items</p>
+        {/* Add Items */}
+        <NavLink
+          to='/add'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <PlusCircle className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Add Items</span>
         </NavLink>
 
-        <NavLink to='/list' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <List className='w-5 h-5' />
-          <p className='hidden md:block'>List Items</p>
+        {/* List Items */}
+        <NavLink
+          to='/list'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <List className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>List Items</span>
         </NavLink>
 
-        <NavLink to='/orders' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <ShoppingBag className='w-5 h-5' />
-          <p className='hidden md:block'>Orders</p>
+        {/* Orders */}
+        <NavLink
+          to='/orders'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <ShoppingBag className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Orders</span>
         </NavLink>
 
-        {/* <NavLink to='/complete-delivery' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <img className='w-5 h-5' src={assets.order_icon} alt="add_icon" />
-          <p className='hidden md:block'>Completed Orders</p>
-        </NavLink> */}
-
-        <NavLink to='/return-orders' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <RotateCcw className='w-5 h-5' />
-          <p className='hidden md:block'>Return Orders</p>
+        {/* Return Orders */}
+        <NavLink
+          to='/return-orders'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <RotateCcw className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Return Orders</span>
         </NavLink>
 
-        {/* <NavLink to='/return-orders-complete' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <img className='w-5 h-5' src={assets.order_icon} alt="add_icon" />
-          <p className='hidden md:block'>Return Completed</p>
-        </NavLink> */}
-
-        <NavLink to='/cancel-orders' className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
-          <XCircle className='w-5 h-5' />
-          <p className='hidden md:block'>Cancel Orders</p>
+        {/* Cancel Orders */}
+        <NavLink
+          to='/cancel-orders'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <XCircle className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Cancel Orders</span>
         </NavLink>
+
+        {/* Coupons */}
+        <NavLink
+          to='/coupons'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <Tag className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Coupons</span>
+        </NavLink>
+      </div>
+
+      {/* Footer Section */}
+      <div className='p-4 border-t border-slate-200 bg-slate-50 flex-shrink-0'>
+        <div className='text-center'>
+          <p className='text-sm text-slate-500'>Admin Panel v1.0</p>
+          <p className='text-xs text-slate-400 mt-1'>© 2024 InkDapper</p>
+        </div>
       </div>
     </div>
   )

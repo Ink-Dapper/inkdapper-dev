@@ -28,7 +28,8 @@ const razorpayInstance = new Razorpay({
 // Placing Order using COD Method
 const placeOrder = async (req, res) => {
   try {
-    const { userId, items, amount, address } = req.body;
+    const userId = req.userId;
+    const { items, amount, address } = req.body;
 
     const expectedDeliveryDate = new Date();
     expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
@@ -107,7 +108,8 @@ const placeOrderStripe = async (req, res) => {};
 // Placing Order using Razorpay Method
 const placeOrderRazorpay = async (req, res) => {
   try {
-    const { userId, items, amount, address } = req.body;
+    const userId = req.userId;
+    const { items, amount, address } = req.body;
 
     const options = {
       amount: amount * 100,
@@ -130,8 +132,8 @@ const placeOrderRazorpay = async (req, res) => {
 
 const verifyRazorpay = async (req, res) => {
   try {
+    const userId = req.userId;
     const {
-      userId,
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
@@ -235,16 +237,22 @@ const allOrders = async (req, res) => {
 // User Order Data for Frontend
 const userOrders = async (req, res) => {
   try {
-    const { userId, orderId, returnOrderStatus, returnReason, cancelReason } =
-      req.body;
+    const userId = req.userId; // Get userId from auth middleware
+    const { orderId, returnOrderStatus, returnReason, cancelReason } = req.body;
+    
+    // If orderId is provided, update the order (for return/cancel operations)
+    if (orderId) {
+      const returned = await orderModel.findByIdAndUpdate(orderId, {
+        returnOrderStatus,
+        returnReason,
+        cancelReason,
+      });
+    }
+    
+    // Get all orders for the user
     const orders = await orderModel.find({ userId });
-    const returned = await orderModel.findByIdAndUpdate(orderId, {
-      returnOrderStatus,
-      returnReason,
-      cancelReason,
-    });
-    console.log(userId);
-    res.json({ success: true, message: "Order returned", orders, returned });
+    console.log('User ID:', userId, 'Orders found:', orders.length);
+    res.json({ success: true, message: "Orders retrieved successfully", orders });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -254,7 +262,7 @@ const userOrders = async (req, res) => {
 // User Details for Profiles
 const userDetails = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
 
     const orders = await orderModel.find({ userId });
     res.json({ success: true, orders });
@@ -293,9 +301,14 @@ const updateStatus = async (req, res) => {
 // Function to get credit points
 const clearCreditPoints = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
     const userData = await userModel.findById(userId);
-    const creditPoints = await userData.creditPoints;
+    
+    if (!userData) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
+    const creditPoints = userData.creditPoints || 0;
 
     await userModel.findByIdAndUpdate(userId, { creditPoints: 0 });
     res.json({ success: true, message: "Cleared Credit Points", creditPoints });

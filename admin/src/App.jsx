@@ -19,11 +19,11 @@ import CancelOrders from './pages/CancelOrders'
 import CancelOrderCompleted from './pages/CancelOrderCompleted'
 import BannerList from './pages/BannerList'
 import NewsletterSubscribers from './pages/NewsletterSubscribers'
+import Coupons from './pages/Coupons'
 import { NotificationProvider } from './context/NotificationContext';
 
-export const backendUrl = import.meta.env.VITE_BACKEND_URL
+export const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
 export const currency = <span className='font-semibold gap-2'>₹</span>
-export const cross = <FaTimes />
 
 const App = () => {
 
@@ -41,25 +41,25 @@ const App = () => {
           ? <Login setToken={setToken} />
           : <>
             <Navbar setToken={setToken} />
-            <hr />
+            <hr className='border-gray-200' />
             <div className='flex w-full'>
               <Sidebar />
-              <div className='w-[78%] mx-auto ml-[max(2vw,20px)] my-1 text-gray-600 text-base  h-[calc(95vh-40px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400'>
+              <div className='flex-1 p-4 lg:p-6 text-gray-600 text-base overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400'>
                 <style>
                   {`
                     .scrollbar-thin::-webkit-scrollbar {
-                      width: 6px;
+                      width: 8px;
                     }
                     .scrollbar-thin::-webkit-scrollbar-track {
-                      background: #f1f1f1;
+                      background: #f8fafc;
                       border-radius: 10px;
                     }
                     .scrollbar-thin::-webkit-scrollbar-thumb {
-                      background: #d1d5db;
+                      background: #cbd5e1;
                       border-radius: 10px;
                     }
                     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-                      background: #9ca3af;
+                      background: #94a3b8;
                     }
                   `}
                 </style>
@@ -78,6 +78,7 @@ const App = () => {
                   <Route path="/banner-list" element={<BannerList token={token} />} />
                   <Route path="/banner-images" element={<BannerImages token={token} />} />
                   <Route path="/newsletter-subscribers" element={<NewsletterSubscribers token={token} />} />
+                  <Route path="/coupons" element={<Coupons token={token} />} />
                 </Routes>
               </div>
             </div>

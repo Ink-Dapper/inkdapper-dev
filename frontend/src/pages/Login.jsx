@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaEnvelope, FaPhone, FaUser, FaLock, FaArrowLeft } from 'react-icons/fa';
 
 const Login = () => {
   const [currentState, setCurrentState] = useState('Login');
@@ -10,20 +10,20 @@ const Login = () => {
 
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [email, setEmail] = useState(''); // Separate state for email
-  const [phone, setPhone] = useState(''); // Separate state for phone number
-  const [emailOrPhone, setEmailOrPhone] = useState(''); // State for email or phone
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [emailOrPhone, setEmailOrPhone] = useState('');
   const [verificationToken, setVerificationToken] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState('');
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // State for loading
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [resetEmail, setResetEmail] = useState(''); // State for reset email
-  const [resetCode, setResetCode] = useState(''); // State for reset code
-  const [newPassword, setNewPassword] = useState(''); // State for new password
-  const [confirmPassword, setConfirmPassword] = useState(''); // State for confirm password
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const validatePassword = (password) => {
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -45,20 +45,19 @@ const Login = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Set loading to true
+    setIsLoading(true);
     if (currentState === 'Sign Up' && !validatePassword(password)) {
       setPasswordError('Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.');
-      setIsLoading(false); // Set loading to false
+      setIsLoading(false);
       return;
     }
     setPasswordError('');
     try {
       if (currentState === 'Sign Up') {
-        // Check if the phone number is already registered
         const phoneCheckResponse = await axios.post(backendUrl + '/api/user/check-phone', { phone });
         if (!phoneCheckResponse.data.success) {
           toast.error('Phone number is already registered. Please use another.');
-          setIsLoading(false); // Set loading to false
+          setIsLoading(false);
           return;
         }
 
@@ -66,14 +65,14 @@ const Login = () => {
         if (response.data.success) {
           toast.success(response.data.message);
           setCurrentState('Verify Email');
-          localStorage.setItem('signupPassword', password); // Save password to local storage
+          localStorage.setItem('signupPassword', password);
         } else {
           toast.error(response.data.message);
         }
       } else if (currentState === 'Verify Email') {
         const response = await axios.post(backendUrl + '/api/email/verify-email', { token: verificationToken, email });
         if (response.data.success) {
-          const registerResponse = await axios.post(backendUrl + '/api/user/register', { name, email, password, phone }); // Include phone in registration
+          const registerResponse = await axios.post(backendUrl + '/api/user/register', { name, email, password, phone });
           if (registerResponse.data.success) {
             setToken(registerResponse.data.token);
             localStorage.setItem('token', registerResponse.data.token);
@@ -95,7 +94,7 @@ const Login = () => {
       } else if (currentState === 'Reset Password') {
         if (newPassword !== confirmPassword) {
           toast.error('Passwords do not match.');
-          setIsLoading(false); // Set loading to false
+          setIsLoading(false);
           return;
         }
         const response = await axios.post(backendUrl + '/api/user/reset-password', { email: resetEmail, code: resetCode, newPassword });
@@ -106,8 +105,8 @@ const Login = () => {
           toast.error(response.data.message);
         }
       } else {
-        const loginData = { emailOrPhone, password }; // Use emailOrPhone for login
-        const response = await axios.post(backendUrl + '/api/user/login', loginData); // Include emailOrPhone in login
+        const loginData = { emailOrPhone, password };
+        const response = await axios.post(backendUrl + '/api/user/login', loginData);
         if (response.data.success) {
           setToken(response.data.token);
           localStorage.setItem('token', response.data.token);
@@ -120,7 +119,7 @@ const Login = () => {
       console.log(error);
       toast.error(error.message);
     } finally {
-      setIsLoading(false); // Set loading to false
+      setIsLoading(false);
     }
   };
 
@@ -130,194 +129,269 @@ const Login = () => {
     }
   }, [token]);
 
+  const InputField = ({ icon: Icon, type = "text", placeholder, value, onChange, required = true, className = "" }) => (
+    <div className={`relative group ${className}`}>
+      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <Icon className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
+      </div>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl bg-white/90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-700 shadow-sm"
+      />
+    </div>
+  );
+
+  const PasswordField = ({ placeholder, value, onChange, required = true, className = "" }) => (
+    <div className={`relative group ${className}`}>
+      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <FaLock className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
+      </div>
+      <input
+        type={showPassword ? 'text' : 'password'}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        className="w-full pl-12 pr-12 py-4 border border-gray-200 rounded-xl bg-white/90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-700 shadow-sm"
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-500 transition-colors duration-200"
+      >
+        {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
+      </button>
+    </div>
+  );
+
+  const Button = ({ children, type = "submit", onClick, disabled = false, className = "" }) => (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`w-full py-4 px-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${className}`}
+    >
+      {disabled ? (
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+          {children}
+        </div>
+      ) : (
+        children
+      )}
+    </button>
+  );
+
   return (
-    <div className=''>
-      <h1 className="sr-only">Login / Sign Up</h1>
-      <form onSubmit={onSubmitHandler} className='flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800'>
-        <div className='inline-flex items-center gap-2 mt-10'>
-          <p className='prata-regular text-3xl'>{currentState}</p>
-          <hr className='border-none h-[1.5px] w-8 bg-gray-800' />
-        </div>
-        {currentState === 'Sign Up' && (
-          <>
-            <input
-              onChange={(e) => setName(e.target.value)}
-              value={name}
-              type="text"
-              id="signup-name"
-              name="name"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='Name'
-              required
-            />
-            <input
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              type="email"
-              id="signup-email"
-              name="email"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='Email'
-              required
-            />
-            <input
-              onChange={(e) => setPhone(e.target.value)}
-              value={phone}
-              type="text"
-              id="signup-phone"
-              name="phone"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='Phone'
-              required
-            />
-            <div className='relative w-full'>
-              <input
-                onChange={onPasswordChange}
-                value={password}
-                type={showPassword ? 'text' : 'password'}
-                id="signup-password"
-                name="password"
-                className='w-full px-3 py-2 border border-gray-800'
-                placeholder='Password'
-                required
-              />
-              <div className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5'>
-                <button type='button' onClick={() => setShowPassword(!showPassword)} className='focus:outline-none'>
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-            </div>
-            <div className='w-full mt-2'>
-              <div className='h-2 bg-gray-300 rounded'>
-                <div
-                  className={`h-full rounded ${passwordStrength === 'Strong' ? 'bg-green-500' : passwordStrength === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'}`}
-                  style={{ width: passwordStrength === 'Strong' ? '100%' : passwordStrength === 'Medium' ? '66%' : '33%' }}
-                ></div>
-              </div>
-              <p className={`text-sm mt-1 ${passwordStrength === 'Strong' ? 'text-green-500' : passwordStrength === 'Medium' ? 'text-yellow-500' : 'text-red-500'}`}>
-                {passwordStrength} Password
-              </p>
-            </div>
-            {passwordError && <p className='text-red-500 text-sm'>{passwordError}</p>}
-            <button type='submit' className='bg-black text-white font-light px-8 py-2 mt-4' disabled={isLoading}>
-              {isLoading ? 'Sending...' : 'Send Verification Email'}
-            </button>
-          </>
-        )}
-        {currentState === 'Login' && (
-          <>
-            <input
-              onChange={(e) => setEmailOrPhone(e.target.value)}
-              value={emailOrPhone}
-              type="text"
-              id="login-email-phone"
-              name="emailOrPhone"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='Email or Phone'
-              required
-            />
-            <div className='relative w-full'>
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                type={showPassword ? 'text' : 'password'}
-                id="login-password"
-                name="password"
-                className='w-full px-3 py-2 border border-gray-800'
-                placeholder='Password'
-                required
-              />
-              <div className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5'>
-                <button type='button' onClick={() => setShowPassword(!showPassword)} className='focus:outline-none'>
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-        {currentState === 'Verify Email' && (
-          <>
-            <input
-              onChange={(e) => setVerificationToken(e.target.value)}
-              value={verificationToken}
-              type="text"
-              id="verification-token"
-              name="verificationToken"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='Verification Token'
-              required
-            />
-            {currentState === 'Verify Email' && <p className='text-gray-500 text-xs mt-[-10px] md:mt-[-5px] flex justify-start w-full'>Check your email for the verification token.</p>}
-          </>
-        )}
-        {currentState === 'Forgot Password' && (
-          <>
-            <input
-              onChange={(e) => setResetEmail(e.target.value)}
-              value={resetEmail}
-              type="email"
-              id="reset-email"
-              name="resetEmail"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='Enter your registered email'
-              required
-            />
-            <button type='submit' className='bg-black text-white font-light px-8 py-2 mt-4' disabled={isLoading}>
-              {isLoading ? 'Sending...' : 'Send Reset Code'}
-            </button>
-          </>
-        )}
-        {currentState === 'Reset Password' && (
-          <>
-            <input
-              onChange={(e) => setResetCode(e.target.value)}
-              value={resetCode}
-              type="text"
-              id="reset-code"
-              name="resetCode"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='Enter the reset code'
-              required
-            />
-            <input
-              onChange={(e) => setNewPassword(e.target.value)}
-              value={newPassword}
-              type={showPassword ? 'text' : 'password'}
-              id="new-password"
-              name="newPassword"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='New Password'
-              required
-            />
-            <input
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              value={confirmPassword}
-              type={showPassword ? 'text' : 'password'}
-              id="confirm-password"
-              name="confirmPassword"
-              className='w-full px-3 py-2 border border-gray-800'
-              placeholder='Confirm New Password'
-              required
-            />
-            <button type='submit' className='bg-black text-white font-light px-8 py-2 mt-4' disabled={isLoading}>
-              {isLoading ? 'Resetting...' : 'Reset Password'}
-            </button>
-          </>
-        )}
-        <div className='w-full md:flex justify-between text-sm mt-[-8px]'>
-          <p className='cursor-pointer underline pb-1' onClick={() => setCurrentState('Forgot Password')}>Forgot your password?</p>
-          {currentState === 'Login' ? (
-            <p onClick={() => setCurrentState('Sign Up')} className='cursor-pointer text-orange-600'>Create account</p>
-          ) : (
-            <p onClick={() => setCurrentState('Login')} className='cursor-pointer text-orange-600'>Login Here</p>
-          )}
-        </div>
-        {currentState !== 'Sign Up' && currentState !== 'Forgot Password' && currentState !== 'Reset Password' && (
-          <button className='bg-black text-white font-light px-8 py-2 mt-4' disabled={isLoading}>
-            {isLoading ? 'Loading...' : currentState === 'Login' ? 'Sign In' : currentState === 'Verify Email' ? 'Verify Email' : ''}
+    <div className="h-full md:min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-orange-100 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full opacity-20 animate-pulse"></div>
+      <div className="absolute bottom-10 right-10 w-32 h-32 bg-gradient-to-r from-orange-300 to-orange-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
+      <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-gradient-to-r from-orange-200 to-orange-300 rounded-full opacity-30 animate-float"></div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Back Button */}
+        {currentState !== 'Login' && (
+          <button
+            onClick={() => setCurrentState('Login')}
+            className="mb-6 flex items-center text-gray-600 hover:text-orange-600 transition-colors duration-200"
+          >
+            <FaArrowLeft className="mr-2" />
+            Back to Login
           </button>
         )}
-      </form>
+
+        {/* Main Card */}
+        <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent mb-2">
+              {currentState}
+            </h1>
+            <div className="w-16 h-1 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full mx-auto"></div>
+          </div>
+
+          <form onSubmit={onSubmitHandler} className="space-y-6">
+            {/* Sign Up Form */}
+            {currentState === 'Sign Up' && (
+              <div className="space-y-4">
+                <InputField
+                  icon={FaUser}
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <InputField
+                  icon={FaEnvelope}
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <InputField
+                  icon={FaPhone}
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+                <PasswordField
+                  placeholder="Password"
+                  value={password}
+                  onChange={onPasswordChange}
+                />
+
+                {/* Password Strength Indicator */}
+                {password && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Password Strength:</span>
+                      <span className={`font-medium ${passwordStrength === 'Strong' ? 'text-green-600' :
+                        passwordStrength === 'Medium' ? 'text-yellow-600' : 'text-red-600'
+                        }`}>
+                        {passwordStrength}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${passwordStrength === 'Strong' ? 'bg-green-500 w-full' :
+                          passwordStrength === 'Medium' ? 'bg-yellow-500 w-2/3' : 'bg-red-500 w-1/3'
+                          }`}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+
+                {passwordError && (
+                  <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+                    {passwordError}
+                  </p>
+                )}
+
+                <Button disabled={isLoading}>
+                  {isLoading ? 'Sending...' : 'Create Account'}
+                </Button>
+              </div>
+            )}
+
+            {/* Login Form */}
+            {currentState === 'Login' && (
+              <div className="space-y-4">
+                <InputField
+                  icon={FaEnvelope}
+                  placeholder="Email or Phone"
+                  value={emailOrPhone}
+                  onChange={(e) => setEmailOrPhone(e.target.value)}
+                />
+                <PasswordField
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+
+                <Button disabled={isLoading}>
+                  {isLoading ? 'Signing In...' : 'Sign In'}
+                </Button>
+              </div>
+            )}
+
+            {/* Verify Email Form */}
+            {currentState === 'Verify Email' && (
+              <div className="space-y-4">
+                <InputField
+                  icon={FaEnvelope}
+                  placeholder="Verification Token"
+                  value={verificationToken}
+                  onChange={(e) => setVerificationToken(e.target.value)}
+                />
+                <p className="text-gray-600 text-sm bg-orange-50 p-3 rounded-lg border border-orange-200">
+                  Check your email for the verification token.
+                </p>
+
+                <Button disabled={isLoading}>
+                  {isLoading ? 'Verifying...' : 'Verify Email'}
+                </Button>
+              </div>
+            )}
+
+            {/* Forgot Password Form */}
+            {currentState === 'Forgot Password' && (
+              <div className="space-y-4">
+                <InputField
+                  icon={FaEnvelope}
+                  type="email"
+                  placeholder="Enter your registered email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                />
+
+                <Button disabled={isLoading}>
+                  {isLoading ? 'Sending...' : 'Send Reset Code'}
+                </Button>
+              </div>
+            )}
+
+            {/* Reset Password Form */}
+            {currentState === 'Reset Password' && (
+              <div className="space-y-4">
+                <InputField
+                  icon={FaEnvelope}
+                  placeholder="Enter the reset code"
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value)}
+                />
+                <PasswordField
+                  placeholder="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <PasswordField
+                  placeholder="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+
+                <Button disabled={isLoading}>
+                  {isLoading ? 'Resetting...' : 'Reset Password'}
+                </Button>
+              </div>
+            )}
+
+            {/* Navigation Links */}
+            <div className="pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+                <button
+                  type="button"
+                  onClick={() => setCurrentState('Forgot Password')}
+                  className="text-gray-600 hover:text-orange-600 transition-colors duration-200 text-sm"
+                >
+                  Forgot your password?
+                </button>
+                {currentState === 'Login' ? (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentState('Sign Up')}
+                    className="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-200 text-sm"
+                  >
+                    Create account
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentState('Login')}
+                    className="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-200 text-sm"
+                  >
+                    Login Here
+                  </button>
+                )}
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

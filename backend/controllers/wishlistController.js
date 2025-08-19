@@ -46,9 +46,14 @@ const updateWishlist = async (req, res) => {
 // get user cart data
 const getUserWishlist = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
     const userData = await userModel.findById(userId);
-    const wishlistData = await userData.wishlistData;
+    
+    if (!userData) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
+    const wishlistData = userData.wishlistData || {};
 
     res.json({ success: true, wishlistData });
   } catch (error) {

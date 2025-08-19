@@ -86,9 +86,14 @@ const addToCartCustom = async (req, res) => {
 //get user custom data
 const getUserCustomData = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
     const userData = await userModel.findById(userId);
-    const customData = await userData.customData;
+    
+    if (!userData) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
+    const customData = userData.customData || {};
 
     res.json({ success: true, customData });
   } catch (error) {
@@ -139,9 +144,14 @@ const updateCustom = async (req, res) => {
 // get user cart data
 const getUserCart = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
     const userData = await userModel.findById(userId);
-    const cartData = await userData.cartData;
+    
+    if (!userData) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
+    const cartData = userData.cartData || {};
 
     res.json({ success: true, cartData });
   } catch (error) {

@@ -1,129 +1,133 @@
 import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext'
 
 const Footer = () => {
   const { scrollToTop } = useContext(ShopContext)
+  const location = useLocation()
+  const isLoginPage = location.pathname === '/login'
 
   return (
     <>
       {/* Modern Full-Width Map Section */}
-      <section className="w-full flex flex-col items-center justify-center pt-10 pb-0 bg-transparent">
-        {/* Animated Pin above the card */}
-        <div className="flex flex-col items-center mb-2">
-          <div className="w-12 h-12 bg-gradient-to-tr from-orange-400 via-orange-500 to-slate-800 rounded-full flex items-center justify-center shadow-lg animate-bounce relative">
-            <span className="absolute w-16 h-16 bg-orange-400/40 rounded-full blur-2xl animate-pulse -z-10"></span>
-            <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C7.03 2 3 6.03 3 11c0 5.25 7.02 11.54 7.32 11.79.41.34.95.34 1.36 0C13.98 22.54 21 16.25 21 11c0-4.97-4.03-9-9-9zm0 13.5c-2.48 0-4.5-2.02-4.5-4.5s2.02-4.5 4.5-4.5 4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5z" />
-            </svg>
-          </div>
-        </div>
-        {/* Full-Width Card Container */}
-        <div className="w-full max-w-none rounded-2xl shadow-2xl px-4 md:px-6 py-8 flex flex-col items-center bg-gradient-to-br from-orange-500 via-orange-600 to-slate-800 text-white">
-          {/* Heading with accent bar */}
+      {!isLoginPage && (
+        <section className="w-full flex flex-col items-center justify-center pt-10 pb-0 bg-transparent">
+          {/* Animated Pin above the card */}
           <div className="flex flex-col items-center mb-2">
-            <span className="block w-10 h-1 rounded-full bg-gradient-to-r from-orange-400 via-orange-500 to-slate-800 mb-2"></span>
-            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-1">Visit Our Store</h2>
+            <div className="w-12 h-12 bg-gradient-to-tr from-orange-400 via-orange-500 to-slate-800 rounded-full flex items-center justify-center shadow-lg animate-bounce relative">
+              <span className="absolute w-16 h-16 bg-orange-400/40 rounded-full blur-2xl animate-pulse -z-10"></span>
+              <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C7.03 2 3 6.03 3 11c0 5.25 7.02 11.54 7.32 11.79.41.34.95.34 1.36 0C13.98 22.54 21 16.25 21 11c0-4.97-4.03-9-9-9zm0 13.5c-2.48 0-4.5-2.02-4.5-4.5s2.02-4.5 4.5-4.5 4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5z" />
+              </svg>
+            </div>
           </div>
-          <p className="text-white/80 text-center mb-6 max-w-lg">
-            We love to meet our customers! Drop by our HQ or find us on the map below. Experience the Ink Dapper vibe in person.
-          </p>
-          {/* Full-Width Map Embed */}
-          <div className="w-full rounded-xl overflow-hidden shadow-lg">
-            <iframe
-              title="Ink Dapper Location"
-              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d243.07177178382534!2d78.9224971!3d12.8981809!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bad09f21a377d93%3A0xe92469a07eeff7df!2sInk%20Dapper!5e0!3m2!1sen!2sin!4v1753385910137!5m2!1sen!2sin"
-              width="100%"
-              height="350"
-              style={{ border: 0 }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="w-full h-[220px] md:h-[450px] border-none"
-            ></iframe>
-          </div>
+          {/* Full-Width Card Container */}
+          <div className="w-full max-w-none rounded-2xl shadow-2xl px-4 md:px-6 py-8 flex flex-col items-center bg-gradient-to-br from-orange-500 via-orange-600 to-slate-800 text-white">
+            {/* Heading with accent bar */}
+            <div className="flex flex-col items-center mb-2">
+              <span className="block w-10 h-1 rounded-full bg-gradient-to-r from-orange-400 via-orange-500 to-slate-800 mb-2"></span>
+              <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-1">Visit Our Store</h2>
+            </div>
+            <p className="text-white/80 text-center mb-6 max-w-lg">
+              We love to meet our customers! Drop by our HQ or find us on the map below. Experience the Ink Dapper vibe in person.
+            </p>
+            {/* Full-Width Map Embed */}
+            <div className="w-full rounded-xl overflow-hidden shadow-lg">
+              <iframe
+                title="Ink Dapper Location"
+                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d243.07177178382534!2d78.9224971!3d12.8981809!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bad09f21a377d93%3A0xe92469a07eeff7df!2sInk%20Dapper!5e0!3m2!1sen!2sin!4v1753385910137!5m2!1sen!2sin"
+                width="100%"
+                height="350"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-[220px] md:h-[450px] border-none"
+              ></iframe>
+            </div>
 
-          {/* Address Details Section */}
-          <div className="w-full mt-6">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 shadow-lg">
-              <div className="flex flex-col md:flex-row justify-center md:justify-start md:items-start md:items-center gap-4 md:gap-6">
-                {/* Location Icon */}
-                <div className="flex-shrink-0 flex justify-center md:justify-start">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+            {/* Address Details Section */}
+            <div className="w-full mt-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 shadow-lg">
+                <div className="flex flex-col md:flex-row justify-center md:justify-start md:items-start md:items-center gap-4 md:gap-6">
+                  {/* Location Icon */}
+                  <div className="flex-shrink-0 flex justify-center md:justify-start">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Address Content */}
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Ink Dapper Store</h3>
+                    <div className="space-y-1 text-gray-100">
+                      <a
+                        href="https://maps.app.goo.gl/tY2PaHrWY7hsLT3a6"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm md:text-base hover:text-orange-300 transition-colors duration-300 cursor-pointer"
+                      >
+                        1D, Bazaar Street
+                        Vettuvanam, Vellore - 635809
+                        Tamil Nadu, India
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="flex-shrink-0 text-center md:text-right">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center md:justify-end gap-2">
+                        <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                        </svg>
+                        <a
+                          href="tel:+919994005696"
+                          className="text-sm md:text-base text-gray-100 hover:text-orange-300 transition-colors duration-300 cursor-pointer"
+                        >
+                          +91 9994005696
+                        </a>
+                      </div>
+                      <div className="flex items-center justify-center md:justify-end gap-2">
+                        <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                        </svg>
+                        <a
+                          href="mailto:support@inkdapper.com"
+                          className="text-sm md:text-base text-gray-100 hover:text-orange-300 transition-colors duration-300 cursor-pointer"
+                        >
+                          support@inkdapper.com
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Business Hours */}
+                <div className="mt-4 pt-4 border-t border-white/20">
+                  <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
+                    <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
                     </svg>
+                    <span className="text-sm font-medium text-white">Business Hours</span>
                   </div>
-                </div>
-
-                {/* Address Content */}
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Ink Dapper Store</h3>
-                  <div className="space-y-1 text-gray-100">
-                    <a
-                      href="https://maps.app.goo.gl/tY2PaHrWY7hsLT3a6"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm md:text-base hover:text-orange-300 transition-colors duration-300 cursor-pointer"
-                    >
-                      1D, Bazaar Street
-                      Vettuvanam, Vellore - 635809
-                      Tamil Nadu, India
-                    </a>
-                  </div>
-                </div>
-
-                {/* Contact Info */}
-                <div className="flex-shrink-0 text-center md:text-right">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-center md:justify-end gap-2">
-                      <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                      </svg>
-                      <a
-                        href="tel:+919994005696"
-                        className="text-sm md:text-base text-gray-100 hover:text-orange-300 transition-colors duration-300 cursor-pointer"
-                      >
-                        +91 9994005696
-                      </a>
+                  <div className="flex flex-col md:flex-row gap-2 md:gap-6">
+                    <div className="text-sm text-gray-100 text-center md:text-left">
+                      <span className="font-medium text-orange-300">Mon - Sat:</span> 10:00 AM - 8:00 PM
                     </div>
-                    <div className="flex items-center justify-center md:justify-end gap-2">
-                      <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                      </svg>
-                      <a
-                        href="mailto:support@inkdapper.com"
-                        className="text-sm md:text-base text-gray-100 hover:text-orange-300 transition-colors duration-300 cursor-pointer"
-                      >
-                        support@inkdapper.com
-                      </a>
+                    <div className="text-sm text-gray-100 text-center md:text-left">
+                      <span className="font-medium text-orange-300">Sunday:</span> 11:00 AM - 6:00 PM
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Business Hours */}
-              <div className="mt-4 pt-4 border-t border-white/20">
-                <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
-                  <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
-                  </svg>
-                  <span className="text-sm font-medium text-white">Business Hours</span>
-                </div>
-                <div className="flex flex-col md:flex-row gap-2 md:gap-6">
-                  <div className="text-sm text-gray-100 text-center md:text-left">
-                    <span className="font-medium text-orange-300">Mon - Sat:</span> 10:00 AM - 8:00 PM
-                  </div>
-                  <div className="text-sm text-gray-100 text-center md:text-left">
-                    <span className="font-medium text-orange-300">Sunday:</span> 11:00 AM - 6:00 PM
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
       <div className="flex flex-col md:grid grid-cols-[3fr_1fr_1fr] gap-8 md:gap-14 my-10 mt-15 md:mt-20 text-sm">
         <div>
           <div className=''>
