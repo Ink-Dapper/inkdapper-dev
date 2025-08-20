@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { apiInstance, apiConfig } from "../config/api";
 import { toast } from "react-toastify";
 import { Flip } from 'react-toastify';
 
@@ -10,8 +10,8 @@ const ShopContextProvider = (props) => {
 
   const currency = '₹'
   const delivery_fee = 1
-  // Force localhost for development - change this when deploying to production
-  const backendUrl = 'http://localhost:4000'
+  // Use the API configuration
+  const backendUrl = apiConfig.baseURL
   const [search, setSearch] = useState('')
   const [showSearch, setShowSearch] = useState(false)
   // Initialize cartItems from localStorage if available
@@ -43,7 +43,7 @@ const ShopContextProvider = (props) => {
       if (!token) {
         return null
       }
-      const response = await axios.post(backendUrl + '/api/user/profile', {}, { headers: { token } })
+      const response = await apiInstance.post('/api/user/profile', {}, { headers: { token } })
       const newData = response.data;
       if (newData.users) {
         setUsersDetails([newData])
@@ -81,7 +81,7 @@ const ShopContextProvider = (props) => {
 
     if (token) {
       try {
-        await axios.post(backendUrl + '/api/cart/add', { itemId, size }, { headers: { token } })
+        await apiInstance.post('/api/cart/add', { itemId, size }, { headers: { token } })
       } catch (error) {
         console.log(error)
         toast.error(error.message)
@@ -127,7 +127,7 @@ const ShopContextProvider = (props) => {
 
     if (token) {
       try {
-        await axios.post(backendUrl + '/api/cart/update', { itemId, size, quantity }, { headers: { token } })
+        await apiInstance.post('/api/cart/update', { itemId, size, quantity }, { headers: { token } })
       } catch (error) {
         console.log(error)
         toast.error(error.message)
@@ -159,7 +159,7 @@ const ShopContextProvider = (props) => {
 
   const getProductsData = async () => {
     try {
-      const response = await axios.get(backendUrl + '/api/product/list')
+      const response = await apiInstance.get('/api/product/list')
       if (response.data.success) {
         setProducts(response.data.products)
       } else {
@@ -173,7 +173,7 @@ const ShopContextProvider = (props) => {
 
   const getUserCart = async (token) => {
     try {
-      const response = await axios.post(backendUrl + '/api/cart/get', {}, { headers: { token } })
+      const response = await apiInstance.post('/api/cart/get', {}, { headers: { token } })
 
       if (response.data.success) {
         const backendCart = response.data.cartData;
@@ -206,7 +206,7 @@ const ShopContextProvider = (props) => {
 
       if (token) {
         try {
-          await axios.post(backendUrl + '/api/wishlist/add', { itemId }, { headers: { token } });
+          await apiInstance.post('/api/wishlist/add', { itemId }, { headers: { token } });
           toast.success(`One Item Is Added To Wishlist.`, {
             autoClose: 1000, pauseOnHover: false,
             transition: Flip
@@ -247,7 +247,7 @@ const ShopContextProvider = (props) => {
 
     if (token) {
       try {
-        await axios.post(backendUrl + '/api/wishlist/update', { itemId, quantity }, { headers: { token } })
+        await apiInstance.post('/api/wishlist/update', { itemId, quantity }, { headers: { token } })
       } catch (error) {
         console.log(error)
         toast.error(error.message)
@@ -257,7 +257,7 @@ const ShopContextProvider = (props) => {
 
   const getUserWishlist = async (token) => {
     try {
-      const response = await axios.post(backendUrl + '/api/wishlist/get', {}, { headers: { token } })
+      const response = await apiInstance.post('/api/wishlist/get', {}, { headers: { token } })
 
       if (response.data.success) {
         setWishlist(response.data.wishlistData)
@@ -270,7 +270,7 @@ const ShopContextProvider = (props) => {
 
   const fetchReviewList = async () => {
     try {
-      const response = await axios.get(backendUrl + '/api/review/get')
+      const response = await apiInstance.get('/api/review/get')
       if (response.data.success) {
         setReviewList(response.data.products)
       } else {
@@ -295,7 +295,7 @@ const ShopContextProvider = (props) => {
       if (!token) {
         return null
       }
-      const response = await axios.post(backendUrl + '/api/order/user-details', {}, { headers: { token } })
+      const response = await apiInstance.post('/api/order/user-details', {}, { headers: { token } })
       if (response.data.success) {
         setOrderData(response.data.orders)
       }
@@ -314,7 +314,7 @@ const ShopContextProvider = (props) => {
       if (!token) {
         return null;
       }
-      const response = await axios.post(backendUrl + '/api/user/profile', {}, { headers: { token } });
+      const response = await apiInstance.post('/api/user/profile', {}, { headers: { token } });
       if (response.data.success && response.data.users) {
         setCreditPoints(response.data.users.creditPoints || 0);
       }
@@ -329,7 +329,7 @@ const ShopContextProvider = (props) => {
       if (!token) {
         return null
       }
-      const response = await axios.post(backendUrl + "/api/cart/get-custom", {}, { headers: { token } });
+      const response = await apiInstance.post("/api/cart/get-custom", {}, { headers: { token } });
       if (response.data.success) {
         setGetCustomData(response.data.customData);
       }
@@ -352,7 +352,7 @@ const ShopContextProvider = (props) => {
 
     if (token) {
       try {
-        await axios.post(backendUrl + '/api/cart/update-custom', { itemId, size, quantity }, { headers: { token } })
+        await apiInstance.post('/api/cart/update-custom', { itemId, size, quantity }, { headers: { token } })
       } catch (error) {
         console.log(error)
         toast.error(error.message)
@@ -380,8 +380,8 @@ const ShopContextProvider = (props) => {
       const orderAmount = getCartAmount();
       const productIds = Object.keys(cartItems);
 
-      const response = await axios.post(
-        backendUrl + '/api/coupon/validate',
+      const response = await apiInstance.post(
+        '/api/coupon/validate',
         {
           code: couponCode,
           orderAmount,

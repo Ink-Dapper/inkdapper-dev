@@ -28,37 +28,27 @@ connectCloudinary()
 
 // CORS configuration
 const corsOptions = {
-  origin: ['https://www.inkdapper.com', 'http://localhost:4000', 'http://localhost:5173', 'http://localhost:5174'],
+  origin: [
+    'https://www.inkdapper.com', 
+    'https://inkdapper.com', 
+    'https://admin.inkdapper.com', 
+    'http://localhost:4000', 
+    'http://localhost:5173', 
+    'http://localhost:5174',
+    // Add mobile-specific origins if needed
+    /^https:\/\/.*\.inkdapper\.com$/,
+    /^https:\/\/.*\.vercel\.app$/,
+    /^https:\/\/.*\.netlify\.app$/
+  ],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'token'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization', 'token', 'X-Requested-With', 'X-Device-Type'],
+  credentials: true,
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 }
 
 // middlewares
 app.use(express.json())
-const allowedOrigins = [
-  'https://inkdapper.com',
-  'https://www.inkdapper.com',
-  'https://admin.inkdapper.com',
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:4000'
-];
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, token");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

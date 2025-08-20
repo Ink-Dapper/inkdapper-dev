@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiInstance, apiConfig } from '../config/api';
 import { ShopContext } from '../context/ShopContext';
 import { toast } from 'react-toastify';
 
@@ -12,13 +12,10 @@ const NewsLetterBox = () => {
     const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
     const { backendUrl } = useContext(ShopContext);
 
-    // Always use hardcoded backend URL to ensure it works
-    const apiUrl = 'http://localhost:4000';
+    // Use the API configuration
+    const apiUrl = apiConfig.baseURL;
 
-    // Debug: Log the backend URL being used
-    console.log('🔧 NewsLetterBox Debug Info:');
-    console.log('Context backendUrl:', backendUrl);
-    console.log('Final apiUrl:', apiUrl);
+
 
     // Check subscription status on component mount
     useEffect(() => {
@@ -27,7 +24,6 @@ const NewsLetterBox = () => {
                 // First check localStorage for cached subscription status
                 const cachedEmail = localStorage.getItem('newsletter_subscribed_email');
                 if (cachedEmail) {
-                    console.log('Found cached subscription email:', cachedEmail);
                     setIsSubscribed(true);
                     setIsCheckingSubscription(false);
                     return;
@@ -36,17 +32,16 @@ const NewsLetterBox = () => {
                 // If no cached email, check if user has any email in localStorage or session
                 const userEmail = localStorage.getItem('user_email') || sessionStorage.getItem('user_email');
                 if (userEmail) {
-                    console.log('Checking subscription status for email:', userEmail);
 
                     // Try to verify subscription status with backend
                     try {
-                        const response = await axios.post(apiUrl + '/api/newsletter/check-subscription', { email: userEmail });
+                        const response = await apiInstance.post('/api/newsletter/check-subscription', { email: userEmail });
                         if (response.data.isSubscribed) {
                             setIsSubscribed(true);
                             localStorage.setItem('newsletter_subscribed_email', userEmail);
                         }
                     } catch (err) {
-                        console.log('Could not verify subscription status, assuming not subscribed');
+                        // Could not verify subscription status, assuming not subscribed
                     }
                 }
             } catch (error) {
@@ -77,25 +72,19 @@ const NewsLetterBox = () => {
             setIsLoading(true);
             setError('');
 
-            console.log('=== NEWSLETTER SUBSCRIPTION DEBUG ===');
-            console.log('Email to subscribe:', email);
-            console.log('Backend URL:', apiUrl);
-            console.log('Full API URL:', apiUrl + '/api/newsletter/subscribe');
+
 
             // Test backend connection first
             try {
-                const testResponse = await axios.get(apiUrl + '/api/test');
-                console.log('✅ Backend connection test successful:', testResponse.data);
+                const testResponse = await apiInstance.get('/api/test');
             } catch (testError) {
-                console.error('❌ Backend connection test failed:', testError.message);
                 setError('Backend server is not running. Please try again later.');
                 toast.error('Backend server is not running. Please try again later.');
                 return;
             }
 
             // Now try the subscription
-            const response = await axios.post(apiUrl + '/api/newsletter/subscribe', { email });
-            console.log('✅ Subscription response:', response.data);
+            const response = await apiInstance.post('/api/newsletter/subscribe', { email });
 
             if (response.data.success) {
                 setSuccess('🎉 Subscription successful! Welcome to Ink Dapper newsletter!');
@@ -110,10 +99,6 @@ const NewsLetterBox = () => {
                 toast.error(errorMsg);
             }
         } catch (err) {
-            console.error('❌ Subscription error details:', err);
-            console.error('Error response:', err.response?.data);
-            console.error('Error status:', err.response?.status);
-            console.error('Error code:', err.code);
 
             let errorMessage = 'Failed to subscribe. Please try again.';
 
