@@ -28,7 +28,7 @@ connectCloudinary()
 
 // CORS configuration
 const corsOptions = {
-  origin: ['https://www.inkdapper.com', 'http://localhost:4000', 'http://localhost:5173', 'http://localhost:5174'],
+  origin: ['https://www.inkdapper.com'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'token'],
   credentials: true
@@ -39,10 +39,7 @@ app.use(express.json())
 const allowedOrigins = [
   'https://inkdapper.com',
   'https://www.inkdapper.com',
-  'https://admin.inkdapper.com',
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:4000'
+  'https://admin.inkdapper.com'
 ];
 
 app.use((req, res, next) => {
