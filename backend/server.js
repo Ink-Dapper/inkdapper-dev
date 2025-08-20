@@ -28,19 +28,6 @@ connectCloudinary()
 
 // Enhanced CORS configuration
 const corsOptions = {
-  origin: ['https://www.inkdapper.com'],
-=======
-  origin: [
-    'https://www.inkdapper.com', 
-    'https://inkdapper.com', 
-    'https://admin.inkdapper.com', 
-    'http://localhost:4000', 
-    'http://localhost:5173', 
-    'http://localhost:5174',
-    // Add mobile-specific origins if needed
-    /^https:\/\/.*\.inkdapper\.com$/,
-    /^https:\/\/.*\.vercel\.app$/,
-    /^https:\/\/.*\.netlify\.app$/
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -94,26 +81,6 @@ const corsOptions = {
 
 // middlewares
 app.use(express.json())
-const allowedOrigins = [
-  'https://inkdapper.com',
-  'https://www.inkdapper.com',
-  'https://admin.inkdapper.com'
-];
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, token");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -156,7 +123,8 @@ app.get('/api/test', (req, res) => {
     success: true, 
     message: 'Backend server is running!',
     timestamp: new Date().toISOString(),
-    cors: 'CORS is properly configured'
+    cors: 'CORS is properly configured',
+    origin: req.headers.origin || 'No origin'
   });
 });
 
@@ -251,7 +219,8 @@ app.use((err, req, res, next) => {
     return res.status(403).json({
       success: false,
       message: 'CORS policy violation',
-      error: 'Origin not allowed'
+      error: 'Origin not allowed',
+      requestedOrigin: req.headers.origin
     });
   }
   
@@ -265,4 +234,5 @@ app.use((err, req, res, next) => {
 app.listen(port, ()=> {
     console.log(`Server is running on port ${port}`)
     console.log(`CORS enabled for production domains`)
+    console.log(`Allowed origins: https://www.inkdapper.com, https://admin.inkdapper.com`)
 })
