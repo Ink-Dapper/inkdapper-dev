@@ -11,7 +11,7 @@ const ShopContextProvider = (props) => {
 
   const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : '')
   // Use relative URLs to leverage Vite proxy in development
-  const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000')
+  const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'https://api.inkdapper.com')
   const [orders, setOrders] = useState([])
   const [userList, setUserList] = useState([])
   const [users, setUsers] = useState([]);

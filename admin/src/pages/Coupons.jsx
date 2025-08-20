@@ -5,7 +5,7 @@ import axios from 'axios';
 import { backendUrl } from '../App';
 
 // Use relative URLs to leverage Vite proxy in development
-const localBackendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000');
+const localBackendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'https://api.inkdapper.com');
 
 const Coupons = () => {
   const [coupons, setCoupons] = useState([]);

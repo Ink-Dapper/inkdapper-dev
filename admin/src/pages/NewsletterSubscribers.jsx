@@ -43,7 +43,7 @@ const NewsletterSubscribers = ({ token }) => {
   });
 
   // Use relative URLs to leverage Vite proxy in development
-  const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000');
+  const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'https://api.inkdapper.com');
 
   useEffect(() => {
     fetchSubscribers();

@@ -28,6 +28,11 @@ scp frontend/src/components/NewsLetterBox.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PAT
 REM Step 4: Upload updated admin files
 echo 🔧 Uploading admin changes...
 scp admin/src/utils/axios.js %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/utils/
+scp admin/src/App.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/
+scp admin/src/pages/Coupons.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/pages/
+scp admin/src/pages/NewsletterSubscribers.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/pages/
+scp admin/src/context/ShopContext.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/context/
+scp admin/src/context/NotificationContext.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/context/
 
 REM Step 5: Rebuild frontend
 echo 🔨 Rebuilding frontend...
