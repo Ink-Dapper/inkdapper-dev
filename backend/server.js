@@ -26,25 +26,57 @@ const __dirname = path.dirname(__filename)
 connectDB()
 connectCloudinary()
 
-// CORS configuration
+// Enhanced CORS configuration
 const corsOptions = {
-  origin: [
-    'https://www.inkdapper.com', 
-    'https://inkdapper.com', 
-    'https://admin.inkdapper.com', 
-    'http://localhost:4000', 
-    'http://localhost:5173', 
-    'http://localhost:5174',
-    // Add mobile-specific origins if needed
-    /^https:\/\/.*\.inkdapper\.com$/,
-    /^https:\/\/.*\.vercel\.app$/,
-    /^https:\/\/.*\.netlify\.app$/
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://www.inkdapper.com', 
+      'https://inkdapper.com', 
+      'https://admin.inkdapper.com',
+      'http://localhost:4000', 
+      'http://localhost:5173', 
+      'http://localhost:5174',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174',
+      'http://127.0.0.1:3000'
+    ];
+    
+    // Check if origin is in allowed list or matches patterns
+    const isAllowed = allowedOrigins.includes(origin) ||
+                     /^https:\/\/.*\.inkdapper\.com$/.test(origin) ||
+                     /^https:\/\/.*\.vercel\.app$/.test(origin) ||
+                     /^https:\/\/.*\.netlify\.app$/.test(origin) ||
+                     /^https:\/\/.*\.railway\.app$/.test(origin) ||
+                     /^https:\/\/.*\.render\.com$/.test(origin);
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'token', 
+    'X-Requested-With', 
+    'X-Device-Type',
+    'Accept',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
   ],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'token', 'X-Requested-With', 'X-Device-Type'],
+  exposedHeaders: ['Content-Length', 'X-Requested-With'],
   credentials: true,
   optionsSuccessStatus: 200,
-  preflightContinue: false
+  preflightContinue: false,
+  maxAge: 86400 // 24 hours
 }
 
 // middlewares
@@ -53,14 +85,35 @@ app.use(express.json())
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(bodyParser.json());
+
+// Apply CORS before other middleware
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
 app.use(bodyParser.json())
 
-// Set correct MIME type for JSX files
+// Set correct MIME type for JSX files and other assets
 app.use((req, res, next) => {
   if (req.url.endsWith('.jsx')) {
     res.type('application/javascript');
+  } else if (req.url.endsWith('.js')) {
+    res.type('application/javascript');
+  } else if (req.url.endsWith('.css')) {
+    res.type('text/css');
+  } else if (req.url.endsWith('.html')) {
+    res.type('text/html');
   }
+  next();
+});
+
+// Add security headers
+app.use((req, res, next) => {
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.header('X-Frame-Options', 'DENY');
+  res.header('X-XSS-Protection', '1; mode=block');
+  res.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   next();
 });
 
@@ -69,7 +122,8 @@ app.get('/api/test', (req, res) => {
   res.json({ 
     success: true, 
     message: 'Backend server is running!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    cors: 'CORS is properly configured'
   });
 });
 
@@ -98,6 +152,10 @@ app.use(express.static(path.join(__dirname, '../frontend/dist'), {
   setHeaders: (res, path) => {
     if (path.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
     }
   }
 }));
@@ -152,6 +210,26 @@ app.get('*', (req, res) => {
     });
 });
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err);
+  
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      success: false,
+      message: 'CORS policy violation',
+      error: 'Origin not allowed'
+    });
+  }
+  
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
+
 app.listen(port, ()=> {
     console.log(`Server is running on port ${port}`)
+    console.log(`CORS enabled for production domains`)
 })
