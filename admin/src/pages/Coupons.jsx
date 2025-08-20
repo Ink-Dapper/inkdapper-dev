@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch, FaDownload, FaUsers, FaHistory, FaTicketAlt, FaChartLine, FaClock, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaEllipsisV } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaToggleOn, FaToggleOff, FaSearch, FaDownload, FaUsers, FaHistory, FaTicketAlt, FaChartLine, FaClock, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaEllipsisV, FaCheckSquare, FaSquare } from 'react-icons/fa';
 import axios from 'axios';
 import { backendUrl } from '../App';
 
-// Override backend URL to use local development server
-const localBackendUrl = 'http://localhost:4000';
+// Use relative URLs to leverage Vite proxy in development
+const localBackendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000');
 
 const Coupons = () => {
   const [coupons, setCoupons] = useState([]);
@@ -19,6 +19,9 @@ const Coupons = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showActionDropdown, setShowActionDropdown] = useState({});
+  const [selectedCoupons, setSelectedCoupons] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [stats, setStats] = useState({
     totalCoupons: 0,
     activeCoupons: 0,
@@ -217,12 +220,72 @@ const Coupons = () => {
         toast.success('Coupon deleted successfully');
         fetchCoupons();
         fetchStats();
+        // Remove from selected coupons if it was selected
+        setSelectedCoupons(prev => prev.filter(id => id !== couponId));
       }
     } catch (error) {
       console.error('Error deleting coupon:', error);
       toast.error('Failed to delete coupon');
     }
   };
+
+  const handleBulkDelete = async () => {
+    if (selectedCoupons.length === 0) {
+      toast.error('Please select coupons to delete');
+      return;
+    }
+
+    try {
+      const response = await axios.delete(
+        `${localBackendUrl}/api/coupon/bulk`,
+        {
+          data: { couponIds: selectedCoupons },
+          headers: { token }
+        }
+      );
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        fetchCoupons();
+        fetchStats();
+        setSelectedCoupons([]);
+        setSelectAll(false);
+        setShowBulkDeleteModal(false);
+      } else {
+        toast.error(response.data.message || 'Failed to delete coupons');
+      }
+    } catch (error) {
+      console.error('Error in bulk delete:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to delete coupons';
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleSelectCoupon = (couponId) => {
+    setSelectedCoupons(prev => {
+      if (prev.includes(couponId)) {
+        return prev.filter(id => id !== couponId);
+      } else {
+        return [...prev, couponId];
+      }
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedCoupons([]);
+      setSelectAll(false);
+    } else {
+      setSelectedCoupons(coupons.map(coupon => coupon._id));
+      setSelectAll(true);
+    }
+  };
+
+  // Reset selection when coupons change
+  useEffect(() => {
+    setSelectedCoupons([]);
+    setSelectAll(false);
+  }, [coupons]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -392,8 +455,8 @@ const Coupons = () => {
 
       {/* Search and Filters */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-        <div className="flex gap-4">
-          <div className="flex-1">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          <div className="flex-1 w-full lg:w-auto">
             <div className="relative">
               <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -405,6 +468,22 @@ const Coupons = () => {
               />
             </div>
           </div>
+
+          {/* Bulk Actions */}
+          {selectedCoupons.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600 font-medium">
+                {selectedCoupons.length} coupon(s) selected
+              </span>
+              <button
+                onClick={() => setShowBulkDeleteModal(true)}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 font-medium"
+              >
+                <FaTrash className="w-4 h-4" />
+                Delete Selected
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -414,6 +493,21 @@ const Coupons = () => {
           <table className="w-full">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSelectAll}
+                      className="p-1 hover:bg-gray-200 rounded transition-colors"
+                    >
+                      {selectAll ? (
+                        <FaCheckSquare className="w-4 h-4 text-orange-600" />
+                      ) : (
+                        <FaSquare className="w-4 h-4 text-gray-400" />
+                      )}
+                    </button>
+                    Select All
+                  </div>
+                </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   Code
                 </th>
@@ -437,7 +531,7 @@ const Coupons = () => {
             <tbody className="bg-white divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center">
+                  <td colSpan="7" className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
                       <p className="text-gray-500">Loading coupons...</p>
@@ -446,7 +540,7 @@ const Coupons = () => {
                 </tr>
               ) : coupons.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center">
+                  <td colSpan="7" className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center">
                       <FaTicketAlt className="w-16 h-16 text-gray-300 mb-4" />
                       <p className="text-gray-500 text-lg font-medium">No coupons found</p>
@@ -457,6 +551,18 @@ const Coupons = () => {
               ) : (
                 coupons.map((coupon) => (
                   <tr key={coupon._id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleSelectCoupon(coupon._id)}
+                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                      >
+                        {selectedCoupons.includes(coupon._id) ? (
+                          <FaCheckSquare className="w-4 h-4 text-orange-600" />
+                        ) : (
+                          <FaSquare className="w-4 h-4 text-gray-400" />
+                        )}
+                      </button>
+                    </td>
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-semibold text-gray-900 font-mono">{coupon.code}</div>
@@ -896,6 +1002,50 @@ const Coupons = () => {
                 className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-200 font-medium"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <FaTrash className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Delete Coupons</h2>
+                <p className="text-gray-600">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-gray-700 mb-4">
+                Are you sure you want to delete <span className="font-bold text-red-600">{selectedCoupons.length}</span> selected coupon(s)?
+              </p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-sm text-red-700">
+                  <strong>Warning:</strong> This will permanently delete the selected coupons and all associated data.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowBulkDeleteModal(false)}
+                className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all duration-200 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 font-medium flex items-center gap-2"
+              >
+                <FaTrash className="w-4 h-4" />
+                Delete {selectedCoupons.length} Coupon(s)
               </button>
             </div>
           </div>

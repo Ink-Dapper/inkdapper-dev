@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState, useCallback } from 'rea
 import { toast } from 'react-toastify';
 import { ShopContext } from '../context/ShopContext';
 import { teesCollection } from '../assets/assets';
+import { detectDominantColor, getColorByIndex } from '../utils/colorDetection';
 
 // Fallback slides for when no banners are available
 const fallbackSlides = [
@@ -20,10 +21,11 @@ const Slider = ({ onColorChange }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [imagesLoaded, setImagesLoaded] = useState({});
   const [isHovered, setIsHovered] = useState(false);
+  const [detectedColors, setDetectedColors] = useState({});
   const sliderRef = useRef(null);
 
   // Function to detect color from image filename or data
-  const detectColorFromImage = (imageData) => {
+  const detectColorFromImage = async (imageData, imageIndex = 0) => {
     if (!imageData) return 'teal';
 
     // Check if it's a banner image or T-shirt image
@@ -55,20 +57,68 @@ const Slider = ({ onColorChange }) => {
       if (url.includes('beige')) return 'beige';
       if (url.includes('lavender')) return 'lavender';
       if (url.includes('redwood')) return 'redwood';
+      if (url.includes('teal')) return 'teal';
     }
 
-    return 'teal'; // default color
+    // If no color detected, try to extract from the image URL or filename
+    if (imageUrl) {
+      const filename = imageUrl.split('/').pop().toLowerCase();
+      if (filename.includes('black')) return 'black';
+      if (filename.includes('white')) return 'white';
+      if (filename.includes('red')) return 'red';
+      if (filename.includes('green')) return 'green';
+      if (filename.includes('blue')) return 'blue';
+      if (filename.includes('navy')) return 'navy-blue';
+      if (filename.includes('brown')) return 'brown';
+      if (filename.includes('coffee')) return 'coffee';
+      if (filename.includes('beige')) return 'beige';
+      if (filename.includes('lavender')) return 'lavender';
+      if (filename.includes('redwood')) return 'redwood';
+      if (filename.includes('teal')) return 'teal';
+    }
+
+    // Try to detect color from image content
+    try {
+      if (imageUrl) {
+        const detectedColor = await detectDominantColor(imageUrl);
+        return detectedColor;
+      }
+    } catch (error) {
+      // Silent error handling
+    }
+
+    // For banner images without color info, use a rotating color scheme
+    // This ensures each banner gets a different color
+    return getColorByIndex(imageIndex);
   };
 
   // Notify parent component of color change
   useEffect(() => {
-    if (sliderImagesList.length > 0 && onColorChange) {
-      const currentImage = sliderImagesList[currentIndex];
-      const detectedColor = detectColorFromImage(currentImage);
-      console.log('Detected color:', detectedColor, 'for image:', currentImage);
-      onColorChange(detectedColor);
-    }
-  }, [currentIndex, sliderImagesList, onColorChange]);
+    const updateColor = async () => {
+      if (sliderImagesList.length > 0 && onColorChange) {
+        const currentImage = sliderImagesList[currentIndex];
+        const imageUrl = currentImage.imageBanner ? currentImage.imageBanner[0] : currentImage.image;
+
+        // Check if we already detected color for this image
+        if (detectedColors[imageUrl]) {
+          onColorChange(detectedColors[imageUrl]);
+          return;
+        }
+
+        const detectedColor = await detectColorFromImage(currentImage, currentIndex);
+
+        // Cache the detected color
+        setDetectedColors(prev => ({
+          ...prev,
+          [imageUrl]: detectedColor
+        }));
+
+        onColorChange(detectedColor);
+      }
+    };
+
+    updateColor();
+  }, [currentIndex, sliderImagesList, onColorChange, detectedColors]);
 
   // Preload the first image
   useEffect(() => {

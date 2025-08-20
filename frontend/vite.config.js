@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { compression } from "vite-plugin-compression2";
-import { imagetools } from "vite-imagetools";
 import { copyFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -19,16 +18,22 @@ export default defineConfig({
       exclude: [/\.(br)$/, /\.(gz)$/],
       threshold: 1024,
     }),
-    imagetools({
-      defaultDirectives: new URLSearchParams([
-        ['format', 'webp'],
-        ['quality', '75'],
-      ]),
-      include: /\.(jpe?g|png|gif|tiff|webp|svg)$/i,
-      exclude: /node_modules/,
-      silent: true,
-      failOnError: false,
-    }),
+    // Temporarily disabled imagetools to fix image processing errors
+    // imagetools({
+    //   defaultDirectives: new URLSearchParams([
+    //     ['format', 'webp'],
+    //     ['quality', '75'],
+    //   ]),
+    //   include: /\.(jpe?g|png|gif|tiff|webp)$/i,
+    //   exclude: [/node_modules/, /\.svg$/],
+    //   silent: true,
+    //   failOnError: false,
+    //   extendURL: (url, { searchParams }) => {
+    //     // Add cache busting to prevent stale image references
+    //     searchParams.set('v', Date.now());
+    //     return url;
+    //   },
+    // }),
     {
       name: 'copy-seo-files',
       closeBundle() {
@@ -61,7 +66,7 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: process.env.VITE_API_URL || 'http://localhost:4000',
         changeOrigin: true,
         secure: false
       }

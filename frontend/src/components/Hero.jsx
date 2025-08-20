@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Slider from "./Slider";
 import { Link } from "react-router-dom";
 
@@ -84,8 +84,25 @@ const Hero = () => {
     const colors = colorMap[currentColor] || colorMap.teal;
 
     const handleColorChange = (color) => {
-        console.log('Hero received color change:', color);
         setCurrentColor(color);
+    };
+
+    // Force re-render when color changes
+    useEffect(() => {
+        // This ensures the color change is applied immediately
+        const element = document.querySelector('.hero-title');
+        if (element) {
+            element.style.background = colors.secondary;
+            element.style.webkitBackgroundClip = 'text';
+            element.style.webkitTextFillColor = 'transparent';
+            element.style.backgroundClip = 'text';
+        }
+    }, [currentColor, colors.secondary]);
+
+    // Get text color based on background color for better contrast
+    const getTextColor = (colorName) => {
+        const darkColors = ['black', 'navy-blue', 'brown', 'coffee'];
+        return darkColors.includes(colorName) ? '#ffffff' : '#1f2937';
     };
 
     return (
@@ -99,21 +116,22 @@ const Hero = () => {
                     🌟 NEW ARRIVAL 🌟
                 </span>
                 <h1
-                    className="prata-regular text-3xl md:text-6xl font-extrabold leading-tight animate-gradient-x drop-shadow-lg"
+                    className="hero-title prata-regular text-3xl md:text-6xl font-extrabold leading-tight animate-gradient-x drop-shadow-lg"
                     style={{
-                        background: colors.secondary,
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
+                        color: getTextColor(currentColor),
+                        textShadow: `2px 2px 4px rgba(0,0,0,0.3)`,
+                        transition: 'color 0.5s ease-in-out'
                     }}
                 >
                     Discover the Latest Trends
                 </h1>
                 <p
-                    className="text-base md:text-xl text-gray-700 font-medium max-w-md mb-4 p-4 rounded-lg shadow-sm"
+                    className="text-base md:text-xl font-medium max-w-md mb-4 p-4 rounded-lg shadow-sm"
                     style={{
                         background: colors.bg,
-                        borderLeft: `4px solid ${colors.accent}`
+                        borderLeft: `4px solid ${colors.accent}`,
+                        color: 'black',
+                        transition: 'color 0.5s ease-in-out'
                     }}
                 >
                     ✨ Elevate your style with our exclusive collection of premium T-shirts. Shop the freshest designs, crafted for comfort and impact.

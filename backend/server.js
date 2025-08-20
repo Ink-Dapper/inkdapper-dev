@@ -29,9 +29,24 @@ connectCloudinary()
 // CORS configuration
 const corsOptions = {
   origin: ['https://www.inkdapper.com'],
+=======
+  origin: [
+    'https://www.inkdapper.com', 
+    'https://inkdapper.com', 
+    'https://admin.inkdapper.com', 
+    'http://localhost:4000', 
+    'http://localhost:5173', 
+    'http://localhost:5174',
+    // Add mobile-specific origins if needed
+    /^https:\/\/.*\.inkdapper\.com$/,
+    /^https:\/\/.*\.vercel\.app$/,
+    /^https:\/\/.*\.netlify\.app$/
+  ],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'token'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization', 'token', 'X-Requested-With', 'X-Device-Type'],
+  credentials: true,
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 }
 
 // middlewares

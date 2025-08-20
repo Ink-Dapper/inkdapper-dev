@@ -389,6 +389,46 @@ const deleteCoupon = async (req, res) => {
   }
 };
 
+// Bulk delete coupons (Admin)
+const bulkDeleteCoupons = async (req, res) => {
+  try {
+    console.log("Bulk delete request received:", req.body);
+    const { couponIds } = req.body;
+    
+    if (!couponIds || !Array.isArray(couponIds) || couponIds.length === 0) {
+      console.log("Invalid couponIds:", couponIds);
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an array of coupon IDs to delete"
+      });
+    }
+
+    console.log("Attempting to delete coupons:", couponIds);
+    const result = await Coupon.deleteMany({ _id: { $in: couponIds } });
+    console.log("Delete result:", result);
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No coupons found to delete"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `${result.deletedCount} coupon(s) deleted successfully`,
+      deletedCount: result.deletedCount
+    });
+
+  } catch (error) {
+    console.error("Error bulk deleting coupons:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 // Toggle coupon status (Admin)
 const toggleCouponStatus = async (req, res) => {
   try {
@@ -490,6 +530,7 @@ export {
   getCouponById,
   updateCoupon,
   deleteCoupon,
+  bulkDeleteCoupons,
   toggleCouponStatus,
   getCouponStats
 };

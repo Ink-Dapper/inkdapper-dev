@@ -8,6 +8,7 @@ import {
   getCouponById,
   updateCoupon,
   deleteCoupon,
+  bulkDeleteCoupons,
   toggleCouponStatus,
   getCouponStats
 } from "../controllers/couponController.js";
@@ -25,6 +26,7 @@ router.post("/validate", authUser, validateCoupon);
 router.post("/create-batch", adminAuth, createCouponBatch);
 router.get("/all", adminAuth, getAllCoupons);
 router.get("/stats", adminAuth, getCouponStats);
+router.delete("/bulk", adminAuth, bulkDeleteCoupons);
 router.get("/:id", adminAuth, getCouponById);
 router.put("/:id", adminAuth, updateCoupon);
 router.delete("/:id", adminAuth, deleteCoupon);

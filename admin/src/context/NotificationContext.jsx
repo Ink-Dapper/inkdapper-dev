@@ -18,9 +18,12 @@ export const NotificationProvider = ({ children }) => {
     fetchNotifications();
   }, []);
 
+  // Use relative URLs to leverage Vite proxy in development
+  const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000');
+
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/notifications`);
+      const response = await axios.get(`${backendUrl}/api/notifications`);
       if (response.data.success) {
         setNotifications(response.data.notifications);
         setUnreadCount(response.data.notifications.filter(n => !n.isRead).length);
@@ -33,7 +36,7 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (notificationId) => {
     try {
       const response = await axios.put(
-        `http://localhost:4000/api/notifications/${notificationId}/read`
+        `${backendUrl}/api/notifications/${notificationId}/read`
       );
       if (response.data.success) {
         setNotifications(prev =>

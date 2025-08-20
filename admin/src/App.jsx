@@ -22,7 +22,8 @@ import NewsletterSubscribers from './pages/NewsletterSubscribers'
 import Coupons from './pages/Coupons'
 import { NotificationProvider } from './context/NotificationContext';
 
-export const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
+// Use relative URLs to leverage Vite proxy in development
+export const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000')
 export const currency = <span className='font-semibold gap-2'>₹</span>
 
 const App = () => {
