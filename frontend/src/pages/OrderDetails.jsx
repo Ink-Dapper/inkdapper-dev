@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
-import axios from 'axios';
+import axios from '../utils/axios';
 import Title from '../components/Title';
 
 const OrderDetails = () => {
@@ -216,9 +216,9 @@ const OrderDetails = () => {
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Order Status</h3>
                   <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(order.status)}`}>
                     <div className={`w-2 h-2 rounded-full mr-2 ${order.status === 'Delivered' ? 'bg-emerald-500' :
-                        order.status === 'Shipped' ? 'bg-blue-500' :
-                          order.status === 'Processing' ? 'bg-orange-500' :
-                            'bg-gray-500'
+                      order.status === 'Shipped' ? 'bg-blue-500' :
+                        order.status === 'Processing' ? 'bg-orange-500' :
+                          'bg-gray-500'
                       }`}></div>
                     {order.status}
                   </span>

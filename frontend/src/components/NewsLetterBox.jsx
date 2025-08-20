@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { apiInstance, apiConfig } from '../config/api';
+import { apiConfig } from '../config/api';
+import apiInstance from '../utils/axios';
 import { ShopContext } from '../context/ShopContext';
 import { toast } from 'react-toastify';
 

@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiInstance, apiConfig } from "../config/api";
+import { apiConfig } from "../config/api";
+import apiInstance from "../utils/axios";
 import { toast } from "react-toastify";
 import { Flip } from 'react-toastify';
 

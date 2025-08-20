@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import axios from 'axios';
+import axios from '../utils/axios';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash, FaEnvelope, FaPhone, FaUser, FaLock, FaArrowLeft } from 'react-icons/fa';
 

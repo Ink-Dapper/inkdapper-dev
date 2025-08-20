@@ -4,7 +4,7 @@ import CartTotal from '../components/CartTotal'
 import CouponSection from '../components/CouponSection'
 import { assets } from '../assets/assets'
 import { ShopContext } from '../context/ShopContext'
-import axios from 'axios'
+import axios from '../utils/axios'
 import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
