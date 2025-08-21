@@ -128,7 +128,7 @@ const Chatbot = () => {
     <>
       {/* Floating Chat Button - Only show when chat is closed */}
       {!isOpen && (
-        <div className="fixed bottom-14 left-2 md:bottom-16 md:right-5 z-50">
+        <div className="fixed bottom-14 left-2 md:bottom-16 md:right-5 md:left-auto z-50">
           <button
             onClick={toggleChat}
             className="w-14 h-14 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
@@ -142,7 +142,7 @@ const Chatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden flex flex-col">
+        <div className="fixed bottom-24 right-6 w-80 h-[60vh] md:h-[70vh] bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden flex flex-col">
           {/* Chat Header */}
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 flex-shrink-0">
             <div className="flex items-center justify-between">

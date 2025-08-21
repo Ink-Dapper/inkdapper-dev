@@ -65,10 +65,6 @@ const Navbar = () => {
   };
 
   const subMenuVisible = () => {
-    if (!token) {
-      navigate("/login");
-    }
-
     if (mobMenu === "hidden") {
       setMobMenu("visible");
     } else {
@@ -101,6 +97,31 @@ const Navbar = () => {
   useEffect(() => {
     userName();
   }, [usersDetails]);
+
+  // Reset mobile menu when token changes (login/logout)
+  useEffect(() => {
+    setMobMenu("hidden");
+  }, [token]);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobMenu === "visible" && !event.target.closest('.mobile-profile-dropdown')) {
+        setMobMenu("hidden");
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [mobMenu]);
+
+  // Close mobile menu on route change
+  const location = useLocation();
+  useEffect(() => {
+    setMobMenu("hidden");
+  }, [location.pathname]);
 
   return (
     <div className="">
@@ -202,7 +223,11 @@ const Navbar = () => {
             <div className="group relative">
               <div className="p-2 rounded-full bg-gray-50 hover:bg-orange-50 transition-all duration-300 cursor-pointer group-hover:scale-110">
                 <AccountCircleOutlinedIcon
-                  onClick={() => (token ? null : navigate("/login"))}
+                  onClick={() => {
+                    if (!token) {
+                      navigate("/login");
+                    }
+                  }}
                   alt="profile icon"
                   className="text-slate-600 group-hover:text-orange-600 transition-all duration-300"
                   sx={{ fontSize: 24 }}
@@ -217,7 +242,7 @@ const Navbar = () => {
 
               {/* Enhanced Dropdown Menu */}
               {token && (
-                <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-6 z-20">
+                <div className="desktop-profile-dropdown group-hover:block hidden absolute dropdown-menu right-0 pt-6 z-20">
                   <div className="relative">
                     <div className="absolute top-0 right-4 w-3 h-3 bg-white transform rotate-45 border-l border-t border-gray-200"></div>
                     <div className="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden min-w-[180px] py-2">
@@ -313,7 +338,13 @@ const Navbar = () => {
             <div className="group relative">
               <div className="flex flex-col items-center">
                 <div
-                  onClick={() => subMenuVisible()}
+                  onClick={() => {
+                    if (!token) {
+                      navigate("/login");
+                    } else {
+                      subMenuVisible();
+                    }
+                  }}
                   className="relative p-1.5 cursor-pointer"
                 >
                   <AccountCircleOutlinedIcon className="text-white group-hover:text-gray-200 transition-colors duration-300" sx={{ fontSize: 28 }} />
@@ -329,7 +360,7 @@ const Navbar = () => {
 
               {/* Enhanced Dropdown Menu */}
               {token && (
-                <div className={`absolute ${mobMenu} bottom-full mb-3 right-0 z-20 transition-all duration-300 ease-in-out transform ${mobMenu === 'visible' ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-2 opacity-0 scale-95'}`}>
+                <div className={`mobile-profile-dropdown absolute ${mobMenu} bottom-full mb-3 right-0 z-20 transition-all duration-300 ease-in-out transform ${mobMenu === 'visible' ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-2 opacity-0 scale-95'}`}>
                   <div className="relative">
                     {/* Arrow */}
                     <div className="absolute top-full right-4 w-3 h-3 bg-gray-900 transform rotate-45 border-r border-b border-gray-700 shadow-lg"></div>
