@@ -16,7 +16,7 @@ export const ChatbotProvider = ({ children }) => {
     {
       id: 1,
       type: 'bot',
-      content: 'Hello! 👋 Welcome to Ink Dapper. I\'m here to help you with any questions about our t-shirts, orders, or anything else. How can I assist you today?',
+      content: 'Hello! 👋 Welcome to Ink Dapper. I\'m here to help you with any questions about our t-shirts, orders, shipping, returns, or anything else. How can I assist you today?',
       timestamp: new Date()
     }
   ]);
@@ -77,26 +77,34 @@ export const ChatbotProvider = ({ children }) => {
     const message = userMessage.toLowerCase();
 
     if (message.includes('order') || message.includes('track')) {
-      return 'To track your order, please visit the "Orders" section in your profile or provide your order number. You can also track your order in real-time through our tracking system.';
+      return '📦 **Order Tracking Information:**\n\nTo check your order status:\n\n1️⃣ **Profile Section** → Go to "Orders" in your account\n2️⃣ **Order Number** → Use your order number to track\n3️⃣ **Email Updates** → Check your email for tracking links\n4️⃣ **SMS Updates** → Receive real-time delivery updates\n\n**Order Status Flow:**\n🔄 Processing → 📤 Shipped → 🚚 Out for Delivery → ✅ Delivered\n\nNeed help with a specific order? Just share your order number!';
     }
 
     if (message.includes('product') || message.includes('size') || message.includes('material')) {
-      return 'We offer a wide range of high-quality t-shirts in various sizes, colors, and designs. Our products are made from premium cotton and feature unique, artistic designs. You can browse our collection on the main page or use the search function to find specific items.';
+      return '👕 **Product Information & Size Guide:**\n\n**Available Sizes:**\n• **XS** (34-36" chest) - Slim fit\n• **S** (36-38" chest) - Regular fit\n• **M** (38-40" chest) - Regular fit\n• **L** (40-42" chest) - Regular fit\n• **XL** (42-44" chest) - Comfortable fit\n• **XXL** (44-46" chest) - Comfortable fit\n\n**Material & Quality:**\n• **Fabric:** 100% Premium Cotton\n• **Weight:** 180 GSM (comfortable for all seasons)\n• **Features:** Breathable, soft, durable\n• **Designs:** Unique artistic prints, vibrant colors\n\nNeed help measuring or size recommendations?';
     }
 
     if (message.includes('shipping') || message.includes('delivery')) {
-      return 'We offer fast and reliable shipping across India. Standard delivery takes 3-5 business days, while express delivery takes 1-2 business days. Free shipping is available on orders above ₹999. You can track your order in real-time once it\'s shipped.';
+      return '🚚 **Shipping & Delivery Information:**\n\n**Available Shipping Options:**\n\n**Standard Delivery:**\n⏱️ **Time:** 3-5 business days\n💰 **Cost:** Free on orders above ₹999\n📦 **Tracking:** Real-time updates\n\n**Express Delivery:**\n⚡ **Time:** 1-2 business days\n💰 **Cost:** Additional ₹200\n📦 **Priority handling**\n\n**Cash on Delivery (COD):**\n💵 **Available:** Up to ₹2000\n🔒 **Secure:** Pay on delivery\n📱 **SMS confirmation**\n\n**Real-time tracking** included with all orders! 📍';
     }
 
     if (message.includes('return') || message.includes('refund')) {
-      return 'We have a hassle-free return policy. You can return items within 7 days of delivery if they don\'t meet your expectations. Refunds are processed within 3-5 business days. Please ensure the item is in original condition with tags attached.';
+      return '🔄 **Return & Refund Policy:**\n\n**Return Window:** 7 days from delivery date\n**Free Returns:** For defective items\n**Easy Process:** Through your account\n\n**Return Process Steps:**\n1️⃣ Go to your Orders section\n2️⃣ Select the item to return\n3️⃣ Choose return reason\n4️⃣ Print return label\n5️⃣ Pack item securely\n6️⃣ Drop at nearest pickup point\n\n**Refunds:** Processed in 3-5 business days 💰';
     }
 
     if (message.includes('contact') || message.includes('support')) {
-      return 'You can reach our support team at support@inkdapper.com or call us at +91 9994005696. Our team is available Monday to Saturday, 9 AM to 6 PM. We\'re here to help with any questions or concerns!';
+      return '📞 **Contact Support Information:**\n\n**Multiple Ways to Reach Us:**\n\n**📧 Email Support:**\n• **Address:** support@inkdapper.com\n• **Response Time:** Within 24 hours\n\n**📞 Phone Support:**\n• **Number:** +91 9994005696\n• **Hours:** Mon-Sat 9 AM - 6 PM\n\n**💬 Live Chat:**\n• **Available:** 24/7 (you\'re using it now!)\n• **Response:** Instant\n\n**📱 WhatsApp Support:**\n• **Number:** +91 9994005696\n• **Hours:** Mon-Sat 9 AM - 6 PM\n\nWe\'re here to help! 🎯';
     }
 
-    return 'Thank you for your message! I\'m here to help with any questions about our products, orders, shipping, or returns. Feel free to ask anything specific or use the quick reply options below.';
+    if (message.includes('price') || message.includes('cost')) {
+      return '💰 **Pricing Information:**\n\n**T-shirt Price Range:**\n• **Regular Designs:** ₹599 - ₹899\n• **Premium Designs:** ₹799 - ₹1299\n• **Custom Designs:** ₹999 - ₹1499\n• **Limited Edition:** ₹899 - ₹1599\n\n**Shipping Costs:**\n• **Free Shipping:** On orders above ₹999\n• **Standard Delivery:** ₹99 (below ₹999)\n• **Express Delivery:** +₹200\n• **COD:** No additional charge\n\n**Discounts & Offers:**\n• **First Order:** 10% off\n• **Bulk Orders:** 15% off (5+ items)\n• **Student Discount:** 5% off\n• **Seasonal Sales:** Up to 50% off\n\nPrices may vary based on design complexity and current offers!';
+    }
+
+    if (message.includes('account') || message.includes('profile')) {
+      return '👤 **Account & Profile Management:**\n\n**Profile Settings:**\n• **Personal Information:** Update name, email, phone\n• **Password:** Change password securely\n• **Addresses:** Manage delivery addresses\n• **Preferences:** Communication preferences\n\n**Order Management:**\n📋 **Order History:** View all past orders\n📄 **Invoices:** Download order invoices\n📦 **Current Orders:** Track active orders\n❤️ **Wishlist:** Save favorite items\n\n**Account Features:**\n🔔 **Notifications:** Order updates, offers\n💳 **Payment Methods:** Saved cards, UPI\n🎁 **Rewards:** Loyalty points, discounts\n\nNeed help with your account?';
+    }
+
+    return 'Thank you for your message! 🤗 I\'m here to help with:\n\n📦 **Order tracking & status**\n👕 **Product information & sizes**\n🚚 **Shipping & delivery**\n🔄 **Returns & refunds**\n📞 **Contact support**\n💰 **Pricing & offers**\n👤 **Account management**\n🎁 **Discounts & promotions**\n\nWhat would you like to know more about? Feel free to ask anything specific!';
   };
 
   const clearChat = () => {
@@ -104,7 +112,7 @@ export const ChatbotProvider = ({ children }) => {
       {
         id: Date.now(),
         type: 'bot',
-        content: 'Hello! 👋 Welcome to Ink Dapper. I\'m here to help you with any questions about our t-shirts, orders, or anything else. How can I assist you today?',
+        content: 'Hello! 👋 Welcome to Ink Dapper. I\'m here to help you with any questions about our t-shirts, orders, shipping, returns, or anything else. How can I assist you today?',
         timestamp: new Date()
       }
     ]);
