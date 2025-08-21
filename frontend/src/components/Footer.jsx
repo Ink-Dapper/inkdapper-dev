@@ -168,6 +168,7 @@ const Footer = () => {
           <ul className='flex flex-col gap-1 text-slate-600'>
             <li><a href="tel:9994005696" className='hover:text-orange-600'>Phone : <b>+91 9994005696</b></a></li>
             <li><a href="mailto:support@inkdapper.com" className='hover:text-orange-600'>Email : <b>support@inkdapper.com</b></a></li>
+            <li><Link to="/chatbot" className='hover:text-orange-600'>Live Chat : <b>Chat with us</b></Link></li>
           </ul>
           <div className='mt-5'>
             <p className='text-lg md:text-xl font-medium md-2 mb-2 md:mb-5'>FOLLOW US</p>

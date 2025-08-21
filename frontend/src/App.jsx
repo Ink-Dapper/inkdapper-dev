@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import SearchBar from './components/SearchBar';
 import SkeletonLoader from './components/SkeletonLoader';
 import ScrollToTop from './components/ScrollToTop';
+import Chatbot from './components/Chatbot';
 import NotFound from './pages/NotFound';
 
 // Lazy load modals
@@ -32,6 +33,7 @@ const Custom = lazy(() => import(/* webpackChunkName: "custom" */ './pages/Custo
 const TermsAndConditions = lazy(() => import(/* webpackChunkName: "terms" */ './pages/TermsAndConditions'));
 const CancellationAndRefund = lazy(() => import(/* webpackChunkName: "cancellation" */ './pages/CancellationAndRefund'));
 const ShippingAndDelivery = lazy(() => import(/* webpackChunkName: "shipping" */ './pages/ShippingAndDelivery'));
+const ChatbotPage = lazy(() => import(/* webpackChunkName: "chatbot" */ './pages/ChatbotPage'));
 
 // Prefetch routes on hover
 const prefetchRoute = (importFn) => {
@@ -78,11 +80,13 @@ const App = () => {
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
             <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
+            <Route path="/chatbot" element={<ChatbotPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
         <Footer />
         <ScrollToTop />
+        <Chatbot />
         <Suspense fallback={null}>
           <NewsletterModal />
           <PriceOfferModal />
