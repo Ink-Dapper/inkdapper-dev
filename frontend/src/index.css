@@ -20,6 +20,35 @@ html {
     overflow-x: hidden;
 }
 
+/* iPhone Safari Viewport Fixes */
+@supports (-webkit-touch-callout: none) {
+    .app-container {
+        min-height: -webkit-fill-available;
+    }
+
+    /* Fix for iPhone keyboard issues */
+    input,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Mobile Chat Responsive Fixes */
+@media (max-width: 768px) {
+
+    /* Prevent horizontal scroll on mobile */
+    body {
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Ensure chat window doesn't overflow */
+    .chat-window {
+        max-width: 100vw;
+        max-height: 100vh;
+    }
+}
+
 /* Global Background */
 .global-background {
     position: fixed;

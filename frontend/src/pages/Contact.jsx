@@ -9,7 +9,7 @@ const Contact = () => {
       <h1 className="sr-only">Contact Us</h1>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
+      <div className="max-w-7xl mx-auto px-4 py-5 md:py-20">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
           {/* Image Section */}

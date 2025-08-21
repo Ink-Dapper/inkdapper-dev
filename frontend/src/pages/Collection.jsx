@@ -296,7 +296,7 @@ const Collection = () => {
       </div>
 
       <SearchBar />
-      <div className='max-w-8xl mx-auto px-4 lg:px-0 py-4 lg:py-6 flex flex-col md:flex-row md:gap-4 lg:gap-6'>
+      <div className='max-w-8xl mx-auto px-4 lg:px-0 py-0 pb-1 lg:py-6 flex flex-col md:flex-row md:gap-4 lg:gap-6'>
         {/* Mobile Filter and Sort Row */}
         <div className="lg:hidden mb-6 p-2 shadow-lg rounded-2xl border border-white/60 absolute w-[90%] left-1/2 -translate-x-1/2 mx-auto bg-white/90 backdrop-blur-md z-50">
           <div className="flex items-center gap-3">

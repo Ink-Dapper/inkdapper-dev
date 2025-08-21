@@ -193,23 +193,23 @@ const ChatbotPage = () => {
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-4">
               <Link to="/" className="flex items-center space-x-2 text-orange-600 hover:text-orange-700">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                <span className="font-semibold">Back to Home</span>
+                <span className="font-semibold text-sm md:text-base">Back to Home</span>
               </Link>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Ink Dapper Support</h1>
-                <p className="text-sm text-gray-500">Live Chat Assistant</p>
+              <div className="min-w-0">
+                <h1 className="text-lg md:text-xl font-bold text-gray-900 truncate">Ink Dapper Support</h1>
+                <p className="text-xs md:text-sm text-gray-500 truncate">Live Chat Assistant</p>
               </div>
             </div>
           </div>
@@ -248,7 +248,7 @@ const ChatbotPage = () => {
 
           {/* Chat Area */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-[600px]">
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-[500px] md:h-[600px]">
               {/* Chat Header */}
               <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 flex-shrink-0">
                 <div className="flex items-center space-x-4">
@@ -335,21 +335,24 @@ const ChatbotPage = () => {
               )}
 
               {/* Input Area */}
-              <div className="border-t border-gray-200 p-6 flex-shrink-0">
-                <form onSubmit={handleSendMessage} className="flex space-x-3">
+              <div className="border-t border-gray-200 p-4 md:p-6 flex-shrink-0">
+                <form onSubmit={handleSendMessage} className="flex space-x-2 md:space-x-3">
                   <input
                     ref={inputRef}
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     placeholder="Type your message here..."
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="flex-1 px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm md:text-base"
                     disabled={isTyping}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="sentences"
                   />
                   <button
                     type="submit"
                     disabled={!inputMessage.trim() || isTyping}
-                    className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full hover:from-orange-600 hover:to-orange-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                    className="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full hover:from-orange-600 hover:to-orange-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 md:space-x-2 text-sm md:text-base"
                   >
                     <span>Send</span>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

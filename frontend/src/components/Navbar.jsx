@@ -106,8 +106,13 @@ const Navbar = () => {
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (mobMenu === "visible" && !event.target.closest('.mobile-profile-dropdown')) {
-        setMobMenu("hidden");
+      if (mobMenu === "visible") {
+        const isClickInsideDropdown = event.target.closest('.mobile-profile-dropdown');
+        const isClickOnProfileIcon = event.target.closest('.mobile-profile-icon');
+
+        if (!isClickInsideDropdown && !isClickOnProfileIcon) {
+          setMobMenu("hidden");
+        }
       }
     };
 
@@ -224,7 +229,9 @@ const Navbar = () => {
               <div className="p-2 rounded-full bg-gray-50 hover:bg-orange-50 transition-all duration-300 cursor-pointer group-hover:scale-110">
                 <AccountCircleOutlinedIcon
                   onClick={() => {
-                    if (!token) {
+                    const currentToken = token || localStorage.getItem('token');
+                    if (!currentToken) {
+                      // Navigate to login immediately
                       navigate("/login");
                     }
                   }}
@@ -338,14 +345,18 @@ const Navbar = () => {
             <div className="group relative">
               <div className="flex flex-col items-center">
                 <div
-                  onClick={() => {
-                    if (!token) {
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const currentToken = token || localStorage.getItem('token');
+                    if (!currentToken) {
+                      // Navigate to login immediately
                       navigate("/login");
+                      scrollToTop();
                     } else {
                       subMenuVisible();
                     }
                   }}
-                  className="relative p-1.5 cursor-pointer"
+                  className="mobile-profile-icon relative p-1.5 cursor-pointer"
                 >
                   <AccountCircleOutlinedIcon className="text-white group-hover:text-gray-200 transition-colors duration-300" sx={{ fontSize: 28 }} />
 
@@ -359,8 +370,8 @@ const Navbar = () => {
               </div>
 
               {/* Enhanced Dropdown Menu */}
-              {token && (
-                <div className={`mobile-profile-dropdown absolute ${mobMenu} bottom-full mb-3 right-0 z-20 transition-all duration-300 ease-in-out transform ${mobMenu === 'visible' ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-2 opacity-0 scale-95'}`}>
+              {token && mobMenu === 'visible' && (
+                <div className="mobile-profile-dropdown absolute bottom-full mb-3 right-0 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100 scale-100">
                   <div className="relative">
                     {/* Arrow */}
                     <div className="absolute top-full right-4 w-3 h-3 bg-gray-900 transform rotate-45 border-r border-b border-gray-700 shadow-lg"></div>
