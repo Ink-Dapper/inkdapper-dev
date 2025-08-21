@@ -259,8 +259,8 @@ const ChatbotPage = () => {
                   >
                     <div
                       className={`max-w-lg px-4 py-3 rounded-2xl ${message.type === 'user'
-                          ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white'
-                          : 'bg-gray-100 text-gray-800'
+                        ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white'
+                        : 'bg-gray-100 text-gray-800'
                         }`}
                     >
                       <div className="whitespace-pre-line text-sm">{message.content}</div>
