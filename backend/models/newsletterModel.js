@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const newsletterSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
     email: {
         type: String,
         required: true,
@@ -8,6 +13,14 @@ const newsletterSchema = new mongoose.Schema({
         trim: true,
         lowercase: true
     },
+    phone: {
+        type: String,
+        trim: true
+    },
+    interests: [{
+        type: String,
+        trim: true
+    }],
     isVerified: {
         type: Boolean,
         default: false
@@ -42,6 +55,7 @@ const newsletterSchema = new mongoose.Schema({
 // Index for better query performance
 newsletterSchema.index({ isActive: 1 });
 newsletterSchema.index({ subscriptionDate: -1 });
+// Note: email index is already created by unique: true in schema
 
 const Newsletter = mongoose.model('Newsletter', newsletterSchema);
 

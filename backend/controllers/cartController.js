@@ -5,9 +5,24 @@ import { v4 as uuidv4 } from "uuid";
 // add products to user cart
 const addToCart = async (req, res) => {
   try {
-    const { userId, itemId, size } = req.body;
+    const { itemId, size } = req.body;
+    const userId = req.userId; // Get userId from authenticated user
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+    
+    if (!itemId || !size) {
+      return res.status(400).json({ success: false, message: "Item ID and size are required" });
+    }
+    
     const userData = await userModel.findById(userId);
-    const cartData = await userData.cartData;
+    
+    if (!userData) {
+      return res.json({ success: false, message: "User not found" });
+    }
+    
+    const cartData = userData.cartData || {};
 
     if (cartData[itemId]) {
       if (cartData[itemId][size]) {
@@ -21,17 +36,19 @@ const addToCart = async (req, res) => {
     }
 
     await userModel.findByIdAndUpdate(userId, { cartData });
+    
     res.json({ success: true, message: "Product added to cart successfully" });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.log('Error in addToCart:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // add custom products to user cart
 const addToCartCustom = async (req, res) => {
   try {
-    const { userId, imageId, size, views, gender, imageValue, customQuantity } = req.body;
+    const { imageId, size, views, gender, imageValue, customQuantity } = req.body;
+    const userId = req.userId; // Get userId from authenticated user
 
     const reviewImageCustom =
       req.files.reviewImageCustom && req.files.reviewImageCustom[0];
@@ -105,24 +122,54 @@ const getUserCustomData = async (req, res) => {
 // update user cart
 const updateCart = async (req, res) => {
   try {
-    const { userId, itemId, size, quantity } = req.body;
+    const { itemId, size, quantity } = req.body;
+    const userId = req.userId; // Get userId from authenticated user
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+    
+    if (!itemId || !size || quantity === undefined) {
+      return res.status(400).json({ success: false, message: "Item ID, size, and quantity are required" });
+    }
+    
     const userData = await userModel.findById(userId);
-    const cartData = await userData.cartData;
+    
+    if (!userData) {
+      return res.json({ success: false, message: "User not found" });
+    }
+    
+    const cartData = userData.cartData || {};
 
-    cartData[itemId][size] = quantity;
+    // Initialize item if it doesn't exist
+    if (!cartData[itemId]) {
+      cartData[itemId] = {};
+    }
+
+    // If quantity is 0 or less, remove the size
+    if (quantity <= 0) {
+      delete cartData[itemId][size];
+      // If no sizes left for this item, remove the item entirely
+      if (Object.keys(cartData[itemId]).length === 0) {
+        delete cartData[itemId];
+      }
+    } else {
+      cartData[itemId][size] = quantity;
+    }
 
     await userModel.findByIdAndUpdate(userId, { cartData });
     res.json({ success: true, message: "Cart updated" });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.log('Error in updateCart:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // update custom quantity in the cart
 const updateCustom = async (req, res) => {
   try {
-    const { userId, itemId, size, quantity } = req.body;
+    const { itemId, size, quantity } = req.body;
+    const userId = req.userId; // Get userId from authenticated user
     const userData = await userModel.findById(userId);
     const customData = userData.customData || {}; // Initialize customData if it's undefined
 

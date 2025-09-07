@@ -5,8 +5,8 @@ const getBaseURL = () => {
   const isDevelopment = import.meta.env.DEV;
   const productionAPI = 'https://api.inkdapper.com';
   
-  // In development, use proxy. In production, use full URL
-  return isDevelopment ? '/api' : productionAPI;
+  // Always include /api prefix for both development and production
+  return isDevelopment ? '/api' : `${productionAPI}/api`;
 };
 
 const instance = axios.create({
@@ -24,14 +24,14 @@ instance.interceptors.request.use(
   (config) => {
     // Add auth token if available
     const token = localStorage.getItem('token');
+    
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.token = token; // Backend expects 'token' header, not 'Authorization'
     }
     
     // Add device type header
     config.headers['X-Device-Type'] = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop';
     
-    console.log('Making request to:', config.url);
     return config;
   },
   (error) => {
@@ -43,16 +43,13 @@ instance.interceptors.request.use(
 // Response interceptor for better error handling
 instance.interceptors.response.use(
   (response) => {
-    console.log('Response received from:', response.config.url);
     return response;
   },
   (error) => {
-    console.error('Response error for:', error.config?.url);
-    
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      console.error('Response Error:', {
+      console.error('API Error:', {
         status: error.response.status,
         statusText: error.response.statusText,
         data: error.response.data,

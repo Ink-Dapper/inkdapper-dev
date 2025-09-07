@@ -6,33 +6,15 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 
 const Wishlist = () => {
-  const { setWishlist, products, currency, wishlist, backendUrl, token } = useContext(ShopContext);
+  const { setWishlist, products, currency, wishlist, backendUrl, token, updateWishlistQuantity } = useContext(ShopContext);
   const [cartData, setCartData] = useState([]);
   const [showCartTotal, setShowCartTotal] = useState([]);
 
   const wishlistLength = Object.keys(wishlist).filter(item => wishlist[item] > 0).length;
 
-  const updateWishlistQuantity = async (itemId, quantity) => {
-    try {
-      let updatedWishlist = { ...wishlist };
-
-      if (quantity <= 0) {
-        delete updatedWishlist[itemId];
-      } else {
-        updatedWishlist[itemId] = quantity;
-      }
-
-      setWishlist(updatedWishlist);
-      if (token) {
-        await axios.post(backendUrl + '/api/wishlist/update',
-          { itemId, quantity },
-          { headers: { token } }
-        );
-      }
-    } catch (error) {
-      console.error('Error updating wishlist:', error);
-      // Handle error (e.g., show error message to user)
-    }
+  // Use the updateWishlistQuantity function from context instead of local implementation
+  const removeFromWishlist = async (itemId) => {
+    await updateWishlistQuantity(itemId, 0);
   };
 
   console.log(wishlist)
@@ -102,7 +84,7 @@ const Wishlist = () => {
 
                       {/* Delete Button */}
                       <button
-                        onClick={() => updateWishlistQuantity(item._id, 0)}
+                        onClick={() => removeFromWishlist(item._id)}
                         className='absolute top-3 right-3 w-10 h-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-red-500 hover:border-red-500 hover:text-white transition-all duration-200 shadow-sm z-10'
                         title="Remove from wishlist"
                       >

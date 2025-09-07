@@ -11,7 +11,7 @@ const NewsLetterBox = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
-    const { backendUrl } = useContext(ShopContext);
+    const { backendUrl, token, usersDetails } = useContext(ShopContext);
 
     // Use the API configuration
     const apiUrl = apiConfig.baseURL;
@@ -36,7 +36,11 @@ const NewsLetterBox = () => {
 
                     // Try to verify subscription status with backend
                     try {
-                        const response = await apiInstance.post('/api/newsletter/check-subscription', { email: userEmail });
+                        const headers = {};
+                        if (token) {
+                            headers.token = token;
+                        }
+                        const response = await apiInstance.post('/newsletter/check-subscription', { email: userEmail }, { headers });
                         if (response.data.isSubscribed) {
                             setIsSubscribed(true);
                             localStorage.setItem('newsletter_subscribed_email', userEmail);
@@ -77,15 +81,47 @@ const NewsLetterBox = () => {
 
             // Test backend connection first
             try {
-                const testResponse = await apiInstance.get('/api/test');
+                const testResponse = await apiInstance.get('/test');
             } catch (testError) {
                 setError('Backend server is not running. Please try again later.');
                 toast.error('Backend server is not running. Please try again later.');
                 return;
             }
 
+            // Prepare subscription data
+            const subscriptionData = {
+                email,
+                name: email.split('@')[0] // Default name from email prefix
+            };
+
+            // If user is logged in, try to get their information from multiple sources
+            if (token) {
+                // First try to get from usersDetails (ShopContext)
+                if (usersDetails && usersDetails.length > 0) {
+                    const user = usersDetails[0];
+                    subscriptionData.name = user.name;
+                    subscriptionData.phone = user.phone ? user.phone.toString() : '';
+                } else {
+                    // Fallback: try to get from localStorage
+                    const userEmail = localStorage.getItem('user_email');
+                    const userName = localStorage.getItem('user_name');
+                    const userPhone = localStorage.getItem('user_phone');
+
+                    if (userName) {
+                        subscriptionData.name = userName;
+                    }
+                    if (userPhone) {
+                        subscriptionData.phone = userPhone;
+                    }
+                }
+            }
+
             // Now try the subscription
-            const response = await apiInstance.post('/api/newsletter/subscribe', { email });
+            const headers = {};
+            if (token) {
+                headers.token = token;
+            }
+            const response = await apiInstance.post('/newsletter/subscribe', subscriptionData, { headers });
 
             if (response.data.success) {
                 setSuccess('🎉 Subscription successful! Welcome to Ink Dapper newsletter!');

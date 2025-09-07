@@ -12,6 +12,11 @@ const Login = ({ setToken }) => {
         try {
             e.preventDefault()
             setIsLoading(true)
+
+            console.log('Attempting admin login with:', { email, password });
+            console.log('Base URL:', axiosInstance.defaults.baseURL);
+            console.log('Full URL will be:', `${axiosInstance.defaults.baseURL}/user/admin`);
+
             const response = await axiosInstance.post('/user/admin', { email, password })
             if (response.data.success) {
                 setToken(response.data.token)
@@ -20,7 +25,9 @@ const Login = ({ setToken }) => {
                 toast.error(response.data.message)
             }
         } catch (error) {
-            console.log(error)
+            console.log('Admin login error:', error)
+            console.log('Error config:', error.config)
+            console.log('Error response:', error.response)
             toast.error(error.response?.data?.message || 'Login failed. Please try again.')
         } finally {
             setIsLoading(false)

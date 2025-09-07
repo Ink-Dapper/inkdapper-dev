@@ -5,29 +5,30 @@ import apiInstance from "../utils/axios";
 import { toast } from "react-toastify";
 import { Flip } from 'react-toastify';
 
-export const ShopContext = createContext()
+export const ShopContext = createContext(null)
 
 const ShopContextProvider = (props) => {
+  const [isContextReady, setIsContextReady] = useState(false);
 
   const currency = '₹'
-  const delivery_fee = 1
+  const delivery_fee = 'Free'
   // Use the API configuration
   const backendUrl = apiConfig.baseURL
   const [search, setSearch] = useState('')
   const [showSearch, setShowSearch] = useState(false)
-  // Initialize cartItems from localStorage if available
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const savedCart = localStorage.getItem('cartItems');
-      return savedCart ? JSON.parse(savedCart) : {};
-    } catch (error) {
-      console.error('Error loading cart from localStorage:', error);
-      return {};
-    }
-  });
-  const [wishlist, setWishlist] = useState({})
+  // Initialize cartItems as empty - will be loaded from database
+  const [cartItems, setCartItems] = useState({});
+  // Initialize wishlist as empty - will be loaded from database
+  const [wishlist, setWishlist] = useState({});
   const [products, setProducts] = useState([])
-  const [token, setToken] = useState('')
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem('token') || '';
+    } catch (error) {
+      console.error('Error loading token from localStorage:', error);
+      return '';
+    }
+  })
   const navigate = useNavigate()
   const [reviewList, setReviewList] = useState([])
   const [usersDetails, setUsersDetails] = useState([])
@@ -44,10 +45,18 @@ const ShopContextProvider = (props) => {
       if (!token) {
         return null
       }
-      const response = await apiInstance.post('/api/user/profile', {}, { headers: { token } })
+      const response = await apiInstance.post('/user/profile', {})
       const newData = response.data;
       if (newData.users) {
         setUsersDetails([newData])
+
+        // Store user information in localStorage for easy access
+        const user = newData.users;
+        localStorage.setItem('user_name', user.name);
+        localStorage.setItem('user_email', user.email);
+        if (user.phone) {
+          localStorage.setItem('user_phone', user.phone.toString());
+        }
       }
     } catch (error) {
       console.error(error)
@@ -57,36 +66,31 @@ const ShopContextProvider = (props) => {
   // Helper function to update cart and save to localStorage
   const updateCartAndSave = (newCartData) => {
     setCartItems(newCartData);
-    try {
-      localStorage.setItem('cartItems', JSON.stringify(newCartData));
-    } catch (error) {
-      console.error('Error saving cart to localStorage:', error);
-    }
+  };
+
+  // Helper function to update wishlist (database only)
+  const updateWishlistAndSave = (newWishlistData) => {
+    setWishlist(newWishlistData);
   };
 
   const addToCart = async (itemId, size) => {
-    let cartData = structuredClone(cartItems)
-    if (cartData[itemId]) {
-      if (cartData[itemId][size]) {
-        cartData[itemId][size] += 1
-      } else {
-        cartData[itemId][size] = 1
-      }
-      console.log(cartData[itemId])
-    } else {
-      cartData[itemId] = {}
-      cartData[itemId][size] = 1
+    if (!token) {
+      toast.error('Please login to add items to cart');
+      return;
     }
-    updateCartAndSave(cartData)
-    console.log(cartData)
 
-    if (token) {
-      try {
-        await apiInstance.post('/api/cart/add', { itemId, size }, { headers: { token } })
-      } catch (error) {
-        console.log(error)
-        toast.error(error.message)
+    try {
+      const response = await apiInstance.post('/cart/add', { itemId, size });
+      if (response.data.success) {
+        toast.success('Product added to cart successfully');
+        // Refresh cart data from database
+        await getUserCart(token);
+      } else {
+        toast.error(response.data.message);
       }
+    } catch (error) {
+      console.log('Error adding to cart:', error);
+      toast.error(error.response?.data?.message || error.message);
     }
   }
 
@@ -118,21 +122,22 @@ const ShopContextProvider = (props) => {
   }
 
   const updateQuantity = async (itemId, size, quantity) => {
-    let cartData = structuredClone(cartItems)
-    if (!cartData[itemId]) {
-      cartData[itemId] = {}; // Ensure the item exists
+    if (!token) {
+      toast.error('Please login to update cart');
+      return;
     }
-    cartData[itemId][size] = quantity
 
-    updateCartAndSave(cartData)
-
-    if (token) {
-      try {
-        await apiInstance.post('/api/cart/update', { itemId, size, quantity }, { headers: { token } })
-      } catch (error) {
-        console.log(error)
-        toast.error(error.message)
+    try {
+      const response = await apiInstance.post('/cart/update', { itemId, size, quantity });
+      if (response.data.success) {
+        // Refresh cart data from database
+        await getUserCart(token);
+      } else {
+        toast.error(response.data.message);
       }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || error.message);
     }
   }
 
@@ -160,7 +165,7 @@ const ShopContextProvider = (props) => {
 
   const getProductsData = async () => {
     try {
-      const response = await apiInstance.get('/api/product/list')
+      const response = await apiInstance.get('/product/list')
       if (response.data.success) {
         setProducts(response.data.products)
       } else {
@@ -174,54 +179,41 @@ const ShopContextProvider = (props) => {
 
   const getUserCart = async (token) => {
     try {
-      const response = await apiInstance.post('/api/cart/get', {}, { headers: { token } })
+      const response = await apiInstance.post('/cart/get', {})
 
       if (response.data.success) {
         const backendCart = response.data.cartData;
-        // Merge with localStorage cart if it exists
-        const localStorageCart = localStorage.getItem('cartItems');
-        if (localStorageCart) {
-          try {
-            const parsedLocalCart = JSON.parse(localStorageCart);
-            const mergedCart = { ...parsedLocalCart, ...backendCart };
-            updateCartAndSave(mergedCart);
-          } catch (error) {
-            console.error('Error parsing localStorage cart:', error);
-            updateCartAndSave(backendCart);
-          }
-        } else {
-          updateCartAndSave(backendCart);
-        }
+        updateCartAndSave(backendCart);
+      } else {
+        console.log('Failed to get cart data:', response.data.message);
       }
     } catch (error) {
-      console.log(error)
-      toast.error(error.message)
+      console.log('Error getting cart:', error);
     }
   }
 
-  const addToWishlist = async (itemId) => {
-    let wishlistData = structuredClone(wishlist);
-    if (!wishlistData[itemId]) {
-      wishlistData[itemId] = 1;
-      setWishlist(wishlistData);
 
-      if (token) {
-        try {
-          await apiInstance.post('/api/wishlist/add', { itemId }, { headers: { token } });
-          toast.success(`One Item Is Added To Wishlist.`, {
-            autoClose: 1000, pauseOnHover: false,
-            transition: Flip
-          })
-        } catch (error) {
-          console.log(error);
-          toast.error(error.message);
-        }
+  const addToWishlist = async (itemId) => {
+    if (!token) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+
+    try {
+      const response = await apiInstance.post('/wishlist/add', { itemId });
+      if (response.data.success) {
+        toast.success(`One Item Is Added To Wishlist.`, {
+          autoClose: 1000, pauseOnHover: false,
+          transition: Flip
+        });
+        // Refresh wishlist data from database
+        await getUserWishlist(token);
+      } else {
+        toast.error(response.data.message);
       }
-    } else {
-      toast.info(`This item is already in your wishlist.`, {
-        autoClose: 1000, pauseOnHover: false,
-        transition: Flip
-      });
+    } catch (error) {
+      console.log('Error adding to wishlist:', error);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -236,42 +228,46 @@ const ShopContextProvider = (props) => {
   }
 
   const updateWishlistQuantity = async (itemId, quantity = -1) => {
-    setWishlist((prevWishlist) => {
-      if (prevWishlist[itemId] > 0) {
-        prevWishlist[itemId] += quantity;
-        if (prevWishlist[itemId] <= 0) {
-          delete prevWishlist[itemId];
-        }
-      }
-      return { ...prevWishlist };
-    });
+    if (!token) {
+      toast.error('Please login to update wishlist');
+      return;
+    }
 
-    if (token) {
-      try {
-        await apiInstance.post('/api/wishlist/update', { itemId, quantity }, { headers: { token } })
-      } catch (error) {
-        console.log(error)
-        toast.error(error.message)
+    try {
+      // Send the quantity to backend (0 for deletion, actual quantity for updates)
+      const finalQuantity = quantity <= 0 ? 0 : quantity;
+      const response = await apiInstance.post('/wishlist/update', { itemId, quantity: finalQuantity });
+
+      if (response.data.success) {
+        // Refresh wishlist data from database
+        await getUserWishlist(token);
+      } else {
+        toast.error(response.data.message);
       }
+    } catch (error) {
+      console.log('Error updating wishlist:', error);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
   const getUserWishlist = async (token) => {
     try {
-      const response = await apiInstance.post('/api/wishlist/get', {}, { headers: { token } })
+      const response = await apiInstance.post('/wishlist/get', {})
 
       if (response.data.success) {
-        setWishlist(response.data.wishlistData)
+        const backendWishlist = response.data.wishlistData;
+        updateWishlistAndSave(backendWishlist);
+      } else {
+        console.log('Failed to get wishlist data:', response.data.message);
       }
     } catch (error) {
-      console.log(error)
-      toast.error(error.message)
+      console.log('Error getting wishlist:', error);
     }
   }
 
   const fetchReviewList = async () => {
     try {
-      const response = await apiInstance.get('/api/review/get')
+      const response = await apiInstance.get('/review/get')
       if (response.data.success) {
         setReviewList(response.data.products)
       } else {
@@ -296,7 +292,7 @@ const ShopContextProvider = (props) => {
       if (!token) {
         return null
       }
-      const response = await apiInstance.post('/api/order/user-details', {}, { headers: { token } })
+      const response = await apiInstance.post('/order/user-details', {})
       if (response.data.success) {
         setOrderData(response.data.orders)
       }
@@ -315,7 +311,7 @@ const ShopContextProvider = (props) => {
       if (!token) {
         return null;
       }
-      const response = await apiInstance.post('/api/user/profile', {}, { headers: { token } });
+      const response = await apiInstance.post('/user/profile', {});
       if (response.data.success && response.data.users) {
         setCreditPoints(response.data.users.creditPoints || 0);
       }
@@ -330,7 +326,7 @@ const ShopContextProvider = (props) => {
       if (!token) {
         return null
       }
-      const response = await apiInstance.post("/api/cart/get-custom", {}, { headers: { token } });
+      const response = await apiInstance.post("/cart/get-custom", {});
       if (response.data.success) {
         setGetCustomData(response.data.customData);
       }
@@ -353,7 +349,7 @@ const ShopContextProvider = (props) => {
 
     if (token) {
       try {
-        await apiInstance.post('/api/cart/update-custom', { itemId, size, quantity }, { headers: { token } })
+        await apiInstance.post('/cart/update-custom', { itemId, size, quantity })
       } catch (error) {
         console.log(error)
         toast.error(error.message)
@@ -382,13 +378,12 @@ const ShopContextProvider = (props) => {
       const productIds = Object.keys(cartItems);
 
       const response = await apiInstance.post(
-        '/api/coupon/validate',
+        '/coupon/validate',
         {
           code: couponCode,
           orderAmount,
           productIds
         },
-        { headers: { token } }
       );
 
       if (response.data.success) {
@@ -431,10 +426,12 @@ const ShopContextProvider = (props) => {
       fetchOrderDetails();
       getUserCustomData();
       fetchUsersDetails();
+      getUserWishlist(token);
+      getUserCart(token);
     }
     getProductsData();
     fetchReviewList();
-  }, [token, wishlist]);
+  }, [token]);
 
   useEffect(() => {
     detailsOrderCount();
@@ -450,6 +447,8 @@ const ShopContextProvider = (props) => {
       getUserCart(storedToken);
       getUserWishlist(storedToken);
     }
+    // Set context as ready after initialization
+    setIsContextReady(true);
   }, []);
 
 
@@ -461,12 +460,16 @@ const ShopContextProvider = (props) => {
     updateQuantity, getCartAmount, clearCart, updateCartAndSave,
     navigate, backendUrl, setToken, token, wishlist,
     addToWishlist, getWishlistCount, updateWishlistQuantity,
-    setWishlist, reviewList, fetchReviewList, usersDetails,
+    setWishlist, updateWishlistAndSave, reviewList, fetchReviewList, usersDetails,
     scrollToTop, productSearch, clearSearchBar, orderData,
     orderCount, creditPoints, setCreditPoints, getCustomData,
     updateCustomQuantity, customDataArray, getCreditScore,
     fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
     couponDiscount, getFinalAmount
+  }
+
+  if (!isContextReady) {
+    return <div>Loading...</div>;
   }
 
   return (

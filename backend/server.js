@@ -94,6 +94,14 @@ app.options('*', cors(corsOptions));
 
 app.use(bodyParser.json())
 
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  next();
+});
+
 // Set correct MIME type for JSX files and other assets
 app.use((req, res, next) => {
   if (req.url.endsWith('.jsx')) {

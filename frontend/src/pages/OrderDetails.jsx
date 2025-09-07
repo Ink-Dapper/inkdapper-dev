@@ -190,7 +190,9 @@ const OrderDetails = () => {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">Shipping:</span>
-                          <span className="font-semibold text-gray-900">{currency} {delivery_fee}</span>
+                          <span className="font-semibold text-gray-900">
+                            {currency} {typeof delivery_fee === 'number' ? `${delivery_fee}.00` : delivery_fee}
+                          </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">Total:</span>

@@ -2,11 +2,30 @@ import axios from 'axios';
 
 // Determine the base URL based on environment
 const getBaseURL = () => {
+  // Allow environment variable override for testing
+  if (import.meta.env.VITE_FORCE_API_URL) {
+    console.log('Using forced API URL from environment variable:', import.meta.env.VITE_FORCE_API_URL);
+    return import.meta.env.VITE_FORCE_API_URL;
+  }
+  
   const isDevelopment = import.meta.env.DEV;
   const productionAPI = 'https://api.inkdapper.com';
   
-  // In development, use proxy. In production, use full URL
-  return isDevelopment ? '/api' : productionAPI;
+  console.log('Environment detection:');
+  console.log('import.meta.env.DEV:', import.meta.env.DEV);
+  console.log('import.meta.env.MODE:', import.meta.env.MODE);
+  console.log('import.meta.env.PROD:', import.meta.env.PROD);
+  console.log('isDevelopment:', isDevelopment);
+  
+  // TEMPORARY: Force development mode for testing
+  const forceDev = true;
+  console.log('Force development mode:', forceDev);
+  
+  // Always include /api prefix for both development and production
+  const baseURL = (isDevelopment || forceDev) ? '/api' : `${productionAPI}/api`;
+  console.log('Final baseURL:', baseURL);
+  
+  return baseURL;
 };
 
 const instance = axios.create({

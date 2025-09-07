@@ -1,18 +1,20 @@
 import Newsletter from '../models/newsletterModel.js';
 
-// Simple newsletter subscription - just store email
+// Newsletter subscription - handle both logged-in users and anonymous users
 const subscribeToNewsletter = async (req, res) => {
     try {
         console.log('Newsletter subscription request received:', req.body);
+        console.log('Request headers:', req.headers);
         
-        const { email } = req.body;
+        const { name, email, phone, interests } = req.body;
+        const token = req.headers.token || req.headers.authorization?.replace('Bearer ', '');
         
         if (!email) {
             console.log('Email is missing from request');
             return res.status(400).json({ success: false, message: 'Email is required' });
         }
 
-        console.log('Processing subscription for email:', email);
+        console.log('Processing subscription for:', { name, email, phone, interests, hasToken: !!token });
 
         // Check if email already exists
         const existingSubscriber = await Newsletter.findOne({ email: email.toLowerCase() });
@@ -21,14 +23,59 @@ const subscribeToNewsletter = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email already subscribed to newsletter' });
         }
 
-        // Create new subscriber - just email
+        let subscriberName = name ? name.trim() : '';
+        let subscriberPhone = phone ? phone.trim() : undefined;
+        let source = 'website';
+
+        // If user is logged in, try to get their user details
+        if (token) {
+            try {
+                const jwt = await import('jsonwebtoken');
+                const decoded = jwt.default.verify(token, process.env.JWT_SECRET);
+                
+                // Import user model
+                const userModel = (await import('../models/userModel.js')).default;
+                const user = await userModel.findById(decoded.id);
+                
+                if (user) {
+                    console.log('Found logged-in user:', user.name, user.email);
+                    // Always use user's account information for logged-in users
+                    subscriberName = user.name;
+                    subscriberPhone = user.phone ? user.phone.toString() : '';
+                    source = 'logged-in-user';
+                    console.log('Using user account data for subscription - Name:', subscriberName, 'Phone:', subscriberPhone);
+                } else {
+                    console.log('User not found in database, using form data');
+                }
+            } catch (tokenError) {
+                console.log('Token verification failed, using form data:', tokenError.message);
+                // If token is invalid, fall back to form data
+            }
+        }
+
+        // If no name provided and no logged-in user, use email prefix as name
+        if (!subscriberName || subscriberName.trim() === '') {
+            subscriberName = email.split('@')[0];
+        }
+        
+        // Final fallback to ensure name is never empty
+        if (!subscriberName || subscriberName.trim() === '') {
+            subscriberName = 'Newsletter Subscriber';
+        }
+
+        // Create new subscriber with all details
         const subscriberData = {
+            name: subscriberName,
             email: email.toLowerCase(),
+            phone: subscriberPhone,
+            interests: interests && interests.length > 0 ? interests : [],
             isVerified: true,
-            subscriptionDate: new Date()
+            subscriptionDate: new Date(),
+            source: source
         };
 
-        console.log('Saving subscriber data:', subscriberData);
+        console.log('Final subscriber data before saving:', subscriberData);
+        console.log('Name validation - subscriberName:', subscriberName, 'isEmpty:', !subscriberName || subscriberName.trim() === '');
 
         const newSubscriber = new Newsletter(subscriberData);
         const savedSubscriber = await newSubscriber.save();
@@ -41,6 +88,25 @@ const subscribeToNewsletter = async (req, res) => {
         });
     } catch (error) {
         console.error('Newsletter subscription error:', error);
+        
+        // Handle mongoose validation errors
+        if (error.name === 'ValidationError') {
+            const validationErrors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Validation error: ' + validationErrors.join(', '),
+                errors: validationErrors
+            });
+        }
+        
+        // Handle duplicate key error (email already exists)
+        if (error.code === 11000) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Email already subscribed to newsletter' 
+            });
+        }
+        
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };

@@ -94,7 +94,7 @@ const PlaceOrder = () => {
       let orderData = {
         address: formData,
         items: orderItems,
-        amount: getCartAmount() + delivery_fee - creditPtsVisible - couponDiscount
+        amount: getCartAmount() + (typeof delivery_fee === 'number' ? delivery_fee : 0) - creditPtsVisible - couponDiscount
       }
 
       if (creditPtsVisible) {

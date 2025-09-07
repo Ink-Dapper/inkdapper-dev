@@ -60,7 +60,9 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                         </div>
                         <span className='text-gray-700 text-sm font-medium'>Shipping Fee</span>
                     </div>
-                    <span className='text-gray-900 text-sm font-semibold'>{currency} {delivery_fee}.00</span>
+                    <span className='text-gray-900 text-sm font-semibold'>
+                        {currency} {typeof delivery_fee === 'number' ? `${delivery_fee}.00` : delivery_fee}
+                    </span>
                 </div>
 
                 {/* Coupon Discount */}
@@ -101,7 +103,7 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                         <span className='text-base font-bold text-gray-800'>Total Amount</span>
                     </div>
                     <span className='text-lg font-bold text-orange-600'>
-                        {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee - (creditPtsVisible ? creditPoints : 0) - couponDiscount}.00
+                        {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + (typeof delivery_fee === 'number' ? delivery_fee : 0) - (creditPtsVisible ? creditPoints : 0) - couponDiscount}.00
                     </span>
                 </div>
             </div>

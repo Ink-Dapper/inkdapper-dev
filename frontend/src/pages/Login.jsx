@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import axios from '../utils/axios';
 import { toast } from 'react-toastify';
@@ -54,14 +54,14 @@ const Login = () => {
     setPasswordError('');
     try {
       if (currentState === 'Sign Up') {
-        const phoneCheckResponse = await axios.post(backendUrl + '/api/user/check-phone', { phone });
+        const phoneCheckResponse = await axios.post('/user/check-phone', { phone });
         if (!phoneCheckResponse.data.success) {
           toast.error('Phone number is already registered. Please use another.');
           setIsLoading(false);
           return;
         }
 
-        const response = await axios.post(backendUrl + '/api/email/send-verification-email', { email });
+        const response = await axios.post('/email/send-verification-email', { email });
         if (response.data.success) {
           toast.success(response.data.message);
           setCurrentState('Verify Email');
@@ -70,12 +70,20 @@ const Login = () => {
           toast.error(response.data.message);
         }
       } else if (currentState === 'Verify Email') {
-        const response = await axios.post(backendUrl + '/api/email/verify-email', { token: verificationToken, email });
+        const response = await axios.post('/email/verify-email', { token: verificationToken, email });
         if (response.data.success) {
-          const registerResponse = await axios.post(backendUrl + '/api/user/register', { name, email, password, phone });
+          const registerResponse = await axios.post('/user/register', { name, email, password, phone });
           if (registerResponse.data.success) {
             setToken(registerResponse.data.token);
             localStorage.setItem('token', registerResponse.data.token);
+
+            // Store user information in localStorage
+            localStorage.setItem('user_name', name);
+            localStorage.setItem('user_email', email);
+            if (phone) {
+              localStorage.setItem('user_phone', phone);
+            }
+
             navigate('/');
           } else {
             toast.error(registerResponse.data.message);
@@ -84,7 +92,7 @@ const Login = () => {
           toast.error(response.data.message);
         }
       } else if (currentState === 'Forgot Password') {
-        const response = await axios.post(backendUrl + '/api/user/send-reset-code', { email: resetEmail });
+        const response = await axios.post('/user/send-reset-code', { email: resetEmail });
         if (response.data.success) {
           toast.success(response.data.message);
           setCurrentState('Reset Password');
@@ -97,7 +105,7 @@ const Login = () => {
           setIsLoading(false);
           return;
         }
-        const response = await axios.post(backendUrl + '/api/user/reset-password', { email: resetEmail, code: resetCode, newPassword });
+        const response = await axios.post('/user/reset-password', { email: resetEmail, code: resetCode, newPassword });
         if (response.data.success) {
           toast.success(response.data.message);
           setCurrentState('Login');
@@ -106,10 +114,21 @@ const Login = () => {
         }
       } else {
         const loginData = { emailOrPhone, password };
-        const response = await axios.post(backendUrl + '/api/user/login', loginData);
+        const response = await axios.post('/user/login', loginData);
+
         if (response.data.success) {
           setToken(response.data.token);
           localStorage.setItem('token', response.data.token);
+
+          // Store user information if available in response
+          if (response.data.user) {
+            localStorage.setItem('user_name', response.data.user.name);
+            localStorage.setItem('user_email', response.data.user.email);
+            if (response.data.user.phone) {
+              localStorage.setItem('user_phone', response.data.user.phone);
+            }
+          }
+
           navigate('/');
         } else {
           toast.error(response.data.message);
@@ -129,7 +148,7 @@ const Login = () => {
     }
   }, [token]);
 
-  const InputField = ({ icon: Icon, type = "text", placeholder, value, onChange, required = true, className = "" }) => (
+  const InputField = useCallback(({ icon: Icon, type = "text", placeholder, value, onChange, required = true, className = "" }) => (
     <div className={`relative group ${className}`}>
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <Icon className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
@@ -143,9 +162,9 @@ const Login = () => {
         className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl bg-white/90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-700 shadow-sm"
       />
     </div>
-  );
+  ), []);
 
-  const PasswordField = ({ placeholder, value, onChange, required = true, className = "" }) => (
+  const PasswordField = useCallback(({ placeholder, value, onChange, required = true, className = "" }) => (
     <div className={`relative group ${className}`}>
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <FaLock className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
@@ -166,9 +185,9 @@ const Login = () => {
         {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
       </button>
     </div>
-  );
+  ), [showPassword]);
 
-  const Button = ({ children, type = "submit", onClick, disabled = false, className = "" }) => (
+  const Button = useCallback(({ children, type = "submit", onClick, disabled = false, className = "" }) => (
     <button
       type={type}
       onClick={onClick}
@@ -184,7 +203,7 @@ const Login = () => {
         children
       )}
     </button>
-  );
+  ), []);
 
   return (
     <div className="h-full md:min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-orange-100 flex items-center justify-center p-4 relative overflow-hidden">

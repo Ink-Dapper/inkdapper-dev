@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback, useContext } from 'react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaGoogle } from 'react-icons/fa';
 import { assets } from '../assets/assets';
 import axios from '../utils/axios';
 import { toast } from 'react-toastify';
+import { ShopContext } from '../context/ShopContext';
 
 // Memoize the social media icons component
 const SocialIcons = memo(() => (
@@ -15,6 +16,7 @@ const SocialIcons = memo(() => (
 ));
 
 const NewsletterModal = () => {
+  const { token, usersDetails } = useContext(ShopContext);
   const [isOpen, setIsOpen] = useState(false);
   const modalRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -36,6 +38,19 @@ const NewsletterModal = () => {
       return () => clearTimeout(showTimer);
     }
   }, []);
+
+  // Pre-fill form data if user is logged in
+  useEffect(() => {
+    if (token && usersDetails && usersDetails.length > 0) {
+      const user = usersDetails[0];
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone ? user.phone.toString() : ''
+      }));
+    }
+  }, [token, usersDetails]);
 
   const handleClickOutside = useCallback((event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -154,38 +169,53 @@ const NewsletterModal = () => {
             onSubmit={handleSubmit}
             className="flex flex-col gap-4"
           >
-            <input
-              type="text"
-              id="newsletter-name"
-              name="name"
-              placeholder="Your Name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              required
-              autoComplete="name"
-            />
-            <input
-              type="email"
-              id="newsletter-email"
-              name="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              required
-              autoComplete="email"
-            />
-            <input
-              type="tel"
-              id="newsletter-phone"
-              name="phone"
-              placeholder="Phone Number (optional)"
-              value={formData.phone}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              autoComplete="tel"
-            />
+            {token && usersDetails && usersDetails.length > 0 ? (
+              // Show user info for logged-in users
+              <div className="bg-orange-50 border border-orange-200 rounded-md p-3 mb-4">
+                <p className="text-sm text-orange-700 mb-2">
+                  <strong>Subscribing as:</strong> {usersDetails[0].name} ({usersDetails[0].email})
+                </p>
+                <p className="text-xs text-orange-600">
+                  Your account information will be used for the newsletter subscription.
+                </p>
+              </div>
+            ) : (
+              // Show form fields for anonymous users
+              <>
+                <input
+                  type="text"
+                  id="newsletter-name"
+                  name="name"
+                  placeholder="Your Name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required
+                  autoComplete="name"
+                />
+                <input
+                  type="email"
+                  id="newsletter-email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required
+                  autoComplete="email"
+                />
+                <input
+                  type="tel"
+                  id="newsletter-phone"
+                  name="phone"
+                  placeholder="Phone Number (optional)"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  autoComplete="tel"
+                />
+              </>
+            )}
 
             <div className="flex flex-wrap gap-2 mb-4">
               {['T-Shirts', 'Hoodies', 'Sweatshirts', 'Custom Designs'].map((interest) => (

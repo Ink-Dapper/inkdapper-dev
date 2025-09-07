@@ -13,7 +13,7 @@ const authUser = async (req,res,next) => {
         req.userId = token_decode.id
         next()
     } catch (error) {
-        console.log(error)
+        console.log('Token verification failed:', error.message)
         return res.status(401).json({success:false, message: error.message })
     }
 }

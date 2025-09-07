@@ -29,7 +29,14 @@ function useIsMobile() {
 
 const Product = () => {
   const { productId, slug } = useParams()
-  const { products, currency, addToCart, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity } = useContext(ShopContext)
+  const context = useContext(ShopContext)
+
+  // Safety check to prevent destructuring undefined context
+  if (!context) {
+    return <div>Loading...</div>
+  }
+
+  const { products, currency, addToCart, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity } = context
   const [productData, setProductData] = useState(false)
   const [image, setImage] = useState('')
   const [size, setSize] = useState('')

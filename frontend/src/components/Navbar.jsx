@@ -34,6 +34,13 @@ const CustomNavLink = ({ to, children }) => {
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
+  const context = useContext(ShopContext);
+
+  // Safety check to prevent destructuring undefined context
+  if (!context) {
+    return <div>Loading...</div>
+  }
+
   const {
     setShowSearch,
     getCartCount,
@@ -43,9 +50,10 @@ const Navbar = () => {
     setCartItems,
     getWishlistCount,
     setWishlist,
+    wishlist,
     usersDetails,
     clearCart,
-  } = useContext(ShopContext);
+  } = context;
   const [wishlistCount, setWishlistCount] = useState(0);
   const [value, setValue] = useState("recent");
   const [mobMenu, setMobMenu] = useState("hidden");
@@ -58,7 +66,7 @@ const Navbar = () => {
       setWishlistCount(wishlistCount);
     };
     fetchCounts();
-  }, [getWishlistCount]);
+  }, [getWishlistCount, wishlist]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -76,8 +84,9 @@ const Navbar = () => {
     navigate("/login");
     localStorage.removeItem("token");
     setToken("");
-    clearCart();
-    setWishlist({});
+    // Don't clear cart or wishlist on logout - keep them for when user logs back in
+    // clearCart(); // Removed to preserve cart across sessions
+    // setWishlist({}); // Removed to preserve wishlist across sessions
   };
 
   // Smoothly scroll window to the top
@@ -202,9 +211,11 @@ const Navbar = () => {
                   className="text-slate-600 group-hover:text-orange-600 transition-all duration-300"
                   sx={{ fontSize: 24 }}
                 />
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
-                  {getCartCount()}
-                </div>
+                {token && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                    {getCartCount()}
+                  </div>
+                )}
               </div>
               <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8"></div>
             </Link>
@@ -217,9 +228,11 @@ const Navbar = () => {
                   className="text-slate-600 group-hover:text-orange-600 transition-all duration-300"
                   sx={{ fontSize: 24 }}
                 />
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
-                  {wishlistCount}
-                </div>
+                {token && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                    {wishlistCount}
+                  </div>
+                )}
               </div>
               <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8"></div>
             </Link>
@@ -320,9 +333,11 @@ const Navbar = () => {
                   <LocalMallOutlinedIcon className="text-white group-hover:text-gray-200 transition-colors duration-300" sx={{ fontSize: 28 }} />
 
                   {/* Cart Badge */}
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg border-2 border-gray-900 transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                    {getCartCount()}
-                  </div>
+                  {token && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg border-2 border-gray-900 transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                      {getCartCount()}
+                    </div>
+                  )}
                 </div>
               </div>
             </Link>
@@ -334,9 +349,11 @@ const Navbar = () => {
                   <FavoriteBorderOutlinedIcon className="text-white group-hover:text-gray-200 transition-colors duration-300" sx={{ fontSize: 28 }} />
 
                   {/* Wishlist Badge */}
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg border-2 border-gray-900 transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                    {wishlistCount}
-                  </div>
+                  {token && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg border-2 border-gray-900 transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                      {wishlistCount}
+                    </div>
+                  )}
                 </div>
               </div>
             </Link>

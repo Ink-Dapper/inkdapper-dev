@@ -123,7 +123,7 @@ const Cart = () => {
               <h2 className='text-3xl font-bold text-slate-900 mb-4'>Your cart is empty</h2>
               <p className='text-slate-600 mb-10 text-lg'>Looks like you haven't added any items to your cart yet.</p>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => { navigate('/collection'); scrollToTop(); }}
                 className='inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-xl hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all duration-300 transform hover:scale-105 shadow-lg'
               >
                 <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../utils/axios';
 import { toast } from 'react-toastify';
 import {
   Mail,
@@ -42,8 +42,7 @@ const NewsletterSubscribers = ({ token }) => {
     source: 'website'
   });
 
-  // Use relative URLs to leverage Vite proxy in development
-  const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'https://api.inkdapper.com');
+
 
   useEffect(() => {
     fetchSubscribers();
@@ -52,7 +51,7 @@ const NewsletterSubscribers = ({ token }) => {
 
   const fetchSubscribers = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/newsletter/subscribers`, {
+      const response = await axios.get('/newsletter/subscribers', {
         headers: { token: token }
       });
       if (response.data.success) {
@@ -68,7 +67,7 @@ const NewsletterSubscribers = ({ token }) => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/newsletter/stats`, {
+      const response = await axios.get('/newsletter/stats', {
         headers: { token: token }
       });
       if (response.data.success) {
@@ -81,7 +80,7 @@ const NewsletterSubscribers = ({ token }) => {
 
   const handleStatusUpdate = async (id, isActive) => {
     try {
-      const response = await axios.put(`${backendUrl}/api/newsletter/subscribers/${id}`, {
+      const response = await axios.put(`/newsletter/subscribers/${id}`, {
         isActive,
         notes: editForm.notes,
         emailCount: editForm.emailCount,
@@ -116,7 +115,7 @@ const NewsletterSubscribers = ({ token }) => {
     if (!window.confirm('Are you sure you want to delete this subscriber?')) return;
 
     try {
-      const response = await axios.delete(`${backendUrl}/api/newsletter/subscribers/${id}`, {
+      const response = await axios.delete(`/newsletter/subscribers/${id}`, {
         headers: { token: token }
       });
 
@@ -148,15 +147,20 @@ const NewsletterSubscribers = ({ token }) => {
   };
 
   const exportToCSV = () => {
-    const headers = ['Email', 'Status', 'Verified', 'Subscription Date', 'Email Count', 'Last Email Sent', 'Source', 'Notes'];
+    const headers = ['Name', 'Email', 'Phone', 'Interests', 'Status', 'Verified', 'Subscription Date', 'Email Count', 'Last Email Sent', 'Source', 'Notes'];
     const csvData = filteredSubscribers.map(sub => [
+      sub.name || 'N/A',
       sub.email,
+      sub.phone || 'N/A',
+      sub.interests && sub.interests.length > 0 ? sub.interests.join('; ') : 'No interests',
       sub.isActive ? 'Active' : 'Inactive',
       sub.isVerified ? 'Yes' : 'No',
       formatDate(sub.subscriptionDate),
       sub.emailCount || 0,
       sub.lastEmailSent ? formatDate(sub.lastEmailSent) : 'Never',
-      sub.source || 'website',
+      sub.source === 'logged-in-user' ? 'Logged-in User' :
+        sub.source === 'website' ? 'Website' :
+          sub.source || 'Website',
       sub.notes || ''
     ]);
 
@@ -178,7 +182,14 @@ const NewsletterSubscribers = ({ token }) => {
   };
 
   const filteredSubscribers = subscribers.filter(subscriber => {
-    const matchesSearch = subscriber.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch =
+      subscriber.email.toLowerCase().includes(searchLower) ||
+      (subscriber.name && subscriber.name.toLowerCase().includes(searchLower)) ||
+      (subscriber.phone && subscriber.phone.toLowerCase().includes(searchLower)) ||
+      (subscriber.interests && subscriber.interests.some(interest =>
+        interest.toLowerCase().includes(searchLower)
+      ));
 
     const matchesFilter = filterStatus === 'all' ||
       (filterStatus === 'active' && subscriber.isActive) ||
@@ -369,7 +380,13 @@ const NewsletterSubscribers = ({ token }) => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email Address
+                  Subscriber
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Contact Info
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Interests
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -402,9 +419,33 @@ const NewsletterSubscribers = ({ token }) => {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{subscriber.email}</div>
-                        <div className="text-sm text-gray-500">Newsletter Subscriber</div>
+                        <div className="text-sm font-medium text-gray-900">{subscriber.name || 'N/A'}</div>
+                        <div className="text-sm text-gray-500">{subscriber.email}</div>
                       </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      <div className="font-medium">{subscriber.email}</div>
+                      {subscriber.phone && (
+                        <div className="text-gray-500">{subscriber.phone}</div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex flex-wrap gap-1">
+                      {subscriber.interests && subscriber.interests.length > 0 ? (
+                        subscriber.interests.map((interest, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full"
+                          >
+                            {interest}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 text-sm">No interests</span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -442,7 +483,16 @@ const NewsletterSubscribers = ({ token }) => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className="capitalize">{subscriber.source || 'website'}</span>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${subscriber.source === 'logged-in-user'
+                      ? 'bg-blue-100 text-blue-800'
+                      : subscriber.source === 'website'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                      }`}>
+                      {subscriber.source === 'logged-in-user' ? 'Logged-in User' :
+                        subscriber.source === 'website' ? 'Website' :
+                          subscriber.source || 'Website'}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="relative">
@@ -646,8 +696,16 @@ const NewsletterSubscribers = ({ token }) => {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <p className="text-gray-900 font-medium">{selectedSubscriber.name || 'N/A'}</p>
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                   <p className="text-gray-900 font-medium">{selectedSubscriber.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <p className="text-gray-900">{selectedSubscriber.phone || 'N/A'}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -665,7 +723,16 @@ const NewsletterSubscribers = ({ token }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
-                  <p className="text-gray-900 capitalize">{selectedSubscriber.source || 'website'}</p>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedSubscriber.source === 'logged-in-user'
+                    ? 'bg-blue-100 text-blue-800'
+                    : selectedSubscriber.source === 'website'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 text-gray-800'
+                    }`}>
+                    {selectedSubscriber.source === 'logged-in-user' ? 'Logged-in User' :
+                      selectedSubscriber.source === 'website' ? 'Website' :
+                        selectedSubscriber.source || 'Website'}
+                  </span>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email Count</label>
@@ -686,6 +753,22 @@ const NewsletterSubscribers = ({ token }) => {
                   <p className="text-gray-900">{formatDate(selectedSubscriber.createdAt)}</p>
                 </div>
               </div>
+
+              {selectedSubscriber.interests && selectedSubscriber.interests.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Interests</label>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSubscriber.interests.map((interest, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex px-3 py-1 text-sm font-medium bg-orange-100 text-orange-800 rounded-full"
+                      >
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {selectedSubscriber.notes && (
                 <div>

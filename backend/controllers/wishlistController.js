@@ -4,9 +4,24 @@ import userModel from "../models/userModel.js";
 // add products to user wishlist
 const addToWishlist = async (req, res) => {
   try {
-    const { userId, itemId } = req.body;
+    const { itemId } = req.body;
+    const userId = req.userId; // Get userId from auth middleware
+    
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+    
+    if (!itemId) {
+      return res.status(400).json({ success: false, message: "Item ID is required" });
+    }
+    
     const userData = await userModel.findById(userId);
-    const wishlistData = await userData.wishlistData;
+    
+    if (!userData) {
+      return res.json({ success: false, message: "User not found" });
+    }
+    
+    const wishlistData = userData.wishlistData || {};
 
     if (wishlistData[itemId]) {
       wishlistData[itemId] += 1;
@@ -15,17 +30,19 @@ const addToWishlist = async (req, res) => {
     }
 
     await userModel.findByIdAndUpdate(userId, { wishlistData });
-    res.json({ success: true, message: "Product added to cart successfully" });
+    
+    res.json({ success: true, message: "Product added to wishlist successfully" });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.log('Error in addToWishlist:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // wishlist user cart
 const updateWishlist = async (req, res) => {
   try {
-    const { userId, itemId, quantity } = req.body;
+    const { itemId, quantity } = req.body;
+    const userId = req.userId; // Get userId from auth middleware
     const userData = await userModel.findById(userId);
     let wishlistData = await userData.wishlistData;
 
