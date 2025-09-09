@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import Title from '../components/Title'
 import { assets } from '../assets/assets'
 import NewsLetterBox from '../components/NewsLetterBox'
@@ -115,9 +116,12 @@ const Contact = () => {
                 <p className="text-orange-100 mb-6">
                   Learn more about our teams and job openings. We're always looking for talented individuals to join our mission.
                 </p>
-                <button className="bg-white text-orange-600 px-8 py-3 rounded-xl font-semibold hover:bg-orange-50 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                <Link
+                  to="/jobs"
+                  className="inline-block bg-white text-orange-600 px-8 py-3 rounded-xl font-semibold hover:bg-orange-50 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
                   Explore Jobs
-                </button>
+                </Link>
               </div>
             </div>
           </div>

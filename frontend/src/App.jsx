@@ -34,6 +34,7 @@ const TermsAndConditions = lazy(() => import(/* webpackChunkName: "terms" */ './
 const CancellationAndRefund = lazy(() => import(/* webpackChunkName: "cancellation" */ './pages/CancellationAndRefund'));
 const ShippingAndDelivery = lazy(() => import(/* webpackChunkName: "shipping" */ './pages/ShippingAndDelivery'));
 const ChatbotPage = lazy(() => import(/* webpackChunkName: "chatbot" */ './pages/ChatbotPage'));
+const JobExplore = lazy(() => import(/* webpackChunkName: "job-explore" */ './pages/JobExplore'));
 
 // Prefetch routes on hover
 const prefetchRoute = (importFn) => {
@@ -81,6 +82,7 @@ const App = () => {
             <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
             <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
             <Route path="/chatbot" element={<ChatbotPage />} />
+            <Route path="/jobs" element={<JobExplore />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
