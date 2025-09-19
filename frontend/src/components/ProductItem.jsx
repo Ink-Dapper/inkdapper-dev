@@ -7,12 +7,24 @@ import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 
-const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug }) => {
+const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug, comboPrices }) => {
   // Fallback: generate slug from name if slug is missing
   let safeSlug = slug || (name ? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') : '');
   // Remove trailing dash if present
   if (safeSlug.endsWith('-')) safeSlug = safeSlug.slice(0, -1);
-  const { currency, scrollToTop, addToWishlist, token, wishlist } = useContext(ShopContext);
+  const { currency, scrollToTop, addToWishlist, token, wishlist, addToCartCombo } = useContext(ShopContext);
+
+  // Calculate offer percentage
+  const calculateOfferPercentage = () => {
+    if (beforePrice && price && beforePrice > price) {
+      const discount = beforePrice - price;
+      const percentage = Math.round((discount / beforePrice) * 100);
+      return percentage;
+    }
+    return 0;
+  };
+
+  const offerPercentage = calculateOfferPercentage();
   const [favWishlist, setFavWishlist] = useState([]);
   const [changeText, setChangeText] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -209,7 +221,15 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         )}
       </div>
 
-      <Link onClick={() => scrollToTop()} className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`} to={`/product/${id}/${safeSlug}`}>
+      <Link
+        onClick={() => {
+          if (scrollToTop) {
+            scrollToTop();
+          }
+        }}
+        className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
+        to={`/product/${id}/${safeSlug}`}
+      >
         <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">
             <div className="w-full h-full relative" style={{ aspectRatio: '3/4' }}>
@@ -259,6 +279,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 </div>
               </div>
 
+
               {/* Enhanced Floating Elements */}
               <div className="absolute top-4 left-4 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse"></div>
               <div className="absolute top-6 right-16 w-2 h-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse animation-delay-2000"></div>
@@ -287,14 +308,62 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
             {/* Price Section */}
             <div className='price-container'>
-              {beforePrice && (
-                <p className='text-sm text-slate-400 font-semibold line-through original-price'>
-                  {currency} {beforePrice}
-                </p>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-row items-center gap-2">
+                  {beforePrice && (
+                    <p className='text-sm text-slate-400 font-semibold line-through original-price'>
+                      {currency} {beforePrice}
+                    </p>
+                  )}
+                  <p className='text-1xl md:text-2xl font-black price'>
+                    {currency} {price}
+                  </p>
+
+                  {/* Offer Percentage Badge */}
+                  {offerPercentage > 0 && (
+                    <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded-full shadow-lg border border-white/20 backdrop-blur-sm">
+                      <span className="text-sm font-semibold text-white">
+                        -{offerPercentage}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Combo Pricing Display */}
+              {comboPrices && comboPrices.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Combo Offers</div>
+                  <div className="flex flex-wrap gap-2">
+                    {comboPrices.slice(0, 2).map((combo, index) => (
+                      <div key={index} className="bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-200 rounded-lg px-3 py-2 text-xs">
+                        <div className="font-bold text-yellow-800">{combo.quantity}x</div>
+                        <div className="text-yellow-700 font-semibold">{currency} {combo.price}</div>
+                        {combo.discount > 0 && (
+                          <div className="text-green-600 font-medium">{combo.discount}% OFF</div>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addToCartCombo(id, combo.quantity);
+                          }}
+                          disabled={soldout}
+                          className="mt-1 w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white text-xs font-semibold py-1 px-2 rounded transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
+                        >
+                          Add {combo.quantity} to Cart
+                        </button>
+                      </div>
+                    ))}
+                    {comboPrices.length > 2 && (
+                      <div className="bg-gradient-to-r from-slate-100 to-slate-200 border border-slate-300 rounded-lg px-3 py-2 text-xs">
+                        <div className="font-bold text-slate-700">+{comboPrices.length - 2} more</div>
+                        <div className="text-slate-600">offers</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
-              <p className='text-1xl md:text-2xl font-black price'>
-                {currency} {price}
-              </p>
             </div>
 
             {/* Bottom Section */}

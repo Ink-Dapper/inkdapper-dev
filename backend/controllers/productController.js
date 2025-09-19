@@ -27,6 +27,7 @@ const addProduct = async (req, res) => {
       subCategory,
       sizes,
       bestseller,
+      comboPrices,
     } = req.body;
 
     const image1 = req.files.image1 && req.files.image1[0];
@@ -78,6 +79,7 @@ const addProduct = async (req, res) => {
       reviewImage: reviewImagesUrl,
       date: Date.now(),
       slug: slugify(name),
+      comboPrices: comboPrices ? JSON.parse(comboPrices) : [],
     };
 
     console.log(productData);
@@ -192,7 +194,7 @@ const singleProduct = async (req, res) => {
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, beforePrice, price, code, category, subCategory, sizes, bestseller } = req.body;
+    const { name, description, beforePrice, price, code, category, subCategory, sizes, bestseller, comboPrices } = req.body;
 
     // Find the existing product
     const existingProduct = await productModel.findById(id);
@@ -214,6 +216,7 @@ const editProduct = async (req, res) => {
       image: existingProduct.image, // Start with existing images
       reviewImage: existingProduct.reviewImage, // Start with existing review images
       slug: slugify(name),
+      comboPrices: comboPrices ? JSON.parse(comboPrices) : existingProduct.comboPrices || [],
     };
 
     // Handle image updates

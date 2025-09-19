@@ -11,13 +11,28 @@ import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 
 // Custom NavLink component with active state handling
-const CustomNavLink = ({ to, children }) => {
+const CustomNavLink = ({ to, children, scrollToTop }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (scrollToTop) {
+      scrollToTop();
+    }
+
+    // Force navigation using window.location to bypass any React Router issues
+    setTimeout(() => {
+      window.location.href = to;
+    }, 100);
+  };
 
   return (
     <Link
       to={to}
+      onClick={handleClick}
       className={`relative group transition-all duration-500 ease-out ${isActive
         ? 'text-orange-600'
         : 'text-slate-600 hover:text-orange-600'
@@ -53,6 +68,7 @@ const Navbar = () => {
     wishlist,
     usersDetails,
     clearCart,
+    scrollToTop,
   } = context;
   const [wishlistCount, setWishlistCount] = useState(0);
   const [value, setValue] = useState("recent");
@@ -89,12 +105,6 @@ const Navbar = () => {
     // setWishlist({}); // Removed to preserve wishlist across sessions
   };
 
-  // Smoothly scroll window to the top
-  const scrollToTop = () => {
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
 
   const userName = () => {
     usersDetails.map((user) => {
@@ -179,13 +189,13 @@ const Navbar = () => {
         </Link>
 
         <ul className="hidden md:flex items-center gap-10 text-sm">
-          <CustomNavLink to="/">Home</CustomNavLink>
+          <CustomNavLink to="/" scrollToTop={scrollToTop}>Home</CustomNavLink>
 
-          <CustomNavLink to="/collection">Collection</CustomNavLink>
+          <CustomNavLink to="/collection" scrollToTop={scrollToTop}>Collection</CustomNavLink>
 
-          <CustomNavLink to="/about">About</CustomNavLink>
+          <CustomNavLink to="/about" scrollToTop={scrollToTop}>About</CustomNavLink>
 
-          <CustomNavLink to="/contact">Contact</CustomNavLink>
+          <CustomNavLink to="/contact" scrollToTop={scrollToTop}>Contact</CustomNavLink>
         </ul>
 
         <div className="hidden md:block">
@@ -318,7 +328,7 @@ const Navbar = () => {
           {/* Navigation Container */}
           <div className="relative flex items-center justify-around px-4 py-2 rounded-t-xl">
             {/* Home/Logo */}
-            <Link to="/" onClick={scrollToTop} className="group relative">
+            <Link to="/" onClick={(e) => { e.preventDefault(); scrollToTop(); setTimeout(() => window.location.href = '/', 100); }} className="group relative">
               <div className="flex flex-col items-center">
                 <div className="relative p-1.5">
                   <img src={assets.logo_white_only} className="w-7 h-7 filter brightness-100 group-hover:brightness-110 transition-all duration-300" alt="logo" />
@@ -327,7 +337,7 @@ const Navbar = () => {
             </Link>
 
             {/* Cart */}
-            <Link to="/cart" onClick={scrollToTop} className="group relative">
+            <Link to="/cart" onClick={(e) => { e.preventDefault(); scrollToTop(); setTimeout(() => window.location.href = '/cart', 100); }} className="group relative">
               <div className="flex flex-col items-center">
                 <div className="relative p-1.5">
                   <LocalMallOutlinedIcon className="text-white group-hover:text-gray-200 transition-colors duration-300" sx={{ fontSize: 28 }} />
@@ -343,7 +353,7 @@ const Navbar = () => {
             </Link>
 
             {/* Wishlist */}
-            <Link to="/wishlist" onClick={scrollToTop} className="group relative">
+            <Link to="/wishlist" onClick={(e) => { e.preventDefault(); scrollToTop(); setTimeout(() => window.location.href = '/wishlist', 100); }} className="group relative">
               <div className="flex flex-col items-center">
                 <div className="relative p-1.5">
                   <FavoriteBorderOutlinedIcon className="text-white group-hover:text-gray-200 transition-colors duration-300" sx={{ fontSize: 28 }} />
@@ -455,7 +465,12 @@ const Navbar = () => {
           <div className="flex-1 px-6 py-8">
             <nav className="space-y-2">
               <NavLink
-                onClick={() => setVisible(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setVisible(false);
+                  scrollToTop();
+                  setTimeout(() => window.location.href = '/', 100);
+                }}
                 className="flex items-center gap-4 py-4 px-4 rounded-xl text-gray-700 hover:bg-orange-600 hover:text-orange-600 transition-all duration-200 group"
                 to="/"
               >
@@ -466,7 +481,12 @@ const Navbar = () => {
               </NavLink>
 
               <NavLink
-                onClick={() => setVisible(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setVisible(false);
+                  scrollToTop();
+                  setTimeout(() => window.location.href = '/collection', 100);
+                }}
                 className="flex items-center gap-4 py-4 px-4 rounded-xl text-gray-700 hover:bg-orange-600 hover:text-orange-600 transition-all duration-200 group"
                 to="/collection"
               >
@@ -477,7 +497,12 @@ const Navbar = () => {
               </NavLink>
 
               <NavLink
-                onClick={() => setVisible(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setVisible(false);
+                  scrollToTop();
+                  setTimeout(() => window.location.href = '/about', 100);
+                }}
                 className="flex items-center gap-4 py-4 px-4 rounded-xl text-gray-700 hover:bg-orange-600 hover:text-orange-600 transition-all duration-200 group"
                 to="/about"
               >
@@ -488,7 +513,12 @@ const Navbar = () => {
               </NavLink>
 
               <NavLink
-                onClick={() => setVisible(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setVisible(false);
+                  scrollToTop();
+                  setTimeout(() => window.location.href = '/contact', 100);
+                }}
                 className="flex items-center gap-4 py-4 px-4 rounded-xl text-gray-700 hover:bg-orange-600 hover:text-orange-600 transition-all duration-200 group"
                 to="/contact"
               >

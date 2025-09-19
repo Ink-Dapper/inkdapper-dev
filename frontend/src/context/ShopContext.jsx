@@ -39,6 +39,8 @@ const ShopContextProvider = (props) => {
   const [getCustomDataCount, setGetCustomDataCount] = useState()
   const [appliedCoupon, setAppliedCoupon] = useState(null)
   const [couponDiscount, setCouponDiscount] = useState(0)
+  const [recentlyViewed, setRecentlyViewed] = useState([])
+  const [recentlyViewedTimeout, setRecentlyViewedTimeout] = useState(null)
 
   const fetchUsersDetails = async () => {
     try {
@@ -90,6 +92,31 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.log('Error adding to cart:', error);
+      toast.error(error.response?.data?.message || error.message);
+    }
+  }
+
+  const addToCartCombo = async (itemId, quantity, size = 'M') => {
+    if (!token) {
+      toast.error('Please login to add items to cart');
+      return;
+    }
+
+    try {
+      // Add multiple items to cart based on combo quantity
+      for (let i = 0; i < quantity; i++) {
+        const response = await apiInstance.post('/cart/add', { itemId, size });
+        if (!response.data.success) {
+          toast.error(response.data.message);
+          return;
+        }
+      }
+
+      toast.success(`${quantity} items added to cart successfully!`);
+      // Refresh cart data from database
+      await getUserCart(token);
+    } catch (error) {
+      console.log('Error adding combo to cart:', error);
       toast.error(error.response?.data?.message || error.message);
     }
   }
@@ -161,6 +188,42 @@ const ShopContextProvider = (props) => {
       }
     });
     return totalAmount
+  }
+
+  // Check if cart has multiple products (different product IDs) or multiple quantities
+  const hasMultipleProducts = () => {
+    const productIds = Object.keys(cartItems);
+    const customProductCount = customDataArray.length;
+
+    // Check for multiple different products
+    const hasMultipleDifferentProducts = (productIds.length + customProductCount) > 1;
+
+    // Check for multiple quantities of any product
+    let totalQuantity = 0;
+    for (const items in cartItems) {
+      for (const item in cartItems[items]) {
+        if (cartItems[items][item] > 0) {
+          totalQuantity += Number(cartItems[items][item]);
+        }
+      }
+    }
+    customDataArray.forEach(customItem => {
+      if (customItem.quantity > 0) {
+        totalQuantity += Number(customItem.quantity) || 0;
+      }
+    });
+
+    const hasMultipleQuantities = totalQuantity > 1;
+
+    return hasMultipleDifferentProducts || hasMultipleQuantities;
+  }
+
+  // Calculate multi-product discount (7% if more than 1 product)
+  const getMultiProductDiscount = () => {
+    if (hasMultipleProducts()) {
+      return Math.round(getCartAmount() * 0.07); // 7% discount
+    }
+    return 0;
   }
 
   const getProductsData = async () => {
@@ -363,7 +426,7 @@ const ShopContextProvider = (props) => {
   }
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 10, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // Coupon functions
@@ -416,9 +479,51 @@ const ShopContextProvider = (props) => {
     setCouponDiscount(0);
   };
 
+  // Recently viewed products functions
+  const addToRecentlyViewed = (product) => {
+    if (!product || !product._id) return;
+
+    // Clear any existing timeout
+    if (recentlyViewedTimeout) {
+      clearTimeout(recentlyViewedTimeout);
+    }
+
+    // Immediate update without debouncing to avoid navigation conflicts
+    setRecentlyViewed(prev => {
+      // Remove if already exists to avoid duplicates
+      const filtered = prev.filter(item => item._id !== product._id);
+      // Add to beginning and limit to 8 items
+      const updated = [product, ...filtered].slice(0, 8);
+
+      // Save to localStorage with error handling
+      try {
+        localStorage.setItem('recentlyViewed', JSON.stringify(updated));
+      } catch (error) {
+        console.error('Error saving recently viewed to localStorage:', error);
+      }
+
+      return updated;
+    });
+  };
+
+  const getRecentlyViewed = () => {
+    try {
+      const stored = localStorage.getItem('recentlyViewed');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setRecentlyViewed(parsed);
+        return parsed;
+      }
+    } catch (error) {
+      console.error('Error loading recently viewed from localStorage:', error);
+    }
+    return [];
+  };
+
   const getFinalAmount = () => {
     const cartAmount = getCartAmount();
-    return Math.max(0, cartAmount - couponDiscount);
+    const multiProductDiscount = getMultiProductDiscount();
+    return Math.max(0, cartAmount - couponDiscount - multiProductDiscount);
   };
 
   useEffect(() => {
@@ -431,6 +536,7 @@ const ShopContextProvider = (props) => {
     }
     getProductsData();
     fetchReviewList();
+    getRecentlyViewed();
   }, [token]);
 
   useEffect(() => {
@@ -449,6 +555,13 @@ const ShopContextProvider = (props) => {
     }
     // Set context as ready after initialization
     setIsContextReady(true);
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (recentlyViewedTimeout) {
+        clearTimeout(recentlyViewedTimeout);
+      }
+    };
   }, []);
 
 
@@ -456,7 +569,7 @@ const ShopContextProvider = (props) => {
   const value = {
     products, currency, delivery_fee,
     search, setSearch, showSearch, setShowSearch,
-    cartItems, addToCart, setCartItems, getCartCount,
+    cartItems, addToCart, addToCartCombo, setCartItems, getCartCount,
     updateQuantity, getCartAmount, clearCart, updateCartAndSave,
     navigate, backendUrl, setToken, token, wishlist,
     addToWishlist, getWishlistCount, updateWishlistQuantity,
@@ -465,7 +578,8 @@ const ShopContextProvider = (props) => {
     orderCount, creditPoints, setCreditPoints, getCustomData,
     updateCustomQuantity, customDataArray, getCreditScore,
     fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
-    couponDiscount, getFinalAmount
+    couponDiscount, getFinalAmount, hasMultipleProducts, getMultiProductDiscount,
+    recentlyViewed, addToRecentlyViewed, getRecentlyViewed
   }
 
   if (!isContextReady) {

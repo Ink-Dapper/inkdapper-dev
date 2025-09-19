@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 const PlaceOrder = () => {
 
   const [method, setMethod] = useState('cod')
-  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart } = useContext(ShopContext)
+  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount } = useContext(ShopContext)
   const [creditPtsVisible, setCreditPtsVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -94,7 +94,7 @@ const PlaceOrder = () => {
       let orderData = {
         address: formData,
         items: orderItems,
-        amount: getCartAmount() + (typeof delivery_fee === 'number' ? delivery_fee : 0) - creditPtsVisible - couponDiscount
+        amount: getFinalAmount() + (typeof delivery_fee === 'number' ? delivery_fee : 0) - (creditPtsVisible ? creditPoints : 0)
       }
 
       if (creditPtsVisible) {

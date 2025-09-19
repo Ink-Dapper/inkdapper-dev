@@ -36,7 +36,7 @@ const Product = () => {
     return <div>Loading...</div>
   }
 
-  const { products, currency, addToCart, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity } = context
+  const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity, addToRecentlyViewed } = context
   const [productData, setProductData] = useState(false)
   const [image, setImage] = useState('')
   const [size, setSize] = useState('')
@@ -241,7 +241,19 @@ const Product = () => {
     fetchProductData()
     getProductReviewCount()
     createNew();
-  }, [productId, products, size, getCartCount, getWishlistCount, reviewList, productData.slug])
+  }, [productId, products])
+
+  // Separate useEffect for other dependencies
+  useEffect(() => {
+    getProductReviewCount()
+  }, [reviewList])
+
+  // Separate useEffect for recently viewed to avoid conflicts
+  useEffect(() => {
+    if (productData && productData._id === productId) {
+      addToRecentlyViewed(productData)
+    }
+  }, [productData, productId])
 
   const openModal = (index) => {
     setCurrentImageIndex(index);
@@ -472,6 +484,46 @@ const Product = () => {
                   </span>
                 )}
               </div>
+
+              {/* Combo Pricing Display */}
+              {productData.comboPrices && productData.comboPrices.length > 0 && (
+                <div className='mt-4 space-y-3'>
+                  <div className='text-sm font-semibold text-gray-700 uppercase tracking-wide'>Combo Offers</div>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                    {productData.comboPrices.map((combo, index) => (
+                      <div key={index} className='bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 hover:shadow-md transition-all duration-300'>
+                        <div className='flex items-center justify-between mb-3'>
+                          <div className='flex items-center gap-3'>
+                            <div className='w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-lg flex items-center justify-center'>
+                              <span className='text-white font-bold text-lg'>{combo.quantity}x</span>
+                            </div>
+                            <div>
+                              <div className='font-bold text-gray-900'>{currency} {combo.price} each</div>
+                              <div className='text-sm text-gray-600'>Total: {currency} {combo.quantity * combo.price}</div>
+                            </div>
+                          </div>
+                          {combo.discount > 0 && (
+                            <div className='text-right'>
+                              <div className='text-sm font-bold text-green-600'>{combo.discount}% OFF</div>
+                              <div className='text-xs text-gray-500'>Save {currency} {Math.round((combo.quantity * combo.price * combo.discount) / 100)}</div>
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => addToCartCombo(productData._id, combo.quantity, size || 'M')}
+                          disabled={productData.soldout}
+                          className='w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2'
+                        >
+                          <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h6.5' />
+                          </svg>
+                          Add {combo.quantity} to Cart
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Description */}

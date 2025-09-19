@@ -35,7 +35,7 @@ const Sidebar = () => {
         <NavLink
           to='/'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -49,7 +49,7 @@ const Sidebar = () => {
         <NavLink
           to='/user-list'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -63,7 +63,7 @@ const Sidebar = () => {
         <NavLink
           to='/newsletter-subscribers'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -77,7 +77,7 @@ const Sidebar = () => {
         <NavLink
           to='/add-banner'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -91,7 +91,7 @@ const Sidebar = () => {
         <NavLink
           to='/add'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -105,7 +105,7 @@ const Sidebar = () => {
         <NavLink
           to='/list'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -119,7 +119,7 @@ const Sidebar = () => {
         <NavLink
           to='/orders'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -133,7 +133,7 @@ const Sidebar = () => {
         <NavLink
           to='/return-orders'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -147,7 +147,7 @@ const Sidebar = () => {
         <NavLink
           to='/cancel-orders'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
@@ -161,7 +161,7 @@ const Sidebar = () => {
         <NavLink
           to='/coupons'
           className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`

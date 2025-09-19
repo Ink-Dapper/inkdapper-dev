@@ -15,6 +15,11 @@ const productSchema = new mongoose.Schema({
     soldout : {type: Boolean, default: false},
     date : {type: Number, required: true},
     slug: {type: String, required: false},
+    comboPrices: [{
+        quantity: {type: Number, required: true},
+        price: {type: Number, required: true},
+        discount: {type: Number, default: 0}
+    }]
 })
 
 const productModel = mongoose.models.product || mongoose.model("product",productSchema);

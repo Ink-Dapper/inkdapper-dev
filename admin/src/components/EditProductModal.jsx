@@ -25,6 +25,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
   const [isViewMode, setIsViewMode] = useState(product.viewMode || false)
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [showSubCategoryDropdown, setShowSubCategoryDropdown] = useState(false)
+  const [comboPrices, setComboPrices] = useState(product.comboPrices || [])
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -60,6 +61,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
       formData.append('subCategory', subCategory)
       formData.append('sizes', JSON.stringify(sizes))
       formData.append('bestseller', bestseller)
+      formData.append('comboPrices', JSON.stringify(comboPrices))
       if (image1) formData.append('image1', image1)
       if (image2) formData.append('image2', image2)
       if (image3) formData.append('image3', image3)
@@ -242,6 +244,36 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
             </div>
           </div>
         </div>
+
+        {/* Combo Pricing */}
+        {comboPrices && comboPrices.length > 0 && (
+          <div className='bg-white border border-gray-200 rounded-xl p-6'>
+            <h4 className='text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2'>
+              <div className='w-2 h-2 bg-yellow-500 rounded-full'></div>
+              Combo Pricing
+            </h4>
+
+            <div className='space-y-3'>
+              {comboPrices.map((combo, index) => (
+                <div key={index} className='flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200'>
+                  <div className='flex items-center gap-4'>
+                    <div className='text-2xl font-bold text-yellow-600'>{combo.quantity}x</div>
+                    <div>
+                      <div className='text-lg font-semibold text-gray-800'>₹{combo.price} per item</div>
+                      <div className='text-sm text-gray-600'>Total: ₹{combo.quantity * combo.price}</div>
+                    </div>
+                  </div>
+                  {combo.discount > 0 && (
+                    <div className='text-right'>
+                      <div className='text-sm font-medium text-green-600'>{combo.discount}% OFF</div>
+                      <div className='text-xs text-gray-500'>Save ₹{Math.round((combo.quantity * combo.price * combo.discount) / 100)}</div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Product Images */}
@@ -503,8 +535,141 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
                 </div>
               </div>
 
+              {/* Combo Pricing Section */}
+              <div className='grid grid-cols-1 lg:grid-cols-1 gap-8'>
+
+                {/* Combo Pricing Section */}
+                <div className='bg-gray-50 p-4 rounded-xl'>
+                  <h3 className='text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2'>
+                    <div className='w-2 h-2 bg-yellow-500 rounded-full'></div>
+                    Combo Pricing
+                  </h3>
+
+                  <div className='space-y-4'>
+                    <p className='text-sm text-gray-600 mb-4'>
+                      Set special pricing for bulk purchases. Customers will get better deals when buying multiple items.
+                    </p>
+
+                    {comboPrices.map((combo, index) => (
+                      <div key={index} className='flex items-start gap-4 p-4 bg-white rounded-lg border border-gray-200'>
+                        <div className='flex-1'>
+                          <label className='block text-sm font-medium text-gray-700 mb-1'>Quantity</label>
+                          <input
+                            type='number'
+                            min='2'
+                            value={combo.quantity === 0 ? '' : combo.quantity}
+                            onChange={(e) => {
+                              const newComboPrices = [...comboPrices];
+                              newComboPrices[index].quantity = parseInt(e.target.value) || 2;
+                              setComboPrices(newComboPrices);
+                            }}
+                            onFocus={(e) => {
+                              if (e.target.value === '0' || e.target.value === '') {
+                                e.target.value = '';
+                              }
+                            }}
+                            className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                            placeholder='2'
+                          />
+                        </div>
+                        <div className='flex-1'>
+                          <label className='block text-sm font-medium text-gray-700 mb-1'>Price per item (₹)</label>
+                          <input
+                            type='number'
+                            min='1'
+                            value={combo.price === 0 ? '' : combo.price}
+                            onChange={(e) => {
+                              const newComboPrices = [...comboPrices];
+                              const comboPrice = parseInt(e.target.value) || 0;
+                              newComboPrices[index].price = comboPrice;
+
+                              // Auto-calculate discount percentage
+                              if (comboPrice > 0 && beforePrice > 0) {
+                                const calculatedDiscount = Math.round(((beforePrice - comboPrice) / beforePrice) * 100);
+                                newComboPrices[index].discount = Math.max(0, calculatedDiscount);
+                              }
+
+                              setComboPrices(newComboPrices);
+                            }}
+                            onFocus={(e) => {
+                              if (e.target.value === '0' || e.target.value === '') {
+                                e.target.value = '';
+                              }
+                            }}
+                            className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                            placeholder='499'
+                          />
+                        </div>
+                        <div className='flex-1'>
+                          <label className='block text-sm font-medium text-gray-700 mb-1'>Discount % (Auto-calculated)</label>
+                          <input
+                            type='number'
+                            min='0'
+                            max='100'
+                            value={combo.discount === 0 ? '' : combo.discount}
+                            onChange={(e) => {
+                              const newComboPrices = [...comboPrices];
+                              newComboPrices[index].discount = parseInt(e.target.value) || 0;
+
+                              // Auto-calculate price based on discount
+                              if (beforePrice > 0) {
+                                const calculatedPrice = Math.round(beforePrice * (1 - newComboPrices[index].discount / 100));
+                                newComboPrices[index].price = Math.max(1, calculatedPrice);
+                              }
+
+                              setComboPrices(newComboPrices);
+                            }}
+                            onFocus={(e) => {
+                              if (e.target.value === '0' || e.target.value === '') {
+                                e.target.value = '';
+                              }
+                            }}
+                            className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50'
+                            placeholder='10'
+                          />
+                          <div className='text-xs text-gray-500 mt-1'>
+                            Auto-calculated from original price: ₹{beforePrice}
+                            {combo.discount > 0 && (
+                              <span className='ml-2 text-green-600 font-medium'>
+                                (Save ₹{Math.round((beforePrice - combo.price) * combo.quantity)} for {combo.quantity} items)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          type='button'
+                          onClick={() => {
+                            const newComboPrices = comboPrices.filter((_, i) => i !== index);
+                            setComboPrices(newComboPrices);
+                          }}
+                          className='p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200'
+                        >
+                          <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+
+                    <button
+                      type='button'
+                      onClick={() => {
+                        setComboPrices([...comboPrices, { quantity: 2, price: 0, discount: 0 }]);
+                      }}
+                      className='w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors duration-200 flex items-center justify-center gap-2'
+                    >
+                      <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 6v6m0 0v6m0-6h6m-6 0H6' />
+                      </svg>
+                      Add Combo Pricing
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               {/* Category and Settings Section */}
               <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+
                 {/* Categories */}
                 <div className='bg-gray-50 p-4 rounded-xl'>
                   <h3 className='text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2'>

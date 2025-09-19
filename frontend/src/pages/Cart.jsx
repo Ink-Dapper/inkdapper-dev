@@ -9,7 +9,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, navigate, setCartItems, customDataArray, updateCustomQuantity, getCustomData, updateCartAndSave } = useContext(ShopContext)
+  const { products, currency, cartItems, updateQuantity, navigate, setCartItems, customDataArray, updateCustomQuantity, getCustomData, updateCartAndSave, hasMultipleProducts } = useContext(ShopContext)
   const [cartData, SetCartData] = useState([])
   const [showCartTotal, setShowCartTotal] = useState([])
 
@@ -109,6 +109,48 @@ const Cart = () => {
         </div>
       </div>
 
+      {/* Discount Encouragement Message */}
+      {!hasMultipleProducts() && showCartTotal.length > 0 && (
+        <div className='bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200'>
+          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
+            <div className='flex items-center justify-center space-x-3'>
+              <div className='flex items-center space-x-2'>
+                <div className='w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center'>
+                  <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' />
+                  </svg>
+                </div>
+                <div className='text-center'>
+                  <h3 className='text-lg font-bold text-blue-800'>💡 Get 7% Off!</h3>
+                  <p className='text-sm text-blue-700'>Buy more than one product or increase quantity to unlock discount</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Combo Offer Message */}
+      {hasMultipleProducts() && (
+        <div className='bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200'>
+          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
+            <div className='flex items-center justify-center space-x-3'>
+              <div className='flex items-center space-x-2'>
+                <div className='w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center'>
+                  <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' />
+                  </svg>
+                </div>
+                <div className='text-center'>
+                  <h3 className='text-lg font-bold text-green-800'>🎉 Combo Offer Active!</h3>
+                  <p className='text-sm text-green-700'>You're getting 7% off for ordering multiple items!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className='max-w-8xl mx-auto px-4 sm:px-0 py-8'>
         {showCartTotal.length === 0 ? (
@@ -188,6 +230,28 @@ const Cart = () => {
                                 <p className='text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4'>
                                   {currency} {productData.price}
                                 </p>
+
+                                {/* Combo Pricing Info */}
+                                {productData.comboPrices && productData.comboPrices.length > 0 && (
+                                  <div className='mb-3'>
+                                    <div className='text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2'>Available Combo Offers</div>
+                                    <div className='flex flex-wrap gap-2'>
+                                      {productData.comboPrices.slice(0, 2).map((combo, comboIndex) => (
+                                        <div key={comboIndex} className='bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-200 rounded-lg px-2 py-1 text-xs'>
+                                          <div className='font-bold text-yellow-800'>{combo.quantity}x for {currency} {combo.price} each</div>
+                                          {combo.discount > 0 && (
+                                            <div className='text-green-600 font-medium'>{combo.discount}% OFF</div>
+                                          )}
+                                        </div>
+                                      ))}
+                                      {productData.comboPrices.length > 2 && (
+                                        <div className='bg-gradient-to-r from-slate-100 to-slate-200 border border-slate-300 rounded-lg px-2 py-1 text-xs'>
+                                          <div className='font-bold text-slate-700'>+{productData.comboPrices.length - 2} more</div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
 
                                 {/* Size and Quantity on same line */}
                                 <div className='flex flex-row items-start space-x-4 mb-4'>

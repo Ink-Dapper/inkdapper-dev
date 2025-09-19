@@ -131,7 +131,7 @@ const Footer = () => {
       <div className="flex flex-col md:grid grid-cols-[3fr_1fr_1fr] gap-8 md:gap-14 my-10 mt-15 md:mt-20 text-sm">
         <div>
           <div className=''>
-            <Link to='/' className='inline-flex items-center mb-2 gap-2'>
+            <Link to='/' className='inline-flex items-center mb-2 gap-2' onClick={() => scrollToTop()}>
               <img src={assets.inkdapper_logo} alt="logo" className='mb-1 w-7 md:mb-5 md:w-16' />
               <p className='text-xl md:text-3xl font-medium'><span className='font-light'>Ink</span> Dapper</p>
             </Link>
