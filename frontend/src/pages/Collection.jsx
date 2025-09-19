@@ -406,7 +406,7 @@ const Collection = () => {
           </div>
 
           {/* Colorful Filter Sidebar - Hidden on Mobile by Default */}
-        <div className={`lg:w-64 flex-shrink-0 ${showMobileFilter ? 'block' : 'hidden lg:block'}`}>
+          <div className={`lg:w-64 flex-shrink-0 ${showMobileFilter ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-white/60 p-4 lg:p-6 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-orange-300 lg:scrollbar-track-orange-100 lg:scrollbar-thumb-rounded-full">
               <div className="flex items-center justify-between mb-4 lg:mb-6">
                 <h2 className="text-lg lg:text-xl font-bold text-gray-800 flex items-center gap-2 lg:gap-3">
@@ -675,148 +675,176 @@ const Collection = () => {
           )}
 
           {/* Products Section - Mobile Optimized */}
-          <div className='flex-1'>
-            {/* Mobile-Optimized Header */}
-            <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-xl lg:shadow-2xl border border-white/60 p-4 mt-20 md:mt-0 lg:p-8 mb-6 lg:mb-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 lg:gap-6">
-                <div>
-                  <h2 className="text-2xl lg:text-3xl font-black text-gray-800 mb-1 lg:mb-2">All Collections</h2>
-                  <p className="text-sm lg:text-lg text-gray-600">Showing {filterProducts.length} amazing products</p>
-                </div>
+          <div className='flex-1 relative'>
+            {/* Section specific overlay for better content visibility */}
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-red-50/20 to-pink-50/30 backdrop-blur-sm rounded-3xl"></div>
 
-                {/* Desktop Sort Section - Hidden on Mobile */}
-                <div className="hidden lg:flex items-center gap-4">
-                  <div className="bg-gradient-to-r from-orange-50 to-pink-50 rounded-2xl p-2 border border-orange-200/50">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-2 px-3 py-2">
-                        <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M7 8h10M9 12h6M11 16h2" />
-                        </svg>
-                        <span className="text-sm font-semibold text-gray-700">Sort by:</span>
-                      </div>
-                      <FormControl sx={{ minWidth: 180 }} size="small">
-                        <Select
-                          value={sortType}
-                          onChange={(e) => SetSortType(e.target.value)}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: '12px',
-                              backgroundColor: 'white',
-                              '& fieldset': {
-                                border: 'none',
-                              },
-                              '&:hover fieldset': {
-                                border: 'none',
-                              },
-                              '&.Mui-focused fieldset': {
-                                border: 'none',
-                              },
-                            },
-                            '& .MuiSelect-select': {
-                              padding: '8px 16px',
-                              fontSize: '14px',
-                              fontWeight: '600',
-                              color: '#374151',
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              sx: {
+            {/* Floating decorative elements */}
+            <div className='absolute top-10 left-1/4 w-16 h-16 lg:w-24 lg:h-24 bg-gradient-to-br from-orange-300/20 to-red-400/20 rounded-full blur-xl lg:blur-2xl animate-pulse'></div>
+            <div className='absolute top-20 right-1/3 w-12 h-12 lg:w-20 lg:h-20 bg-gradient-to-br from-pink-300/20 to-purple-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-1000'></div>
+            <div className='absolute bottom-10 left-1/2 w-14 h-14 lg:w-18 lg:h-18 bg-gradient-to-br from-teal-300/20 to-cyan-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-500'></div>
+            <div className='absolute top-1/2 right-1/4 w-10 h-10 lg:w-16 lg:h-16 bg-gradient-to-br from-purple-300/20 to-pink-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-1500'></div>
+
+            <div className="relative z-10">
+              {/* Mobile-Optimized Header */}
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-xl lg:shadow-2xl border border-white/60 p-4 mt-20 md:mt-0 lg:p-8 mb-6 lg:mb-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 lg:gap-6">
+                  <div>
+                    <h2 className="text-2xl lg:text-3xl font-black text-gray-800 mb-1 lg:mb-2">All Collections</h2>
+                    <p className="text-sm lg:text-lg text-gray-600">Showing {filterProducts.length} amazing products</p>
+                  </div>
+
+                  {/* Desktop Sort Section - Hidden on Mobile */}
+                  <div className="hidden lg:flex items-center gap-4">
+                    <div className="bg-gradient-to-r from-orange-50 to-pink-50 rounded-2xl p-2 border border-orange-200/50">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 px-3 py-2">
+                          <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M7 8h10M9 12h6M11 16h2" />
+                          </svg>
+                          <span className="text-sm font-semibold text-gray-700">Sort by:</span>
+                        </div>
+                        <FormControl sx={{ minWidth: 180 }} size="small">
+                          <Select
+                            value={sortType}
+                            onChange={(e) => SetSortType(e.target.value)}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
                                 borderRadius: '12px',
-                                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                                border: '1px solid #f3f4f6',
+                                backgroundColor: 'white',
+                                '& fieldset': {
+                                  border: 'none',
+                                },
+                                '&:hover fieldset': {
+                                  border: 'none',
+                                },
+                                '&.Mui-focused fieldset': {
+                                  border: 'none',
+                                },
                               },
-                            },
-                          }}
-                        >
-                          <MenuItem value="relevant" sx={{
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            '&:hover': { backgroundColor: '#fef3c7' },
-                            '&.Mui-selected': { backgroundColor: '#fef3c7' }
-                          }}>
-                            <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Most Relevant
-                            </div>
-                          </MenuItem>
-                          <MenuItem value="low-high" sx={{
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            '&:hover': { backgroundColor: '#fef3c7' },
-                            '&.Mui-selected': { backgroundColor: '#fef3c7' }
-                          }}>
-                            <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                              </svg>
-                              Price: Low to High
-                            </div>
-                          </MenuItem>
-                          <MenuItem value="high-low" sx={{
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            '&:hover': { backgroundColor: '#fef3c7' },
-                            '&.Mui-selected': { backgroundColor: '#fef3c7' }
-                          }}>
-                            <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8V4m0 0l4 4m-4-4l-4 4m-6 0v12m0 0l-4-4m4 4l4-4" />
-                              </svg>
-                              Price: High to Low
-                            </div>
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
+                              '& .MuiSelect-select': {
+                                padding: '8px 16px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: '#374151',
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                sx: {
+                                  borderRadius: '12px',
+                                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                  border: '1px solid #f3f4f6',
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem value="relevant" sx={{
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              '&:hover': { backgroundColor: '#fef3c7' },
+                              '&.Mui-selected': { backgroundColor: '#fef3c7' }
+                            }}>
+                              <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Most Relevant
+                              </div>
+                            </MenuItem>
+                            <MenuItem value="low-high" sx={{
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              '&:hover': { backgroundColor: '#fef3c7' },
+                              '&.Mui-selected': { backgroundColor: '#fef3c7' }
+                            }}>
+                              <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                </svg>
+                                Price: Low to High
+                              </div>
+                            </MenuItem>
+                            <MenuItem value="high-low" sx={{
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              '&:hover': { backgroundColor: '#fef3c7' },
+                              '&.Mui-selected': { backgroundColor: '#fef3c7' }
+                            }}>
+                              <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8V4m0 0l4 4m-4-4l-4 4m-6 0v12m0 0l-4-4m4 4l4-4" />
+                                </svg>
+                                Price: High to Low
+                              </div>
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Mobile-Optimized Products Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              {filterProducts.map((item, index) => (
-                <div key={index} className="group">
-                  <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-lg lg:shadow-xl border border-white/60 overflow-hidden transform transition-all duration-500 hover:scale-105 hover:shadow-xl lg:hover:shadow-2xl hover:border-orange-200 min-h-[350px] lg:min-h-[400px]">
-                    <ProductItem
-                      id={item._id}
-                      name={item.name}
-                      image={item.image}
-                      price={item.price}
-                      beforePrice={item.beforePrice}
-                      subCategory={item.subCategory}
-                      soldout={item.soldout}
-                      slug={item.slug}
-                    />
+              {/* Mobile-Optimized Products Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative">
+                {/* Grid background pattern */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
+                {filterProducts.map((item, index) => (
+                  <div
+                    key={index}
+                    className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
+                    style={{
+                      animationDelay: `${index * 150}ms`
+                    }}
+                  >
+                    {/* Bright Shadow Wrapper */}
+                    <div className="relative">
+                      {/* Bright colored shadows */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
+                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
+                      <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
+
+                      {/* Main card with enhanced shadows */}
+                      <div className="relative bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-lg lg:shadow-xl border border-white/60 overflow-hidden min-h-[350px] lg:min-h-[400px]">
+                        <ProductItem
+                          id={item._id}
+                          name={item.name}
+                          image={item.image}
+                          price={item.price}
+                          beforePrice={item.beforePrice}
+                          subCategory={item.subCategory}
+                          soldout={item.soldout}
+                          slug={item.slug}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Mobile-Optimized Empty State */}
-            {filterProducts.length === 0 && (
-              <div className="text-center py-12 lg:py-20">
-                <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-r from-orange-100 via-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 lg:mb-8 shadow-lg">
-                  <svg className="w-12 h-12 lg:w-16 lg:h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-3 lg:mb-4">No products found</h3>
-                <p className="text-sm lg:text-lg text-gray-600 mb-6 lg:mb-8 max-w-md mx-auto px-4">Try adjusting your filters or search terms to discover amazing products</p>
-                <button
-                  onClick={() => {
-                    setCategory('');
-                    setSubCategory([]);
-                  }}
-                  className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm lg:text-base"
-                >
-                  Clear All Filters
-                </button>
+                ))}
               </div>
-            )}
+
+              {/* Mobile-Optimized Empty State */}
+              {filterProducts.length === 0 && (
+                <div className="text-center py-12 lg:py-20">
+                  <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-r from-orange-100 via-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 lg:mb-8 shadow-lg">
+                    <svg className="w-12 h-12 lg:w-16 lg:h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-3 lg:mb-4">No products found</h3>
+                  <p className="text-sm lg:text-lg text-gray-600 mb-6 lg:mb-8 max-w-md mx-auto px-4">Try adjusting your filters or search terms to discover amazing products</p>
+                  <button
+                    onClick={() => {
+                      setCategory('');
+                      setSubCategory([]);
+                    }}
+                    className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm lg:text-base"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

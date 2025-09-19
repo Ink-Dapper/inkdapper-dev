@@ -67,7 +67,7 @@ const ProfileListItems = () => {
           <div className='flex gap-6 pb-4 min-w-max'>
             {
               orderData.map((item, index) => (
-                <Link key={index} to={`/order-details/${item._id}`}
+                <Link key={index} onClick={scrollToTop()} to={`/order-details/${item._id}`}
                   className={`group relative overflow-hidden rounded-3xl transition-all duration-500 hover:-translate-y-0 hover:shadow-xl ${index === 0 ? 'w-64 h-80 md:w-80 md:h-96' :
                     index === 1 ? 'w-56 h-72 md:w-72 md:h-88' :
                       index === 2 ? 'w-52 h-68 md:w-64 md:h-80' :
@@ -122,7 +122,7 @@ const ProfileListItems = () => {
           >
             {orderData.map((item, index) => (
               <SwiperSlide key={index}>
-                <Link to={`/order-details/${item._id}`}
+                <Link onClick={scrollToTop()} to={`/order-details/${item._id}`}
                   className='group relative overflow-hidden rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl block h-80'>
                   <div className='relative w-full h-full'>
                     <img
