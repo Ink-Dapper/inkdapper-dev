@@ -26,6 +26,7 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       sizes,
+      colors,
       bestseller,
       comboPrices,
     } = req.body;
@@ -75,6 +76,7 @@ const addProduct = async (req, res) => {
       subCategory,
       bestseller: bestseller === "true" ? true : false,
       sizes: JSON.parse(sizes),
+      colors: colors ? JSON.parse(colors) : [],
       image: imagesUrl,
       reviewImage: reviewImagesUrl,
       date: Date.now(),
@@ -194,7 +196,7 @@ const singleProduct = async (req, res) => {
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, beforePrice, price, code, category, subCategory, sizes, bestseller, comboPrices } = req.body;
+    const { name, description, beforePrice, price, code, category, subCategory, sizes, colors, bestseller, comboPrices } = req.body;
 
     // Find the existing product
     const existingProduct = await productModel.findById(id);
@@ -213,6 +215,7 @@ const editProduct = async (req, res) => {
       subCategory,
       bestseller: bestseller === "true" ? true : false,
       sizes: JSON.parse(sizes),
+      colors: colors ? JSON.parse(colors) : existingProduct.colors || [],
       image: existingProduct.image, // Start with existing images
       reviewImage: existingProduct.reviewImage, // Start with existing review images
       slug: slugify(name),

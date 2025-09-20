@@ -230,7 +230,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
         to={`/product/${id}/${safeSlug}`}
       >
-        <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
+        <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">
             <div className="w-full h-full relative" style={{ aspectRatio: '3/4' }}>
               <img

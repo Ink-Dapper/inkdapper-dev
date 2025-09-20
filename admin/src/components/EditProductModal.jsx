@@ -26,6 +26,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [showSubCategoryDropdown, setShowSubCategoryDropdown] = useState(false)
   const [comboPrices, setComboPrices] = useState(product.comboPrices || [])
+  const [colors, setColors] = useState(product.colors || [])
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -62,6 +63,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
       formData.append('sizes', JSON.stringify(sizes))
       formData.append('bestseller', bestseller)
       formData.append('comboPrices', JSON.stringify(comboPrices))
+      formData.append('colors', JSON.stringify(colors))
       if (image1) formData.append('image1', image1)
       if (image2) formData.append('image2', image2)
       if (image3) formData.append('image3', image3)
@@ -241,6 +243,66 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
 
             <div className='text-sm text-gray-500 mt-2'>
               {sizes.length} size{sizes.length !== 1 ? 's' : ''} available
+            </div>
+          </div>
+        </div>
+
+        {/* Available Colors */}
+        <div className='bg-white border border-gray-200 rounded-xl p-6'>
+          <h4 className='text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2'>
+            <div className='w-2 h-2 bg-pink-500 rounded-full'></div>
+            Available Colors
+          </h4>
+
+          <div className='space-y-3'>
+            <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3'>
+              {colors.length > 0 ? colors.map((colorName) => {
+                const colorMap = {
+                  'Black': '#000000',
+                  'White': '#FFFFFF',
+                  'Red': '#EF4444',
+                  'Blue': '#3B82F6',
+                  'Green': '#10B981',
+                  'Yellow': '#F59E0B',
+                  'Purple': '#8B5CF6',
+                  'Pink': '#EC4899',
+                  'Orange': '#F97316',
+                  'Gray': '#6B7280',
+                  'Navy': '#1E40AF',
+                  'Brown': '#92400E'
+                };
+
+                return (
+                  <div
+                    key={colorName}
+                    className='relative p-3 rounded-lg border-2 border-gray-300 bg-white'
+                  >
+                    <div
+                      className="w-full h-12 rounded-md mb-2 border border-gray-200"
+                      style={{ backgroundColor: colorMap[colorName] || '#000000' }}
+                    >
+                      {colorMap[colorName] === '#FFFFFF' && (
+                        <div className="w-full h-full border border-gray-300 rounded-md"></div>
+                      )}
+                    </div>
+                    <p className="text-xs font-medium text-gray-700 text-center">{colorName}</p>
+                  </div>
+                );
+              }) : (
+                <div className='col-span-full text-center py-8 text-gray-500'>
+                  <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3'>
+                    <svg className='w-8 h-8 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z' />
+                    </svg>
+                  </div>
+                  <p className='text-sm font-medium'>No colors selected</p>
+                  <p className='text-xs text-gray-400 mt-1'>This product has no color options</p>
+                </div>
+              )}
+            </div>
+
+            <div className='text-sm text-gray-500 mt-2'>
+              {colors.length} color{colors.length !== 1 ? 's' : ''} available
             </div>
           </div>
         </div>
@@ -793,6 +855,58 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
                               }`}
                           >
                             {size}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Color Options */}
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-3'>Available Colors</label>
+                      <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3'>
+                        {[
+                          { name: 'Black', hex: '#000000' },
+                          { name: 'White', hex: '#FFFFFF' },
+                          { name: 'Red', hex: '#EF4444' },
+                          { name: 'Blue', hex: '#3B82F6' },
+                          { name: 'Green', hex: '#10B981' },
+                          { name: 'Yellow', hex: '#F59E0B' },
+                          { name: 'Purple', hex: '#8B5CF6' },
+                          { name: 'Pink', hex: '#EC4899' },
+                          { name: 'Orange', hex: '#F97316' },
+                          { name: 'Gray', hex: '#6B7280' },
+                          { name: 'Navy', hex: '#1E40AF' },
+                          { name: 'Brown', hex: '#92400E' }
+                        ].map((color) => (
+                          <button
+                            key={color.name}
+                            type="button"
+                            onClick={() => setColors(prev =>
+                              prev.includes(color.name)
+                                ? prev.filter(item => item !== color.name)
+                                : [...prev, color.name]
+                            )}
+                            className={`relative p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${colors.includes(color.name)
+                              ? 'border-blue-500 shadow-lg transform scale-105'
+                              : 'border-gray-300 hover:border-gray-400'
+                              }`}
+                          >
+                            <div
+                              className="w-full h-12 rounded-md mb-2 border border-gray-200"
+                              style={{ backgroundColor: color.hex }}
+                            >
+                              {color.hex === '#FFFFFF' && (
+                                <div className="w-full h-full border border-gray-300 rounded-md"></div>
+                              )}
+                            </div>
+                            <p className="text-xs font-medium text-gray-700 text-center">{color.name}</p>
+                            {colors.includes(color.name) && (
+                              <div className="absolute top-1 right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                            )}
                           </button>
                         ))}
                       </div>

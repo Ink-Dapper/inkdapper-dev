@@ -29,13 +29,13 @@ const SearchBar = () => {
                     <div className="max-w-4xl mx-auto px-8 py-8">
                         <div className="relative">
                             {/* Search Input Container */}
-                            <div className={`relative flex items-center max-w-2xl mx-auto transition-all duration-400 ease-out ${isFocused
+                            <div className={`relative flex items-center max-w-2xl mx-auto transition-all duration-400 shadow-xl ease-out ${isFocused
                                 ? 'shadow-lg shadow-orange-100/50 scale-[1.01]'
                                 : 'shadow-md shadow-slate-100/50 hover:shadow-lg hover:shadow-slate-100/60'
                                 }`}>
 
                                 {/* Glass Effect Background with Border */}
-                                <div className={`absolute inset-0 bg-white/90 backdrop-blur-sm rounded-xl border-2 transition-all duration-300 ${isFocused
+                                <div className={`absolute inset-0 bg-white/90 backdrop-blur-sm shadow-xl rounded-xl border-2 transition-all duration-300 ${isFocused
                                     ? 'border-orange-300 shadow-inner shadow-orange-50/50'
                                     : 'border-slate-200 hover:border-slate-300'
                                     }`}></div>

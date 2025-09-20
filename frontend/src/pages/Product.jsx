@@ -58,6 +58,7 @@ const Product = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const shareMenuRef = useRef(null);
   const [popupPosition, setPopupPosition] = useState({ left: '0', bottom: '12' });
+  const [thumbsSwiperInstance, setThumbsSwiperInstance] = useState(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -255,6 +256,21 @@ const Product = () => {
     }
   }, [productData, productId])
 
+  // Initialize arrow opacity when thumbs swiper is ready
+  useEffect(() => {
+    if (thumbsSwiperInstance) {
+      const prevButton = document.querySelector('.swiper-button-prev-thumbs');
+      const nextButton = document.querySelector('.swiper-button-next-thumbs');
+
+      if (prevButton) {
+        prevButton.style.opacity = thumbsSwiperInstance.isBeginning ? '0.3' : '1';
+      }
+      if (nextButton) {
+        nextButton.style.opacity = thumbsSwiperInstance.isEnd ? '0.3' : '1';
+      }
+    }
+  }, [thumbsSwiperInstance])
+
   const openModal = (index) => {
     setCurrentImageIndex(index);
     setIsModalOpen(true);
@@ -407,21 +423,57 @@ const Product = () => {
             </div>
 
             {/* Thumbnail Gallery */}
-            <div className='block'>
+            <div className='relative'>
               <Swiper
-                modules={[Thumbs]}
+                modules={[Thumbs, Navigation]}
                 spaceBetween={8}
                 slidesPerView={isMobile ? 3 : 4}
                 watchSlidesProgress={true}
-                onSwiper={setThumbsSwiper}
+                onSwiper={(swiper) => {
+                  setThumbsSwiper(swiper);
+                  setThumbsSwiperInstance(swiper);
+                }}
+                navigation={{
+                  nextEl: '.swiper-button-next-thumbs',
+                  prevEl: '.swiper-button-prev-thumbs',
+                }}
+                onSlideChange={(swiper) => {
+                  // Update arrow opacity based on slide position
+                  const prevButton = document.querySelector('.swiper-button-prev-thumbs');
+                  const nextButton = document.querySelector('.swiper-button-next-thumbs');
+
+                  if (prevButton) {
+                    prevButton.style.opacity = swiper.isBeginning ? '0.3' : '1';
+                  }
+                  if (nextButton) {
+                    nextButton.style.opacity = swiper.isEnd ? '0.3' : '1';
+                  }
+
+                  // Sync with main swiper when thumbnail changes
+                  if (mainSwiper && mainSwiper.slideTo) {
+                    mainSwiper.slideTo(swiper.activeIndex);
+                  }
+                }}
                 className='w-full'
               >
                 {productData.image.map((item, index) => (
                   <SwiperSlide key={index}>
-                    <div className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300 ${activeIndex === index
-                      ? 'border-orange-500 shadow-lg'
-                      : 'border-gray-200 hover:border-gray-300'
-                      }`}>
+                    <div
+                      className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300 ${activeIndex === index
+                        ? 'border-orange-500 shadow-lg'
+                        : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      onClick={() => {
+                        // Update main swiper
+                        if (mainSwiper && mainSwiper.slideTo) {
+                          mainSwiper.slideTo(index);
+                        }
+                        // Update thumbnail swiper position
+                        if (thumbsSwiperInstance && thumbsSwiperInstance.slideTo) {
+                          thumbsSwiperInstance.slideTo(index);
+                        }
+                      }}
+                    >
                       <img
                         src={item}
                         alt={`${productData.name} thumbnail ${index + 1}`}
@@ -431,6 +483,24 @@ const Product = () => {
                   </SwiperSlide>
                 ))}
               </Swiper>
+
+              {/* Custom Navigation Buttons for Thumbnails */}
+              <div
+                className='swiper-button-prev-thumbs absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-all duration-200 cursor-pointer'
+                style={{ opacity: thumbsSwiperInstance?.isBeginning ? 0.3 : 1 }}
+              >
+                <svg className='w-4 h-4 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+                </svg>
+              </div>
+              <div
+                className='swiper-button-next-thumbs absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-all duration-200 cursor-pointer'
+                style={{ opacity: thumbsSwiperInstance?.isEnd ? 0.3 : 1 }}
+              >
+                <svg className='w-4 h-4 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
+                </svg>
+              </div>
             </div>
           </div>
 

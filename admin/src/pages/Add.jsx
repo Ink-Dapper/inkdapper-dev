@@ -4,10 +4,12 @@ import Select from '@mui/material/Select';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import { backendUrl } from '../App';
 import { assets } from '../assets/assets';
 
 const Add = ({ token }) => {
+  const navigate = useNavigate();
   const [image1, setImage1] = useState(false);
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
@@ -28,6 +30,7 @@ const Add = ({ token }) => {
   const [sizes, setSizes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [comboPrices, setComboPrices] = useState([]);
+  const [colors, setColors] = useState([]);
 
   // Fetch the product list and set the default product code
   useEffect(() => {
@@ -78,6 +81,7 @@ const Add = ({ token }) => {
       formData.append('bestseller', bestseller);
       formData.append('sizes', JSON.stringify(sizes));
       formData.append('comboPrices', JSON.stringify(comboPrices));
+      formData.append('colors', JSON.stringify(colors));
 
       image1 && formData.append('image1', image1);
       image2 && formData.append('image2', image2);
@@ -107,6 +111,12 @@ const Add = ({ token }) => {
         setSizes('');
         setBestseller(false);
         setComboPrices([]);
+        setColors([]);
+
+        // Navigate to the list page after successful product creation
+        setTimeout(() => {
+          navigate('/list');
+        }, 1500); // Small delay to show the success message
       } else {
         toast.error(response.data.message);
       }
@@ -516,6 +526,125 @@ const Add = ({ token }) => {
                 Mark as Bestseller
               </label>
             </div>
+          </div>
+
+          {/* Color Options Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">Color Options</h2>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">Available Colors</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {[
+                  { name: 'Black', hex: '#000000' },
+                  { name: 'White', hex: '#FFFFFF' },
+                  { name: 'Red', hex: '#EF4444' },
+                  { name: 'Blue', hex: '#3B82F6' },
+                  { name: 'Green', hex: '#10B981' },
+                  { name: 'Yellow', hex: '#F59E0B' },
+                  { name: 'Purple', hex: '#8B5CF6' },
+                  { name: 'Pink', hex: '#EC4899' },
+                  { name: 'Orange', hex: '#F97316' },
+                  { name: 'Gray', hex: '#6B7280' },
+                  { name: 'Navy', hex: '#1E40AF' },
+                  { name: 'Brown', hex: '#92400E' }
+                ].map((color) => (
+                  <button
+                    key={color.name}
+                    type="button"
+                    onClick={() => setColors(prev =>
+                      prev.includes(color.name)
+                        ? prev.filter(item => item !== color.name)
+                        : [...prev, color.name]
+                    )}
+                    className={`relative p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${colors.includes(color.name)
+                      ? 'border-blue-500 shadow-lg transform scale-105'
+                      : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                  >
+                    <div
+                      className="w-full h-12 rounded-md mb-2 border border-gray-200"
+                      style={{ backgroundColor: color.hex }}
+                    >
+                      {color.hex === '#FFFFFF' && (
+                        <div className="w-full h-full border border-gray-300 rounded-md"></div>
+                      )}
+                    </div>
+                    <p className="text-xs font-medium text-gray-700 text-center">{color.name}</p>
+                    {colors.includes(color.name) && (
+                      <div className="absolute top-1 right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {colors.length > 0 ? (
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="text-sm font-medium text-blue-900 mb-2">Selected Colors:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {colors.map((colorName) => {
+                    const colorData = [
+                      { name: 'Black', hex: '#000000' },
+                      { name: 'White', hex: '#FFFFFF' },
+                      { name: 'Red', hex: '#EF4444' },
+                      { name: 'Blue', hex: '#3B82F6' },
+                      { name: 'Green', hex: '#10B981' },
+                      { name: 'Yellow', hex: '#F59E0B' },
+                      { name: 'Purple', hex: '#8B5CF6' },
+                      { name: 'Pink', hex: '#EC4899' },
+                      { name: 'Orange', hex: '#F97316' },
+                      { name: 'Gray', hex: '#6B7280' },
+                      { name: 'Navy', hex: '#1E40AF' },
+                      { name: 'Brown', hex: '#92400E' }
+                    ].find(c => c.name === colorName);
+
+                    return (
+                      <span
+                        key={colorName}
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-200"
+                      >
+                        <div
+                          className="w-4 h-4 rounded-full border border-gray-300"
+                          style={{ backgroundColor: colorData?.hex || '#000000' }}
+                        ></div>
+                        {colorName}
+                        <button
+                          type="button"
+                          onClick={() => setColors(prev => prev.filter(c => c !== colorName))}
+                          className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center gap-3 text-gray-500">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm font-medium">No color options selected</p>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Click on the color options above to select available colors for this product</p>
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}

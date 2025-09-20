@@ -16,6 +16,7 @@ const Collection = () => {
   const [filterProducts, setFilterProducts] = useState([])
   const [category, setCategory] = useState(''); // Default to 'All'
   const [subCategory, setSubCategory] = useState([])
+  const [colors, setColors] = useState([])
   const [sortType, SetSortType] = useState('relevant')
   const [sortValue, setSortValue] = useState('');
   const [categoryView, setCategoryView] = useState('block')
@@ -56,6 +57,14 @@ const Collection = () => {
     }
   }
 
+  const toggleColor = (color) => {
+    if (colors.includes(color)) {
+      setColors(colors.filter(item => item !== color));
+    } else {
+      setColors([...colors, color]);
+    }
+  }
+
   const applyFilter = () => {
     let productsCopy = products.slice()
     if (showSearch && search) {
@@ -66,6 +75,11 @@ const Collection = () => {
     }
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
+    }
+    if (colors.length > 0) {
+      productsCopy = productsCopy.filter(item =>
+        item.colors && item.colors.some(color => colors.includes(color))
+      )
     }
     setFilterProducts(productsCopy)
   }
@@ -88,7 +102,7 @@ const Collection = () => {
 
   useEffect(() => {
     applyFilter()
-  }, [category, subCategory, search, showSearch, products])
+  }, [category, subCategory, colors, search, showSearch, products])
 
   useEffect(() => {
     sortProduct()
@@ -468,7 +482,7 @@ const Collection = () => {
               </div>
 
               {/* Type Filter */}
-              <div className={`${categoryView}`}>
+              <div className={`${categoryView} mb-4`}>
                 <h3 className="text-sm lg:text-base font-bold text-gray-800 mb-3 lg:mb-4 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-full"></div>
                   Product Type
@@ -525,6 +539,82 @@ const Collection = () => {
                       </div>
                     </label>
                   ))}
+                </div>
+              </div>
+
+              {/* Color Filter */}
+              <div className="mb-4 lg:mb-6">
+                <h3 className="text-sm lg:text-base font-bold text-gray-800 mb-3 lg:mb-4 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full"></div>
+                  Colors
+                </h3>
+                <div className="space-y-2 lg:space-y-3">
+                  {(() => {
+                    // Get unique colors from all products
+                    const allColors = products.reduce((acc, product) => {
+                      if (product.colors && Array.isArray(product.colors)) {
+                        return [...acc, ...product.colors];
+                      }
+                      return acc;
+                    }, []);
+                    const uniqueColors = [...new Set(allColors)];
+
+                    const colorMap = {
+                      'Black': '#000000',
+                      'White': '#FFFFFF',
+                      'Red': '#EF4444',
+                      'Blue': '#3B82F6',
+                      'Green': '#10B981',
+                      'Yellow': '#F59E0B',
+                      'Purple': '#8B5CF6',
+                      'Pink': '#EC4899',
+                      'Orange': '#F97316',
+                      'Gray': '#6B7280',
+                      'Navy': '#1E40AF',
+                      'Brown': '#92400E'
+                    };
+
+                    return uniqueColors.length > 0 ? uniqueColors.map((color) => (
+                      <label key={color} className="flex items-center justify-between cursor-pointer group p-2.5 lg:p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-300 border border-transparent hover:border-pink-200">
+                        <div className="flex items-center gap-2 lg:gap-3">
+                          <input
+                            type="checkbox"
+                            value={color}
+                            className="sr-only"
+                            onChange={() => toggleColor(color)}
+                            checked={colors.includes(color)}
+                          />
+                          <div className={`w-4 h-4 lg:w-5 lg:h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${colors.includes(color)
+                            ? 'border-transparent bg-gradient-to-r from-pink-500 to-purple-600'
+                            : 'border-gray-300 group-hover:border-pink-400'
+                            }`}>
+                            {colors.includes(color) && (
+                              <svg className="w-2 h-2 lg:w-2.5 lg:h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 lg:gap-3">
+                            <div
+                              className="w-6 h-6 lg:w-8 lg:h-8 rounded-md border border-gray-200"
+                              style={{ backgroundColor: colorMap[color] || '#000000' }}
+                            >
+                              {colorMap[color] === '#FFFFFF' && (
+                                <div className="w-full h-full border border-gray-300 rounded-md"></div>
+                              )}
+                            </div>
+                            <span className={`font-semibold text-xs lg:text-sm transition-colors duration-300 ${colors.includes(color) ? 'text-pink-600' : 'text-gray-700'
+                              }`}>{color}</span>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-500 bg-gradient-to-r from-gray-100 to-gray-200 px-1.5 lg:px-2 py-0.5 rounded-full font-medium">
+                          {products.filter(p => p.colors && p.colors.includes(color)).length}
+                        </span>
+                      </label>
+                    )) : (
+                      <p className="text-xs text-gray-500 text-center py-4">No color options available</p>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -659,6 +749,82 @@ const Collection = () => {
                           </div>
                         </label>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* Color Filter */}
+                  <div className="mb-6">
+                    <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full"></div>
+                      Colors
+                    </h3>
+                    <div className="space-y-2">
+                      {(() => {
+                        // Get unique colors from all products
+                        const allColors = products.reduce((acc, product) => {
+                          if (product.colors && Array.isArray(product.colors)) {
+                            return [...acc, ...product.colors];
+                          }
+                          return acc;
+                        }, []);
+                        const uniqueColors = [...new Set(allColors)];
+
+                        const colorMap = {
+                          'Black': '#000000',
+                          'White': '#FFFFFF',
+                          'Red': '#EF4444',
+                          'Blue': '#3B82F6',
+                          'Green': '#10B981',
+                          'Yellow': '#F59E0B',
+                          'Purple': '#8B5CF6',
+                          'Pink': '#EC4899',
+                          'Orange': '#F97316',
+                          'Gray': '#6B7280',
+                          'Navy': '#1E40AF',
+                          'Brown': '#92400E'
+                        };
+
+                        return uniqueColors.length > 0 ? uniqueColors.map((color) => (
+                          <label key={color} className="flex items-center justify-between cursor-pointer group p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-300 border border-transparent hover:border-pink-200">
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="checkbox"
+                                value={color}
+                                className="sr-only"
+                                onChange={() => toggleColor(color)}
+                                checked={colors.includes(color)}
+                              />
+                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${colors.includes(color)
+                                ? 'border-transparent bg-gradient-to-r from-pink-500 to-purple-600'
+                                : 'border-gray-300 group-hover:border-pink-400'
+                                }`}>
+                                {colors.includes(color) && (
+                                  <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className="w-8 h-8 rounded-md border border-gray-200"
+                                  style={{ backgroundColor: colorMap[color] || '#000000' }}
+                                >
+                                  {colorMap[color] === '#FFFFFF' && (
+                                    <div className="w-full h-full border border-gray-300 rounded-md"></div>
+                                  )}
+                                </div>
+                                <span className={`font-semibold text-sm transition-colors duration-300 ${colors.includes(color) ? 'text-pink-600' : 'text-gray-700'
+                                  }`}>{color}</span>
+                              </div>
+                            </div>
+                            <span className="text-xs text-gray-500 bg-gradient-to-r from-gray-100 to-gray-200 px-2 py-0.5 rounded-full font-medium">
+                              {products.filter(p => p.colors && p.colors.includes(color)).length}
+                            </span>
+                          </label>
+                        )) : (
+                          <p className="text-xs text-gray-500 text-center py-4">No color options available</p>
+                        );
+                      })()}
                     </div>
                   </div>
 
@@ -837,6 +1003,7 @@ const Collection = () => {
                     onClick={() => {
                       setCategory('');
                       setSubCategory([]);
+                      setColors([]);
                     }}
                     className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm lg:text-base"
                   >

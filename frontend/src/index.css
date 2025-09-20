@@ -299,6 +299,10 @@ a.active hr {
     /* Safari and Chrome */
 }
 
+.swiper {
+    overflow: visible !important;
+}
+
 /* Custom Swiper styles for Customer Reviews slider */
 .swiper-pagination-bullet {
     background: #d1d5db !important;
