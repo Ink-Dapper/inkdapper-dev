@@ -321,7 +321,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
                   {/* Offer Percentage Badge */}
                   {offerPercentage > 0 && (
-                    <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded-full shadow-lg border border-white/20 backdrop-blur-sm">
+                    <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-[2px] rounded-full shadow-lg border border-white/20 backdrop-blur-sm flex items-center justify-center">
                       <span className="text-sm font-semibold text-white">
                         -{offerPercentage}%
                       </span>

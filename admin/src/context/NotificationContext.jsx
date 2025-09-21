@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { ShopContext } from './ShopContext';
 
 const NotificationContext = createContext();
 
@@ -9,21 +10,29 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [socket, setSocket] = useState(null);
+  const { token } = useContext(ShopContext);
 
   useEffect(() => {
     // Temporarily disable socket connection for development
     // TODO: Add Socket.IO to backend server when needed
 
-    // Load existing notifications
-    fetchNotifications();
-  }, []);
+    // Load existing notifications only if authenticated
+    if (token) {
+      fetchNotifications();
+    }
+  }, [token]);
 
   // Use relative URLs to leverage Vite proxy in development
   const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'https://api.inkdapper.com');
 
   const fetchNotifications = async () => {
+    if (!token) {
+      return; // Don't fetch if not authenticated
+    }
     try {
-      const response = await axios.get(`${backendUrl}/api/notifications`);
+      const response = await axios.get(`${backendUrl}/api/notifications`, {
+        headers: { token }
+      });
       if (response.data.success) {
         setNotifications(response.data.notifications);
         setUnreadCount(response.data.notifications.filter(n => !n.isRead).length);
@@ -34,9 +43,14 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const markAsRead = async (notificationId) => {
+    if (!token) {
+      return; // Don't mark as read if not authenticated
+    }
     try {
       const response = await axios.put(
-        `${backendUrl}/api/notifications/${notificationId}/read`
+        `${backendUrl}/api/notifications/${notificationId}/read`,
+        {},
+        { headers: { token } }
       );
       if (response.data.success) {
         setNotifications(prev =>

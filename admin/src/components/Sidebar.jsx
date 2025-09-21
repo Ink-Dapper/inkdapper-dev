@@ -10,7 +10,9 @@ import {
   RotateCcw,
   XCircle,
   Mail,
-  Tag
+  Tag,
+  Star,
+  Droplets
 } from 'lucide-react'
 
 const Sidebar = () => {
@@ -155,6 +157,34 @@ const Sidebar = () => {
         >
           <XCircle className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Cancel Orders</span>
+        </NavLink>
+
+        {/* Highlighted Products */}
+        <NavLink
+          to='/highlighted-products'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <Star className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Highlighted Products</span>
+        </NavLink>
+
+        {/* Acid Wash Products */}
+        <NavLink
+          to='/acid-wash-products'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <Droplets className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Acid Wash Products</span>
         </NavLink>
 
         {/* Coupons */}

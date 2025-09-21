@@ -20,6 +20,8 @@ import CancelOrderCompleted from './pages/CancelOrderCompleted'
 import BannerList from './pages/BannerList'
 import NewsletterSubscribers from './pages/NewsletterSubscribers'
 import Coupons from './pages/Coupons'
+import HighlightedProducts from './pages/HighlightedProducts'
+import AcidWashProducts from './pages/AcidWashProducts'
 import { NotificationProvider } from './context/NotificationContext';
 
 // Use relative URLs to leverage Vite proxy in development
@@ -79,6 +81,8 @@ const App = () => {
                   <Route path="/banner-list" element={<BannerList token={token} />} />
                   <Route path="/banner-images" element={<BannerImages token={token} />} />
                   <Route path="/newsletter-subscribers" element={<NewsletterSubscribers token={token} />} />
+                  <Route path="/highlighted-products" element={<HighlightedProducts token={token} />} />
+                  <Route path="/acid-wash-products" element={<AcidWashProducts token={token} />} />
                   <Route path="/coupons" element={<Coupons token={token} />} />
                 </Routes>
               </div>

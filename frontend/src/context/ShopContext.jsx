@@ -41,6 +41,7 @@ const ShopContextProvider = (props) => {
   const [couponDiscount, setCouponDiscount] = useState(0)
   const [recentlyViewed, setRecentlyViewed] = useState([])
   const [recentlyViewedTimeout, setRecentlyViewedTimeout] = useState(null)
+  const [highlightedProducts, setHighlightedProducts] = useState([])
 
   const fetchUsersDetails = async () => {
     try {
@@ -520,6 +521,19 @@ const ShopContextProvider = (props) => {
     return [];
   };
 
+  const fetchHighlightedProducts = async () => {
+    try {
+      const response = await apiInstance.get('/highlighted-products');
+      if (response.data.success) {
+        setHighlightedProducts(response.data.highlightedProducts);
+      } else {
+        console.error('Failed to fetch highlighted products:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching highlighted products:', error);
+    }
+  };
+
   const getFinalAmount = () => {
     const cartAmount = getCartAmount();
     const multiProductDiscount = getMultiProductDiscount();
@@ -537,6 +551,7 @@ const ShopContextProvider = (props) => {
     getProductsData();
     fetchReviewList();
     getRecentlyViewed();
+    fetchHighlightedProducts();
   }, [token]);
 
   useEffect(() => {
@@ -579,7 +594,8 @@ const ShopContextProvider = (props) => {
     updateCustomQuantity, customDataArray, getCreditScore,
     fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
     couponDiscount, getFinalAmount, hasMultipleProducts, getMultiProductDiscount,
-    recentlyViewed, addToRecentlyViewed, getRecentlyViewed
+    recentlyViewed, addToRecentlyViewed, getRecentlyViewed,
+    highlightedProducts, fetchHighlightedProducts
   }
 
   if (!isContextReady) {

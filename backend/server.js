@@ -13,6 +13,8 @@ import couponRouter from './routes/couponRoute.js'
 import bodyParser from 'body-parser';
 import newsLetterRoute from './routes/newsLetterRoute.js'
 import emailRouter from './routes/emailRoute.js'
+import highlightedProductRouter from './routes/highlightedProductRoute.js'
+import notificationRouter from './routes/notificationRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import adminAuth from './middleware/adminAuth.js'
@@ -155,19 +157,21 @@ app.get('/api/newsletter/test', (req, res) => {
   });
 });
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '../frontend/dist'), {
-  index: false,
-  setHeaders: (res, path) => {
-    if (path.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache');
-    } else if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
+// Serve static files only in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/dist'), {
+    index: false,
+    setHeaders: (res, path) => {
+      if (path.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache');
+      } else if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
     }
-  }
-}));
+  }));
+}
 
 //api endpoints
 app.use('/api/user', userRouter)
@@ -179,6 +183,8 @@ app.use('/api/review', reviewRouter)
 app.use('/api/coupon', couponRouter)
 app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
+app.use('/api/highlighted-products', highlightedProductRouter)
+app.use('/api/notifications', notificationRouter)
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {
@@ -210,14 +216,16 @@ app.get('/sitemap-main.xml', (req, res) => {
     });
 });
 
-// Handle all other routes for SPA
-app.get('*', (req, res) => {
+// Handle all other routes for SPA only in production
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'), {
       headers: {
         'Cache-Control': 'no-cache'
       }
     });
-});
+  });
+}
 
 // Global error handler
 app.use((err, req, res, next) => {
