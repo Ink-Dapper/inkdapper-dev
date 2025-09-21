@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="/ink_dapper_logo_white.svg"
-    >
+    <!-- Favicon for different devices -->
+    <link rel="icon" type="image/svg+xml" href="/ink_dapper_logo.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/ink_dapper_logo.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="/ink_dapper_logo.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/ink_dapper_logo.svg">
+    <link rel="manifest" href="/site.webmanifest">
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"
@@ -47,11 +48,35 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="googlebot" content="index, follow">
     <meta name="author" content="Ink Dapper">
+    <meta name="application-name" content="Ink Dapper">
+    <meta name="apple-mobile-web-app-title" content="Ink Dapper">
+    <meta name="msapplication-TileColor" content="#f97316">
+    <meta name="msapplication-TileImage" content="/ink_dapper_logo.svg">
     <meta name="keywords" content="oversized t-shirts, acid wash tees, custom t-shirts, street style, fashion, clothing, custom oversized clothing, solid color tees, Inkdapper">
     <meta name="geo.region" content="IN">
     <meta name="geo.placename" content="India">
     <meta name="geo.position" content="20.5937;78.9629">
     <meta name="ICBM" content="20.5937, 78.9629">
+    
+    <!-- Structured Data for Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Ink Dapper",
+      "url": "https://www.inkdapper.com",
+      "logo": "https://www.inkdapper.com/ink_dapper_logo.svg",
+      "description": "Ink Dapper specializes in oversized t-shirts, acid wash tees, custom oversized clothing, and solid color tees. Redefine your street style today!",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "IN",
+        "addressRegion": "Tamil Nadu"
+      },
+      "sameAs": [
+        "https://www.inkdapper.com"
+      ]
+    }
+    </script>
     
     <!-- Preload critical resources -->
     <link rel="preload" href="/src/assets/logo_only.png" as="image" type="image/png" fetchpriority="high">

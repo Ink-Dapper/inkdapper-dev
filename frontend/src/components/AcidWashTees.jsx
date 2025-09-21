@@ -2,10 +2,11 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import ProductItem from './ProductItem'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Pagination } from 'swiper/modules'
+import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
+import 'swiper/css/autoplay'
 import '../styles/swiper-custom.css'
 import { Droplets, Zap, Sparkles } from 'lucide-react'
 
@@ -37,6 +38,13 @@ const AcidWashTees = () => {
     setAcidWashProducts(filteredProducts)
     setLoading(false)
   }, [products])
+
+  // Ensure swiper starts at first slide when products change
+  useEffect(() => {
+    if (swiper && acidWashProducts.length > 0) {
+      swiper.slideTo(0, 0);
+    }
+  }, [swiper, acidWashProducts])
 
   const handlePrevSlide = () => {
     if (swiper) {
@@ -181,11 +189,31 @@ const AcidWashTees = () => {
         {isMobile && acidWashProducts.length > 0 && (
           <div className="md:hidden relative mb-8">
             <Swiper
-              modules={[Navigation, Pagination]}
+              key={`acid-wash-swiper-${acidWashProducts.length}`}
+              modules={[Navigation, Pagination, Autoplay]}
               spaceBetween={20}
               slidesPerView={1.3}
               centeredSlides={true}
-              loop={acidWashProducts.length > 2}
+              loop={acidWashProducts.length > 1}
+              loopFillGroupWithBlank={false}
+              allowTouchMove={true}
+              grabCursor={true}
+              speed={300}
+              initialSlide={0}
+              loopPreventsSlide={false}
+              loopPreventsSliding={false}
+              loopAdditionalSlides={1}
+              loopedSlides={1}
+              autoplay={acidWashProducts.length > 1 ? {
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+                reverseDirection: false
+              } : false}
+              navigation={{
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+              }}
               pagination={{
                 clickable: true,
                 dynamicBullets: true,
@@ -196,6 +224,18 @@ const AcidWashTees = () => {
               className="acid-wash-swiper w-full px-2"
               style={{ paddingBottom: '40px' }}
               onSwiper={setSwiper}
+              onInit={(swiper) => {
+                // Ensure we start at the first slide
+                swiper.slideTo(0, 0);
+                // Enable loop properly
+                if (swiper.loopedSlides) {
+                  swiper.loopCreate();
+                }
+              }}
+              onLoopFix={(swiper) => {
+                // Fix loop positioning
+                swiper.slideTo(0, 0);
+              }}
             >
               {acidWashProducts.map((item, index) => (
                 <SwiperSlide key={index}>
@@ -219,28 +259,35 @@ const AcidWashTees = () => {
             </Swiper>
 
             {/* Custom Navigation Buttons */}
-            <div className="flex justify-center items-center gap-4 mt-4">
+            <div className="flex justify-center items-center gap-6 mt-6">
               <button
                 onClick={handlePrevSlide}
-                className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+                className="swiper-button-prev group flex items-center justify-center w-12 h-12 bg-white border-2 border-orange-200 text-orange-500 rounded-full shadow-lg hover:shadow-xl hover:border-orange-400 hover:bg-orange-50 transition-all duration-300 transform hover:scale-110 active:scale-95"
                 aria-label="Previous acid wash products"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg className="w-6 h-6 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
-              <span className="text-sm text-gray-600 font-medium">
-                Swipe to see all {acidWashProducts.length} acid wash tees
-              </span>
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-sm text-gray-600 font-medium">
+                  Swipe to see all {acidWashProducts.length} acid wash tees
+                </span>
+                <div className="flex gap-1">
+                  {acidWashProducts.map((_, index) => (
+                    <div key={index} className="w-2 h-2 bg-orange-300 rounded-full"></div>
+                  ))}
+                </div>
+              </div>
 
               <button
                 onClick={handleNextSlide}
-                className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+                className="swiper-button-next group flex items-center justify-center w-12 h-12 bg-white border-2 border-orange-200 text-orange-500 rounded-full shadow-lg hover:shadow-xl hover:border-orange-400 hover:bg-orange-50 transition-all duration-300 transform hover:scale-110 active:scale-95"
                 aria-label="Next acid wash products"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="w-6 h-6 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
