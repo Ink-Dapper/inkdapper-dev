@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { ShopContext } from '../context/ShopContext';
 import { teesCollection } from '../assets/assets';
 import { detectDominantColor, getColorByIndex } from '../utils/colorDetection';
+import ErrorBoundary from './ErrorBoundary';
 
 // Fallback slides for when no banners are available
 const fallbackSlides = [
@@ -22,7 +23,10 @@ const Slider = ({ onColorChange }) => {
   const [imagesLoaded, setImagesLoaded] = useState({});
   const [isHovered, setIsHovered] = useState(false);
   const [detectedColors, setDetectedColors] = useState({});
+  const [hasError, setHasError] = useState(false);
   const sliderRef = useRef(null);
+  const intervalRef = useRef(null);
+  const isMountedRef = useRef(true);
 
   // Function to detect color from image filename or data
   const detectColorFromImage = async (imageData, imageIndex = 0) => {
@@ -162,16 +166,65 @@ const Slider = ({ onColorChange }) => {
   useEffect(() => {
     if (sliderImagesList.length === 0) return;
     if (isHovered) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === sliderImagesList.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 4000);
-    return () => clearInterval(interval);
+    if (!isMountedRef.current) return;
+
+    try {
+      // Clear existing interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+
+      intervalRef.current = setInterval(() => {
+        if (!isMountedRef.current) return;
+
+        setCurrentIndex((prevIndex) => {
+          if (!isMountedRef.current) return prevIndex;
+          return prevIndex === sliderImagesList.length - 1 ? 0 : prevIndex + 1;
+        });
+      }, 4000);
+    } catch (error) {
+      console.warn('Error setting up auto-slide:', error);
+      setHasError(true);
+    }
+
+    return () => {
+      try {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      } catch (error) {
+        console.warn('Error clearing interval:', error);
+      }
+    };
   }, [sliderImagesList, isHovered]);
 
   useEffect(() => {
     sliderImages();
+  }, []);
+
+  // Comprehensive cleanup effect
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+
+      try {
+        // Clear interval
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+
+        // Clear refs
+        if (sliderRef.current) {
+          sliderRef.current = null;
+        }
+      } catch (error) {
+        console.warn('Error during Slider cleanup:', error);
+      }
+    };
   }, []);
 
   // Keyboard navigation
@@ -185,9 +238,23 @@ const Slider = ({ onColorChange }) => {
 
   useEffect(() => {
     const ref = sliderRef.current;
-    if (ref) {
-      ref.addEventListener('keydown', handleKeyDown);
-      return () => ref.removeEventListener('keydown', handleKeyDown);
+    if (ref && isMountedRef.current) {
+      try {
+        ref.addEventListener('keydown', handleKeyDown);
+      } catch (error) {
+        console.warn('Error adding event listener:', error);
+        setHasError(true);
+      }
+
+      return () => {
+        try {
+          if (ref && ref.removeEventListener && isMountedRef.current) {
+            ref.removeEventListener('keydown', handleKeyDown);
+          }
+        } catch (error) {
+          console.warn('Error removing event listener:', error);
+        }
+      };
     }
   }, [handleKeyDown]);
 
@@ -207,9 +274,29 @@ const Slider = ({ onColorChange }) => {
     );
   };
 
-  const goToSlide = (idx) => setCurrentIndex(idx);
+  const goToSlide = (idx) => {
+    try {
+      if (isMountedRef.current) {
+        setCurrentIndex(idx);
+      }
+    } catch (error) {
+      console.warn('Error changing slide:', error);
+    }
+  };
 
-  // Overlay removed for clean image-focused design
+  // Error fallback
+  if (hasError) {
+    return (
+      <div className="relative w-full max-w-6xl mx-auto rounded-2xl shadow-2xl overflow-hidden bg-gray-100">
+        <div className="h-[300px] md:h-[500px] flex items-center justify-center">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Slider Error</h3>
+            <p className="text-gray-500">Unable to load slider content</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -293,4 +380,13 @@ const Slider = ({ onColorChange }) => {
   );
 };
 
-export default Slider;
+// Wrap Slider with ErrorBoundary
+const SliderWithErrorBoundary = (props) => {
+  return (
+    <ErrorBoundary>
+      <Slider {...props} />
+    </ErrorBoundary>
+  );
+};
+
+export default SliderWithErrorBoundary;

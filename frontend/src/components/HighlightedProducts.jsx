@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
-import ProductItem from './ProductItem'
+import ProductItem from './ProductItemWrapper'
 import { Star, Sparkles, Zap } from 'lucide-react'
 
 const HighlightedProducts = () => {

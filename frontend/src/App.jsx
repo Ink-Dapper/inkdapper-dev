@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,6 +9,8 @@ import SkeletonLoader from './components/SkeletonLoader';
 import ScrollToTop from './components/ScrollToTop';
 import Chatbot from './components/Chatbot';
 import NotFound from './pages/NotFound';
+import { setupGlobalErrorHandling } from './utils/errorHandler';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Lazy load modals
 const NewsletterModal = lazy(() => import('./components/NewsletterModal'));
@@ -45,6 +47,11 @@ const prefetchRoute = (importFn) => {
 };
 
 const App = () => {
+  // Initialize global error handling
+  useEffect(() => {
+    setupGlobalErrorHandling();
+  }, []);
+
   return (
     <div className="app-container">
       {/* Global Background */}
@@ -61,38 +68,40 @@ const App = () => {
       <div className="relative z-10 px-3 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
         <ToastContainer />
         <Navbar />
-        <Suspense fallback={<SkeletonLoader />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/collection" element={<Collection />} />
-            <Route path="/custom" element={<Custom />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/product/:productId/:slug" element={<Product />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/place-order" element={<PlaceOrder />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/order-details/:productId" element={<OrderDetails />} />
-            <Route path="/review-page" element={<ReviewViewMore />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-            <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
-            <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
-            <Route path="/chatbot" element={<ChatbotPage />} />
-            <Route path="/jobs" element={<JobExplore />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-        <Footer />
-        <ScrollToTop />
-        <Chatbot />
-        <Suspense fallback={null}>
-          <NewsletterModal />
-          <PriceOfferModal />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<SkeletonLoader />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/collection" element={<Collection />} />
+              <Route path="/custom" element={<Custom />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/product/:productId/:slug" element={<Product />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/place-order" element={<PlaceOrder />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/order-details/:productId" element={<OrderDetails />} />
+              <Route path="/review-page" element={<ReviewViewMore />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+              <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
+              <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
+              <Route path="/chatbot" element={<ChatbotPage />} />
+              <Route path="/jobs" element={<JobExplore />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+          <Footer />
+          <ScrollToTop />
+          <Chatbot />
+          <Suspense fallback={null}>
+            <NewsletterModal />
+            <PriceOfferModal />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   );

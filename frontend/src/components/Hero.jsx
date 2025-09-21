@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 const Hero = () => {
     const [currentColor, setCurrentColor] = useState("teal");
+    const [hasError, setHasError] = useState(false);
 
     // Color mapping for different T-shirt colors with actual CSS values
     const colorMap = {
@@ -84,7 +85,12 @@ const Hero = () => {
     const colors = colorMap[currentColor] || colorMap.teal;
 
     const handleColorChange = (color) => {
-        setCurrentColor(color);
+        try {
+            setCurrentColor(color);
+        } catch (error) {
+            console.warn('Error changing color:', error);
+            setHasError(true);
+        }
     };
 
     // Force re-render when color changes
@@ -104,6 +110,33 @@ const Hero = () => {
         const darkColors = ['black', 'navy-blue', 'brown', 'coffee'];
         return darkColors.includes(colorName) ? '#ffffff' : '#1f2937';
     };
+
+    // Error fallback
+    if (hasError) {
+        return (
+            <div className="relative flex flex-col-reverse md:flex-row items-center justify-between bg-gradient-to-r from-orange-100 via-white to-orange-50 rounded-xl shadow-lg overflow-hidden p-6 md:p-12 mb-8">
+                <div className="w-full md:w-1/2 flex flex-col items-start justify-center gap-2 md:gap-6 z-10">
+                    <h1 className="text-3xl md:text-6xl font-extrabold text-gray-800 leading-tight">
+                        Ink Dapper
+                    </h1>
+                    <p className="text-lg md:text-xl text-gray-600 mb-6">
+                        Redefine Your Street Style
+                    </p>
+                    <Link
+                        to="/collection"
+                        className="inline-block px-8 py-3 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors"
+                    >
+                        🛒 Shop Now
+                    </Link>
+                </div>
+                <div className="w-full md:w-1/2 flex items-center justify-center">
+                    <div className="w-full h-64 bg-gray-200 rounded-2xl flex items-center justify-center">
+                        <span className="text-gray-500">Image Loading...</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative flex flex-col-reverse md:flex-row items-center justify-between bg-gradient-to-r from-orange-100 via-white to-orange-50 rounded-xl shadow-lg overflow-hidden p-6 md:p-12 mb-8">

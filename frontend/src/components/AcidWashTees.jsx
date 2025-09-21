@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
-import ProductItem from './ProductItem'
+import ProductItem from './ProductItemWrapper'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Pagination, Autoplay } from 'swiper/modules'
+import { Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import 'swiper/css/autoplay'
 import '../styles/swiper-custom.css'
 import { Droplets, Zap, Sparkles } from 'lucide-react'
 
@@ -26,6 +25,7 @@ const AcidWashTees = () => {
   const [acidWashProducts, setAcidWashProducts] = useState([])
   const [swiper, setSwiper] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [swiperError, setSwiperError] = useState(false)
   const isMobile = useIsMobile()
 
   useEffect(() => {
@@ -42,19 +42,57 @@ const AcidWashTees = () => {
   // Ensure swiper starts at first slide when products change
   useEffect(() => {
     if (swiper && acidWashProducts.length > 0) {
-      swiper.slideTo(0, 0);
+      try {
+        console.log('Swiper initialized with', acidWashProducts.length, 'products');
+        // Reset to first slide
+        swiper.slideTo(0, 0);
+      } catch (error) {
+        console.warn('Error initializing swiper:', error);
+      }
     }
   }, [swiper, acidWashProducts])
 
+  // Cleanup swiper on unmount
+  useEffect(() => {
+    return () => {
+      if (swiper && swiper.destroy) {
+        try {
+          swiper.destroy(true, true);
+        } catch (error) {
+          console.warn('Error destroying swiper:', error);
+        }
+      }
+    };
+  }, [swiper])
+
+  // Debug swiper state
+  useEffect(() => {
+    console.log('Swiper state:', { swiper: !!swiper, products: acidWashProducts.length });
+  }, [swiper, acidWashProducts])
+
   const handlePrevSlide = () => {
-    if (swiper) {
-      swiper.slidePrev();
+    try {
+      if (swiper && swiper.slidePrev) {
+        console.log('Previous slide clicked');
+        swiper.slidePrev();
+      } else {
+        console.log('Swiper not initialized or slidePrev not available');
+      }
+    } catch (error) {
+      console.warn('Error navigating to previous slide:', error);
     }
   };
 
   const handleNextSlide = () => {
-    if (swiper) {
-      swiper.slideNext();
+    try {
+      if (swiper && swiper.slideNext) {
+        console.log('Next slide clicked');
+        swiper.slideNext();
+      } else {
+        console.log('Swiper not initialized or slideNext not available');
+      }
+    } catch (error) {
+      console.warn('Error navigating to next slide:', error);
     }
   };
 
@@ -159,27 +197,38 @@ const AcidWashTees = () => {
         </div>
 
         {/* Desktop Products Grid */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 mb-12">
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-8 md:mb-12 relative">
+          {/* Grid background pattern */}
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
           {acidWashProducts.map((item, index) => (
             <div
               key={index}
-              className="group transform transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+              className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
               style={{
-                animationDelay: `${index * 100}ms`
+                animationDelay: `${index * 150}ms`
               }}
             >
-              <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100">
-                <ProductItem
-                  id={item._id}
-                  image={item.image}
-                  name={item.name}
-                  price={item.price}
-                  beforePrice={item.beforePrice}
-                  soldout={item.soldout}
-                  subCategory={item.subCategory}
-                  slug={item.slug}
-                  bestseller={item.bestseller}
-                />
+              {/* Bright Shadow Wrapper */}
+              <div className="relative">
+                {/* Bright colored shadows */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
+
+                {/* Main card with enhanced shadows */}
+                <div className="relative">
+                  <ProductItem
+                    id={item._id}
+                    image={item.image}
+                    name={item.name}
+                    price={item.price}
+                    beforePrice={item.beforePrice}
+                    soldout={item.soldout}
+                    subCategory={item.subCategory}
+                    slug={item.slug}
+                    bestseller={item.bestseller}
+                  />
+                </div>
               </div>
             </div>
           ))}
@@ -188,109 +237,120 @@ const AcidWashTees = () => {
         {/* Mobile Slider View */}
         {isMobile && acidWashProducts.length > 0 && (
           <div className="md:hidden relative mb-8">
-            <Swiper
-              key={`acid-wash-swiper-${acidWashProducts.length}`}
-              modules={[Navigation, Pagination, Autoplay]}
-              spaceBetween={20}
-              slidesPerView={1.3}
-              centeredSlides={true}
-              loop={acidWashProducts.length > 1}
-              loopFillGroupWithBlank={false}
-              allowTouchMove={true}
-              grabCursor={true}
-              speed={300}
-              initialSlide={0}
-              loopPreventsSlide={false}
-              loopPreventsSliding={false}
-              loopAdditionalSlides={1}
-              loopedSlides={1}
-              autoplay={acidWashProducts.length > 1 ? {
-                delay: 3000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true,
-                reverseDirection: false
-              } : false}
-              navigation={{
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-              }}
-              pagination={{
-                clickable: true,
-                dynamicBullets: true,
-                renderBullet: function (index, className) {
-                  return '<span class="' + className + ' bg-orange-500"></span>';
-                }
-              }}
-              className="acid-wash-swiper w-full px-2"
-              style={{ paddingBottom: '40px' }}
-              onSwiper={setSwiper}
-              onInit={(swiper) => {
-                // Ensure we start at the first slide
-                swiper.slideTo(0, 0);
-                // Enable loop properly
-                if (swiper.loopedSlides) {
-                  swiper.loopCreate();
-                }
-              }}
-              onLoopFix={(swiper) => {
-                // Fix loop positioning
-                swiper.slideTo(0, 0);
-              }}
-            >
-              {acidWashProducts.map((item, index) => (
-                <SwiperSlide key={index}>
-                  <div className="group transform transition-all duration-300 hover:scale-105">
-                    <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
+            {/* Grid background pattern */}
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
+
+            {acidWashProducts.length === 1 ? (
+              // Single product - no swiper needed
+              <div className="w-full px-2">
+                <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp">
+                  <div className="relative">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
+                    <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
+                    <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
+                    <div className="relative">
                       <ProductItem
-                        id={item._id}
-                        name={item.name}
-                        image={item.image}
-                        price={item.price}
-                        beforePrice={item.beforePrice}
-                        soldout={item.soldout}
-                        subCategory={item.subCategory}
-                        slug={item.slug}
-                        bestseller={item.bestseller}
+                        id={acidWashProducts[0]._id}
+                        name={acidWashProducts[0].name}
+                        image={acidWashProducts[0].image}
+                        price={acidWashProducts[0].price}
+                        beforePrice={acidWashProducts[0].beforePrice}
+                        soldout={acidWashProducts[0].soldout}
+                        subCategory={acidWashProducts[0].subCategory}
+                        slug={acidWashProducts[0].slug}
+                        bestseller={acidWashProducts[0].bestseller}
                       />
                     </div>
                   </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-
-            {/* Custom Navigation Buttons */}
-            <div className="flex justify-center items-center gap-6 mt-6">
-              <button
-                onClick={handlePrevSlide}
-                className="swiper-button-prev group flex items-center justify-center w-12 h-12 bg-white border-2 border-orange-200 text-orange-500 rounded-full shadow-lg hover:shadow-xl hover:border-orange-400 hover:bg-orange-50 transition-all duration-300 transform hover:scale-110 active:scale-95"
-                aria-label="Previous acid wash products"
+                </div>
+              </div>
+            ) : (
+              <Swiper
+                key={`acid-wash-swiper-${acidWashProducts.length}`}
+                modules={[Navigation, Pagination]}
+                spaceBetween={20}
+                slidesPerView={acidWashProducts.length === 2 ? 1.2 : 1.3}
+                centeredSlides={true}
+                loop={acidWashProducts.length > 3}
+                pagination={{
+                  clickable: true,
+                  dynamicBullets: true,
+                  renderBullet: function (index, className) {
+                    return '<span class="' + className + ' bg-orange-500"></span>';
+                  }
+                }}
+                className="acid-wash-swiper w-full px-2"
+                style={{ paddingBottom: '40px' }}
+                onSwiper={(swiperInstance) => {
+                  try {
+                    setSwiper(swiperInstance);
+                    setSwiperError(false);
+                  } catch (error) {
+                    console.warn('Error setting swiper instance:', error);
+                    setSwiperError(true);
+                  }
+                }}
               >
-                <svg className="w-6 h-6 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+                {acidWashProducts.map((item, index) => (
+                  <SwiperSlide key={index}>
+                    <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
+                      style={{ animationDelay: `${index * 150}ms` }}>
+                      {/* Bright Shadow Wrapper */}
+                      <div className="relative">
+                        {/* Bright colored shadows */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
 
-              <div className="flex flex-col items-center gap-2">
+                        {/* Main card with enhanced shadows */}
+                        <div className="relative">
+                          <ProductItem
+                            id={item._id}
+                            name={item.name}
+                            image={item.image}
+                            price={item.price}
+                            beforePrice={item.beforePrice}
+                            soldout={item.soldout}
+                            subCategory={item.subCategory}
+                            slug={item.slug}
+                            bestseller={item.bestseller}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
+
+            {/* Custom Navigation Buttons - Only show if more than 1 product */}
+            {acidWashProducts.length > 1 && (
+              <div className="flex justify-center items-center gap-4 mt-4">
+                <button
+                  onClick={handlePrevSlide}
+                  className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+                  aria-label="Previous acid wash products"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
                 <span className="text-sm text-gray-600 font-medium">
                   Swipe to see all {acidWashProducts.length} acid wash tees
                 </span>
-                <div className="flex gap-1">
-                  {acidWashProducts.map((_, index) => (
-                    <div key={index} className="w-2 h-2 bg-orange-300 rounded-full"></div>
-                  ))}
-                </div>
-              </div>
 
-              <button
-                onClick={handleNextSlide}
-                className="swiper-button-next group flex items-center justify-center w-12 h-12 bg-white border-2 border-orange-200 text-orange-500 rounded-full shadow-lg hover:shadow-xl hover:border-orange-400 hover:bg-orange-50 transition-all duration-300 transform hover:scale-110 active:scale-95"
-                aria-label="Next acid wash products"
-              >
-                <svg className="w-6 h-6 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
+                <button
+                  onClick={handleNextSlide}
+                  className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
+                  aria-label="Next acid wash products"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
