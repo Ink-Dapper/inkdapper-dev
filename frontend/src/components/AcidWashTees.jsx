@@ -8,6 +8,8 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import '../styles/swiper-custom.css'
 import { Droplets, Zap, Sparkles } from 'lucide-react'
+import SwiperErrorBoundary from './SwiperErrorBoundary'
+import { ensureDOMReady, safeSwiperInit } from '../utils/swiperUtils'
 
 // Add this hook to detect screen size
 function useIsMobile() {
@@ -151,7 +153,7 @@ const AcidWashTees = () => {
   }
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-white to-red-50 relative overflow-hidden">
+    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-white to-red-50 relative overflow-hidden acid-wash-tees">
       {/* Simple Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20"></div>
 
@@ -265,62 +267,108 @@ const AcidWashTees = () => {
                 </div>
               </div>
             ) : (
-              <Swiper
-                key={`acid-wash-swiper-${acidWashProducts.length}`}
-                modules={[Navigation, Pagination]}
-                spaceBetween={20}
-                slidesPerView={acidWashProducts.length === 2 ? 1.2 : 1.3}
-                centeredSlides={true}
-                loop={acidWashProducts.length > 3}
-                pagination={{
-                  clickable: true,
-                  dynamicBullets: true,
-                  renderBullet: function (index, className) {
-                    return '<span class="' + className + ' bg-orange-500"></span>';
-                  }
-                }}
-                className="acid-wash-swiper w-full px-2"
-                style={{ paddingBottom: '40px' }}
-                onSwiper={(swiperInstance) => {
-                  try {
-                    setSwiper(swiperInstance);
-                    setSwiperError(false);
-                  } catch (error) {
-                    console.warn('Error setting swiper instance:', error);
-                    setSwiperError(true);
-                  }
-                }}
-              >
-                {acidWashProducts.map((item, index) => (
-                  <SwiperSlide key={index}>
-                    <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
-                      style={{ animationDelay: `${index * 150}ms` }}>
-                      {/* Bright Shadow Wrapper */}
-                      <div className="relative">
-                        {/* Bright colored shadows */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
-                        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
-                        <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
-
-                        {/* Main card with enhanced shadows */}
+              <SwiperErrorBoundary
+                fallbackContent={
+                  <div className="grid grid-cols-1 gap-4">
+                    {acidWashProducts.map((item, index) => (
+                      <div key={index} className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
+                        style={{ animationDelay: `${index * 150}ms` }}>
                         <div className="relative">
-                          <ProductItem
-                            id={item._id}
-                            name={item.name}
-                            image={item.image}
-                            price={item.price}
-                            beforePrice={item.beforePrice}
-                            soldout={item.soldout}
-                            subCategory={item.subCategory}
-                            slug={item.slug}
-                            bestseller={item.bestseller}
-                          />
+                          <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
+                          <div className="relative">
+                            <ProductItem
+                              id={item._id}
+                              name={item.name}
+                              image={item.image}
+                              price={item.price}
+                              beforePrice={item.beforePrice}
+                              soldout={item.soldout}
+                              subCategory={item.subCategory}
+                              slug={item.slug}
+                              bestseller={item.bestseller}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+                    ))}
+                  </div>
+                }
+              >
+                <Swiper
+                  key={`acid-wash-swiper-${acidWashProducts.length}`}
+                  modules={[Navigation, Pagination]}
+                  spaceBetween={20}
+                  slidesPerView={acidWashProducts.length === 2 ? 1.2 : 1.3}
+                  centeredSlides={true}
+                  loop={acidWashProducts.length > 3}
+                  pagination={{
+                    clickable: true,
+                    dynamicBullets: true,
+                    renderBullet: function (index, className) {
+                      return '<span class="' + className + ' bg-orange-500"></span>';
+                    }
+                  }}
+                  className="acid-wash-swiper w-full px-2"
+                  style={{ paddingBottom: '40px' }}
+                  onSwiper={(swiperInstance) => {
+                    ensureDOMReady(() => {
+                      safeSwiperInit(
+                        swiperInstance,
+                        (swiper) => {
+                          setSwiper(swiper);
+                          setSwiperError(false);
+                        },
+                        (error) => {
+                          console.warn('Error setting swiper instance:', error);
+                          setSwiperError(true);
+                        }
+                      );
+                    });
+                  }}
+                  onInit={(swiper) => {
+                    // Ensure swiper is properly initialized
+                    if (swiper && swiper.el) {
+                      try {
+                        swiper.update();
+                      } catch (error) {
+                        console.warn('Error updating swiper:', error);
+                      }
+                    }
+                  }}
+                >
+                  {acidWashProducts.map((item, index) => (
+                    <SwiperSlide key={index}>
+                      <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
+                        style={{ animationDelay: `${index * 150}ms` }}>
+                        {/* Bright Shadow Wrapper */}
+                        <div className="relative">
+                          {/* Bright colored shadows */}
+                          <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
+
+                          {/* Main card with enhanced shadows */}
+                          <div className="relative">
+                            <ProductItem
+                              id={item._id}
+                              name={item.name}
+                              image={item.image}
+                              price={item.price}
+                              beforePrice={item.beforePrice}
+                              soldout={item.soldout}
+                              subCategory={item.subCategory}
+                              slug={item.slug}
+                              bestseller={item.bestseller}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </SwiperErrorBoundary>
             )}
 
             {/* Custom Navigation Buttons - Only show if more than 1 product */}

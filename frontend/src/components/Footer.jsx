@@ -228,7 +228,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div className='w-full mb-12 md:mb-0'>
+      <div className='w-full mb-12 md:mb-0 pb-12 md:pb-0'>
         <hr />
         <p className='py-5 text-sm text-center hidden md:block'>Copyright 2024 - {new Date().getFullYear()} © www.inkdapper.com - All Right Reserved.</p>
         <p className='py-5 text-sm text-center block md:hidden'>Copyright 2024 - {new Date().getFullYear()} © www.inkdapper.com <br /> - All Right Reserved.</p>

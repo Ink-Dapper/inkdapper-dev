@@ -53,7 +53,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="app-container">
+    <div className="app-container min-h-[98vh] md:min-h-[100vh]">
       {/* Global Background */}
       <div className="global-background">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-red-50/10 to-yellow-50/10"></div>
@@ -65,7 +65,7 @@ const App = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 px-3 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
+      <div className="relative z-10 px-3 sm:px-[4vw] md:px-[5vw] lg:px-[7vw] max-h-screen">
         <ToastContainer />
         <Navbar />
         <ErrorBoundary>

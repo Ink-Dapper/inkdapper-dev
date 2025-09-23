@@ -14,8 +14,13 @@
   border-radius: 14px;
 }
 
-.recently-viewed-section .swiper-slide {
+.recently-viewed-section .swiper-slide,
+.acid-wash-tees .swiper-slide {
   width: auto !important;
+}
+
+.acid-wash-tees .swiper-wrapper {
+  gap: 14px;
 }
 
 .swiper-slide img {
@@ -184,8 +189,8 @@
   align-items: stretch;
 }
 
-.recent-orders-swiper .swiper-slide > a,
-.buy-again-swiper .swiper-slide > a {
+.recent-orders-swiper .swiper-slide>a,
+.buy-again-swiper .swiper-slide>a {
   width: 100%;
   height: 100%;
   display: block;

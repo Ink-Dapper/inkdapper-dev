@@ -16,7 +16,6 @@ html {
 /* Global App Container */
 .app-container {
     position: relative;
-    min-height: 100vh;
     overflow-x: hidden;
 }
 
