@@ -69,7 +69,7 @@ const LatestCollection = () => {
     };
 
     return (
-        <section className='relative py-8 md:py-16 lg:py-24 overflow-hidden'>
+        <section className='relative py-8 md:py-16 lg:py-24 overflow-hidden latest-products-swiper'>
             {/* Section specific overlay for better content visibility */}
             <div className="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
 

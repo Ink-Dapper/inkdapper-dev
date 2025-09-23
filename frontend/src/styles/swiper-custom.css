@@ -15,8 +15,19 @@
 }
 
 .recently-viewed-section .swiper-slide,
-.acid-wash-tees .swiper-slide {
-  width: auto !important;
+.acid-wash-tees .swiper-slide,
+.latest-products-swiper .swiper-slide {
+  width: 255px !important;
+}
+
+.latest-products-swiper .swiper-slide {
+  margin-right: 17px !important;
+}
+
+.recently-viewed-section .swiper-slide > div,
+.acid-wash-tees .swiper-slide > div,
+.latest-products-swiper .swiper-slide > div {
+  width: 100% !important;
 }
 
 .acid-wash-tees .swiper-wrapper {
