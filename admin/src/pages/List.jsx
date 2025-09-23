@@ -4,6 +4,7 @@ import { backendUrl, currency } from '../App';
 import { toast } from 'react-toastify';
 import EditProductModal from '../components/EditProductModal';
 import { ShopContext } from '../context/ShopContext';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
   Package,
   Tag,
@@ -24,7 +25,8 @@ import {
   Settings,
   Plus,
   Grid,
-  List as ListIcon
+  List as ListIcon,
+  GripVertical
 } from 'lucide-react';
 
 const List = ({ token }) => {
@@ -147,6 +149,64 @@ const List = ({ token }) => {
   const handleEditSuccess = () => {
     fetchList();
     closeEditModal();
+  };
+
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+
+    if (sourceIndex === destinationIndex) return;
+
+    // Create a new array with reordered items
+    const newList = Array.from(filteredProducts);
+    const [reorderedItem] = newList.splice(sourceIndex, 1);
+    newList.splice(destinationIndex, 0, reorderedItem);
+
+    // Update local state immediately for better UX
+    setList(prevList => {
+      const updatedList = [...prevList];
+      const sourceProduct = filteredProducts[sourceIndex];
+      const destinationProduct = filteredProducts[destinationIndex];
+
+      // Find indices in the original list
+      const sourceOriginalIndex = updatedList.findIndex(p => p._id === sourceProduct._id);
+      const destinationOriginalIndex = updatedList.findIndex(p => p._id === destinationProduct._id);
+
+      // Swap positions
+      [updatedList[sourceOriginalIndex], updatedList[destinationOriginalIndex]] =
+        [updatedList[destinationOriginalIndex], updatedList[sourceOriginalIndex]];
+
+      return updatedList;
+    });
+
+    // Update positions on the server
+    try {
+      const productPositions = newList.map((product, index) => ({
+        productId: product._id,
+        position: index
+      }));
+
+      const response = await axios.put(
+        `${backendUrl}/api/product/update-positions`,
+        { productPositions },
+        { headers: { token } }
+      );
+
+      if (response.data.success) {
+        toast.success('Product order updated successfully');
+      } else {
+        toast.error(response.data.message);
+        // Revert on error
+        await fetchList();
+      }
+    } catch (error) {
+      console.error('Error updating product positions:', error);
+      toast.error('Failed to update product order');
+      // Revert on error
+      await fetchList();
+    }
   };
 
   const exportToCSV = () => {
@@ -430,138 +490,162 @@ const List = ({ token }) => {
 
       {/* Products Display */}
       {viewMode === 'table' ? (
-        /* Table View */
+        /* Table View with Drag and Drop */
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredProducts.map((product, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-12 w-12">
-                          <img
-                            src={product.image[0]}
-                            alt={product.name}
-                            className="h-12 w-12 rounded-lg object-cover border border-gray-200"
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                          <div className="text-sm text-gray-500">Product ID: {product._id.slice(-8)}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4 text-green-600" />
-                        {currency}{product.price}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={product.soldout}
-                          onChange={() => openSoldoutModal(product)}
-                          className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
-                        />
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-green-100 text-green-800'
-                          }`}>
-                          {product.soldout ? 'Sold Out' : 'Available'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="relative">
-                        <button
-                          onClick={() => toggleActionDropdown(product._id)}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="products-table">
+              {(provided) => (
+                <div className="overflow-x-auto" {...provided.droppableProps} ref={provided.innerRef}>
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                          <GripVertical className="w-4 h-4 mx-auto" />
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Product
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Price
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredProducts.map((product, index) => (
+                        <Draggable key={product._id} draggableId={product._id} index={index}>
+                          {(provided, snapshot) => (
+                            <tr
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className={`hover:bg-gray-50 transition-colors ${snapshot.isDragging ? 'bg-blue-50 shadow-lg' : ''
+                                }`}
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap" {...provided.dragHandleProps}>
+                                <div className="flex items-center justify-center">
+                                  <GripVertical className="w-5 h-5 text-gray-400 cursor-grab hover:text-gray-600" />
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 h-12 w-12">
+                                    <img
+                                      src={product.image[0]}
+                                      alt={product.name}
+                                      className="h-12 w-12 rounded-lg object-cover border border-gray-200"
+                                    />
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                                    <div className="text-sm text-gray-500">Product ID: {product._id.slice(-8)}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                  {product.category}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <div className="flex items-center gap-1">
+                                  <DollarSign className="w-4 h-4 text-green-600" />
+                                  {currency}{product.price}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={product.soldout}
+                                    onChange={() => openSoldoutModal(product)}
+                                    className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                                  />
+                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
+                                    ? 'bg-red-100 text-red-800'
+                                    : 'bg-green-100 text-green-800'
+                                    }`}>
+                                    {product.soldout ? 'Sold Out' : 'Available'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div className="relative">
+                                  <button
+                                    onClick={() => toggleActionDropdown(product._id)}
+                                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                                  >
+                                    <MoreVertical className="w-4 h-4" />
+                                  </button>
 
-                        {showActionDropdown[product._id] && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
-                            <div className="py-1">
-                              <button
-                                onClick={() => {
-                                  openEditModal(product);
-                                  closeAllDropdowns();
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                                Edit Product
-                              </button>
-                              <button
-                                onClick={() => {
-                                  openViewModal(product);
-                                  closeAllDropdowns();
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
-                              >
-                                <Eye className="w-4 h-4" />
-                                View Details
-                              </button>
-                              <button
-                                onClick={() => {
-                                  // Handle archive action
-                                  toast.info('Archive feature coming soon');
-                                  closeAllDropdowns();
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
-                              >
-                                <Archive className="w-4 h-4" />
-                                Archive
-                              </button>
-                              <hr className="my-1" />
-                              <button
-                                onClick={() => {
-                                  openConfirmModal(product._id);
-                                  closeAllDropdowns();
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                                  {showActionDropdown[product._id] && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+                                      <div className="py-1">
+                                        <button
+                                          onClick={() => {
+                                            openEditModal(product);
+                                            closeAllDropdowns();
+                                          }}
+                                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                                        >
+                                          <Edit3 className="w-4 h-4" />
+                                          Edit Product
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            openViewModal(product);
+                                            closeAllDropdowns();
+                                          }}
+                                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                                        >
+                                          <Eye className="w-4 h-4" />
+                                          View Details
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            // Handle archive action
+                                            toast.info('Archive feature coming soon');
+                                            closeAllDropdowns();
+                                          }}
+                                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                                        >
+                                          <Archive className="w-4 h-4" />
+                                          Archive
+                                        </button>
+                                        <hr className="my-1" />
+                                        <button
+                                          onClick={() => {
+                                            openConfirmModal(product._id);
+                                            closeAllDropdowns();
+                                          }}
+                                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                          Delete
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
           {filteredProducts.length === 0 && (
             <div className="text-center py-8">
               <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -570,71 +654,94 @@ const List = ({ token }) => {
           )}
         </div>
       ) : (
-        /* Grid View */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
-              <div className="relative">
-                <img
-                  src={product.image[0]}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="absolute top-2 right-2">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-green-100 text-green-800'
-                    }`}>
-                    {product.soldout ? 'Sold Out' : 'Available'}
-                  </span>
-                </div>
+        /* Grid View with Drag and Drop */
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="products-grid">
+            {(provided) => (
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                {filteredProducts.map((product, index) => (
+                  <Draggable key={product._id} draggableId={product._id} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 ${snapshot.isDragging ? 'shadow-2xl transform rotate-2' : ''
+                          }`}
+                      >
+                        <div className="relative">
+                          <div {...provided.dragHandleProps} className="absolute top-2 left-2 z-10 p-1 bg-white rounded shadow-md cursor-grab hover:bg-gray-50">
+                            <GripVertical className="w-4 h-4 text-gray-400" />
+                          </div>
+                          <img
+                            src={product.image[0]}
+                            alt={product.name}
+                            className="w-full h-48 object-cover"
+                          />
+                          <div className="absolute top-2 right-2">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-green-100 text-green-800'
+                              }`}>
+                              {product.soldout ? 'Sold Out' : 'Available'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">{product.name}</h3>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                              {product.category}
+                            </span>
+                            <div className="flex items-center gap-1 text-lg font-bold text-green-600">
+                              <DollarSign className="w-4 h-4" />
+                              {currency}{product.price}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={product.soldout}
+                                onChange={() => openSoldoutModal(product)}
+                                className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                              />
+                              <span className="text-sm text-gray-600">Toggle Status</span>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => openEditModal(product)}
+                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => openConfirmModal(product._id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+                {filteredProducts.length === 0 && (
+                  <div className="col-span-full text-center py-8">
+                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No products found</p>
+                  </div>
+                )}
               </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">{product.name}</h3>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {product.category}
-                  </span>
-                  <div className="flex items-center gap-1 text-lg font-bold text-green-600">
-                    <DollarSign className="w-4 h-4" />
-                    {currency}{product.price}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={product.soldout}
-                      onChange={() => openSoldoutModal(product)}
-                      className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
-                    />
-                    <span className="text-sm text-gray-600">Toggle Status</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => openEditModal(product)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => openConfirmModal(product._id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-          {filteredProducts.length === 0 && (
-            <div className="col-span-full text-center py-8">
-              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No products found</p>
-            </div>
-          )}
-        </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
 
       {/* Click outside to close dropdowns */}

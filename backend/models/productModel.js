@@ -16,6 +16,7 @@ const productSchema = new mongoose.Schema({
     soldout : {type: Boolean, default: false},
     date : {type: Number, required: true},
     slug: {type: String, required: false},
+    position: {type: Number, default: 0},
     comboPrices: [{
         quantity: {type: Number, required: true},
         price: {type: Number, required: true},

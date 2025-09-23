@@ -151,7 +151,7 @@ const updateBanner = async (req, res) => {
 // function for list products
 const listProducts = async (req, res) => {
   try {
-    const products = await productModel.find({});
+    const products = await productModel.find({}).sort({ position: 1, date: -1 });
     res.json({ success: true, message: "Products Listed", products });
   } catch (error) {
     console.log(error);
@@ -292,6 +292,33 @@ const getProducts = async () => {
   }
 };
 
+// function for updating product positions
+const updateProductPositions = async (req, res) => {
+  try {
+    const { productPositions } = req.body;
+    
+    if (!Array.isArray(productPositions)) {
+      return res.json({ success: false, message: "Invalid product positions data" });
+    }
+
+    // Update positions for each product
+    const updatePromises = productPositions.map(({ productId, position }) => {
+      return productModel.findByIdAndUpdate(
+        productId,
+        { position: position },
+        { new: true }
+      );
+    });
+
+    await Promise.all(updatePromises);
+
+    res.json({ success: true, message: "Product positions updated successfully" });
+  } catch (error) {
+    console.error('Error updating product positions:', error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   addProduct,
   addBanner,
@@ -303,5 +330,6 @@ export {
   deleteBanner,
   updateBanner,
   toggleSoldout,
-  getProducts
+  getProducts,
+  updateProductPositions
 };

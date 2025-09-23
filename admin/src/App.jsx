@@ -38,16 +38,16 @@ const App = () => {
 
   return (
     <NotificationProvider>
-      <div className='bg-gray-50 min-h-screen'>
+      <div className='bg-gray-50'>
         <ToastContainer />
         {token === ""
           ? <Login setToken={setToken} />
           : <>
             <Navbar setToken={setToken} />
             <hr className='border-gray-200' />
-            <div className='flex w-full'>
+            <div className='flex w-full main-container'>
               <Sidebar />
-              <div className='flex-1 p-4 lg:p-6 text-gray-600 text-base overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400'>
+              <div className='flex-1 p-4 lg:p-6 text-gray-600 text-base overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 main-container-right'>
                 <style>
                   {`
                     .scrollbar-thin::-webkit-scrollbar {

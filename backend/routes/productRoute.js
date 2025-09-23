@@ -11,6 +11,7 @@ import {
   updateBanner,
   toggleSoldout,
   getProducts,
+  updateProductPositions,
 } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import adminAuth from "../middleware/adminAuth.js";
@@ -52,6 +53,7 @@ productRouter.put("/edit/:id",adminAuth,
   ]),editProduct
 );
 productRouter.put("/toggle-soldout/:id", adminAuth, toggleSoldout);
+productRouter.put("/update-positions", adminAuth, updateProductPositions);
 
 // Generate dynamic product sitemap
 productRouter.get('/sitemap', async (req, res) => {

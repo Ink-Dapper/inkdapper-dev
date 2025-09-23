@@ -16,8 +16,19 @@ import {
 } from 'lucide-react'
 
 const Sidebar = () => {
+  const scrollTop = () => {
+    // Target the main content container instead of window
+    const mainContainer = document.querySelector('.main-container-right');
+    if (mainContainer) {
+      mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Fallback to window scroll if container not found
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className='w-[280px] bg-gradient-to-b from-slate-50 to-white border-r border-slate-200 shadow-sm min-h-screen flex flex-col'>
+    <div className='w-[280px] bg-gradient-to-b from-slate-50 to-white border-r border-slate-200 shadow-sm flex flex-col'>
       {/* Logo/Brand Section */}
       <div className='p-6 border-b border-slate-200 flex-shrink-0'>
         <div className='flex items-center gap-3'>
@@ -32,7 +43,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation Menu */}
-      <div className='p-4 space-y-2 flex-1 overflow-y-auto'>
+      <div className='p-4 space-y-2 overflow-y-auto main-container-left'>
         {/* Dashboard */}
         <NavLink
           to='/'
@@ -42,6 +53,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <LayoutDashboard className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Dashboard</span>
@@ -56,6 +68,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <Users className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Users List</span>
@@ -70,6 +83,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <Mail className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Newsletter</span>
@@ -84,6 +98,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <Image className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Add Banner</span>
@@ -98,6 +113,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <PlusCircle className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Add Items</span>
@@ -112,6 +128,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <List className='w-5 h-5 transition-colors' />
           <span className='font-medium'>List Items</span>
@@ -126,6 +143,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <ShoppingBag className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Orders</span>
@@ -140,6 +158,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <RotateCcw className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Return Orders</span>
@@ -154,6 +173,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <XCircle className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Cancel Orders</span>
@@ -168,6 +188,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <Star className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Highlighted Products</span>
@@ -182,6 +203,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <Droplets className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Acid Wash Products</span>
@@ -196,6 +218,7 @@ const Sidebar = () => {
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }`
           }
+          onClick={() => { scrollTop() }}
         >
           <Tag className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Coupons</span>

@@ -33,7 +33,34 @@ html {
     }
 }
 
-/* Mobile Chat Responsive Fixes */
+/* Mobile Scroll Performance Optimizations */
+@media (max-width: 768px) {
+
+    /* Prevent scroll refresh on iOS */
+    body {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+
+    /* Optimize product grid scrolling */
+    .product-grid {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        contain: layout style paint;
+        will-change: transform;
+    }
+
+    /* Prevent pull-to-refresh on mobile */
+    html,
+    body {
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Additional Mobile Optimizations */
 @media (max-width: 768px) {
 
     /* Prevent horizontal scroll on mobile */

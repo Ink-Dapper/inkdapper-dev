@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { assets, teesCollection } from '../assets/assets'
 import Title from '../components/Title'
@@ -13,7 +13,6 @@ const Collection = () => {
 
   const { products, search, showSearch, scrollToTop } = useContext(ShopContext)
   const [showFilter, setShowFilter] = useState(false)
-  const [filterProducts, setFilterProducts] = useState([])
   const [category, setCategory] = useState(''); // Default to 'All'
   const [subCategory, setSubCategory] = useState([])
   const [colors, setColors] = useState([])
@@ -22,7 +21,15 @@ const Collection = () => {
   const [categoryView, setCategoryView] = useState('block')
   const [showMobileFilter, setShowMobileFilter] = useState(false)
 
-  const toggleSubCategory = (e) => {
+  // Performance optimization refs
+  const scrollTimeoutRef = useRef(null)
+  const isScrollingRef = useRef(false)
+
+  // Mobile performance optimization - limit visible products
+  const [visibleCount, setVisibleCount] = useState(20)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const toggleSubCategory = useCallback((e) => {
     const value = e.target.value;
 
     if (value === '') { // If the "All" checkbox is checked/unchecked
@@ -37,79 +44,159 @@ const Collection = () => {
       }
     } else {
       // Handle individual subcategory checkboxes
-      if (subCategory.includes(value)) {
-        setSubCategory(subCategory.filter(item => item !== value));
-      } else {
-        setSubCategory([...subCategory, value]);
-      }
+      setSubCategory(prev => {
+        if (prev.includes(value)) {
+          return prev.filter(item => item !== value);
+        } else {
+          return [...prev, value];
+        }
+      });
     }
 
     // Hide the filter section after selecting a subcategory
     setShowFilter(false);
-  }
+  }, [products])
 
-  const allChecked = (e) => {
+  const allChecked = useCallback((e) => {
     if (e.target.checked) {
       const allSubCategories = products.map(item => item.subCategory);
       setSubCategory([...new Set(allSubCategories)]);
     } else {
       setSubCategory([]);
     }
-  }
+  }, [products])
 
-  const toggleColor = (color) => {
-    if (colors.includes(color)) {
-      setColors(colors.filter(item => item !== color));
-    } else {
-      setColors([...colors, color]);
-    }
-  }
+  const toggleColor = useCallback((color) => {
+    setColors(prev => {
+      if (prev.includes(color)) {
+        return prev.filter(item => item !== color);
+      } else {
+        return [...prev, color];
+      }
+    });
+  }, [])
 
-  const applyFilter = () => {
-    let productsCopy = products.slice()
+  // Memoized filter function for better performance
+  const filteredProducts = useMemo(() => {
+    let productsCopy = [...products]
+
+    // Apply search filter
     if (showSearch && search) {
-      productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
+      const searchLower = search.toLowerCase()
+      productsCopy = productsCopy.filter(item =>
+        item.name.toLowerCase().includes(searchLower)
+      )
     }
-    if (category.length > 0) {
-      productsCopy = productsCopy.filter(item => category.includes(item.category))
+
+    // Apply category filter
+    if (category) {
+      productsCopy = productsCopy.filter(item => item.category === category)
     }
+
+    // Apply subcategory filter
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
     }
+
+    // Apply color filter
     if (colors.length > 0) {
       productsCopy = productsCopy.filter(item =>
         item.colors && item.colors.some(color => colors.includes(color))
       )
     }
-    setFilterProducts(productsCopy)
-  }
 
-  const sortProduct = () => {
-    let fpCopy = filterProducts.slice()
+    return productsCopy
+  }, [products, search, showSearch, category, subCategory, colors])
+
+  // Memoized sorted products
+  const sortedProducts = useMemo(() => {
+    let sorted = [...filteredProducts]
 
     switch (sortType) {
       case 'low-high':
-        setFilterProducts(fpCopy.sort((a, b) => (a.price - b.price)))
-        break;
+        return sorted.sort((a, b) => (a.price - b.price))
       case 'high-low':
-        setFilterProducts(fpCopy.sort((a, b) => (b.price - a.price)))
-        break;
+        return sorted.sort((a, b) => (b.price - a.price))
       default:
-        applyFilter()
-        break;
+        return sorted
     }
-  }
+  }, [filteredProducts, sortType])
 
-  useEffect(() => {
-    applyFilter()
-  }, [category, subCategory, colors, search, showSearch, products])
+  // Get visible products for performance optimization
+  const visibleProducts = useMemo(() => {
+    return sortedProducts.slice(0, visibleCount)
+  }, [sortedProducts, visibleCount])
 
+  // Load more products function
+  const loadMoreProducts = useCallback(() => {
+    if (isLoading || visibleCount >= sortedProducts.length) return
+
+    setIsLoading(true)
+
+    // Simulate loading delay to prevent overwhelming the UI
+    setTimeout(() => {
+      setVisibleCount(prev => Math.min(prev + 20, sortedProducts.length))
+      setIsLoading(false)
+    }, 300)
+  }, [isLoading, visibleCount, sortedProducts.length])
+
+  // Reset visible count when filters change
   useEffect(() => {
-    sortProduct()
-  }, [sortType])
+    setVisibleCount(20)
+    setIsLoading(false)
+  }, [category, subCategory, colors, search, showSearch])
+
+  // Cleanup function to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // Mobile scroll optimization with infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isScrollingRef.current) return
+
+      isScrollingRef.current = true
+
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+
+      // Check if user has scrolled to bottom (for infinite scroll)
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const windowHeight = window.innerHeight
+      const docHeight = document.documentElement.scrollHeight
+
+      // Load more products when near bottom
+      if (scrollTop + windowHeight >= docHeight - 1000) {
+        loadMoreProducts()
+      }
+
+      scrollTimeoutRef.current = setTimeout(() => {
+        isScrollingRef.current = false
+      }, 150) // Debounce scroll events
+    }
+
+    // Add scroll listener with passive option for better performance
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+    }
+  }, [loadMoreProducts])
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen' style={{
+      WebkitOverflowScrolling: 'touch',
+      overscrollBehavior: 'contain'
+    }}>
       {/* Mobile-Optimized Product-Focused Banner Section - Hidden on Mobile */}
       <div className='relative overflow-hidden bg-gradient-to-r from-orange-500 via-pink-500 via-purple-600 to-teal-500 w-full hidden lg:block'>
         {/* Product Image Background Overlay */}
@@ -267,7 +354,7 @@ const Collection = () => {
               <div className='bg-white/25 backdrop-blur-md rounded-full px-3 lg:px-8 py-1.5 lg:py-3 text-white font-semibold border border-white/40 shadow-lg hover:bg-white/35 transition-all duration-300 text-xs lg:text-base'>
                 <div className='flex items-center gap-1.5 lg:gap-2'>
                   <div className='w-1 h-1 lg:w-2 lg:h-2 bg-green-400 rounded-full animate-pulse'></div>
-                  {filterProducts.length} Products
+                  {sortedProducts.length} Products
                 </div>
               </div>
               <div className='bg-gradient-to-r from-yellow-400/80 to-orange-400/80 backdrop-blur-md rounded-full px-3 lg:px-8 py-1.5 lg:py-3 text-white font-semibold border border-yellow-300/50 shadow-lg hover:from-yellow-500/90 hover:to-orange-500/90 transition-all duration-300 text-xs lg:text-base'>
@@ -490,6 +577,11 @@ const Collection = () => {
                 <div className="space-y-2 lg:space-y-3">
                   {[
                     {
+                      value: 'Acidwash',
+                      label: 'Acid Wash',
+                      color: 'from-orange-500 to-red-600'
+                    },
+                    {
                       value: 'Customtshirt',
                       label: 'Custom T-shirt',
                       color: 'from-purple-500 to-pink-600'
@@ -499,21 +591,16 @@ const Collection = () => {
                       label: 'Solid Oversized',
                       color: 'from-blue-500 to-indigo-600'
                     },
-                    {
-                      value: 'Quotesdesigns',
-                      label: 'Quotes Designs',
-                      color: 'from-green-500 to-teal-600'
-                    },
-                    {
-                      value: 'Plaintshirt',
-                      label: 'Solid T-shirt',
-                      color: 'from-gray-500 to-slate-600'
-                    },
-                    {
-                      value: 'Acidwash',
-                      label: 'Acid Wash',
-                      color: 'from-orange-500 to-red-600'
-                    }
+                    // {
+                    //   value: 'Quotesdesigns',
+                    //   label: 'Quotes Designs',
+                    //   color: 'from-green-500 to-teal-600'
+                    // },
+                    // {
+                    //   value: 'Plaintshirt',
+                    //   label: 'Solid T-shirt',
+                    //   color: 'from-gray-500 to-slate-600'
+                    // },
                   ].map((type) => (
                     <label key={type.value} className="flex items-center justify-between cursor-pointer group p-2.5 lg:p-3 rounded-xl hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 transition-all duration-300 border border-transparent hover:border-teal-200">
                       <div className="flex items-center gap-2 lg:gap-3">
@@ -857,7 +944,7 @@ const Collection = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 lg:gap-6">
                   <div>
                     <h2 className="text-2xl lg:text-3xl font-black text-gray-800 mb-1 lg:mb-2">All Collections</h2>
-                    <p className="text-sm lg:text-lg text-gray-600">Showing {filterProducts.length} amazing products</p>
+                    <p className="text-sm lg:text-lg text-gray-600">Showing {sortedProducts.length} amazing products</p>
                   </div>
 
                   {/* Desktop Sort Section - Hidden on Mobile */}
@@ -953,10 +1040,16 @@ const Collection = () => {
               </div>
 
               {/* Mobile-Optimized Products Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative">
+              <div
+                className="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative"
+                style={{
+                  contain: 'layout style',
+                  willChange: 'transform'
+                }}
+              >
                 {/* Grid background pattern */}
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
-                {filterProducts.map((item, index) => (
+                {visibleProducts.map((item, index) => (
                   <div
                     key={index}
                     className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
@@ -989,8 +1082,34 @@ const Collection = () => {
                 ))}
               </div>
 
+              {/* Load More Button */}
+              {visibleCount < sortedProducts.length && (
+                <div className="flex justify-center mt-8">
+                  <button
+                    onClick={loadMoreProducts}
+                    disabled={isLoading}
+                    className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        Load More Products
+                        <span className="text-sm opacity-75">({sortedProducts.length - visibleCount} remaining)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
               {/* Mobile-Optimized Empty State */}
-              {filterProducts.length === 0 && (
+              {sortedProducts.length === 0 && (
                 <div className="text-center py-12 lg:py-20">
                   <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-r from-orange-100 via-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 lg:mb-8 shadow-lg">
                     <svg className="w-12 h-12 lg:w-16 lg:h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

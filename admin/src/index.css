@@ -261,3 +261,18 @@ a:focus {
 .action-button * {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* .main-container-right {
+  height: 670px;
+  overflow-y: auto;
+} */
+
+.main-container {
+  height: 670px;
+  overflow-y: auto;
+}
+
+.main-container-left {
+  height: 500px;
+  overflow-y: auto;
+}
