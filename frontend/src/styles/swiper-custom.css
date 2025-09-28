@@ -12,8 +12,39 @@
   justify-content: center;
   align-items: center;
   border-radius: 14px;
-  width: auto !important;
+  width: 100%;
 }
+
+.latest-collection-section .swiper-slide {
+  width: 250px !important;
+  margin-right: 22px !important;
+}
+
+.latest-collection-section .swiper-slide > div {
+  width: 100% !important;
+}
+
+.latest-collection-section .swiper-slide img {
+  width: 100% !important;
+}
+
+.acid-wash-tees-section .swiper-slide {
+  width: auto !important;
+  margin-right: 40px !important;
+}
+
+.recently-viewed-section .swiper-slide {
+  width: auto !important;
+  margin: 0 12px !important;
+}
+
+/* .acid-wash-tees-section .swiper-slide > div {
+  width: 100% !important;
+} */
+
+/* .acid-wash-tees-section .swiper-slide img {
+  width: 100% !important;
+} */
 
 .swiper-slide img {
   display: block;

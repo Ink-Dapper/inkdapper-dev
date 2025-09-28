@@ -311,7 +311,7 @@ const Product = () => {
             <span>/</span>
             <Link to='/collection' className='hover:text-orange-600 transition-colors'>Collection</Link>
             <span>/</span>
-            <span className='text-gray-900 font-medium'>{productData.name}</span>
+            <span className='text-gray-900 font-medium truncate max-w-xs md:max-w-sm lg:max-w-md' title={productData.name}>{productData.name}</span>
           </nav>
         </div>
       </div>

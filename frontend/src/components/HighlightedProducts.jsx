@@ -39,9 +39,9 @@ const HighlightedProducts = () => {
   }
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-white to-red-50 relative overflow-hidden">
+    <section className="py-6 md:py-10 px-4 sm:px-6 lg:px-8 via-white to-red-50 relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-transparent to-red-50/30"></div>
+      <div className="absolute inset-0 via-transparent to-red-50/30"></div>
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-orange-100/20 via-transparent to-red-100/20"></div>
 
       {/* Floating Elements */}
@@ -50,30 +50,38 @@ const HighlightedProducts = () => {
       <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-gradient-to-r from-red-200 to-pink-200 rounded-full opacity-25 animate-pulse animation-delay-2000"></div>
 
       <div className="max-w-7xl mx-auto relative">
-        {/* Enhanced Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-lg">
-              <Star className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent">
-              Featured Products
-            </h2>
-            <div className="p-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full shadow-lg">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
+        {/* Enhanced Hero Section */}
+        <div className="text-center mb-12 md:mb-16">
+          <div className="inline-flex items-center gap-3 mb-6">
+            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-orange-400 to-transparent"></div>
+            <span className="text-sm font-medium text-orange-600 uppercase tracking-wider bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">Featured Products</span>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-orange-400 to-transparent"></div>
           </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Discover our handpicked collection of premium products that stand out from the crowd
+
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-4 md:mb-6">
+            <span className="bg-gradient-to-r from-slate-900 via-orange-700 to-slate-900 bg-clip-text text-transparent">
+              Handpicked Favorites
+            </span>
+          </h2>
+
+          <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed mb-6 md:mb-8 px-4">
+            <span className="font-semibold text-slate-800 bg-gradient-to-r from-slate-800 to-orange-600 bg-clip-text text-transparent">Curated Excellence:</span> Discover our specially selected collection of premium products that stand out from the crowd. Each item is handpicked for its exceptional quality, unique design, and outstanding value.
           </p>
 
-          {/* Decorative Line */}
-          <div className="flex items-center justify-center mt-6">
-            <div className="w-16 h-1 bg-gradient-to-r from-orange-400 to-red-400 rounded-full"></div>
-            <div className="mx-4 p-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-full">
-              <Zap className="w-4 h-4 text-orange-600" />
-            </div>
-            <div className="w-16 h-1 bg-gradient-to-r from-red-400 to-pink-400 rounded-full"></div>
+          {/* Enhanced Trending badges */}
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8 px-4">
+            <span className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-orange-200/80 to-red-200/80 text-orange-800 border border-orange-300/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+              <Star className="w-1.5 h-1.5 md:w-2 md:h-2 mr-1.5 md:mr-2 text-orange-500" />
+              Handpicked
+            </span>
+            <span className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-yellow-200/80 to-orange-200/80 text-yellow-800 border border-yellow-300/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+              <Sparkles className="w-1.5 h-1.5 md:w-2 md:h-2 mr-1.5 md:mr-2 text-yellow-500" />
+              Premium Quality
+            </span>
+            <span className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-red-200/80 to-pink-200/80 text-red-800 border border-red-300/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+              <Zap className="w-1.5 h-1.5 md:w-2 md:h-2 mr-1.5 md:mr-2 text-red-500" />
+              Featured Collection
+            </span>
           </div>
         </div>
 
@@ -127,12 +135,23 @@ const HighlightedProducts = () => {
         </div>
 
         {/* Enhanced Call to Action */}
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <Sparkles className="w-5 h-5" />
-            <span>Explore All Featured Products</span>
-            <Star className="w-5 h-5" />
+        <div className="text-center">
+          <div className="relative inline-block mt-10 md:mt-0">
+            <span className="relative z-10 flex items-center gap-3 group relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/25 transform hover:scale-105 border border-orange-400/50">
+              Explore All Featured Products
+              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
+
+          {/* Enhanced decorative elements around button */}
+          <div className="absolute -z-10 -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 rounded-full blur opacity-10 group-hover:opacity-50 transition-opacity duration-300"></div>
+
+          <p className="mt-4 text-sm text-slate-500">
+            Discover <span className="font-semibold text-orange-600 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{highlightedProducts.length}</span>+ handpicked designs
+          </p>
         </div>
       </div>
     </section>

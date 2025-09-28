@@ -63,7 +63,7 @@ const RecentlyViewed = () => {
   }
 
   return (
-    <section className='relative py-6 md:py-10 overflow-hidden'>
+    <section className='relative py-6 md:py-10 overflow-hidden recently-viewed-section'>
       {/* Enhanced Background decorative elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-indigo-50/20 to-purple-50/40"></div>
       <div className="absolute top-10 left-1/3 w-64 h-64 bg-gradient-to-r from-blue-200/40 to-indigo-200/40 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse"></div>

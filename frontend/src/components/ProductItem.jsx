@@ -301,7 +301,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
             {/* Product Name */}
             <div className="flex items-start mt-1">
-              <h3 className='product-name text-sm md:text-lg font-semibold text-slate-900 group-hover:text-orange-700 transition-colors duration-300'>
+              <h3 className='product-name text-sm md:text-lg font-semibold text-slate-900 group-hover:text-orange-700 transition-colors duration-300 truncate'>
                 {name}
               </h3>
             </div>

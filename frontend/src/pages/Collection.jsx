@@ -21,6 +21,11 @@ const Collection = () => {
   const [sortValue, setSortValue] = useState('');
   const [categoryView, setCategoryView] = useState('block')
   const [showMobileFilter, setShowMobileFilter] = useState(false)
+  const [displayedProducts, setDisplayedProducts] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(15)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   const toggleSubCategory = (e) => {
     const value = e.target.value;
@@ -100,6 +105,29 @@ const Collection = () => {
     }
   }
 
+  const loadMore = () => {
+    setIsLoading(true)
+
+    // Simulate loading delay for better UX
+    setTimeout(() => {
+      const nextPage = currentPage + 1
+      const startIndex = 0
+      const endIndex = nextPage * itemsPerPage
+      const newProducts = filterProducts.slice(startIndex, endIndex)
+
+      setDisplayedProducts(newProducts)
+      setCurrentPage(nextPage)
+      setHasMore(endIndex < filterProducts.length)
+      setIsLoading(false)
+    }, 500)
+  }
+
+  const resetPagination = () => {
+    setCurrentPage(1)
+    setDisplayedProducts(filterProducts.slice(0, itemsPerPage))
+    setHasMore(filterProducts.length > itemsPerPage)
+  }
+
   useEffect(() => {
     applyFilter()
   }, [category, subCategory, colors, search, showSearch, products])
@@ -107,6 +135,10 @@ const Collection = () => {
   useEffect(() => {
     sortProduct()
   }, [sortType])
+
+  useEffect(() => {
+    resetPagination()
+  }, [filterProducts])
 
   return (
     <div className='min-h-screen'>
@@ -857,7 +889,7 @@ const Collection = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 lg:gap-6">
                   <div>
                     <h2 className="text-2xl lg:text-3xl font-black text-gray-800 mb-1 lg:mb-2">All Collections</h2>
-                    <p className="text-sm lg:text-lg text-gray-600">Showing {filterProducts.length} amazing products</p>
+                    <p className="text-sm lg:text-lg text-gray-600">Showing {displayedProducts.length} of {filterProducts.length} amazing products</p>
                   </div>
 
                   {/* Desktop Sort Section - Hidden on Mobile */}
@@ -956,7 +988,7 @@ const Collection = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative">
                 {/* Grid background pattern */}
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
-                {filterProducts.map((item, index) => (
+                {displayedProducts.map((item, index) => (
                   <div
                     key={index}
                     className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
@@ -989,8 +1021,38 @@ const Collection = () => {
                 ))}
               </div>
 
+              {/* Load More Button */}
+              {hasMore && displayedProducts.length > 0 && (
+                <div className="flex justify-center mt-8 lg:mt-12">
+                  <button
+                    onClick={loadMore}
+                    disabled={isLoading}
+                    className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-8 lg:px-12 py-4 lg:py-5 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm lg:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-3"
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Load More Products
+                        <span className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold">
+                          {filterProducts.length - displayedProducts.length} left
+                        </span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
               {/* Mobile-Optimized Empty State */}
-              {filterProducts.length === 0 && (
+              {displayedProducts.length === 0 && (
                 <div className="text-center py-12 lg:py-20">
                   <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-r from-orange-100 via-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 lg:mb-8 shadow-lg">
                     <svg className="w-12 h-12 lg:w-16 lg:h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
