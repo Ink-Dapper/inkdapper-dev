@@ -316,7 +316,7 @@ const Navbar = () => {
           <MenuOpenIcon onClick={() => setVisible(true)} alt="menu-icon" className="w-5 cursor-pointer" sx={{ fontSize: 30 }} />
         </div>
       </div>
-      <div className="fixed bottom-0 left-0 w-full z-30 md:hidden">
+      <div className="fixed bottom-[-2px] left-0 w-full z-30 md:hidden">
         {/* Dark Glassmorphism Background with Blur */}
         <div className="relative">
           {/* Backdrop Blur Background */}
@@ -401,7 +401,7 @@ const Navbar = () => {
                 <div className="mobile-profile-dropdown absolute bottom-full mb-3 right-0 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100 scale-100">
                   <div className="relative">
                     {/* Arrow */}
-                    <div className="absolute top-full right-4 w-3 h-3 bg-gray-900 transform rotate-45 border-r border-b border-gray-700 shadow-lg"></div>
+                    <div className="absolute bottom-[-5px] right-4 w-3 h-3 bg-gray-900 transform rotate-45 border-r border-b border-gray-700 shadow-lg"></div>
 
                     {/* Menu Container */}
                     <div className="bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 overflow-hidden min-w-[200px]">

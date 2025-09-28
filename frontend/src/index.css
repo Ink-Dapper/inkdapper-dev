@@ -31,6 +31,25 @@ html {
     textarea {
         font-size: 16px !important;
     }
+
+    /* iPhone footer optimizations */
+    footer {
+        /* Ensure footer doesn't get cut off by iPhone's bottom safe area */
+        padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+
+    /* Better touch targets for iPhone */
+    footer a {
+        -webkit-tap-highlight-color: rgba(249, 115, 22, 0.1);
+        touch-action: manipulation;
+    }
+
+    /* Prevent zoom on double tap for iPhone */
+    footer input,
+    footer button,
+    footer a {
+        touch-action: manipulation;
+    }
 }
 
 /* Mobile Chat Responsive Fixes */
@@ -46,6 +65,40 @@ html {
     .chat-window {
         max-width: 100vw;
         max-height: 100vh;
+    }
+
+    /* Footer mobile optimizations */
+    footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Ensure footer content doesn't overflow on small screens */
+    footer .max-w-7xl {
+        max-width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    /* Improve touch targets for mobile */
+    footer a,
+    footer button {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Better spacing for mobile footer sections */
+    footer .flex-col>div {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Optimize social media icons for mobile */
+    footer .flex.gap-4 svg {
+        width: 1.5rem;
+        height: 1.5rem;
     }
 }
 
