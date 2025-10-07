@@ -29,40 +29,10 @@ const __dirname = path.dirname(__filename)
 connectDB()
 connectCloudinary()
 
-// Enhanced CORS configuration
+// EMERGENCY CORS FIX - Allow all origins
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'https://www.inkdapper.com', 
-      'https://inkdapper.com', 
-      'https://admin.inkdapper.com',
-      'http://localhost:4000', 
-      'http://localhost:5173', 
-      'http://localhost:5174',
-      'http://localhost:3000',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:5174',
-      'http://127.0.0.1:3000'
-    ];
-    
-    // Check if origin is in allowed list or matches patterns
-    const isAllowed = allowedOrigins.includes(origin) ||
-                     /^https:\/\/.*\.inkdapper\.com$/.test(origin) ||
-                     /^https:\/\/.*\.vercel\.app$/.test(origin) ||
-                     /^https:\/\/.*\.netlify\.app$/.test(origin) ||
-                     /^https:\/\/.*\.railway\.app$/.test(origin) ||
-                     /^https:\/\/.*\.render\.com$/.test(origin);
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      // CORS blocked origin - logging disabled for cleaner output
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
   allowedHeaders: [
     'Content-Type', 
@@ -76,10 +46,8 @@ const corsOptions = {
     'Access-Control-Request-Headers'
   ],
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
-  credentials: true,
   optionsSuccessStatus: 200,
-  preflightContinue: false,
-  maxAge: 86400 // 24 hours
+  preflightContinue: false
 }
 
 // middlewares
@@ -92,24 +60,27 @@ app.use(bodyParser.json());
 // Apply CORS before other middleware
 app.use(cors(corsOptions));
 
-// Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
-
-// Additional CORS headers for all responses
+// EMERGENCY CORS HEADERS - Add to ALL responses
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  // Set CORS headers for ALL requests
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, token, X-Requested-With, X-Device-Type, Accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400');
   
-  // Handle preflight requests
+  // Handle preflight requests immediately
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
   
   next();
+});
+
+// Handle preflight requests explicitly
+app.options('*', (req, res) => {
+  res.status(200).end();
 });
 
 app.use(bodyParser.json())
