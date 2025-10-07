@@ -235,7 +235,10 @@ const ShopContextProvider = (props) => {
     try {
       const response = await apiInstance.get('/product/list')
       if (response.data.success) {
-        setProducts(response.data.products)
+        // Filter out products without valid _id
+        const validProducts = response.data.products.filter(product => product._id);
+        console.log(`Loaded ${validProducts.length} products (filtered ${response.data.products.length - validProducts.length} invalid products)`);
+        setProducts(validProducts)
       } else {
         toast.error(response.data.message)
       }

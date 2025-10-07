@@ -37,6 +37,13 @@ const Product = () => {
     return <div>Loading...</div>
   }
 
+  // Safety check for productId
+  if (!productId || productId === 'undefined') {
+    console.error('Product: Invalid productId', { productId, slug });
+    navigate('/collection');
+    return <div>Redirecting...</div>;
+  }
+
   const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, cartItems, updateQuantity, addToRecentlyViewed } = context
   const [productData, setProductData] = useState(false)
   const [image, setImage] = useState('')

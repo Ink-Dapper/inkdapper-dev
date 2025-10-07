@@ -8,6 +8,12 @@ import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 
 const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug, comboPrices }) => {
+  // Safety check: ensure id is valid
+  if (!id) {
+    console.error('ProductItem: Missing or invalid id prop', { id, name });
+    return null; // Don't render if no valid id
+  }
+
   // Fallback: generate slug from name if slug is missing
   let safeSlug = slug || (name ? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') : '');
   // Remove trailing dash if present
