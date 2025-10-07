@@ -29,9 +29,27 @@ const __dirname = path.dirname(__filename)
 connectDB()
 connectCloudinary()
 
-// EMERGENCY CORS FIX - Allow all origins
+// EMERGENCY CORS FIX - Allow specific origins with credentials
 const corsOptions = {
-  origin: true, // Allow all origins
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://www.inkdapper.com',
+      'https://inkdapper.com',
+      'https://admin.inkdapper.com',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:3000'
+    ];
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
   allowedHeaders: [
@@ -63,7 +81,25 @@ app.use(cors(corsOptions));
 // EMERGENCY CORS HEADERS - Add to ALL responses
 app.use((req, res, next) => {
   // Set CORS headers for ALL requests
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://www.inkdapper.com',
+    'https://inkdapper.com',
+    'https://admin.inkdapper.com',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000'
+  ];
+  
+  // Use specific origin if it's allowed, otherwise use the requesting origin
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else if (origin) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', 'https://www.inkdapper.com');
+  }
+  
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, token, X-Requested-With, X-Device-Type, Accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
   res.header('Access-Control-Allow-Credentials', 'true');
