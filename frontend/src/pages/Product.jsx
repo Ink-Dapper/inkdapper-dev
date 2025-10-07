@@ -46,6 +46,8 @@ const Product = () => {
 
   const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, cartItems, updateQuantity, addToRecentlyViewed } = context
   const [productData, setProductData] = useState(false)
+  const [productNotFound, setProductNotFound] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [image, setImage] = useState('')
   const [size, setSize] = useState('')
   const [wishlistCta, setWishlistCta] = useState('hidden')
@@ -76,16 +78,45 @@ const Product = () => {
     fetchCounts();
   }, [getWishlistCount]);
 
+  // Fetch product data when products are loaded or productId changes
+  useEffect(() => {
+    if (products.length > 0 && productId) {
+      fetchProductData();
+    }
+  }, [products, productId]);
+
 
 
   const fetchProductData = async () => {
-    products.map((item) => {
-      if (item._id === productId) {
-        setProductData(item)
-        setImage(item.image[0])
-        return null
-      }
-    })
+    setIsLoading(true);
+    setProductNotFound(false);
+
+    // Check if productId is a temporary ID
+    if (productId && productId.startsWith('temp-id-')) {
+      console.warn('Product page accessed with temporary ID, redirecting to collection');
+      setProductNotFound(true);
+      setTimeout(() => {
+        navigate('/collection');
+      }, 2000);
+      return;
+    }
+
+    // Look for the product in the products array
+    const foundProduct = products.find(item => item._id === productId);
+
+    if (foundProduct) {
+      setProductData(foundProduct);
+      setImage(foundProduct.image[0]);
+      setIsLoading(false);
+    } else {
+      console.warn('Product not found with ID:', productId);
+      setProductNotFound(true);
+      setIsLoading(false);
+      // If product not found, redirect to collection after a short delay
+      setTimeout(() => {
+        navigate('/collection');
+      }, 3000);
+    }
   }
 
   const addCartPageDetails = () => {
@@ -345,6 +376,53 @@ const Product = () => {
   const toggleDescription = () => {
     setIsExpanded(!isExpanded);
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show product not found state
+  if (productNotFound) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="mb-6">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.709M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h1>
+          <p className="text-gray-600 mb-6">
+            The product you're looking for doesn't exist or has been removed.
+            {productId && productId.startsWith('temp-id-') && (
+              <span className="block mt-2 text-sm text-orange-600">
+                This appears to be a temporary link. Redirecting to our collection...
+              </span>
+            )}
+          </p>
+          <div className="space-y-3">
+            <Link
+              to="/collection"
+              className="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              Browse Collection
+            </Link>
+            <div className="text-sm text-gray-500">
+              Redirecting automatically in a few seconds...
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return productData ? (
     <div className='min-h-screen'>

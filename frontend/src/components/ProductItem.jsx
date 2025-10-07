@@ -11,10 +11,15 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   // Debug logging to see what's being passed
   console.log('ProductItem props:', { id, name, hasId: !!id, idType: typeof id });
 
-  // TEMPORARY: Use fallback id to show products while debugging
-  const productId = id || 'temp-id-' + Math.random().toString(36).substr(2, 9);
+  // Use the provided id, but log if it's missing for debugging
+  const productId = id;
 
-  // Safety check: only hide if completely invalid
+  // Log missing IDs for debugging but don't hide the component
+  if (!id) {
+    console.warn('ProductItem: Missing id prop', { id, name, image });
+  }
+
+  // Only hide if id is explicitly 'undefined' or 'null' strings
   if (id === 'undefined' || id === 'null') {
     console.error('ProductItem: Invalid id prop', { id, name });
     return null;
@@ -58,6 +63,8 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   const addToWishlistPage = useCallback(() => {
     if (!token) {
       toast.error('Please login to add product to wishlist', { autoClose: 1000, });
+    } else if (!productId) {
+      toast.error('Cannot add product to wishlist without valid ID');
     } else {
       addToWishlist(productId);
     }
@@ -98,6 +105,11 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
+    if (!productId) {
+      toast.error('Cannot share product without valid ID');
+      return;
+    }
+
     const productUrl = `${window.location.origin}/product/${productId}/${safeSlug}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
 
@@ -111,6 +123,11 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
+    if (!productId) {
+      toast.error('Cannot share product without valid ID');
+      return;
+    }
+
     const productUrl = `${window.location.origin}/product/${productId}/${safeSlug}`;
     navigator.clipboard.writeText(productUrl);
 
@@ -121,6 +138,11 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   const shareViaMessage = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!productId) {
+      toast.error('Cannot share product without valid ID');
+      return;
+    }
 
     const productUrl = `${window.location.origin}/product/${productId}/${safeSlug}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
@@ -236,7 +258,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
           }
         }}
         className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
-        to={`/product/${productId}/${safeSlug}`}
+        to={productId ? `/product/${productId}/${safeSlug}` : '/collection'}
       >
         <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">
