@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="light-theme">
   <head>
     <meta charset="UTF-8">
     <!-- Favicon for different devices -->
@@ -10,7 +10,7 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     >
     <title>Ink Dapper | Oversized Tees & Custom T-Shirts</title>
     <meta
@@ -24,6 +24,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ink Dapper">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-tap-highlight" content="no">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.inkdapper.com/" />
@@ -92,6 +96,22 @@
     <link rel="dns-prefetch" href="https://checkout.razorpay.com">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Theme initialization script to prevent flash -->
+    <script>
+      // Set light theme by default to prevent flash
+      (function() {
+        const savedTheme = localStorage.getItem('theme');
+        if (!savedTheme) {
+          localStorage.setItem('theme', 'light');
+          document.documentElement.classList.add('light-theme');
+        } else if (savedTheme === 'light') {
+          document.documentElement.classList.add('light-theme');
+        } else if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark-theme');
+        }
+      })();
+    </script>
     
     <!-- Inline critical CSS -->
     <style>

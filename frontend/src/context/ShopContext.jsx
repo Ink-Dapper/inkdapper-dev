@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiConfig } from "../config/api";
 import apiInstance from "../utils/axios";
@@ -11,7 +11,8 @@ const ShopContextProvider = (props) => {
   const [isContextReady, setIsContextReady] = useState(false);
 
   const currency = '₹'
-  const delivery_fee = 'Free'
+  const [delivery_fee, setDelivery_fee] = useState(0)
+  const [paymentMethod, setPaymentMethod] = useState('cod')
   // Use the API configuration
   const backendUrl = apiConfig.baseURL
   const [search, setSearch] = useState('')
@@ -31,6 +32,8 @@ const ShopContextProvider = (props) => {
   })
   const navigate = useNavigate()
   const [reviewList, setReviewList] = useState([])
+  const [googleReviews, setGoogleReviews] = useState([])
+  const [combinedReviews, setCombinedReviews] = useState([])
   const [usersDetails, setUsersDetails] = useState([])
   const [orderData, setOrderData] = useState([])
   const [orderCount, setOrderCount] = useState(0)
@@ -57,6 +60,7 @@ const ShopContextProvider = (props) => {
         const user = newData.users;
         localStorage.setItem('user_name', user.name);
         localStorage.setItem('user_email', user.email);
+        localStorage.setItem('user_id', user._id || user.id);
         if (user.phone) {
           localStorage.setItem('user_phone', user.phone.toString());
         }
@@ -241,7 +245,7 @@ const ShopContextProvider = (props) => {
     }
   }
 
-  const getUserCart = async (token) => {
+  const getUserCart = useCallback(async (token) => {
     try {
       const response = await apiInstance.post('/cart/get', {})
 
@@ -254,7 +258,7 @@ const ShopContextProvider = (props) => {
     } catch (error) {
       console.log('Error getting cart:', error);
     }
-  }
+  }, []);
 
 
   const addToWishlist = async (itemId) => {
@@ -264,19 +268,38 @@ const ShopContextProvider = (props) => {
     }
 
     try {
-      const response = await apiInstance.post('/wishlist/add', { itemId });
-      if (response.data.success) {
-        toast.success(`One Item Is Added To Wishlist.`, {
-          autoClose: 1000, pauseOnHover: false,
-          transition: Flip
-        });
-        // Refresh wishlist data from database
-        await getUserWishlist(token);
+      // Check if item is already in wishlist
+      const isInWishlist = wishlist[itemId] && wishlist[itemId] > 0;
+
+      if (isInWishlist) {
+        // Remove from wishlist
+        const response = await apiInstance.post('/wishlist/update', { itemId, quantity: 0 });
+        if (response.data.success) {
+          toast.success('Item removed from wishlist', {
+            autoClose: 1000, pauseOnHover: false,
+            transition: Flip
+          });
+          // Refresh wishlist data from database
+          await getUserWishlist(token);
+        } else {
+          toast.error(response.data.message);
+        }
       } else {
-        toast.error(response.data.message);
+        // Add to wishlist
+        const response = await apiInstance.post('/wishlist/add', { itemId });
+        if (response.data.success) {
+          toast.success('Item added to wishlist', {
+            autoClose: 1000, pauseOnHover: false,
+            transition: Flip
+          });
+          // Refresh wishlist data from database
+          await getUserWishlist(token);
+        } else {
+          toast.error(response.data.message);
+        }
       }
     } catch (error) {
-      console.log('Error adding to wishlist:', error);
+      console.log('Error updating wishlist:', error);
       toast.error(error.response?.data?.message || error.message);
     }
   };
@@ -343,6 +366,49 @@ const ShopContextProvider = (props) => {
     }
   }
 
+  const fetchGoogleReviews = async () => {
+    try {
+      const response = await apiInstance.get('/google-reviews/get')
+      if (response.data.success) {
+        setGoogleReviews(response.data.reviews)
+      } else {
+        console.log('Google reviews fetch failed:', response.data.message)
+      }
+    } catch (error) {
+      console.log('Error fetching Google reviews:', error)
+    }
+  }
+
+  const fetchCombinedReviews = async (productId = null) => {
+    try {
+      const params = productId ? `?productId=${productId}` : '';
+      const response = await apiInstance.get(`/google-reviews/combined${params}`)
+      if (response.data.success) {
+        setCombinedReviews(response.data.reviews)
+      } else {
+        console.log('Combined reviews fetch failed:', response.data.message)
+      }
+    } catch (error) {
+      console.log('Error fetching combined reviews:', error)
+    }
+  }
+
+  const syncGoogleReviews = async () => {
+    try {
+      const response = await apiInstance.post('/google-reviews/sync')
+      if (response.data.success) {
+        toast.success(`Synced ${response.data.syncedCount} new Google reviews`)
+        // Refresh Google reviews after sync
+        await fetchGoogleReviews()
+      } else {
+        toast.error(response.data.message)
+      }
+    } catch (error) {
+      console.log('Error syncing Google reviews:', error)
+      toast.error('Error syncing Google reviews')
+    }
+  }
+
   const productSearch = () => {
     if (location.pathname === '/collection') {
       setShowSearch(true)
@@ -370,7 +436,7 @@ const ShopContextProvider = (props) => {
     setOrderCount(countNum)
   }
 
-  const getCreditScore = async () => {
+  const getCreditScore = useCallback(async () => {
     try {
       if (!token) {
         return null;
@@ -383,7 +449,7 @@ const ShopContextProvider = (props) => {
       console.error(error);
       toast.error(error.message);
     }
-  };
+  }, [token]);
 
   const getUserCustomData = async () => {
     try {
@@ -426,9 +492,9 @@ const ShopContextProvider = (props) => {
     setSearch('')
   }
 
-  const scrollToTop = () => {
+  const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  }, [])
 
   // Coupon functions
   const validateCoupon = async (couponCode) => {
@@ -521,7 +587,7 @@ const ShopContextProvider = (props) => {
     return [];
   };
 
-  const fetchHighlightedProducts = async () => {
+  const fetchHighlightedProducts = useCallback(async () => {
     try {
       const response = await apiInstance.get('/highlighted-products');
       if (response.data.success) {
@@ -532,12 +598,22 @@ const ShopContextProvider = (props) => {
     } catch (error) {
       console.error('Error fetching highlighted products:', error);
     }
-  };
+  }, []);
 
   const getFinalAmount = () => {
     const cartAmount = getCartAmount();
     const multiProductDiscount = getMultiProductDiscount();
     return Math.max(0, cartAmount - couponDiscount - multiProductDiscount);
+  };
+
+  // Function to update shipping fee based on payment method
+  const updateShippingFee = (method) => {
+    setPaymentMethod(method);
+    if (method === 'cod') {
+      setDelivery_fee(49); // Rs.49 for COD
+    } else {
+      setDelivery_fee(0); // Rs.0 for online payment
+    }
   };
 
   useEffect(() => {
@@ -550,6 +626,7 @@ const ShopContextProvider = (props) => {
     }
     getProductsData();
     fetchReviewList();
+    fetchGoogleReviews();
     getRecentlyViewed();
     fetchHighlightedProducts();
   }, [token]);
@@ -582,10 +659,10 @@ const ShopContextProvider = (props) => {
 
 
   const value = {
-    products, currency, delivery_fee,
+    products, currency, delivery_fee, paymentMethod,
     search, setSearch, showSearch, setShowSearch,
     cartItems, addToCart, addToCartCombo, setCartItems, getCartCount,
-    updateQuantity, getCartAmount, clearCart, updateCartAndSave,
+    updateQuantity, getCartAmount, clearCart, updateCartAndSave, getUserCart,
     navigate, backendUrl, setToken, token, wishlist,
     addToWishlist, getWishlistCount, updateWishlistQuantity,
     setWishlist, updateWishlistAndSave, reviewList, fetchReviewList, usersDetails,
@@ -595,7 +672,9 @@ const ShopContextProvider = (props) => {
     fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
     couponDiscount, getFinalAmount, hasMultipleProducts, getMultiProductDiscount,
     recentlyViewed, addToRecentlyViewed, getRecentlyViewed,
-    highlightedProducts, fetchHighlightedProducts
+    highlightedProducts, fetchHighlightedProducts,
+    googleReviews, combinedReviews, fetchGoogleReviews, fetchCombinedReviews, syncGoogleReviews,
+    updateShippingFee
   }
 
   if (!isContextReady) {

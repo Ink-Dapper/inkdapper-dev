@@ -61,7 +61,7 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                         <span className='text-gray-700 text-sm font-medium'>Shipping Fee</span>
                     </div>
                     <span className='text-gray-900 text-sm font-semibold'>
-                        {currency} {typeof delivery_fee === 'number' ? `${delivery_fee}.00` : delivery_fee}
+                        {currency} {typeof delivery_fee === 'number' ? `${delivery_fee}.00` : delivery_fee === 0 ? '0.00' : delivery_fee}
                     </span>
                 </div>
 

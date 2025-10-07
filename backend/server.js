@@ -15,6 +15,7 @@ import newsLetterRoute from './routes/newsLetterRoute.js'
 import emailRouter from './routes/emailRoute.js'
 import highlightedProductRouter from './routes/highlightedProductRoute.js'
 import notificationRouter from './routes/notificationRoute.js'
+import googleReviewRouter from './routes/googleReviewRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import adminAuth from './middleware/adminAuth.js'
@@ -58,7 +59,7 @@ const corsOptions = {
     if (isAllowed) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
+      // CORS blocked origin - logging disabled for cleaner output
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -96,13 +97,16 @@ app.options('*', cors(corsOptions));
 
 app.use(bodyParser.json())
 
-// Add request logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  next();
-});
+// Request logging - can be enabled with DEBUG_LOGS=true environment variable
+// To enable detailed request logging, set DEBUG_LOGS=true in your environment
+if (process.env.DEBUG_LOGS === 'true') {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    next();
+  });
+}
 
 // Set correct MIME type for JSX files and other assets
 app.use((req, res, next) => {
@@ -185,6 +189,7 @@ app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
 app.use('/api/highlighted-products', highlightedProductRouter)
 app.use('/api/notifications', notificationRouter)
+app.use('/api/google-reviews', googleReviewRouter)
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {
@@ -250,5 +255,4 @@ app.use((err, req, res, next) => {
 app.listen(port, ()=> {
     console.log(`Server is running on port ${port}`)
     console.log(`CORS enabled for production domains`)
-    console.log(`Allowed origins: https://www.inkdapper.com, https://admin.inkdapper.com`)
 })

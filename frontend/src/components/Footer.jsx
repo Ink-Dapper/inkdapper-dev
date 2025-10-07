@@ -250,10 +250,45 @@ const Footer = () => {
       </div>
       <div className='w-full mb-8 md:mb-0 px-4 sm:px-6 lg:px-8'>
         <hr className="border-gray-200" />
-        <div className="py-4 md:py-5 text-center">
-          <p className='text-xs md:text-sm text-gray-600'>
-            Copyright 2024 - {new Date().getFullYear()} © www.inkdapper.com - All Right Reserved.
-          </p>
+        <div className="py-6 md:py-8 text-center bg-gradient-to-r from-gray-50 to-orange-50 rounded-lg mx-2 md:mx-0 border border-gray-100 shadow-sm">
+          <div className="flex flex-col items-center space-y-2">
+            {/* Brand accent line */}
+            <div className="w-16 h-0.5 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
+
+            {/* Copyright text with better mobile typography */}
+            <p className='text-xs sm:text-sm text-gray-700 leading-relaxed px-4'>
+              <span className="font-medium text-gray-800">Copyright 2024 - {new Date().getFullYear()}</span>
+              <br className="sm:hidden" />
+              <span className="sm:mx-1">©</span>
+              <a
+                href="https://www.inkdapper.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-orange-600 hover:text-orange-700 transition-colors duration-200 underline decoration-1 underline-offset-2"
+              >
+                www.inkdapper.com
+              </a>
+              <br className="sm:hidden" />
+              <span className="sm:ml-1 text-gray-600">- All Rights Reserved</span>
+            </p>
+
+            {/* Additional mobile-friendly elements */}
+            <div className="flex items-center justify-center space-x-3 text-xs text-gray-500">
+              <span className="flex items-center space-x-1">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Secure Shopping</span>
+              </span>
+              <span className="hidden sm:block">•</span>
+              <span className="flex items-center space-x-1">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Trusted Brand</span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </>

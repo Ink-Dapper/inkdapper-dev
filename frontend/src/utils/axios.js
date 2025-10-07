@@ -5,7 +5,8 @@ const getBaseURL = () => {
   const isDevelopment = import.meta.env.DEV;
   const productionAPI = 'https://api.inkdapper.com';
   
-  // Always include /api prefix for both development and production
+  // In development, use /api to leverage Vite proxy
+  // In production, use full URL with /api
   return isDevelopment ? '/api' : `${productionAPI}/api`;
 };
 
@@ -15,8 +16,13 @@ const instance = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  timeout: 15000, // 15 seconds timeout
+  timeout: 30000, // 30 seconds timeout for mobile
   withCredentials: true, // Include credentials for CORS
+  // Mobile-specific optimizations
+  maxRedirects: 5,
+  validateStatus: function (status) {
+    return status >= 200 && status < 300; // default
+  },
 });
 
 // Request interceptor
@@ -31,6 +37,12 @@ instance.interceptors.request.use(
     
     // Add device type header
     config.headers['X-Device-Type'] = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop';
+    
+    // Add mobile-specific headers
+    if (/Mobile|Android|iPhone|iPad/.test(navigator.userAgent)) {
+      config.headers['X-Mobile-Optimized'] = 'true';
+      config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+    }
     
     return config;
   },

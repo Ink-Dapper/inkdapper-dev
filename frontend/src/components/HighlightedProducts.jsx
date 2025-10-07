@@ -4,22 +4,15 @@ import ProductItem from './ProductItemWrapper'
 import { Star, Sparkles, Zap } from 'lucide-react'
 
 const HighlightedProducts = () => {
-  const { highlightedProducts, fetchHighlightedProducts } = useContext(ShopContext)
+  const { highlightedProducts } = useContext(ShopContext)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadHighlightedProducts = async () => {
-      try {
-        await fetchHighlightedProducts()
-      } catch (error) {
-        console.error('Error loading highlighted products:', error)
-      } finally {
-        setLoading(false)
-      }
+    // Set loading to false once highlightedProducts are available
+    if (highlightedProducts && highlightedProducts.length >= 0) {
+      setLoading(false)
     }
-
-    loadHighlightedProducts()
-  }, [fetchHighlightedProducts])
+  }, [highlightedProducts])
 
   if (loading) {
     return (
@@ -42,7 +35,7 @@ const HighlightedProducts = () => {
     <section className="py-6 md:py-10 px-4 sm:px-6 lg:px-8 via-white to-red-50 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 via-transparent to-red-50/30"></div>
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-orange-100/20 via-transparent to-red-100/20"></div>
+      <div className="absolute top-0 left-0 w-full h-full"></div>
 
       {/* Floating Elements */}
       <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-orange-200 to-red-200 rounded-full opacity-20 animate-pulse"></div>
@@ -136,7 +129,7 @@ const HighlightedProducts = () => {
 
         {/* Enhanced Call to Action */}
         <div className="text-center">
-          <div className="relative inline-block mt-10 md:mt-0">
+          <div className="relative inline-block mt-10">
             <span className="relative z-10 flex items-center gap-3 group relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/25 transform hover:scale-105 border border-orange-400/50">
               Explore All Featured Products
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

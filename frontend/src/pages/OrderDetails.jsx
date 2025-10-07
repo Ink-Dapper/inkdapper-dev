@@ -16,7 +16,7 @@ const OrderDetails = () => {
       if (!token) {
         return null;
       }
-      const response = await axios.post(backendUrl + '/api/order/user-details', {}, { headers: { token } });
+      const response = await axios.post('/order/user-details', {});
       if (response.data.success) {
         console.log(response.data.orders)
         setOrderData(response.data.orders);

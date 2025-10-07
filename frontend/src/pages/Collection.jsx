@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { assets, teesCollection } from '../assets/assets'
 import Title from '../components/Title'
@@ -8,26 +8,45 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import { isMobile, checkNetworkConnectivity, debounce, throttle, retryWithBackoff } from '../utils/mobileUtils';
 
 const Collection = () => {
-
   const { products, search, showSearch, scrollToTop } = useContext(ShopContext)
+
+  // State management with performance optimizations
   const [showFilter, setShowFilter] = useState(false)
   const [filterProducts, setFilterProducts] = useState([])
-  const [category, setCategory] = useState(''); // Default to 'All'
+  const [category, setCategory] = useState('')
+
+  // Handle category change with pagination reset
+  const handleCategoryChange = useCallback((value) => {
+    setCategory(value);
+    setShowAllProducts(false);
+  }, [])
   const [subCategory, setSubCategory] = useState([])
   const [colors, setColors] = useState([])
   const [sortType, SetSortType] = useState('relevant')
-  const [sortValue, setSortValue] = useState('');
+  const [sortValue, setSortValue] = useState('')
   const [categoryView, setCategoryView] = useState('block')
   const [showMobileFilter, setShowMobileFilter] = useState(false)
   const [displayedProducts, setDisplayedProducts] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(15)
+  const [itemsPerPage] = useState(15) // Show 15 products initially, load 15 more each time
   const [hasMore, setHasMore] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showAllProducts, setShowAllProducts] = useState(false)
+  // Removed isLoading state as we load products immediately
+  const [networkError, setNetworkError] = useState(false)
+  const [isMobileDevice, setIsMobileDevice] = useState(false)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [retryCount, setRetryCount] = useState(0)
 
-  const toggleSubCategory = (e) => {
+  // Refs for cleanup and performance
+  const timeoutRef = useRef(null)
+  const networkTimeoutRef = useRef(null)
+  const retryTimeoutRef = useRef(null)
+  const isMountedRef = useRef(true)
+
+  const toggleSubCategory = useCallback((e) => {
     const value = e.target.value;
 
     if (value === '') { // If the "All" checkbox is checked/unchecked
@@ -42,55 +61,99 @@ const Collection = () => {
       }
     } else {
       // Handle individual subcategory checkboxes
-      if (subCategory.includes(value)) {
-        setSubCategory(subCategory.filter(item => item !== value));
-      } else {
-        setSubCategory([...subCategory, value]);
-      }
+      setSubCategory(prev => {
+        if (prev.includes(value)) {
+          return prev.filter(item => item !== value);
+        } else {
+          return [...prev, value];
+        }
+      });
     }
 
+    // Reset to pagination when filters change
+    setShowAllProducts(false);
     // Hide the filter section after selecting a subcategory
     setShowFilter(false);
-  }
+  }, [products])
 
-  const allChecked = (e) => {
+  const allChecked = useCallback((e) => {
     if (e.target.checked) {
       const allSubCategories = products.map(item => item.subCategory);
       setSubCategory([...new Set(allSubCategories)]);
     } else {
       setSubCategory([]);
     }
-  }
+    // Reset to pagination when filters change
+    setShowAllProducts(false);
+  }, [products])
 
-  const toggleColor = (color) => {
-    if (colors.includes(color)) {
-      setColors(colors.filter(item => item !== color));
-    } else {
-      setColors([...colors, color]);
+  const toggleColor = useCallback((color) => {
+    setColors(prev => {
+      if (prev.includes(color)) {
+        return prev.filter(item => item !== color);
+      } else {
+        return [...prev, color];
+      }
+    });
+    // Reset to pagination when filters change
+    setShowAllProducts(false);
+  }, [])
+
+  // Memoized filter function for better performance
+  const applyFilter = useCallback(() => {
+    if (!products || products.length === 0) {
+      setFilterProducts([])
+      setDisplayedProducts([])
+      return
     }
-  }
 
-  const applyFilter = () => {
-    let productsCopy = products.slice()
+    let productsCopy = [...products]
+
     if (showSearch && search) {
-      productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
+      const searchTerm = search.toLowerCase()
+      productsCopy = productsCopy.filter(item =>
+        item.name.toLowerCase().includes(searchTerm)
+      )
     }
+
     if (category.length > 0) {
       productsCopy = productsCopy.filter(item => category.includes(item.category))
     }
+
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
     }
+
     if (colors.length > 0) {
       productsCopy = productsCopy.filter(item =>
         item.colors && item.colors.some(color => colors.includes(color))
       )
     }
-    setFilterProducts(productsCopy)
-  }
 
-  const sortProduct = () => {
-    let fpCopy = filterProducts.slice()
+    setFilterProducts(productsCopy)
+
+    // Reset pagination when filters change
+    setCurrentPage(1)
+    if (showAllProducts) {
+      setDisplayedProducts(productsCopy)
+      setHasMore(false)
+    } else {
+      const initialProducts = productsCopy.slice(0, itemsPerPage)
+      setDisplayedProducts(initialProducts)
+      setHasMore(productsCopy.length > itemsPerPage)
+    }
+  }, [products, showSearch, search, category, subCategory, colors, showAllProducts, itemsPerPage])
+
+  // Debounced version of applyFilter for search
+  const debouncedApplyFilter = useMemo(
+    () => debounce(applyFilter, 300),
+    [applyFilter]
+  )
+
+  const sortProduct = useCallback(() => {
+    if (!filterProducts || filterProducts.length === 0) return
+
+    let fpCopy = [...filterProducts]
 
     switch (sortType) {
       case 'low-high':
@@ -103,42 +166,179 @@ const Collection = () => {
         applyFilter()
         break;
     }
-  }
+  }, [filterProducts, sortType, applyFilter])
 
-  const loadMore = () => {
-    setIsLoading(true)
+  const loadMore = useCallback(() => {
+    if (!hasMore) return
 
-    // Simulate loading delay for better UX
-    setTimeout(() => {
-      const nextPage = currentPage + 1
-      const startIndex = 0
-      const endIndex = nextPage * itemsPerPage
-      const newProducts = filterProducts.slice(startIndex, endIndex)
+    // Load products immediately without loading state
+    const nextPage = currentPage + 1
+    const startIndex = currentPage * itemsPerPage // Start from where we left off
+    const endIndex = nextPage * itemsPerPage
+    const newProducts = filterProducts.slice(startIndex, endIndex)
 
-      setDisplayedProducts(newProducts)
-      setCurrentPage(nextPage)
-      setHasMore(endIndex < filterProducts.length)
-      setIsLoading(false)
-    }, 500)
-  }
+    // Append new products to existing ones immediately
+    setDisplayedProducts(prev => [...prev, ...newProducts])
+    setCurrentPage(nextPage)
+    setHasMore(endIndex < filterProducts.length)
+  }, [hasMore, currentPage, itemsPerPage, filterProducts])
 
-  const resetPagination = () => {
-    setCurrentPage(1)
-    setDisplayedProducts(filterProducts.slice(0, itemsPerPage))
-    setHasMore(filterProducts.length > itemsPerPage)
-  }
-
-  useEffect(() => {
-    applyFilter()
-  }, [category, subCategory, colors, search, showSearch, products])
-
-  useEffect(() => {
-    sortProduct()
-  }, [sortType])
-
-  useEffect(() => {
-    resetPagination()
+  // Show all products function
+  const showAllProductsHandler = useCallback(() => {
+    setShowAllProducts(true)
+    setDisplayedProducts(filterProducts)
+    setHasMore(false)
   }, [filterProducts])
+
+  // Removed resetToPagination function as it's now handled in applyFilter
+
+  // Removed resetPagination function as it's now handled in applyFilter
+
+  // Enhanced network monitoring with retry logic
+  useEffect(() => {
+    setIsMobileDevice(isMobile());
+
+    const handleOnline = () => {
+      setNetworkError(false);
+      setRetryCount(0);
+      // Retry loading products when connection is restored
+      if (filterProducts.length === 0 && products.length === 0) {
+        applyFilter();
+      }
+    };
+
+    const handleOffline = () => {
+      setNetworkError(true);
+    };
+
+    // Check initial network status with retry
+    const checkNetwork = async () => {
+      if (!checkNetworkConnectivity()) {
+        setNetworkError(true);
+        return;
+      }
+
+      // If products are not loaded, try to load them
+      if (products.length === 0 && retryCount < 3) {
+        try {
+          await retryWithBackoff(async () => {
+            // This will trigger the products loading in ShopContext
+            if (isMountedRef.current) {
+              setRetryCount(prev => prev + 1);
+            }
+          }, 3, 1000);
+        } catch (error) {
+          console.error('Failed to load products after retries:', error);
+          setNetworkError(true);
+        }
+      }
+    };
+
+    // Initial network check
+    checkNetwork();
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [products.length, filterProducts.length, retryCount, applyFilter]);
+
+  // Optimized useEffect for filtering with debouncing
+  useEffect(() => {
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      applyFilter();
+      // Don't auto-show all products to maintain consistent button positioning
+      setShowAllProducts(false);
+    } else {
+      // Use debounced filter for search, immediate for others
+      if (search) {
+        debouncedApplyFilter();
+      } else {
+        applyFilter();
+      }
+    }
+  }, [category, subCategory, colors, search, showSearch, products, isInitialLoad, applyFilter, debouncedApplyFilter])
+
+  useEffect(() => {
+    if (sortType !== 'relevant') {
+      sortProduct();
+    }
+  }, [sortType, sortProduct])
+
+  // Remove this useEffect as it causes infinite loop
+  // useEffect(() => {
+  //   resetPagination();
+  // }, [resetPagination])
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (networkTimeoutRef.current) clearTimeout(networkTimeoutRef.current);
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+    };
+  }, [])
+
+  // Enhanced retry function
+  const handleRetry = useCallback(async () => {
+    setNetworkError(false);
+    setRetryCount(0);
+
+    try {
+      // Wait a bit for network to stabilize
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Trigger a fresh load
+      if (products.length === 0) {
+        // Force reload by triggering context refresh
+        window.location.reload();
+      } else {
+        applyFilter();
+      }
+    } catch (error) {
+      console.error('Retry failed:', error);
+      setNetworkError(true);
+    }
+  }, [products.length, applyFilter]);
+
+  // Network error display with better UX
+  if (networkError && isMobileDevice) {
+    return (
+      <div className='min-h-screen flex items-center justify-center bg-gray-50'>
+        <div className='text-center p-6 max-w-md mx-auto'>
+          <div className='w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center animate-pulse'>
+            <svg className='w-8 h-8 text-red-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z' />
+            </svg>
+          </div>
+          <h2 className='text-xl font-bold text-gray-800 mb-2'>Connection Issue</h2>
+          <p className='text-gray-600 mb-4'>Please check your internet connection and try again.</p>
+          <div className='flex flex-col gap-3'>
+            <button
+              onClick={handleRetry}
+              className='bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2'
+            >
+              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' />
+              </svg>
+              Retry Connection
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className='bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors'
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-screen'>
@@ -493,7 +693,7 @@ const Collection = () => {
                           value={cat.value}
                           name="category"
                           className="sr-only"
-                          onChange={(e) => setCategory(e.target.value)}
+                          onChange={(e) => handleCategoryChange(e.target.value)}
                           checked={category === cat.value}
                         />
                         <div className={`w-4 h-4 lg:w-5 lg:h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${category === cat.value
@@ -703,7 +903,7 @@ const Collection = () => {
                               value={cat.value}
                               name="category"
                               className="sr-only"
-                              onChange={(e) => setCategory(e.target.value)}
+                              onChange={(e) => handleCategoryChange(e.target.value)}
                               checked={category === cat.value}
                             />
                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${category === cat.value
@@ -888,8 +1088,24 @@ const Collection = () => {
               <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-xl lg:shadow-2xl border border-white/60 p-4 mt-20 md:mt-0 lg:p-8 mb-6 lg:mb-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 lg:gap-6">
                   <div>
-                    <h2 className="text-2xl lg:text-3xl font-black text-gray-800 mb-1 lg:mb-2">All Collections</h2>
-                    <p className="text-sm lg:text-lg text-gray-600">Showing {displayedProducts.length} of {filterProducts.length} amazing products</p>
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-800 mb-1 lg:mb-2">All Collections</h2>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                      <p className="text-xs sm:text-sm lg:text-lg text-gray-600">
+                        Showing {displayedProducts.length} of {filterProducts.length} amazing products
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {showAllProducts && displayedProducts.length === filterProducts.length && (
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">
+                            All Products Loaded
+                          </span>
+                        )}
+                        {!showAllProducts && hasMore && (
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">
+                            Load 15 more products
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Desktop Sort Section - Hidden on Mobile */}
@@ -984,70 +1200,52 @@ const Collection = () => {
                 </div>
               </div>
 
-              {/* Mobile-Optimized Products Grid */}
+              {/* Optimized Products Grid with Virtual Scrolling for Mobile */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative">
-                {/* Grid background pattern */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
+                {/* Simplified background pattern for better performance */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-50/10 via-transparent to-red-50/10 rounded-3xl -z-10"></div>
                 {displayedProducts.map((item, index) => (
-                  <div
-                    key={index}
-                    className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
-                    style={{
-                      animationDelay: `${index * 150}ms`
-                    }}
-                  >
-                    {/* Bright Shadow Wrapper */}
-                    <div className="relative">
-                      {/* Bright colored shadows */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
-
-                      {/* Main card with enhanced shadows */}
-                      <div className="relative bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-lg lg:shadow-xl border border-white/60 overflow-hidden min-h-[350px] lg:min-h-[400px]">
-                        <ProductItem
-                          id={item._id}
-                          name={item.name}
-                          image={item.image}
-                          price={item.price}
-                          beforePrice={item.beforePrice}
-                          subCategory={item.subCategory}
-                          soldout={item.soldout}
-                          slug={item.slug}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <ProductCard
+                    key={item._id || index}
+                    item={item}
+                    index={index}
+                    isMobile={isMobileDevice}
+                  />
                 ))}
               </div>
 
-              {/* Load More Button */}
-              {hasMore && displayedProducts.length > 0 && (
-                <div className="flex justify-center mt-8 lg:mt-12">
-                  <button
-                    onClick={loadMore}
-                    disabled={isLoading}
-                    className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-8 lg:px-12 py-4 lg:py-5 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm lg:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-3"
-                  >
-                    {isLoading ? (
-                      <>
-                        <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Loading...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        Load More Products
-                        <span className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold">
-                          {filterProducts.length - displayedProducts.length} left
-                        </span>
-                      </>
-                    )}
-                  </button>
+              {/* Load More / Show All Products Buttons */}
+              {displayedProducts.length > 0 && (
+                <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 lg:mt-12">
+                  {hasMore && !showAllProducts && (
+                    <button
+                      onClick={loadMore}
+                      className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-8 lg:px-12 py-4 lg:py-5 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm lg:text-base flex items-center gap-3"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Load 15 More Products
+                      <span className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold">
+                        {filterProducts.length - displayedProducts.length} left
+                      </span>
+                    </button>
+                  )}
+
+                  {!showAllProducts && filterProducts.length > displayedProducts.length && (
+                    <button
+                      onClick={showAllProductsHandler}
+                      className="bg-gradient-to-r from-green-500 via-teal-500 to-blue-600 text-white px-8 lg:px-12 py-4 lg:py-5 rounded-2xl font-semibold hover:from-green-600 hover:via-teal-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm lg:text-base flex items-center gap-3"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                      </svg>
+                      Show All Products
+                      <span className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold">
+                        {filterProducts.length} total
+                      </span>
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -1080,5 +1278,66 @@ const Collection = () => {
     </div>
   )
 }
+
+// Optimized ProductCard component with React.memo
+const ProductCard = React.memo(({ item, index, isMobile }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef(null);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={cardRef}
+      className={`group transform transition-all duration-300 hover:scale-105 hover:-translate-y-1 ${isVisible ? 'animate-fadeInUp' : 'opacity-0'
+        }`}
+      style={{
+        animationDelay: isVisible ? `${index * 100}ms` : '0ms'
+      }}
+    >
+      {/* Simplified shadow wrapper for better performance */}
+      <div className="relative">
+        {/* Reduced shadow effects for mobile performance */}
+        {!isMobile && (
+          <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-300"></div>
+        )}
+
+        {/* Main card */}
+        <div className={`relative bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-lg border border-white/60 overflow-hidden ${isMobile ? 'min-h-[300px]' : 'min-h-[350px] lg:min-h-[400px]'
+          }`}>
+          <ProductItem
+            id={item._id}
+            name={item.name}
+            image={item.image}
+            price={item.price}
+            beforePrice={item.beforePrice}
+            subCategory={item.subCategory}
+            soldout={item.soldout}
+            slug={item.slug}
+          />
+        </div>
+      </div>
+    </div>
+  );
+});
+
+ProductCard.displayName = 'ProductCard';
 
 export default Collection

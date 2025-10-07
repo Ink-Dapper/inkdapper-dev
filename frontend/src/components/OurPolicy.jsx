@@ -12,7 +12,7 @@ const OurPolicy = () => {
   }
 
   return (
-    <section className="relative py-8 md:py-24 overflow-hidden">
+    <section className="our-policy-section relative py-8 md:py-24 overflow-hidden">
       {/* Modern Background with decorative elements */}
       <div className="absolute inset-0"></div>
       <div className="absolute top-10 left-1/4 w-72 h-72 bg-gradient-to-r from-orange-200/30 to-amber-200/30 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse"></div>

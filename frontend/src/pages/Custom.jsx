@@ -23,7 +23,7 @@ const Custom = () => {
         if (!token) {
           return;
         }
-        const response = await axios.post(backendUrl + "/api/user/profile", {}, {
+        const response = await axios.post("/user/profile", {}, {
           headers: { token }
         });
         if (response.data.success) {
@@ -79,7 +79,7 @@ const Custom = () => {
       formDataOne.append("imageValue", imageValue);
 
       // Send the custom data to the backend
-      const response = await axios.post(backendUrl + "/api/cart/custom", formDataOne, { headers: { token } });
+      const response = await axios.post("/cart/custom", formDataOne, { headers: { token } });
       console.log(response.data)
       if (response.data.success) {
         toast.success(response.data.message);
@@ -143,7 +143,7 @@ const Custom = () => {
                 teesCollection.map((item, index) => (
                   <div key={index} className=''>
                     <div className='w-12 h-16 flex gap-2'>
-                      <img onClick={() => {setImageId(item._id); setImage(item.image); setImageValue(item.color); }} src={item.image} key={index} alt="product-image" className='w-[100%] h-[100%] flex-shrink-0 cursor-pointer' />
+                      <img onClick={() => { setImageId(item._id); setImage(item.image); setImageValue(item.color); }} src={item.image} key={index} alt="product-image" className='w-[100%] h-[100%] flex-shrink-0 cursor-pointer' />
                     </div>
                   </div>
                 ))

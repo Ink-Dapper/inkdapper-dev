@@ -11,6 +11,10 @@ import Chatbot from './components/Chatbot';
 import NotFound from './pages/NotFound';
 import { setupGlobalErrorHandling } from './utils/errorHandler';
 import ErrorBoundary from './components/ErrorBoundary';
+import { initIOSFixes, addIOSStyles } from './utils/iosSafariFix';
+import PerformanceMonitor from './components/PerformanceMonitor';
+import ThemeToggle from './components/ThemeToggle';
+import { initPerformanceOptimizations } from './utils/performanceOptimizer';
 
 // Lazy load modals
 const NewsletterModal = lazy(() => import('./components/NewsletterModal'));
@@ -37,6 +41,7 @@ const CancellationAndRefund = lazy(() => import(/* webpackChunkName: "cancellati
 const ShippingAndDelivery = lazy(() => import(/* webpackChunkName: "shipping" */ './pages/ShippingAndDelivery'));
 const ChatbotPage = lazy(() => import(/* webpackChunkName: "chatbot" */ './pages/ChatbotPage'));
 const JobExplore = lazy(() => import(/* webpackChunkName: "job-explore" */ './pages/JobExplore'));
+const ThankYou = lazy(() => import(/* webpackChunkName: "thank-you" */ './pages/ThankYou'));
 
 // Prefetch routes on hover
 const prefetchRoute = (importFn) => {
@@ -50,60 +55,91 @@ const App = () => {
   // Initialize global error handling
   useEffect(() => {
     setupGlobalErrorHandling();
+    // Initialize iOS Safari fixes
+    initIOSFixes();
+    addIOSStyles();
+
+    // Initialize performance optimizations
+    initPerformanceOptimizations();
+
+    // Register performance-optimized service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw-performance.js')
+        .then((registration) => {
+          console.log('Performance SW registered:', registration);
+        })
+        .catch((error) => {
+          console.log('Performance SW registration failed:', error);
+          // Fallback to mobile service worker
+          if (/Mobile|Android|iPhone|iPad/.test(navigator.userAgent)) {
+            navigator.serviceWorker.register('/sw-mobile.js')
+              .then((registration) => {
+                console.log('Mobile SW registered as fallback:', registration);
+              })
+              .catch((error) => {
+                console.log('Mobile SW fallback registration failed:', error);
+              });
+          }
+        });
+    }
   }, []);
 
   return (
-    <div className="app-container">
-      {/* Global Background */}
-      <div className="global-background">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-red-50/10 to-yellow-50/10"></div>
-        <div className="absolute top-0 left-1/4 w-72 h-72 bg-gradient-to-r from-orange-200/15 to-red-200/15 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gradient-to-r from-yellow-200/15 to-orange-200/15 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-0 w-48 h-48 bg-gradient-to-r from-red-200/15 to-pink-200/15 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-1000"></div>
-        <div className="absolute top-1/4 right-0 w-64 h-64 bg-gradient-to-r from-yellow-200/10 to-orange-200/10 rounded-full mix-blend-multiply filter blur-xl opacity-12 animate-pulse animation-delay-3000"></div>
-        <div className="absolute bottom-1/4 left-1/2 w-56 h-56 bg-gradient-to-r from-red-200/12 to-orange-200/12 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse animation-delay-1500"></div>
-      </div>
+    <PerformanceMonitor enableMonitoring={process.env.NODE_ENV === 'development'}>
+      <div className="app-container">
+        {/* Global Background */}
+        <div className="global-background">
+          {/* Theme-adaptive color orbs with mild opacity */}
+          <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse color-orb-1"></div>
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000 color-orb-2"></div>
+          <div className="absolute top-1/2 left-0 w-48 h-48 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-1000 color-orb-3"></div>
+          <div className="absolute top-1/4 right-0 w-64 h-64 rounded-full mix-blend-multiply filter blur-xl opacity-12 animate-pulse animation-delay-3000 color-orb-4"></div>
+          <div className="absolute bottom-1/4 left-1/2 w-56 h-56 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse animation-delay-1500 color-orb-5"></div>
+        </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 px-3 pb-5 md:pb-0 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
-        <ToastContainer />
-        <Navbar />
-        <ErrorBoundary>
-          <Suspense fallback={<SkeletonLoader />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/collection" element={<Collection />} />
-              <Route path="/custom" element={<Custom />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/product/:productId/:slug" element={<Product />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/place-order" element={<PlaceOrder />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/order-details/:productId" element={<OrderDetails />} />
-              <Route path="/review-page" element={<ReviewViewMore />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-              <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
-              <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
-              <Route path="/chatbot" element={<ChatbotPage />} />
-              <Route path="/jobs" element={<JobExplore />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-          <Footer />
-          <ScrollToTop />
-          <Chatbot />
-          <Suspense fallback={null}>
-            <NewsletterModal />
-            <PriceOfferModal />
-          </Suspense>
-        </ErrorBoundary>
+        {/* Main Content */}
+        <div className="relative z-10 px-3 pb-5 md:pb-0 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
+          <ToastContainer />
+          <Navbar />
+          <ErrorBoundary>
+            <Suspense fallback={<SkeletonLoader />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/collection" element={<Collection />} />
+                <Route path="/custom" element={<Custom />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/product/:productId/:slug" element={<Product />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/place-order" element={<PlaceOrder />} />
+                <Route path="/thank-you" element={<ThankYou />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/order-details/:productId" element={<OrderDetails />} />
+                <Route path="/review-page" element={<ReviewViewMore />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
+                <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
+                <Route path="/chatbot" element={<ChatbotPage />} />
+                <Route path="/jobs" element={<JobExplore />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+            <Footer />
+            <ScrollToTop />
+            <Chatbot />
+            <ThemeToggle className="hidden md:block" />
+            <Suspense fallback={null}>
+              <NewsletterModal />
+              <PriceOfferModal />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
       </div>
-    </div>
+    </PerformanceMonitor>
   );
 };
 
