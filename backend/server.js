@@ -78,10 +78,13 @@ app.use(bodyParser.json());
 // Apply CORS before other middleware
 app.use(cors(corsOptions));
 
-// EMERGENCY CORS HEADERS - Add to ALL responses
+// EMERGENCY CORS HEADERS - Add to ALL responses (Mobile Optimized)
 app.use((req, res, next) => {
   // Set CORS headers for ALL requests
   const origin = req.headers.origin;
+  const userAgent = req.headers['user-agent'] || '';
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  
   const allowedOrigins = [
     'https://www.inkdapper.com',
     'https://inkdapper.com',
@@ -91,19 +94,25 @@ app.use((req, res, next) => {
     'http://localhost:3000'
   ];
   
-  // Use specific origin if it's allowed, otherwise use the requesting origin
+  // Mobile-friendly CORS handling
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
-  } else if (origin) {
+  } else if (origin && !isMobile) {
     res.header('Access-Control-Allow-Origin', origin);
   } else {
+    // Default to main site for mobile or unknown origins
     res.header('Access-Control-Allow-Origin', 'https://www.inkdapper.com');
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, token, X-Requested-With, X-Device-Type, Accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, token, X-Requested-With, X-Device-Type, Accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, User-Agent');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400');
+  
+  // Additional headers for mobile
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.header('X-Frame-Options', 'DENY');
+  res.header('X-XSS-Protection', '1; mode=block');
   
   // Handle preflight requests immediately
   if (req.method === 'OPTIONS') {

@@ -8,10 +8,16 @@ import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 
 const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug, comboPrices }) => {
-  // Safety check: ensure id is valid
-  if (!id) {
-    console.error('ProductItem: Missing or invalid id prop', { id, name });
-    return null; // Don't render if no valid id
+  // Debug logging to see what's being passed
+  console.log('ProductItem props:', { id, name, hasId: !!id, idType: typeof id });
+
+  // TEMPORARY: Use fallback id to show products while debugging
+  const productId = id || 'temp-id-' + Math.random().toString(36).substr(2, 9);
+
+  // Safety check: only hide if completely invalid
+  if (id === 'undefined' || id === 'null') {
+    console.error('ProductItem: Invalid id prop', { id, name });
+    return null;
   }
 
   // Fallback: generate slug from name if slug is missing
@@ -53,9 +59,9 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     if (!token) {
       toast.error('Please login to add product to wishlist', { autoClose: 1000, });
     } else {
-      addToWishlist(id);
+      addToWishlist(productId);
     }
-  }, [token, addToWishlist, id]);
+  }, [token, addToWishlist, productId]);
 
   const funcFavWishlist = () => {
     const obj = wishlist;
@@ -92,7 +98,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
+    const productUrl = `${window.location.origin}/product/${productId}/${safeSlug}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
@@ -105,7 +111,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
+    const productUrl = `${window.location.origin}/product/${productId}/${safeSlug}`;
     navigator.clipboard.writeText(productUrl);
 
     toast.info('Link copied! Open Instagram and paste in your story or message', { autoClose: 3000 });
@@ -116,7 +122,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
+    const productUrl = `${window.location.origin}/product/${productId}/${safeSlug}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
 
     if (navigator.share) {
@@ -230,7 +236,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
           }
         }}
         className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
-        to={`/product/${id}/${safeSlug}`}
+        to={`/product/${productId}/${safeSlug}`}
       >
         <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">

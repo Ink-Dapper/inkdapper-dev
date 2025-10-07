@@ -235,10 +235,13 @@ const ShopContextProvider = (props) => {
     try {
       const response = await apiInstance.get('/product/list')
       if (response.data.success) {
-        // Filter out products without valid _id
-        const validProducts = response.data.products.filter(product => product._id);
-        console.log(`Loaded ${validProducts.length} products (filtered ${response.data.products.length - validProducts.length} invalid products)`);
-        setProducts(validProducts)
+        console.log('Raw products from API:', response.data.products.length);
+        console.log('Sample product:', response.data.products[0]);
+
+        // TEMPORARY: Don't filter products to show them all
+        // TODO: Debug why _id might be missing and fix properly
+        console.log(`Loaded ${response.data.products.length} products (no filtering applied)`);
+        setProducts(response.data.products)
       } else {
         toast.error(response.data.message)
       }
