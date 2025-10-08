@@ -258,22 +258,8 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         )}
       </div>
 
-      <Link
-        onClick={(e) => {
-          // Prevent navigation if no valid product ID
-          if (!productId || productId === 'undefined' || productId === 'null') {
-            e.preventDefault();
-            toast.error('Product not available');
-            return;
-          }
-          if (scrollToTop) {
-            scrollToTop();
-          }
-        }}
-        className={`text-slate-700 cursor-pointer ${soldout || !productId ? 'pointer-events-none' : ''}`}
-        to={productId && productId !== 'undefined' && productId !== 'null' ? `/product/${productId}/${safeSlug}` : '#'}
-      >
-        <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
+      <Link onClick={() => scrollToTop()} className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`} to={`/product/${id}/${safeSlug}`}>
+        <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">
             <div className="w-full h-full relative" style={{ aspectRatio: '3/4' }}>
               <img
@@ -322,7 +308,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 </div>
               </div>
 
-
               {/* Enhanced Floating Elements */}
               <div className="absolute top-4 left-4 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse"></div>
               <div className="absolute top-6 right-16 w-2 h-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse animation-delay-2000"></div>
@@ -336,7 +321,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
             {/* Category Badge */}
             {changeText && (
               <div className="flex justify-start">
-                <span className='category-badge font-medium text-sm space-x-1 bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white shadow-lg border border-orange-400/30 rounded-full px-3 py-1'>
+                <span className='category-badge text-white font-medium text-sm space-x-1 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 shadow-lg border border-slate-600/20'>
                   {changeText}
                 </span>
               </div>
@@ -344,69 +329,21 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
             {/* Product Name */}
             <div className="flex items-start mt-1">
-              <h3 className='product-name text-sm md:text-lg font-semibold text-slate-900 group-hover:text-orange-700 transition-colors duration-300 truncate'>
+              <h3 className='product-name text-sm md:text-lg font-semibold text-slate-900 group-hover:text-orange-700 transition-colors duration-300'>
                 {name}
               </h3>
             </div>
 
             {/* Price Section */}
             <div className='price-container'>
-              <div className="flex items-center justify-between">
-                <div className="flex flex-row items-center gap-2">
-                  {beforePrice && (
-                    <p className='text-sm text-slate-400 font-semibold line-through original-price'>
-                      {currency} {beforePrice}
-                    </p>
-                  )}
-                  <p className='text-1xl md:text-2xl font-black price'>
-                    {currency} {price}
-                  </p>
-
-                  {/* Offer Percentage Badge */}
-                  {offerPercentage > 0 && (
-                    <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-[2px] rounded-full shadow-lg border border-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <span className="text-sm font-semibold text-white">
-                        -{offerPercentage}%
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Combo Pricing Display */}
-              {comboPrices && comboPrices.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Combo Offers</div>
-                  <div className="flex flex-wrap gap-2">
-                    {comboPrices.slice(0, 2).map((combo, index) => (
-                      <div key={index} className="bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-200 rounded-lg px-3 py-2 text-xs">
-                        <div className="font-bold text-yellow-800">{combo.quantity}x</div>
-                        <div className="text-yellow-700 font-semibold">{currency} {combo.price}</div>
-                        {combo.discount > 0 && (
-                          <div className="text-green-600 font-medium">{combo.discount}% OFF</div>
-                        )}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            addToCartCombo(id, combo.quantity);
-                          }}
-                          disabled={soldout}
-                          className="mt-1 w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white text-xs font-semibold py-1 px-2 rounded transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
-                        >
-                          Add {combo.quantity} to Cart
-                        </button>
-                      </div>
-                    ))}
-                    {comboPrices.length > 2 && (
-                      <div className="bg-gradient-to-r from-slate-100 to-slate-200 border border-slate-300 rounded-lg px-3 py-2 text-xs">
-                        <div className="font-bold text-slate-700">+{comboPrices.length - 2} more</div>
-                        <div className="text-slate-600">offers</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+              {beforePrice && (
+                <p className='text-sm text-slate-400 font-semibold line-through original-price'>
+                  {currency} {beforePrice}
+                </p>
               )}
+              <p className='text-1xl md:text-2xl font-black price'>
+                {currency} {price}
+              </p>
             </div>
 
             {/* Bottom Section */}
