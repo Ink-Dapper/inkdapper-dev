@@ -15,7 +15,8 @@ import newsLetterRoute from './routes/newsLetterRoute.js'
 import emailRouter from './routes/emailRoute.js'
 import highlightedProductRouter from './routes/highlightedProductRoute.js'
 import notificationRouter from './routes/notificationRoute.js'
-import googleReviewRouter from './routes/googleReviewRoute.js'
+// Google Reviews - Commented out
+// import googleReviewRouter from './routes/googleReviewRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import adminAuth from './middleware/adminAuth.js'
@@ -236,7 +237,8 @@ app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
 app.use('/api/highlighted-products', highlightedProductRouter)
 app.use('/api/notifications', notificationRouter)
-app.use('/api/google-reviews', googleReviewRouter)
+// Google Reviews - Commented out
+// app.use('/api/google-reviews', googleReviewRouter)
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {

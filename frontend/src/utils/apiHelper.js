@@ -81,13 +81,15 @@ export const apiEndpoints = {
   addToWishlist: (wishlistData) => apiCall.post('/wishlist/add', wishlistData),
   getWishlist: () => apiCall.post('/wishlist/get'),
   
-  // Google Reviews endpoints
+  // Google Reviews endpoints - Commented out
+  /*
   getGoogleReviews: () => apiCall.get('/google-reviews/get'),
   getCombinedReviews: (productId = null) => {
     const endpoint = productId ? `/google-reviews/combined?productId=${productId}` : '/google-reviews/combined';
     return apiCall.get(endpoint);
   },
   syncGoogleReviews: () => apiCall.post('/google-reviews/sync')
+  */
 };
 
 export default apiEndpoints;

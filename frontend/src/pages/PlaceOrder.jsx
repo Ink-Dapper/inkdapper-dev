@@ -399,7 +399,7 @@ const PlaceOrder = () => {
                     if (!product) return null;
 
                     return Object.entries(sizes).map(([size, quantity]) => (
-                      <div key={`${productId}-${size}`} className='bg-gradient-to-r from-gray-50 to-gray-100  rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-all duration-300'>
+                      <div key={`${productId}-${size}`} className='bg-gradient-to-r from-gray-50 to-gray-100  rounded-xl p-3 sm:p-4 border border-gray-200 hover:shadow-md transition-all duration-300'>
                         <div className='flex items-start sm:items-center gap-3 sm:gap-4'>
                           {/* Product Image */}
                           <div className='w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-600 flex-shrink-0'>
@@ -412,7 +412,7 @@ const PlaceOrder = () => {
 
                           {/* Product Details */}
                           <div className='flex-1 min-w-0'>
-                            <h3 className='font-bold text-gray-900 dark:text-gray-100 text-sm sm:text-base md:text-lg truncate' title={product.name}>
+                            <h3 className='font-bold text-gray-900 text-sm sm:text-base md:text-lg truncate' title={product.name}>
                               {product.name}
                             </h3>
 

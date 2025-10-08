@@ -32,8 +32,9 @@ const ShopContextProvider = (props) => {
   })
   const navigate = useNavigate()
   const [reviewList, setReviewList] = useState([])
-  const [googleReviews, setGoogleReviews] = useState([])
-  const [combinedReviews, setCombinedReviews] = useState([])
+  // Google Reviews - Commented out
+  // const [googleReviews, setGoogleReviews] = useState([])
+  // const [combinedReviews, setCombinedReviews] = useState([])
   const [usersDetails, setUsersDetails] = useState([])
   const [orderData, setOrderData] = useState([])
   const [orderCount, setOrderCount] = useState(0)
@@ -235,13 +236,16 @@ const ShopContextProvider = (props) => {
     try {
       const response = await apiInstance.get('/product/list')
       if (response.data.success) {
-        console.log('Raw products from API:', response.data.products.length);
-        console.log('Sample product:', response.data.products[0]);
+        // Set products directly from API response
+        const products = response.data.products || [];
+        console.log(`✅ Loaded ${products.length} products from API`);
 
-        // TEMPORARY: Don't filter products to show them all
-        // TODO: Debug why _id might be missing and fix properly
-        console.log(`Loaded ${response.data.products.length} products (no filtering applied)`);
-        setProducts(response.data.products)
+        // Log first product for debugging
+        if (products.length > 0) {
+          console.log('First product:', products[0]);
+        }
+
+        setProducts(products)
       } else {
         toast.error(response.data.message)
       }
@@ -372,6 +376,8 @@ const ShopContextProvider = (props) => {
     }
   }
 
+  // Google Reviews Functions - Commented out
+  /*
   const fetchGoogleReviews = async () => {
     try {
       const response = await apiInstance.get('/google-reviews/get')
@@ -414,6 +420,7 @@ const ShopContextProvider = (props) => {
       toast.error('Error syncing Google reviews')
     }
   }
+  */
 
   const productSearch = () => {
     if (location.pathname === '/collection') {
@@ -632,7 +639,7 @@ const ShopContextProvider = (props) => {
     }
     getProductsData();
     fetchReviewList();
-    fetchGoogleReviews();
+    // fetchGoogleReviews(); // Commented out - Google Reviews disabled
     getRecentlyViewed();
     fetchHighlightedProducts();
   }, [token]);
@@ -679,7 +686,8 @@ const ShopContextProvider = (props) => {
     couponDiscount, getFinalAmount, hasMultipleProducts, getMultiProductDiscount,
     recentlyViewed, addToRecentlyViewed, getRecentlyViewed,
     highlightedProducts, fetchHighlightedProducts,
-    googleReviews, combinedReviews, fetchGoogleReviews, fetchCombinedReviews, syncGoogleReviews,
+    // Google Reviews - Commented out
+    // googleReviews, combinedReviews, fetchGoogleReviews, fetchCombinedReviews, syncGoogleReviews,
     updateShippingFee
   }
 

@@ -8,21 +8,18 @@ import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 
 const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug, comboPrices }) => {
-  // Debug logging to see what's being passed
-  console.log('ProductItem props:', { id, name, hasId: !!id, idType: typeof id });
-
-  // Use the provided id, but log if it's missing for debugging
+  // Use the provided id
   const productId = id;
 
-  // Log missing IDs for debugging but don't hide the component
-  if (!id) {
-    console.warn('ProductItem: Missing id prop', { id, name, image });
-  }
-
-  // Only hide if id is explicitly 'undefined' or 'null' strings
+  // Only hide if id is explicitly 'undefined' or 'null' strings (not missing)
   if (id === 'undefined' || id === 'null') {
     console.error('ProductItem: Invalid id prop', { id, name });
     return null;
+  }
+
+  // If no id is provided, we'll still show the product but without links
+  if (!id) {
+    console.warn('ProductItem: Missing id, showing product without link', { name });
   }
 
   // Fallback: generate slug from name if slug is missing

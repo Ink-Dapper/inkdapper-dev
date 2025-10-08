@@ -541,7 +541,7 @@ const Navbar = () => {
               </NavLink>
             </nav>
 
-            <ThemeToggle className="!relative left-1/2 -translate-x-1/2" />
+            <ThemeToggle isSidebar={true} className="!relative left-1/2 -translate-x-1/2" />
           </div>
 
           {/* Footer */}

@@ -378,7 +378,7 @@ const Orders = () => {
                               </div>
 
                               {/* Order Info Row */}
-                              <div className='bg-gray-50 rounded-lg p-0 md:p-4 border border-gray-200'>
+                              <div className='p-0 md:p-4'>
                                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                                   {/* Order Date */}
                                   <div className='flex items-center gap-3'>

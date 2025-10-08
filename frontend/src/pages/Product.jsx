@@ -91,10 +91,18 @@ const Product = () => {
     setIsLoading(true);
     setProductNotFound(false);
 
+    // Check if products array is empty (still loading)
+    if (products.length === 0) {
+      console.log('Products still loading, waiting...');
+      setIsLoading(false);
+      return;
+    }
+
     // Check if productId is a temporary ID
     if (productId && productId.startsWith('temp-id-')) {
-      console.warn('Product page accessed with temporary ID, redirecting to collection');
+      console.log('Temporary product ID detected, redirecting to collection');
       setProductNotFound(true);
+      setIsLoading(false);
       setTimeout(() => {
         navigate('/collection');
       }, 2000);
@@ -109,13 +117,14 @@ const Product = () => {
       setImage(foundProduct.image[0]);
       setIsLoading(false);
     } else {
-      console.warn('Product not found with ID:', productId);
+      // Product not found - could be deleted or invalid ID
+      console.log(`Product with ID ${productId} not found in database, redirecting...`);
       setProductNotFound(true);
       setIsLoading(false);
-      // If product not found, redirect to collection after a short delay
+      // Redirect to collection after a short delay
       setTimeout(() => {
         navigate('/collection');
-      }, 3000);
+      }, 2000);
     }
   }
 
@@ -401,11 +410,20 @@ const Product = () => {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h1>
           <p className="text-gray-600 mb-6">
-            The product you're looking for doesn't exist or has been removed.
-            {productId && productId.startsWith('temp-id-') && (
-              <span className="block mt-2 text-sm text-orange-600">
-                This appears to be a temporary link. Redirecting to our collection...
-              </span>
+            {productId && productId.startsWith('temp-id-') ? (
+              <>
+                This appears to be a temporary link.
+                <span className="block mt-2 text-sm text-orange-600">
+                  Redirecting to our collection...
+                </span>
+              </>
+            ) : (
+              <>
+                The product you're looking for may have been removed or is no longer available.
+                <span className="block mt-2 text-sm text-gray-500">
+                  Don't worry! We have many other great products for you.
+                </span>
+              </>
             )}
           </p>
           <div className="space-y-3">
@@ -416,7 +434,7 @@ const Product = () => {
               Browse Collection
             </Link>
             <div className="text-sm text-gray-500">
-              Redirecting automatically in a few seconds...
+              Redirecting automatically in 2 seconds...
             </div>
           </div>
         </div>
