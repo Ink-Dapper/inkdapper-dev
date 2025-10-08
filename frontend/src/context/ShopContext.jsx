@@ -240,9 +240,20 @@ const ShopContextProvider = (props) => {
         const products = response.data.products || [];
         console.log(`✅ Loaded ${products.length} products from API`);
 
+        // Debug: Check if products have valid IDs
+        const productsWithoutId = products.filter(p => !p._id);
+        if (productsWithoutId.length > 0) {
+          console.error(`⚠️ Found ${productsWithoutId.length} products without _id:`, productsWithoutId);
+        }
+
         // Log first product for debugging
         if (products.length > 0) {
-          console.log('First product:', products[0]);
+          console.log('First product sample:', {
+            _id: products[0]._id,
+            name: products[0].name,
+            slug: products[0].slug,
+            hasId: !!products[0]._id
+          });
         }
 
         setProducts(products)

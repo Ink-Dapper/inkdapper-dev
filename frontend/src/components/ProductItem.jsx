@@ -8,18 +8,28 @@ import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 
 const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug, comboPrices }) => {
-  // Use the provided id
+  // Use the provided id - ensure it's valid
   const productId = id;
 
-  // Only hide if id is explicitly 'undefined' or 'null' strings (not missing)
-  if (id === 'undefined' || id === 'null') {
+  // Validation: only hide if id is explicitly invalid strings
+  if (id === 'undefined' || id === 'null' || id === '') {
     console.error('ProductItem: Invalid id prop', { id, name });
     return null;
   }
 
-  // If no id is provided, we'll still show the product but without links
+  // If no id is provided at all, show product but make it non-clickable
   if (!id) {
-    console.warn('ProductItem: Missing id, showing product without link', { name });
+    console.warn('ProductItem: Missing id prop for product:', { name });
+  }
+
+  // Debug log for live site issues
+  if (!productId) {
+    console.log('ProductItem Debug:', {
+      receivedId: id,
+      productId,
+      name,
+      hasValidId: !!productId
+    });
   }
 
   // Fallback: generate slug from name if slug is missing
@@ -249,13 +259,19 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
       </div>
 
       <Link
-        onClick={() => {
+        onClick={(e) => {
+          // Prevent navigation if no valid product ID
+          if (!productId || productId === 'undefined' || productId === 'null') {
+            e.preventDefault();
+            toast.error('Product not available');
+            return;
+          }
           if (scrollToTop) {
             scrollToTop();
           }
         }}
-        className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
-        to={productId ? `/product/${productId}/${safeSlug}` : '/collection'}
+        className={`text-slate-700 cursor-pointer ${soldout || !productId ? 'pointer-events-none' : ''}`}
+        to={productId && productId !== 'undefined' && productId !== 'null' ? `/product/${productId}/${safeSlug}` : '#'}
       >
         <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">
