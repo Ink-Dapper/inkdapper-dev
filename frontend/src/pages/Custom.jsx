@@ -142,6 +142,7 @@ const Custom = () => {
                   <div key={index} className=''>
                     <div className='w-12 h-16 flex gap-2'>
                       <img onClick={() => { setImageId(item._id); setImage(item.image); setImageValue(item.color); }} src={item.image} key={index} alt="product-image" className='w-[100%] h-[100%] flex-shrink-0 cursor-pointer' />
+                      <img onClick={() => { setImageId(item._id); setImage(item.image); setImageValue(item.color); }} src={item.image} key={index} alt="product-image" className='w-[100%] h-[100%] flex-shrink-0 cursor-pointer' />
                     </div>
                   </div>
                 ))

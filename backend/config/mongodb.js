@@ -4,7 +4,7 @@ const connectDB = async () =>{
 
     mongoose.connection.on('connected',() =>{
         console.log('Mongodb connected')
-    })
+        })
 
     // Use default MongoDB URI if not set in environment
     const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017';

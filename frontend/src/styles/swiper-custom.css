@@ -20,7 +20,7 @@
   margin-right: 22px !important;
 }
 
-.latest-collection-section .swiper-slide > div {
+.latest-collection-section .swiper-slide>div {
   width: 100% !important;
 }
 
@@ -212,8 +212,8 @@
   align-items: stretch;
 }
 
-.recent-orders-swiper .swiper-slide > a,
-.buy-again-swiper .swiper-slide > a {
+.recent-orders-swiper .swiper-slide>a,
+.buy-again-swiper .swiper-slide>a {
   width: 100%;
   height: 100%;
   display: block;

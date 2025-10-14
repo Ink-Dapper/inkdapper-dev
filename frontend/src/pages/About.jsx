@@ -193,7 +193,7 @@ const About = () => {
       </div>
 
       {/* Newsletter Section */}
-      <div className="bg-orange-50">
+      <div className="bg-orange-50 dark:bg-gray-800">
         <NewsLetterBox />
       </div>
     </div>

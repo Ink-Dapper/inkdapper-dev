@@ -114,7 +114,7 @@ const Hero = () => {
     // Error fallback
     if (hasError) {
         return (
-            <div className="relative flex flex-col-reverse md:flex-row items-center justify-between bg-gradient-to-r from-orange-100 via-white to-orange-50 rounded-xl shadow-lg overflow-hidden p-6 md:p-12 mb-8">
+            <div className="hero-section hero-error relative flex flex-col-reverse md:flex-row items-center justify-between bg-gradient-to-r from-orange-100 via-white to-orange-50 rounded-xl shadow-lg overflow-hidden p-6 md:p-12 mb-8">
                 <div className="w-full md:w-1/2 flex flex-col items-start justify-center gap-2 md:gap-6 z-10">
                     <h1 className="text-3xl md:text-6xl font-extrabold text-gray-800 leading-tight">
                         Ink Dapper
@@ -130,7 +130,7 @@ const Hero = () => {
                     </Link>
                 </div>
                 <div className="w-full md:w-1/2 flex items-center justify-center">
-                    <div className="w-full h-64 bg-gray-200 rounded-2xl flex items-center justify-center">
+                    <div className="hero-image-placeholder w-full h-64 bg-gray-200 rounded-2xl flex items-center justify-center">
                         <span className="text-gray-500">Image Loading...</span>
                     </div>
                 </div>
@@ -139,11 +139,11 @@ const Hero = () => {
     }
 
     return (
-        <div className="relative flex flex-col-reverse md:flex-row items-center justify-between bg-gradient-to-r from-orange-100 via-white to-orange-50 rounded-xl shadow-lg overflow-hidden p-6 md:p-12 mb-8">
+        <div className="hero-section relative flex flex-col-reverse md:flex-row items-center justify-between bg-gradient-to-r from-orange-100 via-white to-orange-50 rounded-xl shadow-lg overflow-hidden p-6 md:p-12 mb-8">
             {/* Hero left side */}
             <div className="w-full md:w-1/2 flex flex-col items-start justify-center gap-2 md:gap-6 z-10">
                 <span
-                    className="inline-block text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg mb-0 mt-8 md:mt-1 md:mb-2 animate-pulse transform hover:scale-105 transition-all duration-300"
+                    className="hero-badge inline-block text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg mb-0 mt-8 md:mt-1 md:mb-2 animate-pulse transform hover:scale-105 transition-all duration-300"
                     style={{ background: colors.primary }}
                 >
                     🌟 NEW ARRIVAL 🌟
@@ -159,7 +159,7 @@ const Hero = () => {
                     Discover the Latest Trends
                 </h1>
                 <p
-                    className="text-base md:text-xl font-medium max-w-md mb-4 p-4 rounded-lg shadow-sm"
+                    className="hero-description text-base md:text-xl font-medium max-w-md mb-4 p-4 rounded-lg shadow-sm"
                     style={{
                         background: colors.bg,
                         borderLeft: `4px solid ${colors.accent}`,
@@ -171,7 +171,7 @@ const Hero = () => {
                 </p>
                 <Link to="/collection" className="inline-block">
                     <button
-                        className="px-8 py-3 text-white text-lg font-bold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none animate-pulse"
+                        className="hero-button px-8 py-3 text-white text-lg font-bold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none animate-pulse"
                         style={{
                             background: colors.primary,
                             '--tw-ring-color': colors.accent
@@ -192,12 +192,12 @@ const Hero = () => {
                 <div className="relative w-full max-w-2xl md:max-w-3xl drop-shadow-2xl md:animate-float">
                     <Slider onColorChange={handleColorChange} />
                     {/* Decorative shape */}
-                    <div className="absolute -top-8 -right-8 w-32 h-32 bg-orange-100 rounded-full opacity-60 blur-2xl z-[-1]" />
+                    <div className="hero-decorative-shape absolute -top-8 -right-8 w-32 h-32 bg-orange-100 rounded-full opacity-60 blur-2xl z-[-1]" />
                 </div>
             </div>
             {/* Optional: Decorative background shapes */}
-            <div className="absolute left-0 top-0 w-40 h-40 bg-orange-200 rounded-full opacity-30 blur-2xl z-0" />
-            <div className="absolute right-0 bottom-0 w-56 h-56 bg-yellow-100 rounded-full opacity-20 blur-2xl z-0" />
+            <div className="hero-decorative-shape absolute left-0 top-0 w-40 h-40 bg-orange-200 rounded-full opacity-30 blur-2xl z-0" />
+            <div className="hero-decorative-shape absolute right-0 bottom-0 w-56 h-56 bg-yellow-100 rounded-full opacity-20 blur-2xl z-0" />
         </div>
     );
 };

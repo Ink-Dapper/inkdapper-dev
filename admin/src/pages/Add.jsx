@@ -159,37 +159,16 @@ const Add = ({ token }) => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {[1, 2, 3, 4].map((num) => (
-                <label key={num} htmlFor={`image${num}`} className="group cursor-pointer">
-                  <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-2 hover:border-blue-400 transition-colors duration-200 bg-gray-50 hover:bg-blue-50">
-                    <img
-                      className="w-full h-20 object-cover rounded-md"
-                      src={eval(`!image${num}`) ? assets.upload_area : URL.createObjectURL(eval(`image${num}`))}
-                      alt=""
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1 text-center">Image {num}</p>
-                  </div>
-                  <input onChange={(e) => eval(`setImage${num}(e.target.files[0])`)} type="file" id={`image${num}`} hidden accept="image/*" />
-                </label>
-              ))}
-            </div>
+              {[1, 2, 3, 4].map((num) => {
+                const imageState = [image1, image2, image3, image4][num - 1];
+                const setImageState = [setImage1, setImage2, setImage3, setImage4][num - 1];
 
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Review Images</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {[1, 2, 3].map((num) => (
-                  <label key={num} htmlFor={`reviewImage${num}`} className="group cursor-pointer">
-                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-2 hover:border-green-400 transition-colors duration-200 bg-gray-50 hover:bg-green-50">
+                return (
+                  <label key={num} htmlFor={`image${num}`} className="group cursor-pointer">
+                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-2 hover:border-blue-400 transition-colors duration-200 bg-gray-50 hover:bg-blue-50">
                       <img
-                        className="w-full h-24 object-cover rounded-md"
-                        src={eval(`!reviewImage${num}`) ? assets.upload_area : URL.createObjectURL(eval(`reviewImage${num}`))}
+                        className="w-full h-20 object-cover rounded-md"
+                        src={!imageState ? assets.upload_area : URL.createObjectURL(imageState)}
                         alt=""
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
@@ -199,11 +178,42 @@ const Add = ({ token }) => {
                           </svg>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1 text-center">Review {num}</p>
+                      <p className="text-xs text-gray-500 mt-1 text-center">Image {num}</p>
                     </div>
-                    <input onChange={(e) => eval(`setReviewImage${num}(e.target.files[0])`)} type="file" id={`reviewImage${num}`} hidden accept="image/*" />
+                    <input onChange={(e) => setImageState(e.target.files[0])} type="file" id={`image${num}`} hidden accept="image/*" />
                   </label>
-                ))}
+                );
+              })}
+            </div>
+
+            <div className="border-t border-gray-200 pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Review Images</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {[1, 2, 3].map((num) => {
+                  const reviewImageState = [reviewImage1, reviewImage2, reviewImage3][num - 1];
+                  const setReviewImageState = [setReviewImage1, setReviewImage2, setReviewImage3][num - 1];
+
+                  return (
+                    <label key={num} htmlFor={`reviewImage${num}`} className="group cursor-pointer">
+                      <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-2 hover:border-green-400 transition-colors duration-200 bg-gray-50 hover:bg-green-50">
+                        <img
+                          className="w-full h-24 object-cover rounded-md"
+                          src={!reviewImageState ? assets.upload_area : URL.createObjectURL(reviewImageState)}
+                          alt=""
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1 text-center">Review {num}</p>
+                      </div>
+                      <input onChange={(e) => setReviewImageState(e.target.files[0])} type="file" id={`reviewImage${num}`} hidden accept="image/*" />
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </div>

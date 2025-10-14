@@ -32,6 +32,9 @@ const ShopContextProvider = (props) => {
   })
   const navigate = useNavigate()
   const [reviewList, setReviewList] = useState([])
+  // Google Reviews - Commented out
+  // const [googleReviews, setGoogleReviews] = useState([])
+  // const [combinedReviews, setCombinedReviews] = useState([])
   const [usersDetails, setUsersDetails] = useState([])
   const [orderData, setOrderData] = useState([])
   const [orderCount, setOrderCount] = useState(0)
@@ -60,6 +63,7 @@ const ShopContextProvider = (props) => {
         const user = newData.users;
         localStorage.setItem('user_name', user.name);
         localStorage.setItem('user_email', user.email);
+        localStorage.setItem('user_id', user._id || user.id);
         if (user.phone) {
           localStorage.setItem('user_phone', user.phone.toString());
         }
@@ -234,7 +238,27 @@ const ShopContextProvider = (props) => {
     try {
       const response = await apiInstance.get('/product/list')
       if (response.data.success) {
-        setProducts(response.data.products)
+        // Set products directly from API response
+        const products = response.data.products || [];
+        console.log(`✅ Loaded ${products.length} products from API`);
+
+        // Debug: Check if products have valid IDs
+        const productsWithoutId = products.filter(p => !p._id);
+        if (productsWithoutId.length > 0) {
+          console.error(`⚠️ Found ${productsWithoutId.length} products without _id:`, productsWithoutId);
+        }
+
+        // Log first product for debugging
+        if (products.length > 0) {
+          console.log('First product sample:', {
+            _id: products[0]._id,
+            name: products[0].name,
+            slug: products[0].slug,
+            hasId: !!products[0]._id
+          });
+        }
+
+        setProducts(products)
       } else {
         toast.error(response.data.message)
       }
@@ -244,7 +268,7 @@ const ShopContextProvider = (props) => {
     }
   }
 
-  const getUserCart = async (token) => {
+  const getUserCart = useCallback(async (token) => {
     try {
       const response = await apiInstance.post('/cart/get', {})
 
@@ -257,7 +281,7 @@ const ShopContextProvider = (props) => {
     } catch (error) {
       console.log('Error getting cart:', error);
     }
-  }
+  }, []);
 
 
   const addToWishlist = async (itemId) => {
@@ -298,6 +322,7 @@ const ShopContextProvider = (props) => {
         toast.error(response.data.message);
       }
     } catch (error) {
+      console.log('Error updating wishlist:', error);
       console.log('Error updating wishlist:', error);
       toast.error(error.response?.data?.message || error.message);
     }
@@ -365,6 +390,52 @@ const ShopContextProvider = (props) => {
     }
   }
 
+  // Google Reviews Functions - Commented out
+  /*
+  const fetchGoogleReviews = async () => {
+    try {
+      const response = await apiInstance.get('/google-reviews/get')
+      if (response.data.success) {
+        setGoogleReviews(response.data.reviews)
+      } else {
+        console.log('Google reviews fetch failed:', response.data.message)
+      }
+    } catch (error) {
+      console.log('Error fetching Google reviews:', error)
+    }
+  }
+
+  const fetchCombinedReviews = async (productId = null) => {
+    try {
+      const params = productId ? `?productId=${productId}` : '';
+      const response = await apiInstance.get(`/google-reviews/combined${params}`)
+      if (response.data.success) {
+        setCombinedReviews(response.data.reviews)
+      } else {
+        console.log('Combined reviews fetch failed:', response.data.message)
+      }
+    } catch (error) {
+      console.log('Error fetching combined reviews:', error)
+    }
+  }
+
+  const syncGoogleReviews = async () => {
+    try {
+      const response = await apiInstance.post('/google-reviews/sync')
+      if (response.data.success) {
+        toast.success(`Synced ${response.data.syncedCount} new Google reviews`)
+        // Refresh Google reviews after sync
+        await fetchGoogleReviews()
+      } else {
+        toast.error(response.data.message)
+      }
+    } catch (error) {
+      console.log('Error syncing Google reviews:', error)
+      toast.error('Error syncing Google reviews')
+    }
+  }
+  */
+
   const productSearch = () => {
     if (location.pathname === '/collection') {
       setShowSearch(true)
@@ -392,7 +463,7 @@ const ShopContextProvider = (props) => {
     setOrderCount(countNum)
   }
 
-  const getCreditScore = async () => {
+  const getCreditScore = useCallback(async () => {
     try {
       if (!token) {
         return null;
@@ -405,7 +476,7 @@ const ShopContextProvider = (props) => {
       console.error(error);
       toast.error(error.message);
     }
-  };
+  }, [token]);
 
   const getUserCustomData = async () => {
     try {
@@ -448,9 +519,9 @@ const ShopContextProvider = (props) => {
     setSearch('')
   }
 
-  const scrollToTop = () => {
+  const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  }, [])
 
   // Coupon functions
   const validateCoupon = async (couponCode) => {
@@ -634,6 +705,7 @@ const ShopContextProvider = (props) => {
     }
     getProductsData();
     fetchReviewList();
+    // fetchGoogleReviews(); // Commented out - Google Reviews disabled
     getRecentlyViewed();
     fetchHighlightedProducts();
   }, [token]);
@@ -670,7 +742,7 @@ const ShopContextProvider = (props) => {
     paymentMethod, updatePaymentMethod, getDeliveryFeeDisplay, getShippingMessage,
     search, setSearch, showSearch, setShowSearch,
     cartItems, addToCart, addToCartCombo, setCartItems, getCartCount,
-    updateQuantity, getCartAmount, clearCart, updateCartAndSave,
+    updateQuantity, getCartAmount, clearCart, updateCartAndSave, getUserCart,
     navigate, backendUrl, setToken, token, wishlist,
     addToWishlist, getWishlistCount, updateWishlistQuantity,
     setWishlist, updateWishlistAndSave, reviewList, fetchReviewList, usersDetails,

@@ -12,15 +12,22 @@ import Select from '@mui/material/Select';
 // ProductItem is already memoized in its own component
 
 const Collection = () => {
-
   const { products, search, showSearch, scrollToTop } = useContext(ShopContext)
+
+  // State management with performance optimizations
   const [showFilter, setShowFilter] = useState(false)
   const [filterProducts, setFilterProducts] = useState([])
-  const [category, setCategory] = useState(''); // Default to 'All'
+  const [category, setCategory] = useState('')
+
+  // Handle category change with pagination reset
+  const handleCategoryChange = useCallback((value) => {
+    setCategory(value);
+    setShowAllProducts(false);
+  }, [])
   const [subCategory, setSubCategory] = useState([])
   const [colors, setColors] = useState([])
   const [sortType, SetSortType] = useState('relevant')
-  const [sortValue, setSortValue] = useState('');
+  const [sortValue, setSortValue] = useState('')
   const [categoryView, setCategoryView] = useState('block')
   const [showMobileFilter, setShowMobileFilter] = useState(false)
   const [displayedProducts, setDisplayedProducts] = useState([])
@@ -98,17 +105,22 @@ const Collection = () => {
       }
     } else {
       // Handle individual subcategory checkboxes
-      if (subCategory.includes(value)) {
-        setSubCategory(subCategory.filter(item => item !== value));
-      } else {
-        setSubCategory([...subCategory, value]);
-      }
+      setSubCategory(prev => {
+        if (prev.includes(value)) {
+          return prev.filter(item => item !== value);
+        } else {
+          return [...prev, value];
+        }
+      });
     }
 
+    // Reset to pagination when filters change
+    setShowAllProducts(false);
     // Hide the filter section after selecting a subcategory
     setShowFilter(false);
   }, [subCategory, products])
 
+  const allChecked = useCallback((e) => {
   const allChecked = useCallback((e) => {
     if (e.target.checked) {
       const allSubCategories = products.map(item => item.subCategory);
@@ -135,12 +147,15 @@ const Collection = () => {
         item.name.toLowerCase().includes(debouncedSearch.toLowerCase())
       )
     }
+
     if (category.length > 0) {
       productsCopy = productsCopy.filter(item => category.includes(item.category))
     }
+
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory))
     }
+
     if (colors.length > 0) {
       productsCopy = productsCopy.filter(item =>
         item.colors && item.colors.some(color => colors.includes(color))
@@ -185,6 +200,7 @@ const Collection = () => {
     sortProduct()
   }, [sortProduct])
 
+  // Cleanup effect
   useEffect(() => {
     resetPagination()
   }, [resetPagination])
@@ -487,7 +503,7 @@ const Collection = () => {
                           value={cat.value}
                           name="category"
                           className="sr-only"
-                          onChange={(e) => setCategory(e.target.value)}
+                          onChange={(e) => handleCategoryChange(e.target.value)}
                           checked={category === cat.value}
                         />
                         <div className={`w-4 h-4 lg:w-5 lg:h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${category === cat.value
@@ -698,7 +714,7 @@ const Collection = () => {
                               value={cat.value}
                               name="category"
                               className="sr-only"
-                              onChange={(e) => setCategory(e.target.value)}
+                              onChange={(e) => handleCategoryChange(e.target.value)}
                               checked={category === cat.value}
                             />
                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${category === cat.value
@@ -883,8 +899,24 @@ const Collection = () => {
               <div className="bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-xl lg:shadow-2xl border border-white/60 p-4 mt-20 md:mt-0 lg:p-8 mb-6 lg:mb-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 lg:gap-6">
                   <div>
-                    <h2 className="text-2xl lg:text-3xl font-black text-gray-800 mb-1 lg:mb-2">All Collections</h2>
-                    <p className="text-sm lg:text-lg text-gray-600">Showing {displayedProducts.length} of {filterProducts.length} amazing products</p>
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-800 mb-1 lg:mb-2">All Collections</h2>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                      <p className="text-xs sm:text-sm lg:text-lg text-gray-600">
+                        Showing {displayedProducts.length} of {filterProducts.length} amazing products
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {showAllProducts && displayedProducts.length === filterProducts.length && (
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">
+                            All Products Loaded
+                          </span>
+                        )}
+                        {!showAllProducts && hasMore && (
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">
+                            Load 15 more products
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Desktop Sort Section - Hidden on Mobile */}
@@ -979,7 +1011,7 @@ const Collection = () => {
                 </div>
               </div>
 
-              {/* Mobile-Optimized Products Grid */}
+              {/* Optimized Products Grid with Virtual Scrolling for Mobile */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative">
                 {/* Grid background pattern */}
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
@@ -1076,5 +1108,66 @@ const Collection = () => {
     </div>
   )
 }
+
+// Optimized ProductCard component with React.memo
+const ProductCard = React.memo(({ item, index, isMobile }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef(null);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={cardRef}
+      className={`group transform transition-all duration-300 hover:scale-105 hover:-translate-y-1 ${isVisible ? 'animate-fadeInUp' : 'opacity-0'
+        }`}
+      style={{
+        animationDelay: isVisible ? `${index * 100}ms` : '0ms'
+      }}
+    >
+      {/* Simplified shadow wrapper for better performance */}
+      <div className="relative">
+        {/* Reduced shadow effects for mobile performance */}
+        {!isMobile && (
+          <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-300"></div>
+        )}
+
+        {/* Main card */}
+        <div className={`relative bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-lg border border-white/60 overflow-hidden ${isMobile ? 'min-h-[300px]' : 'min-h-[350px] lg:min-h-[400px]'
+          }`}>
+          <ProductItem
+            id={item._id}
+            name={item.name}
+            image={item.image}
+            price={item.price}
+            beforePrice={item.beforePrice}
+            subCategory={item.subCategory}
+            soldout={item.soldout}
+            slug={item.slug}
+          />
+        </div>
+      </div>
+    </div>
+  );
+});
+
+ProductCard.displayName = 'ProductCard';
 
 export default Collection

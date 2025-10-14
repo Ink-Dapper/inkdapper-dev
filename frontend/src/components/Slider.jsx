@@ -1,10 +1,10 @@
-import axios from 'axios';
-import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo, memo } from 'react';
 import { toast } from 'react-toastify';
-import { ShopContext } from '../context/ShopContext';
 import { teesCollection } from '../assets/assets';
 import { detectDominantColor, getColorByIndex } from '../utils/colorDetection';
+import { apiEndpoints } from '../utils/apiHelper';
 import ErrorBoundary from './ErrorBoundary';
+import OptimizedImage from './OptimizedImage';
 
 // Fallback slides for when no banners are available
 const fallbackSlides = [
@@ -16,7 +16,6 @@ const fallbackSlides = [
 ];
 
 const Slider = ({ onColorChange }) => {
-  const { backendUrl } = useContext(ShopContext);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sliderImagesList, setSliderImagesList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,8 +27,8 @@ const Slider = ({ onColorChange }) => {
   const intervalRef = useRef(null);
   const isMountedRef = useRef(true);
 
-  // Function to detect color from image filename or data
-  const detectColorFromImage = async (imageData, imageIndex = 0) => {
+  // Function to detect color from image filename or data (memoized)
+  const detectColorFromImage = useCallback(async (imageData, imageIndex = 0) => {
     if (!imageData) return 'teal';
 
     // Check if it's a banner image or T-shirt image
@@ -94,7 +93,7 @@ const Slider = ({ onColorChange }) => {
     // For banner images without color info, use a rotating color scheme
     // This ensures each banner gets a different color
     return getColorByIndex(imageIndex);
-  };
+  }, []);
 
   // Notify parent component of color change
   useEffect(() => {
@@ -147,7 +146,7 @@ const Slider = ({ onColorChange }) => {
 
   const sliderImages = async () => {
     try {
-      const response = await axios.get(backendUrl + '/api/product/banner-list');
+      const response = await apiEndpoints.getBannerList();
       if (response.data.success) {
         setSliderImagesList(response.data.banners.length > 0 ? response.data.banners : fallbackSlides);
       } else {
@@ -389,4 +388,4 @@ const SliderWithErrorBoundary = (props) => {
   );
 };
 
-export default SliderWithErrorBoundary;
+export default memo(SliderWithErrorBoundary);

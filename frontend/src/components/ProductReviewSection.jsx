@@ -89,6 +89,8 @@ const ProductReviewSection = ({ productId }) => {
                   className={`transition-all duration-200 transform hover:scale-110 ${rating >= star
                     ? 'text-amber-400 drop-shadow-lg'
                     : 'text-gray-300 hover:text-amber-300'
+                    ? 'text-amber-400 drop-shadow-lg'
+                    : 'text-gray-300 hover:text-amber-300'
                     }`}
                 >
                   <FaStar size={28} />
@@ -146,7 +148,7 @@ const ProductReviewSection = ({ productId }) => {
         </form>
 
         {/* Decorative Image */}
-        <div className='hidden lg:block absolute top-8 right-8 opacity-10'>
+        <div className='hidden lg:block absolute top-16 right-8 opacity-10'>
           <img
             src={assets.about_us}
             alt="review"

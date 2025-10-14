@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 
 const Orders = () => {
-  const { backendUrl, token, currency } = useContext(ShopContext);
+  const { token, currency } = useContext(ShopContext);
   const navigate = useNavigate();
 
   const [orderData, setOrderData] = useState([]);
@@ -115,6 +115,7 @@ const Orders = () => {
           orderId: orderId,
           returnReason: returnReason
         });
+        });
         console.log(response.data);
         if (response.data.success) {
           setShowReturnConfirmation(false);
@@ -144,6 +145,7 @@ const Orders = () => {
           returnOrderStatus: 'Order Cancelled',
           orderId: orderId,
           cancelReason: cancelReason
+        });
         });
         console.log(response.data);
         if (response.data.success) {
@@ -378,7 +380,7 @@ const Orders = () => {
                               </div>
 
                               {/* Order Info Row */}
-                              <div className='bg-gray-50 rounded-lg p-0 md:p-4 border border-gray-200'>
+                              <div className='p-0 md:p-4'>
                                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                                   {/* Order Date */}
                                   <div className='flex items-center gap-3'>

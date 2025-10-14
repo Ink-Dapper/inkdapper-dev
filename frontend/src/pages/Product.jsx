@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FaStar, FaPaintBrush, FaTshirt, FaRegDotCircle, FaLeaf, FaRegCalendarAlt, FaRegHandPeace, FaHeart, FaShare, FaTruck, FaShieldAlt, FaUndo } from 'react-icons/fa';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Flip, toast } from "react-toastify";
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -29,6 +29,7 @@ function useIsMobile() {
 
 const Product = () => {
   const { productId, slug } = useParams()
+  const navigate = useNavigate()
   const context = useContext(ShopContext)
 
   // Safety check to prevent destructuring undefined context
@@ -38,6 +39,8 @@ const Product = () => {
 
   const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity, addToRecentlyViewed, navigate, wishlist } = context
   const [productData, setProductData] = useState(false)
+  const [productNotFound, setProductNotFound] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [image, setImage] = useState('')
   const [size, setSize] = useState('')
   const [buyNow, setBuyNow] = useState('block')
@@ -80,13 +83,44 @@ const Product = () => {
 
 
   const fetchProductData = async () => {
-    products.map((item) => {
-      if (item._id === productId) {
-        setProductData(item)
-        setImage(item.image[0])
-        return null
-      }
-    })
+    setIsLoading(true);
+    setProductNotFound(false);
+
+    // Check if products array is empty (still loading)
+    if (products.length === 0) {
+      console.log('Products still loading, waiting...');
+      setIsLoading(false);
+      return;
+    }
+
+    // Check if productId is a temporary ID
+    if (productId && productId.startsWith('temp-id-')) {
+      console.log('Temporary product ID detected, redirecting to collection');
+      setProductNotFound(true);
+      setIsLoading(false);
+      setTimeout(() => {
+        navigate('/collection');
+      }, 2000);
+      return;
+    }
+
+    // Look for the product in the products array
+    const foundProduct = products.find(item => item._id === productId);
+
+    if (foundProduct) {
+      setProductData(foundProduct);
+      setImage(foundProduct.image[0]);
+      setIsLoading(false);
+    } else {
+      // Product not found - could be deleted or invalid ID
+      console.log(`Product with ID ${productId} not found in database, redirecting...`);
+      setProductNotFound(true);
+      setIsLoading(false);
+      // Redirect to collection after a short delay
+      setTimeout(() => {
+        navigate('/collection');
+      }, 2000);
+    }
   }
 
   const addCartPageDetails = () => {
@@ -348,6 +382,62 @@ const Product = () => {
   const toggleDescription = () => {
     setIsExpanded(!isExpanded);
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show product not found state
+  if (productNotFound) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="mb-6">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.709M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h1>
+          <p className="text-gray-600 mb-6">
+            {productId && productId.startsWith('temp-id-') ? (
+              <>
+                This appears to be a temporary link.
+                <span className="block mt-2 text-sm text-orange-600">
+                  Redirecting to our collection...
+                </span>
+              </>
+            ) : (
+              <>
+                The product you're looking for may have been removed or is no longer available.
+                <span className="block mt-2 text-sm text-gray-500">
+                  Don't worry! We have many other great products for you.
+                </span>
+              </>
+            )}
+          </p>
+          <div className="space-y-3">
+            <Link
+              to="/collection"
+              className="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              Browse Collection
+            </Link>
+            <div className="text-sm text-gray-500">
+              Redirecting automatically in 2 seconds...
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return productData ? (
     <div className='min-h-screen'>
@@ -1053,7 +1143,7 @@ const Product = () => {
         <div className='mt-8 md:mt-16'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
             <ProductReviewSection productId={productData._id} />
-            <ListReviews />
+            <ListReviews productId={productData._id} showSyncButton={false} />
           </div>
         </div>
 

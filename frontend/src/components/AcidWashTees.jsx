@@ -160,7 +160,7 @@ const AcidWashTees = () => {
   }
 
   return (
-    <section className="py-6 md:py-10 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-white to-red-50 relative overflow-hidden acid-wash-tees-section">
+    <section className="py-6 md:py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden acid-wash-tees-section">
       {/* Simple Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20"></div>
 

@@ -12,6 +12,8 @@ const PlaceOrder = () => {
 
   const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount, paymentMethod, updatePaymentMethod, getShippingMessage } = useContext(ShopContext)
   const [creditPtsVisible, setCreditPtsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -30,6 +32,11 @@ const PlaceOrder = () => {
     setFormData(data => ({ ...data, [name]: value }))
   }
 
+  const handlePaymentMethodChange = (newMethod) => {
+    setMethod(newMethod)
+    updateShippingFee(newMethod)
+  }
+
   const initPay = (order, orderData) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY,
@@ -46,7 +53,7 @@ const PlaceOrder = () => {
           if (data.success) {
             console.log('Verification successful:', data);
             clearCart();
-            navigate('/orders');
+            navigate('/thank-you');
             toast.success('Payment successful');
           } else {
             console.log('Verification failed:', data);
@@ -76,7 +83,44 @@ const PlaceOrder = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault()
+
+    // Prevent multiple submissions
+    if (isLoading) return
+
+    // Check if user is authenticated
+    if (!token) {
+      toast.error('Please login to place an order.')
+      navigate('/login')
+      return
+    }
+
+    // Validate cart is not empty
+    const hasItems = Object.values(cartItems).some(item =>
+      Object.values(item).some(quantity => quantity > 0)
+    )
+
+    if (!hasItems) {
+      toast.error('Your cart is empty. Please add items before placing an order.')
+      return
+    }
+
+    // Validate required form fields
+    const requiredFields = ['firstName', 'lastName', 'email', 'street', 'city', 'state', 'zipcode', 'country', 'phone']
+    const missingFields = requiredFields.filter(field => !formData[field]?.trim())
+
+    if (missingFields.length > 0) {
+      toast.error('Please fill in all required fields.')
+      return
+    }
+
+    setIsLoading(true)
+
     try {
+      console.log('Starting order process...')
+      console.log('Cart items:', cartItems)
+      console.log('Products:', products)
+      console.log('Token:', token ? 'Present' : 'Missing')
+
       let orderItems = []
       for (const items in cartItems) {
         for (const item in cartItems[items]) {
@@ -91,11 +135,20 @@ const PlaceOrder = () => {
         }
       }
 
+      console.log('Order items:', orderItems)
+
+      if (orderItems.length === 0) {
+        toast.error('No valid items found in cart.')
+        return
+      }
+
       let orderData = {
         address: formData,
         items: orderItems,
         amount: getFinalAmount() + delivery_fee - (creditPtsVisible ? creditPoints : 0)
       }
+
+      console.log('Order data:', orderData)
 
       if (creditPtsVisible) {
         await apiInstance.post('/order/credit-clear', {})
@@ -110,7 +163,7 @@ const PlaceOrder = () => {
           const response = await apiInstance.post('/order/place', orderData)
           if (response.data.success) {
             clearCart()
-            navigate('/orders')
+            navigate('/thank-you')
             toast.success('Order placed successfully')
           } else {
             toast.error(response.data.message)
@@ -122,11 +175,14 @@ const PlaceOrder = () => {
           if (razorpayResponse.data.success) {
             initPay(razorpayResponse.data.order, orderData)
             console.log(razorpayResponse.data.order)
+          } else {
+            toast.error(razorpayResponse.data.message || 'Failed to initialize payment')
           }
-
           break;
 
         default:
+          console.log('Unknown payment method:', method)
+          toast.error('Please select a valid payment method')
           break
       }
 
@@ -137,8 +193,22 @@ const PlaceOrder = () => {
   }
 
   useEffect(() => {
-    getCreditScore()
-  }, []);
+    // Check if user is authenticated
+    if (!token) {
+      toast.error('Please login to place an order.')
+      navigate('/login')
+      return
+    }
+
+    // Only initialize once to prevent multiple API calls
+    if (!isInitialized) {
+      setIsInitialized(true);
+      getUserCart(token)
+      getCreditScore()
+      // Initialize shipping fee based on default method (COD)
+      updateShippingFee('cod')
+    }
+  }, [token, navigate, getUserCart, getCreditScore, isInitialized, updateShippingFee]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -147,7 +217,7 @@ const PlaceOrder = () => {
           <h1 className="sr-only">Place Order</h1>
 
           {/* Left Side - Delivery Information */}
-          <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+          <div className='bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
             <div className='mb-8'>
               <div className='flex items-center gap-3 mb-2'>
                 <div className='w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center'>
@@ -156,11 +226,11 @@ const PlaceOrder = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <h2 className='text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent'>
+                <h2 className='text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600  bg-clip-text text-transparent'>
                   Delivery Information
                 </h2>
               </div>
-              <p className='text-gray-600 text-sm'>Please provide your delivery details</p>
+              <p className='text-gray-600 dark:text-gray-400 text-sm'>Please provide your delivery details</p>
             </div>
 
             <div className='space-y-6 mb-6'>
@@ -175,7 +245,7 @@ const PlaceOrder = () => {
                     name='firstName'
                     value={formData.firstName}
                     type="text"
-                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    className='w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                     placeholder='Enter first name'
                   />
                 </div>
@@ -188,7 +258,7 @@ const PlaceOrder = () => {
                     name='lastName'
                     value={formData.lastName}
                     type="text"
-                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    className='w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                     placeholder='Enter last name'
                   />
                 </div>
@@ -235,7 +305,7 @@ const PlaceOrder = () => {
                     name='city'
                     value={formData.city}
                     type="text"
-                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    className='w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                     placeholder='Enter city'
                   />
                 </div>
@@ -248,7 +318,7 @@ const PlaceOrder = () => {
                     name='state'
                     value={formData.state}
                     type="text"
-                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    className='w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                     placeholder='Enter state'
                   />
                 </div>
@@ -265,7 +335,7 @@ const PlaceOrder = () => {
                     name='zipcode'
                     value={formData.zipcode}
                     type="text"
-                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    className='w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                     placeholder='Enter zipcode'
                   />
                 </div>
@@ -278,7 +348,7 @@ const PlaceOrder = () => {
                     name='country'
                     value={formData.country}
                     type="text"
-                    className='w-full px-4 py-3 border-2 border-gray-400 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50'
+                    className='w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                     placeholder='Enter country'
                   />
                 </div>
@@ -309,7 +379,7 @@ const PlaceOrder = () => {
           {/* Right Side - Order Summary & Payment */}
           <div className='space-y-6'>
             {/* Order Summary */}
-            <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+            <div className='bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 '>
               <CartTotal
                 creditPtsVisible={creditPtsVisible}
                 setCreditPtsVisible={setCreditPtsVisible}
@@ -317,12 +387,12 @@ const PlaceOrder = () => {
             </div>
 
             {/* Coupon Section */}
-            <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+            <div className='bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 '>
               <CouponSection />
             </div>
 
             {/* Payment Method */}
-            <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+            <div className='bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 '>
               <div className='mb-6'>
                 <div className='flex items-center gap-3 mb-2'>
                   <div className='w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center'>
@@ -335,6 +405,22 @@ const PlaceOrder = () => {
                   </h3>
                 </div>
                 <p className='text-gray-600 text-sm'>Choose your preferred payment option</p>
+                <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 my-2'>
+                  <div className='flex items-start gap-2'>
+                    <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className='text-blue-800 text-xs font-medium'>Shipping Information</p>
+                      <p className='text-blue-700 text-xs mt-1'>
+                        • Online payments: <span className='font-semibold'>Free shipping</span> (₹0.00)
+                      </p>
+                      <p className='text-blue-700 text-xs'>
+                        • Cash on Delivery: <span className='font-semibold'>Shipping charges apply</span> (₹49.00)
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className='space-y-4'>
@@ -406,15 +492,31 @@ const PlaceOrder = () => {
             </div>
 
             {/* Place Order Button */}
-            <div className='bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100'>
+            <div className='bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 '>
               <button
                 type='submit'
-                className='w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-4 px-6 rounded-xl hover:from-orange-600 hover:to-red-600 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2'
+                disabled={isLoading}
+                className={`w-full font-semibold py-4 px-6 rounded-xl transform transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${isLoading
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:scale-[1.02] hover:shadow-xl'
+                  }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                Place Order
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    Place Order
+                  </>
+                )}
               </button>
               <p className='text-xs text-gray-500 text-center mt-3'>
                 By placing your order, you agree to our terms and conditions

@@ -15,6 +15,8 @@ import newsLetterRoute from './routes/newsLetterRoute.js'
 import emailRouter from './routes/emailRoute.js'
 import highlightedProductRouter from './routes/highlightedProductRoute.js'
 import notificationRouter from './routes/notificationRoute.js'
+// Google Reviews - Commented out
+// import googleReviewRouter from './routes/googleReviewRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import adminAuth from './middleware/adminAuth.js'
@@ -28,40 +30,28 @@ const __dirname = path.dirname(__filename)
 connectDB()
 connectCloudinary()
 
-// Enhanced CORS configuration
+// EMERGENCY CORS FIX - Allow specific origins with credentials
 const corsOptions = {
   origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://www.inkdapper.com',
+      'https://inkdapper.com',
+      'https://admin.inkdapper.com',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:3000'
+    ];
+    
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    const allowedOrigins = [
-      'https://www.inkdapper.com', 
-      'https://inkdapper.com', 
-      'https://admin.inkdapper.com',
-      'http://localhost:4000', 
-      'http://localhost:5173', 
-      'http://localhost:5174',
-      'http://localhost:3000',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:5174',
-      'http://127.0.0.1:3000'
-    ];
-    
-    // Check if origin is in allowed list or matches patterns
-    const isAllowed = allowedOrigins.includes(origin) ||
-                     /^https:\/\/.*\.inkdapper\.com$/.test(origin) ||
-                     /^https:\/\/.*\.vercel\.app$/.test(origin) ||
-                     /^https:\/\/.*\.netlify\.app$/.test(origin) ||
-                     /^https:\/\/.*\.railway\.app$/.test(origin) ||
-                     /^https:\/\/.*\.render\.com$/.test(origin);
-    
-    if (isAllowed) {
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
   allowedHeaders: [
     'Content-Type', 
@@ -75,10 +65,8 @@ const corsOptions = {
     'Access-Control-Request-Headers'
   ],
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
-  credentials: true,
   optionsSuccessStatus: 200,
-  preflightContinue: false,
-  maxAge: 86400 // 24 hours
+  preflightContinue: false
 }
 
 // middlewares
@@ -91,18 +79,82 @@ app.use(bodyParser.json());
 // Apply CORS before other middleware
 app.use(cors(corsOptions));
 
+// EMERGENCY CORS HEADERS - Add to ALL responses (Mobile Optimized)
+app.use((req, res, next) => {
+  // Set CORS headers for ALL requests
+  const origin = req.headers.origin;
+  const userAgent = req.headers['user-agent'] || '';
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  
+  const allowedOrigins = [
+    'https://www.inkdapper.com',
+    'https://inkdapper.com',
+    'https://admin.inkdapper.com',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000'
+  ];
+  
+  // Mobile-friendly CORS handling
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else if (origin && !isMobile) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    // Default to main site for mobile or unknown origins
+    res.header('Access-Control-Allow-Origin', 'https://www.inkdapper.com');
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, token, X-Requested-With, X-Device-Type, Accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, User-Agent');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400');
+  
+  // Additional headers for mobile
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.header('X-Frame-Options', 'DENY');
+  res.header('X-XSS-Protection', '1; mode=block');
+  
+  // Handle preflight requests immediately
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
+
 // Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
+app.options('*', (req, res) => {
+  res.status(200).end();
+});
 
 app.use(bodyParser.json())
 
-// Add request logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  next();
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    cors: {
+      origin: req.headers.origin,
+      allowed: true
+    }
+  });
 });
+
+// Request logging - can be enabled with DEBUG_LOGS=true environment variable
+// To enable detailed request logging, set DEBUG_LOGS=true in your environment
+if (process.env.DEBUG_LOGS === 'true') {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    next();
+  });
+}
 
 // Set correct MIME type for JSX files and other assets
 app.use((req, res, next) => {
@@ -185,6 +237,8 @@ app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
 app.use('/api/highlighted-products', highlightedProductRouter)
 app.use('/api/notifications', notificationRouter)
+// Google Reviews - Commented out
+// app.use('/api/google-reviews', googleReviewRouter)
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {
@@ -250,5 +304,4 @@ app.use((err, req, res, next) => {
 app.listen(port, ()=> {
     console.log(`Server is running on port ${port}`)
     console.log(`CORS enabled for production domains`)
-    console.log(`Allowed origins: https://www.inkdapper.com, https://admin.inkdapper.com`)
 })

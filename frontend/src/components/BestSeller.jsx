@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useMemo, useCallback, memo } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import ProductItem from './ProductItemWrapper'
 import { Link, useNavigate } from 'react-router-dom'
@@ -9,7 +9,7 @@ const BestSeller = () => {
     const [bestSeller, setBestSeller] = useState([])
     const navigate = useNavigate()
 
-    const handleBestSellerClick = () => {
+    const handleBestSellerClick = useCallback(() => {
         console.log('Best Seller button clicked');
         navigate('/collection');
         if (scrollToTop) {
@@ -17,17 +17,21 @@ const BestSeller = () => {
                 scrollToTop();
             }, 100);
         }
-    }
+    }, [navigate, scrollToTop])
+
+    const bestSellerProducts = useMemo(() => {
+        const bestProduct = products.filter((items) => items.bestseller);
+        return bestProduct.slice(0, 4);
+    }, [products]);
 
     useEffect(() => {
-        const bestProduct = products.filter((items) => items.bestseller);
-        setBestSeller(bestProduct.slice(0, 4));
-    }, [products]);
+        setBestSeller(bestSellerProducts);
+    }, [bestSellerProducts]);
 
     return (
         <section className='relative py-6 md:py-10 overflow-hidden'>
             {/* Enhanced Background decorative elements */}
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/40 via-red-50/20 to-yellow-50/40"></div>
+            <div className="absolute inset-0"></div>
             <div className="absolute top-10 left-1/3 w-64 h-64 bg-gradient-to-r from-orange-200/40 to-red-200/40 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse"></div>
             <div className="absolute bottom-10 right-1/3 w-56 h-56 bg-gradient-to-r from-yellow-200/40 to-orange-200/40 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-pulse animation-delay-2000"></div>
             <div className="absolute top-1/2 left-10 w-40 h-40 bg-gradient-to-r from-red-200/30 to-pink-200/30 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-pulse animation-delay-1000"></div>
@@ -150,4 +154,4 @@ const BestSeller = () => {
     )
 }
 
-export default BestSeller
+export default memo(BestSeller)

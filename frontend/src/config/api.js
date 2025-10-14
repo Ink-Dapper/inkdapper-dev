@@ -6,7 +6,7 @@ const getApiConfig = () => {
   // Production API URL - replace with your actual VPS domain
   const PRODUCTION_API_URL = 'https://api.inkdapper.com';
   
-  // In development, use relative URLs to leverage Vite proxy
+  // In development, use empty string to leverage Vite proxy
   // In production, use the full URL
   const apiUrl = import.meta.env.VITE_API_URL || 
                  (isDevelopment ? '' : PRODUCTION_API_URL);

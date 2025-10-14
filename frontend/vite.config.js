@@ -80,7 +80,11 @@ export default defineConfig({
       }
     ],
     hmr: {
-      overlay: false
+      overlay: false,
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5173,
+      clientPort: 5173
     }
   },
   build: {
@@ -94,6 +98,8 @@ export default defineConfig({
           'ui-components': ['@mui/material', '@mui/icons-material', '@headlessui/react', '@heroicons/react'],
           'utils': ['axios', 'lodash'],
           'toastify': ['react-toastify'],
+          'swiper': ['swiper'],
+          'icons': ['react-icons', 'lucide-react'],
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'style.css') return 'assets/css/[name]-[hash][extname]';
@@ -117,18 +123,50 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true,
         pure_funcs: ['console.log', 'console.info', 'console.debug'],
-        passes: 2,
+        passes: 3,
         dead_code: true,
         global_defs: {
           'process.env.NODE_ENV': '"production"'
-        }
+        },
+        unsafe: true,
+        unsafe_comps: true,
+        unsafe_math: true,
+        unsafe_proto: true,
+        unsafe_regexp: true,
+        unsafe_undefined: true,
+        conditionals: true,
+        evaluate: true,
+        booleans: true,
+        loops: true,
+        unused: true,
+        hoist_funs: true,
+        keep_fargs: false,
+        hoist_vars: true,
+        if_return: true,
+        join_vars: true,
+        side_effects: true,
+        properties: true,
+        reduce_vars: true,
+        collapse_vars: true,
+        sequences: true,
+        comparisons: true,
+        computed_props: true,
+        inline: 3,
+        reduce_funcs: true,
+        typeofs: true,
+        warnings: false
       },
       mangle: {
-        safari10: true
+        safari10: true,
+        properties: {
+          regex: /^_/
+        }
       },
       format: {
         comments: false,
-        ascii_only: true
+        ascii_only: true,
+        beautify: false,
+        ecma: 2015
       },
     },
   },

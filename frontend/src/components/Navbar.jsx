@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo, useCallback, memo } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
@@ -9,13 +9,14 @@ import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined
 import LocalMallOutlinedIcon from "@mui/icons-material/LocalMallOutlined";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
+import ThemeToggle from './ThemeToggle';
 
 // Custom NavLink component with active state handling
-const CustomNavLink = ({ to, children, scrollToTop }) => {
+const CustomNavLink = memo(({ to, children, scrollToTop }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
-  const handleClick = (e) => {
+  const handleClick = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -27,7 +28,7 @@ const CustomNavLink = ({ to, children, scrollToTop }) => {
     setTimeout(() => {
       window.location.href = to;
     }, 100);
-  };
+  }, [scrollToTop, to]);
 
   return (
     <Link
@@ -45,7 +46,7 @@ const CustomNavLink = ({ to, children, scrollToTop }) => {
         }`}></div>
     </Link>
   );
-};
+});
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
@@ -210,7 +211,7 @@ const Navbar = () => {
                   alt="search-icon"
                 />
               </div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8"></div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8 dark:hidden"></div>
             </div>
 
             {/* Cart Icon */}
@@ -227,7 +228,7 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8"></div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8 dark:hidden"></div>
             </Link>
 
             {/* Wishlist Icon */}
@@ -244,7 +245,7 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8"></div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8 dark:hidden"></div>
             </Link>
 
             {/* Profile Section */}
@@ -268,7 +269,7 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8"></div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8 dark:hidden"></div>
 
               {/* Enhanced Dropdown Menu */}
               {token && (
@@ -283,14 +284,14 @@ const Navbar = () => {
                       <div className="py-1">
                         <button
                           onClick={() => navigate("/profile")}
-                          className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 flex items-center gap-3"
+                          className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-200 flex items-center gap-3"
                         >
                           <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
                           My Profile
                         </button>
                         <button
                           onClick={() => navigate("/orders")}
-                          className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 flex items-center gap-3"
+                          className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-200 flex items-center gap-3"
                         >
                           <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
                           My Orders
@@ -298,7 +299,7 @@ const Navbar = () => {
                         <div className="border-t border-gray-100 my-1"></div>
                         <button
                           onClick={logout}
-                          className="w-full px-4 py-3 text-left text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200 flex items-center gap-3"
+                          className="w-full px-4 py-3 text-left text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 flex items-center gap-3"
                         >
                           <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                           Logout
@@ -316,7 +317,7 @@ const Navbar = () => {
           <MenuOpenIcon onClick={() => setVisible(true)} alt="menu-icon" className="w-5 cursor-pointer" sx={{ fontSize: 30 }} />
         </div>
       </div>
-      <div className="fixed bottom-0 left-0 w-full z-30 md:hidden">
+      <div className="fixed bottom-[-2px] left-0 w-full z-30 md:hidden">
         {/* Dark Glassmorphism Background with Blur */}
         <div className="relative">
           {/* Backdrop Blur Background */}
@@ -368,6 +369,17 @@ const Navbar = () => {
               </div>
             </Link>
 
+            {/* Theme Toggle */}
+            {/* <div className="group relative">
+              <div className="flex flex-col items-center">
+                <div className="relative p-1.5">
+                  <div className="text-white group-hover:text-gray-200 transition-colors duration-300">
+                    <ThemeToggle />
+                  </div>
+                </div>
+              </div>
+            </div> */}
+
             {/* Profile */}
             <div className="group relative">
               <div className="flex flex-col items-center">
@@ -401,7 +413,7 @@ const Navbar = () => {
                 <div className="mobile-profile-dropdown absolute bottom-full mb-3 right-0 z-50 transition-all duration-300 ease-in-out transform translate-y-0 opacity-100 scale-100">
                   <div className="relative">
                     {/* Arrow */}
-                    <div className="absolute top-full right-4 w-3 h-3 bg-gray-900 transform rotate-45 border-r border-b border-gray-700 shadow-lg"></div>
+                    <div className="absolute bottom-[-5px] right-4 w-3 h-3 bg-gray-900 transform rotate-45 border-r border-b border-gray-700 shadow-lg"></div>
 
                     {/* Menu Container */}
                     <div className="bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 overflow-hidden min-w-[200px]">
@@ -528,6 +540,8 @@ const Navbar = () => {
                 <span className="font-medium">CONTACT</span>
               </NavLink>
             </nav>
+
+            <ThemeToggle isSidebar={true} className="!relative left-1/2 -translate-x-1/2" />
           </div>
 
           {/* Footer */}
@@ -543,4 +557,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default memo(Navbar);

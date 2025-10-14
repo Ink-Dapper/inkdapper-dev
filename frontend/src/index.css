@@ -1,7 +1,88 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
+@import './styles/mobile-optimizations.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Theme-based CSS Variables */
+:root {
+    /* Light theme colors (default) */
+    --bg-primary: #fefefe;
+    --bg-secondary: #f8fafc;
+    --bg-accent: #f1f5f9;
+    --bg-gradient-start: #fefefe;
+    --bg-gradient-end: #f8fafc;
+    --orb-color-1: rgba(249, 115, 22, 0.03);
+    --orb-color-2: rgba(239, 68, 68, 0.02);
+    --orb-color-3: rgba(234, 179, 8, 0.025);
+    --orb-color-4: rgba(168, 85, 247, 0.02);
+    --orb-color-5: rgba(59, 130, 246, 0.015);
+    --text-primary: #1e293b;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border-color: #e5e7eb;
+    --card-bg: #ffffff;
+    --hover-bg: #f3f4f6;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    /* Theme transition duration */
+    --theme-transition: 0.3s ease;
+}
+
+/* Prevent theme flash on page load */
+html {
+    color-scheme: light;
+}
+
+.dark-theme {
+    color-scheme: dark;
+}
+
+/* Dark theme colors - applied when dark-theme class is present */
+.dark-theme {
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-accent: #374151;
+    --bg-gradient-start: #111827;
+    --bg-gradient-end: #1f2937;
+    --orb-color-1: rgba(249, 115, 22, 0.12);
+    --orb-color-2: rgba(239, 68, 68, 0.08);
+    --orb-color-3: rgba(234, 179, 8, 0.10);
+    --orb-color-4: rgba(168, 85, 247, 0.08);
+    --orb-color-5: rgba(59, 130, 246, 0.06);
+    --text-primary: #f9fafb;
+    --text-secondary: #e5e7eb;
+    --text-muted: #9ca3af;
+
+    /* Additional dark mode specific colors */
+    --border-color: #374151;
+    --card-bg: #1f2937;
+    --hover-bg: #374151;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Removed auto dark theme detection - always default to light mode */
+
+/* Light theme override class */
+.light-theme {
+    --bg-primary: #fefefe;
+    --bg-secondary: #f8fafc;
+    --bg-accent: #f1f5f9;
+    --bg-gradient-start: #fefefe;
+    --bg-gradient-end: #f8fafc;
+    --orb-color-1: rgba(249, 115, 22, 0.03);
+    --orb-color-2: rgba(239, 68, 68, 0.02);
+    --orb-color-3: rgba(234, 179, 8, 0.025);
+    --orb-color-4: rgba(168, 85, 247, 0.02);
+    --orb-color-5: rgba(59, 130, 246, 0.015);
+    --text-primary: #1e293b;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border-color: #e5e7eb;
+    --card-bg: #ffffff;
+    --hover-bg: #f3f4f6;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
 
 @font-face {
     font-family: 'CustomFont';
@@ -11,6 +92,13 @@
 
 html {
     scroll-behavior: smooth;
+    background: var(--bg-primary);
+}
+
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color var(--theme-transition), color var(--theme-transition);
 }
 
 /* Global App Container */
@@ -31,6 +119,82 @@ html {
     textarea {
         font-size: 16px !important;
     }
+
+    /* iPhone footer optimizations */
+    footer {
+        /* Ensure footer doesn't get cut off by iPhone's bottom safe area */
+        padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+
+    /* Better touch targets for iPhone */
+    footer a {
+        -webkit-tap-highlight-color: rgba(249, 115, 22, 0.1);
+        touch-action: manipulation;
+    }
+
+    /* Prevent zoom on double tap for iPhone */
+    footer input,
+    footer button,
+    footer a {
+        touch-action: manipulation;
+    }
+
+    /* iOS Safari specific fixes */
+    body {
+        -webkit-overflow-scrolling: touch;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Fix for iOS Safari viewport issues */
+    html {
+        height: -webkit-fill-available;
+    }
+
+    /* Prevent iOS Safari from bouncing */
+    body {
+        position: fixed;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Allow scrolling within the app container */
+    .app-container {
+        position: relative;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        height: 100vh;
+        height: -webkit-fill-available;
+    }
+
+    /* Fix for iOS Safari input zoom */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    textarea,
+    select {
+        font-size: 16px !important;
+        transform: translateZ(0);
+        -webkit-appearance: none;
+        border-radius: 0;
+    }
+
+    /* Fix for iOS Safari button styling */
+    button {
+        -webkit-appearance: none;
+        border-radius: 0;
+        touch-action: manipulation;
+    }
+
+    /* Fix for iOS Safari image rendering */
+    img {
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
 }
 
 /* Mobile Chat Responsive Fixes */
@@ -47,6 +211,40 @@ html {
         max-width: 100vw;
         max-height: 100vh;
     }
+
+    /* Footer mobile optimizations */
+    footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Ensure footer content doesn't overflow on small screens */
+    footer .max-w-7xl {
+        max-width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    /* Improve touch targets for mobile */
+    footer a,
+    footer button {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Better spacing for mobile footer sections */
+    footer .flex-col>div {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Optimize social media icons for mobile */
+    footer .flex.gap-4 svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
 }
 
 /* Global Background */
@@ -58,6 +256,8 @@ html {
     height: 100%;
     z-index: -1;
     overflow: hidden;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    transition: background var(--theme-transition);
 }
 
 /* Ensure content sections have proper backgrounds */
@@ -77,40 +277,47 @@ section {
 .bg-white,
 .bg-slate-50,
 .bg-gray-50 {
-    background: rgba(255, 255, 255, 0.9) !important;
+    background: var(--card-bg) !important;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    transition: background-color var(--theme-transition), border-color var(--theme-transition);
 }
 
 /* Navbar and footer enhancements */
 nav,
 footer {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: var(--bg-secondary) !important;
     backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--theme-transition), border-color var(--theme-transition);
 }
 
 /* Modal and overlay enhancements */
 .modal,
 .overlay,
 [role="dialog"] {
-    background: rgba(255, 255, 255, 0.98) !important;
+    background: var(--card-bg) !important;
     backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    transition: background-color var(--theme-transition), border-color var(--theme-transition);
 }
 
 /* Form elements enhancement */
 input,
 textarea,
 select {
-    background: rgba(255, 255, 255, 0.9) !important;
+    background: var(--card-bg) !important;
     backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition);
 }
 
 /* Global text color improvements for better readability */
 body {
-    color: #1e293b;
-    /* slate-800 */
+    color: var(--text-primary);
+    transition: color var(--theme-transition);
 }
 
 /* Headings */
@@ -120,22 +327,22 @@ h3,
 h4,
 h5,
 h6 {
-    color: #0f172a;
-    /* slate-900 */
+    color: var(--text-primary);
+    transition: color var(--theme-transition);
 }
 
 /* Paragraphs and general text */
 p,
 span,
 div {
-    color: #334155;
-    /* slate-700 */
+    color: var(--text-secondary);
+    transition: color var(--theme-transition);
 }
 
 /* Links */
 a {
-    color: #1e293b;
-    /* slate-800 */
+    color: var(--text-primary);
+    transition: color var(--theme-transition);
 }
 
 a:hover {
@@ -145,15 +352,15 @@ a:hover {
 
 /* Form labels */
 label {
-    color: #475569;
-    /* slate-600 */
+    color: var(--text-secondary);
     font-weight: 500;
+    transition: color var(--theme-transition);
 }
 
 /* Placeholder text */
 ::placeholder {
-    color: #64748b;
-    /* slate-500 */
+    color: var(--text-muted);
+    transition: color var(--theme-transition);
 }
 
 /* Selection */
@@ -173,23 +380,20 @@ a.active {
 /* Card text */
 .card p,
 .card span {
-    color: #334155;
-    /* slate-700 */
+    color: var(--text-secondary);
 }
 
 /* Footer text */
 footer p,
 footer span,
 footer a {
-    color: #475569;
-    /* slate-600 */
+    color: var(--text-secondary);
 }
 
 /* Modal text */
 .modal p,
 .modal span {
-    color: #334155;
-    /* slate-700 */
+    color: var(--text-secondary);
 }
 
 /* Enhanced text contrast for better readability */
@@ -200,14 +404,12 @@ footer a {
 /* Product card text enhancements */
 .product-card h3,
 .product-card h4 {
-    color: #0f172a;
-    /* slate-900 */
+    color: var(--text-primary);
     font-weight: 600;
 }
 
 .product-card p {
-    color: #475569;
-    /* slate-600 */
+    color: var(--text-secondary);
 }
 
 /* Price text */
@@ -245,15 +447,16 @@ select:focus {
 
 /* Toast notifications */
 .Toastify__toast {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: var(--card-bg) !important;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #334155;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 /* Loading states */
 .skeleton {
-    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background: linear-gradient(90deg, var(--bg-accent) 25%, var(--border-color) 50%, var(--bg-accent) 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
 }
@@ -493,6 +696,1373 @@ a.active hr {
     animation-delay: 0.5s;
 }
 
+/* Theme Toggle Button */
+.theme-toggle-button {
+    position: fixed;
+    top: 2rem;
+    right: 1rem;
+    z-index: 50;
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--theme-transition), background-color var(--theme-transition), color var(--theme-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-button:active {
+    transform: scale(0.95);
+}
+
+/* Dark mode specific improvements */
+.dark-theme .product-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.dark-theme .product-card:hover {
+    background: var(--hover-bg);
+    border-color: #4b5563;
+    box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+/* Improve dark mode text contrast */
+.dark-theme .text-gray-600,
+.dark-theme .text-gray-500,
+.dark-theme .text-gray-400 {
+    color: var(--text-muted) !important;
+}
+
+.dark-theme .text-gray-700,
+.dark-theme .text-gray-800 {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+/* Dark mode button improvements */
+.dark-theme .btn-primary {
+    background: linear-gradient(135deg, #ea580c, #dc2626);
+    color: white;
+    border: 1px solid #ea580c;
+}
+
+.dark-theme .btn-secondary {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.dark-theme .btn-secondary:hover {
+    background: var(--hover-bg);
+    border-color: #4b5563;
+}
+
+/* Fix common hardcoded background colors */
+.dark-theme .bg-white {
+    background: var(--card-bg) !important;
+}
+
+.dark-theme .bg-gray-50,
+.dark-theme .bg-slate-50 {
+    background: var(--bg-secondary) !important;
+}
+
+.dark-theme .bg-gray-100,
+.dark-theme .bg-slate-100 {
+    background: var(--bg-accent) !important;
+}
+
+/* Fix hardcoded text colors */
+.dark-theme .text-black {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .text-white {
+    color: var(--text-primary) !important;
+}
+
+/* Fix specific text color classes that might not be visible in dark mode */
+.dark-theme .text-slate-800 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .text-slate-700 {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .text-slate-600 {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .text-slate-500 {
+    color: var(--text-muted) !important;
+}
+
+.dark-theme .text-slate-400 {
+    color: var(--text-muted) !important;
+}
+
+/* Fix specific color text classes for better visibility */
+.dark-theme .text-orange-600 {
+    color: #fb923c !important;
+}
+
+.dark-theme .text-orange-500 {
+    color: #f97316 !important;
+}
+
+.dark-theme .text-blue-600 {
+    color: #60a5fa !important;
+}
+
+.dark-theme .text-blue-500 {
+    color: #3b82f6 !important;
+}
+
+.dark-theme .text-green-600 {
+    color: #34d399 !important;
+}
+
+.dark-theme .text-yellow-600 {
+    color: #facc15 !important;
+}
+
+.dark-theme .text-red-600 {
+    color: #f87171 !important;
+}
+
+/* Fix hardcoded border colors */
+.dark-theme .border-gray-200,
+.dark-theme .border-gray-300 {
+    border-color: var(--border-color) !important;
+}
+
+/* Improve dark mode gradients */
+.dark-theme .bg-gradient-to-r {
+    background: linear-gradient(to right, var(--bg-secondary), var(--bg-accent)) !important;
+}
+
+/* Dark mode shadows */
+.dark-theme .shadow-lg,
+.dark-theme .shadow-xl {
+    box-shadow: 0 10px 25px var(--shadow-color) !important;
+}
+
+.dark-theme .shadow-md {
+    box-shadow: 0 4px 6px var(--shadow-color) !important;
+}
+
+/* Dark mode specific component fixes */
+.dark-theme .glass {
+    background: rgba(31, 41, 55, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+.dark-theme .glass-dark {
+    background: rgba(17, 24, 39, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+/* Fix dark mode backdrop blur effects */
+.dark-theme .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+}
+
+.dark-theme .backdrop-blur {
+    backdrop-filter: blur(8px);
+}
+
+.dark-theme .backdrop-blur-lg {
+    backdrop-filter: blur(16px);
+}
+
+/* Improve dark mode focus states */
+.dark-theme input:focus,
+.dark-theme textarea:focus,
+.dark-theme select:focus {
+    border-color: #ea580c;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2);
+}
+
+/* Dark mode selection */
+.dark-theme ::selection {
+    background-color: rgba(249, 115, 22, 0.3);
+    color: var(--text-primary);
+}
+
+/* Fix gradient text visibility in dark mode */
+.dark-theme .bg-gradient-to-r {
+    background: linear-gradient(to right, #ea580c, #f59e0b, #eab308) !important;
+}
+
+/* Dark mode gradient text fixes */
+.dark-theme .bg-gradient-to-r.bg-clip-text {
+    background: linear-gradient(to right, #fb923c, #fbbf24, #facc15) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+}
+
+/* Specific gradient text fixes for different color schemes */
+.dark-theme .from-orange-600.via-amber-500.to-yellow-400 {
+    background: linear-gradient(to right, #fb923c, #fbbf24, #facc15) !important;
+}
+
+.dark-theme .from-orange-600.to-amber-600 {
+    background: linear-gradient(to right, #fb923c, #fbbf24) !important;
+}
+
+.dark-theme .from-yellow-600.to-orange-600 {
+    background: linear-gradient(to right, #facc15, #fb923c) !important;
+}
+
+.dark-theme .from-blue-600.via-blue-500.to-blue-400 {
+    background: linear-gradient(to right, #60a5fa, #3b82f6, #2563eb) !important;
+}
+
+.dark-theme .from-blue-600.to-indigo-600 {
+    background: linear-gradient(to right, #60a5fa, #6366f1) !important;
+}
+
+.dark-theme .from-gray-800.to-gray-600 {
+    background: linear-gradient(to right, #9ca3af, #6b7280) !important;
+}
+
+.dark-theme .from-green-600.via-emerald-500.to-teal-400 {
+    background: linear-gradient(to right, #34d399, #10b981, #2dd4bf) !important;
+}
+
+.dark-theme .from-orange-600.to-red-600 {
+    background: linear-gradient(to right, #fb923c, #f87171) !important;
+}
+
+.dark-theme .from-slate-900.via-orange-700.to-slate-900 {
+    background: linear-gradient(to right, #e5e7eb, #fb923c, #e5e7eb) !important;
+}
+
+.dark-theme .from-slate-900.via-blue-700.to-slate-900 {
+    background: linear-gradient(to right, #e5e7eb, #3b82f6, #e5e7eb) !important;
+}
+
+.dark-theme .from-slate-800.to-orange-600 {
+    background: linear-gradient(to right, #9ca3af, #fb923c) !important;
+}
+
+.dark-theme .from-slate-800.via-slate-700.to-slate-800 {
+    background: linear-gradient(to right, #9ca3af, #6b7280, #9ca3af) !important;
+}
+
+.dark-theme .from-orange-600.to-amber-600 {
+    background: linear-gradient(to right, #fb923c, #fbbf24) !important;
+}
+
+/* Fallback for any remaining gradient text issues */
+.dark-theme [class*="bg-gradient"][class*="bg-clip-text"][class*="text-transparent"] {
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+}
+
+/* Ensure all gradient text has proper fallback colors */
+.dark-theme [class*="bg-gradient"][class*="bg-clip-text"] {
+    background-image: linear-gradient(to right, #fb923c, #fbbf24, #facc15) !important;
+}
+
+/* Fix any remaining text visibility issues */
+.dark-theme h1,
+.dark-theme h2,
+.dark-theme h3,
+.dark-theme h4,
+.dark-theme h5,
+.dark-theme h6 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix description and paragraph text */
+.dark-theme p,
+.dark-theme span,
+.dark-theme div {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix specific component text issues */
+.dark-theme .text-sm,
+.dark-theme .text-xs {
+    color: var(--text-muted) !important;
+}
+
+/* Fix uppercase tracking text */
+.dark-theme [class*="uppercase"][class*="tracking"] {
+    color: var(--text-muted) !important;
+}
+
+/* Fix AcidWashTees section backgrounds for dark mode */
+.dark-theme .acid-wash-tees-section {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 50%, var(--bg-secondary) 100%) !important;
+}
+
+.dark-theme .acid-wash-tees-section .bg-gradient-to-br {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 50%, var(--bg-secondary) 100%) !important;
+}
+
+/* Fix AcidWashTees floating elements for dark mode */
+.dark-theme .acid-wash-tees-section .from-orange-50\/20,
+.dark-theme .acid-wash-tees-section .via-transparent,
+.dark-theme .acid-wash-tees-section .to-red-50\/20 {
+    background: linear-gradient(135deg, rgba(55, 65, 81, 0.2) 0%, transparent 50%, rgba(55, 65, 81, 0.2) 100%) !important;
+}
+
+.dark-theme .acid-wash-tees-section .from-orange-200\/30,
+.dark-theme .acid-wash-tees-section .to-red-200\/30 {
+    background: linear-gradient(to right, rgba(251, 146, 60, 0.3), rgba(248, 113, 113, 0.3)) !important;
+}
+
+.dark-theme .acid-wash-tees-section .from-yellow-200\/30,
+.dark-theme .acid-wash-tees-section .to-orange-200\/30 {
+    background: linear-gradient(to right, rgba(250, 204, 21, 0.3), rgba(251, 146, 60, 0.3)) !important;
+}
+
+.dark-theme .acid-wash-tees-section .from-red-200\/30,
+.dark-theme .acid-wash-tees-section .to-pink-200\/30 {
+    background: linear-gradient(to right, rgba(248, 113, 113, 0.3), rgba(251, 113, 133, 0.3)) !important;
+}
+
+/* Fix AcidWashTees badges for dark mode */
+.dark-theme .acid-wash-tees-section .from-orange-200\/80,
+.dark-theme .acid-wash-tees-section .to-red-200\/80 {
+    background: linear-gradient(to right, rgba(55, 65, 81, 0.8), rgba(75, 85, 99, 0.8)) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.dark-theme .acid-wash-tees-section .from-yellow-200\/80,
+.dark-theme .acid-wash-tees-section .to-orange-200\/80 {
+    background: linear-gradient(to right, rgba(75, 85, 99, 0.8), rgba(55, 65, 81, 0.8)) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.dark-theme .acid-wash-tees-section .from-red-200\/80,
+.dark-theme .acid-wash-tees-section .to-pink-200\/80 {
+    background: linear-gradient(to right, rgba(75, 85, 99, 0.8), rgba(55, 65, 81, 0.8)) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.dark-theme .acid-wash-tees-section .text-orange-800,
+.dark-theme .acid-wash-tees-section .text-yellow-800,
+.dark-theme .acid-wash-tees-section .text-red-800 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .acid-wash-tees-section .border-orange-300\/50,
+.dark-theme .acid-wash-tees-section .border-yellow-300\/50,
+.dark-theme .acid-wash-tees-section .border-red-300\/50 {
+    border-color: var(--border-color) !important;
+}
+
+/* Fix AcidWashTees navigation text */
+.dark-theme .acid-wash-tees-section .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .acid-wash-tees-section .text-slate-500 {
+    color: var(--text-muted) !important;
+}
+
+/* Fix AcidWashTees grid background pattern */
+.dark-theme .acid-wash-tees-section .rounded-3xl {
+    background: linear-gradient(135deg, rgba(55, 65, 81, 0.2) 0%, transparent 50%, rgba(55, 65, 81, 0.2) 100%) !important;
+}
+
+/* Fix AcidWashTees decorative lines */
+.dark-theme .acid-wash-tees-section .from-transparent.via-orange-400.to-transparent {
+    background: linear-gradient(to right, transparent, #fb923c, transparent) !important;
+}
+
+/* Fix AcidWashTees swiper pagination */
+.dark-theme .acid-wash-swiper .swiper-pagination-bullet {
+    background: #fb923c !important;
+}
+
+.dark-theme .acid-wash-swiper .swiper-pagination-bullet-active {
+    background: #f97316 !important;
+}
+
+/* Fix AcidWashTees section specific text colors */
+.dark-theme .acid-wash-tees-section .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .acid-wash-tees-section .text-slate-600 {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .acid-wash-tees-section .text-slate-800 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees bright shadow effects for dark mode */
+.dark-theme .acid-wash-tees-section .from-purple-400,
+.dark-theme .acid-wash-tees-section .via-pink-400,
+.dark-theme .acid-wash-tees-section .to-blue-400 {
+    background: linear-gradient(to right, #a855f7, #ec4899, #3b82f6) !important;
+}
+
+.dark-theme .acid-wash-tees-section .from-cyan-400,
+.dark-theme .acid-wash-tees-section .via-emerald-400,
+.dark-theme .acid-wash-tees-section .to-teal-400 {
+    background: linear-gradient(to right, #22d3ee, #10b981, #14b8a6) !important;
+}
+
+.dark-theme .acid-wash-tees-section .from-orange-400,
+.dark-theme .acid-wash-tees-section .via-red-400,
+.dark-theme .acid-wash-tees-section .to-pink-400 {
+    background: linear-gradient(to right, #fb923c, #f87171, #ec4899) !important;
+}
+
+/* Fix AcidWashTees button styles for dark mode */
+.dark-theme .acid-wash-tees-section .bg-gradient-to-r.from-orange-500.to-red-500 {
+    background: linear-gradient(to right, #ea580c, #dc2626) !important;
+    color: white !important;
+}
+
+.dark-theme .acid-wash-tees-section .hover\:from-orange-600:hover,
+.dark-theme .acid-wash-tees-section .hover\:to-red-600:hover {
+    background: linear-gradient(to right, #c2410c, #b91c1c) !important;
+}
+
+.dark-theme .acid-wash-tees-section .hover\:shadow-orange-500\/25:hover {
+    box-shadow: 0 20px 25px -5px rgba(234, 88, 12, 0.25), 0 10px 10px -5px rgba(234, 88, 12, 0.1) !important;
+}
+
+/* Fix AcidWashTees call-to-action text */
+.dark-theme .acid-wash-tees-section .text-white {
+    color: white !important;
+}
+
+/* Fix AcidWashTees button text and icons */
+.dark-theme .acid-wash-tees-section button svg,
+.dark-theme .acid-wash-tees-section a svg {
+    color: white !important;
+    stroke: white !important;
+}
+
+/* Fix AcidWashTees navigation buttons */
+.dark-theme .acid-wash-tees-section .bg-gradient-to-r.from-orange-500.to-red-500 {
+    background: linear-gradient(to right, #ea580c, #dc2626) !important;
+}
+
+.dark-theme .acid-wash-tees-section .hover\:scale-110:hover {
+    transform: scale(1.1) !important;
+}
+
+/* Fix AcidWashTees span text colors */
+.dark-theme .acid-wash-tees-section span {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix AcidWashTees font weights and sizes */
+.dark-theme .acid-wash-tees-section .font-semibold {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .acid-wash-tees-section .font-bold {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees leading and spacing text */
+.dark-theme .acid-wash-tees-section .leading-relaxed {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix AcidWashTees max-width container text */
+.dark-theme .acid-wash-tees-section .max-w-3xl {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix AcidWashTees mx-auto text */
+.dark-theme .acid-wash-tees-section .mx-auto {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix AcidWashTees px-4 text */
+.dark-theme .acid-wash-tees-section .px-4 {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix AcidWashTees specific text size classes */
+.dark-theme .acid-wash-tees-section .text-base,
+.dark-theme .acid-wash-tees-section .text-sm,
+.dark-theme .acid-wash-tees-section .text-lg,
+.dark-theme .acid-wash-tees-section .text-xl {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix AcidWashTees font-medium text */
+.dark-theme .acid-wash-tees-section .font-medium {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix AcidWashTees specific header elements */
+.dark-theme .acid-wash-tees-section .text-center {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .acid-wash-tees-section .mb-12,
+.dark-theme .acid-wash-tees-section .md\:mb-16 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees inline-flex elements */
+.dark-theme .acid-wash-tees-section .inline-flex {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees items-center elements */
+.dark-theme .acid-wash-tees-section .items-center {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees gap-3 elements */
+.dark-theme .acid-wash-tees-section .gap-3 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees mb-6 elements */
+.dark-theme .acid-wash-tees-section .mb-6 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees w-12 h-0.5 elements */
+.dark-theme .acid-wash-tees-section .w-12,
+.dark-theme .acid-wash-tees-section .h-0\.5 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees tracking-wider elements */
+.dark-theme .acid-wash-tees-section .tracking-wider {
+    color: var(--text-muted) !important;
+}
+
+/* Fix AcidWashTees text-3xl, text-4xl, text-6xl elements */
+.dark-theme .acid-wash-tees-section .text-3xl,
+.dark-theme .acid-wash-tees-section .text-4xl,
+.dark-theme .acid-wash-tees-section .text-6xl {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees sm:text-4xl, md:text-6xl elements */
+.dark-theme .acid-wash-tees-section .sm\:text-4xl,
+.dark-theme .acid-wash-tees-section .md\:text-6xl {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees mb-4, md:mb-6 elements */
+.dark-theme .acid-wash-tees-section .mb-4,
+.dark-theme .acid-wash-tees-section .md\:mb-6 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees flex-wrap elements */
+.dark-theme .acid-wash-tees-section .flex-wrap {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees justify-center elements */
+.dark-theme .acid-wash-tees-section .justify-center {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees gap-2, md:gap-3 elements */
+.dark-theme .acid-wash-tees-section .gap-2,
+.dark-theme .acid-wash-tees-section .md\:gap-3 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees mb-6, md:mb-8 elements */
+.dark-theme .acid-wash-tees-section .mb-6,
+.dark-theme .acid-wash-tees-section .md\:mb-8 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix AcidWashTees px-4 elements */
+.dark-theme .acid-wash-tees-section .px-4 {
+    color: var(--text-primary) !important;
+}
+
+/* ===== COMPREHENSIVE DARK MODE FOR ALL SECTIONS ===== */
+
+/* Fix all section backgrounds to have dark tones */
+.dark-theme section {
+    background: var(--bg-secondary) !important;
+}
+
+.dark-theme .bg-white {
+    background: var(--card-bg) !important;
+}
+
+.dark-theme .bg-gray-50,
+.dark-theme .bg-slate-50 {
+    background: var(--bg-secondary) !important;
+}
+
+.dark-theme .bg-gray-100,
+.dark-theme .bg-slate-100 {
+    background: var(--bg-accent) !important;
+}
+
+/* Fix all gradient backgrounds for dark mode */
+.dark-theme .bg-gradient-to-r {
+    background: linear-gradient(to right, var(--bg-secondary), var(--bg-accent)) !important;
+}
+
+.dark-theme .bg-gradient-to-br {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 50%, var(--bg-secondary) 100%) !important;
+}
+
+.dark-theme .bg-gradient-to-t {
+    background: linear-gradient(to top, var(--bg-secondary), transparent) !important;
+}
+
+/* Fix specific light background classes */
+.dark-theme .from-orange-50,
+.dark-theme .via-white,
+.dark-theme .to-red-50 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 50%, var(--bg-secondary) 100%) !important;
+}
+
+.dark-theme .from-blue-50,
+.dark-theme .to-indigo-50 {
+    background: linear-gradient(to right, var(--bg-secondary), var(--bg-accent)) !important;
+}
+
+.dark-theme .from-green-50,
+.dark-theme .to-emerald-50 {
+    background: linear-gradient(to right, var(--bg-secondary), var(--bg-accent)) !important;
+}
+
+/* Fix all text colors for maximum visibility */
+.dark-theme h1,
+.dark-theme h2,
+.dark-theme h3,
+.dark-theme h4,
+.dark-theme h5,
+.dark-theme h6 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme p,
+.dark-theme span,
+.dark-theme div {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .text-sm,
+.dark-theme .text-xs {
+    color: var(--text-muted) !important;
+}
+
+/* Fix all icon colors for visibility */
+.dark-theme svg {
+    color: var(--text-primary) !important;
+    fill: var(--text-primary) !important;
+    stroke: var(--text-primary) !important;
+}
+
+.dark-theme button svg,
+.dark-theme a svg {
+    color: var(--text-primary) !important;
+    fill: var(--text-primary) !important;
+    stroke: var(--text-primary) !important;
+}
+
+/* Fix button icons specifically */
+.dark-theme .text-white svg,
+.dark-theme .text-white button svg,
+.dark-theme .text-white a svg {
+    color: white !important;
+    fill: white !important;
+    stroke: white !important;
+}
+
+/* Fix all colored text for better visibility */
+.dark-theme .text-blue-600,
+.dark-theme .text-blue-500 {
+    color: #60a5fa !important;
+}
+
+.dark-theme .text-green-600,
+.dark-theme .text-green-500 {
+    color: #34d399 !important;
+}
+
+.dark-theme .text-purple-600,
+.dark-theme .text-purple-500 {
+    color: #a78bfa !important;
+}
+
+.dark-theme .text-pink-600,
+.dark-theme .text-pink-500 {
+    color: #f472b6 !important;
+}
+
+.dark-theme .text-cyan-600,
+.dark-theme .text-cyan-500 {
+    color: #22d3ee !important;
+}
+
+.dark-theme .text-emerald-600,
+.dark-theme .text-emerald-500 {
+    color: #10b981 !important;
+}
+
+.dark-theme .text-teal-600,
+.dark-theme .text-teal-500 {
+    color: #14b8a6 !important;
+}
+
+.dark-theme .text-indigo-600,
+.dark-theme .text-indigo-500 {
+    color: #6366f1 !important;
+}
+
+/* Fix all section-specific backgrounds */
+.dark-theme .hero-section,
+.dark-theme .collection-section,
+.dark-theme .product-section,
+.dark-theme .review-section,
+.dark-theme .newsletter-section,
+.dark-theme .footer-section {
+    background: var(--bg-secondary) !important;
+}
+
+/* Fix card backgrounds in all sections */
+.dark-theme .card,
+.dark-theme .product-card,
+.dark-theme .review-card,
+.dark-theme .newsletter-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 1px 3px var(--shadow-color) !important;
+}
+
+/* Fix all border colors */
+.dark-theme .border-gray-200,
+.dark-theme .border-gray-300,
+.dark-theme .border-slate-200,
+.dark-theme .border-slate-300 {
+    border-color: var(--border-color) !important;
+}
+
+/* Fix all shadow colors */
+.dark-theme .shadow-sm,
+.dark-theme .shadow,
+.dark-theme .shadow-md,
+.dark-theme .shadow-lg,
+.dark-theme .shadow-xl {
+    box-shadow: 0 1px 3px var(--shadow-color), 0 1px 2px var(--shadow-color) !important;
+}
+
+/* Fix backdrop blur backgrounds */
+.dark-theme .backdrop-blur-sm,
+.dark-theme .backdrop-blur,
+.dark-theme .backdrop-blur-md,
+.dark-theme .backdrop-blur-lg {
+    background: rgba(31, 41, 55, 0.8) !important;
+}
+
+/* Fix all form elements */
+.dark-theme input,
+.dark-theme textarea,
+.dark-theme select {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Fix all links */
+.dark-theme a {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme a:hover {
+    color: #fb923c !important;
+}
+
+/* Fix all buttons for better visibility */
+.dark-theme button {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .btn-primary {
+    background: linear-gradient(135deg, #ea580c, #dc2626) !important;
+    color: white !important;
+    border: 1px solid #ea580c !important;
+}
+
+.dark-theme .btn-secondary {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Fix navigation elements */
+.dark-theme nav {
+    background: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* Fix footer */
+.dark-theme footer {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+/* Fix modal backgrounds */
+.dark-theme .modal,
+.dark-theme .overlay,
+.dark-theme [role="dialog"] {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Fix toast notifications */
+.dark-theme .Toastify__toast {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Fix all remaining background classes */
+.dark-theme .bg-transparent {
+    background: transparent !important;
+}
+
+.dark-theme .bg-current {
+    background: currentColor !important;
+}
+
+/* Fix all opacity backgrounds */
+.dark-theme .bg-opacity-10,
+.dark-theme .bg-opacity-20,
+.dark-theme .bg-opacity-30,
+.dark-theme .bg-opacity-40,
+.dark-theme .bg-opacity-50 {
+    background-color: var(--bg-accent) !important;
+}
+
+/* Fix all remaining text color classes */
+.dark-theme .text-current {
+    color: currentColor !important;
+}
+
+.dark-theme .text-inherit {
+    color: inherit !important;
+}
+
+/* Fix all remaining border classes */
+.dark-theme .border-current {
+    border-color: currentColor !important;
+}
+
+.dark-theme .border-transparent {
+    border-color: transparent !important;
+}
+
+/* Fix all remaining shadow classes */
+.dark-theme .shadow-none {
+    box-shadow: none !important;
+}
+
+.dark-theme .shadow-inner {
+    box-shadow: inset 0 2px 4px 0 var(--shadow-color) !important;
+}
+
+/* Fix all remaining backdrop classes */
+.dark-theme .backdrop-none {
+    backdrop-filter: none !important;
+}
+
+.dark-theme .backdrop-blur-none {
+    backdrop-filter: none !important;
+}
+
+/* Fix all remaining transform classes */
+.dark-theme .transform {
+    transform: translateZ(0) !important;
+}
+
+.dark-theme .transition-all {
+    transition: all var(--theme-transition) !important;
+}
+
+/* Fix all remaining spacing classes that might affect visibility */
+.dark-theme .space-y-1>*+*,
+.dark-theme .space-y-2>*+*,
+.dark-theme .space-y-3>*+*,
+.dark-theme .space-y-4>*+*,
+.dark-theme .space-y-5>*+*,
+.dark-theme .space-y-6>*+* {
+    margin-top: 0.25rem !important;
+}
+
+/* Fix all remaining flex and grid classes */
+.dark-theme .flex,
+.dark-theme .inline-flex,
+.dark-theme .grid,
+.dark-theme .inline-grid {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining position classes */
+.dark-theme .relative,
+.dark-theme .absolute,
+.dark-theme .fixed,
+.dark-theme .sticky {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining overflow classes */
+.dark-theme .overflow-hidden,
+.dark-theme .overflow-auto,
+.dark-theme .overflow-scroll {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining z-index classes */
+.dark-theme .z-10,
+.dark-theme .z-20,
+.dark-theme .z-30,
+.dark-theme .z-40,
+.dark-theme .z-50 {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining width and height classes */
+.dark-theme .w-full,
+.dark-theme .h-full,
+.dark-theme .w-screen,
+.dark-theme .h-screen {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining margin and padding classes */
+.dark-theme .m-0,
+.dark-theme .p-0,
+.dark-theme .mx-auto,
+.dark-theme .my-auto {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining border radius classes */
+.dark-theme .rounded,
+.dark-theme .rounded-lg,
+.dark-theme .rounded-xl,
+.dark-theme .rounded-2xl,
+.dark-theme .rounded-3xl {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining cursor classes */
+.dark-theme .cursor-pointer,
+.dark-theme .cursor-default,
+.dark-theme .cursor-not-allowed {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining pointer events classes */
+.dark-theme .pointer-events-none,
+.dark-theme .pointer-events-auto {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining user select classes */
+.dark-theme .select-none,
+.dark-theme .select-text,
+.dark-theme .select-all {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining visibility classes */
+.dark-theme .visible,
+.dark-theme .invisible {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining display classes */
+.dark-theme .block,
+.dark-theme .inline-block,
+.dark-theme .inline,
+.dark-theme .hidden {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining float classes */
+.dark-theme .float-left,
+.dark-theme .float-right,
+.dark-theme .float-none {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining clear classes */
+.dark-theme .clear-left,
+.dark-theme .clear-right,
+.dark-theme .clear-both,
+.dark-theme .clear-none {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining object fit classes */
+.dark-theme .object-contain,
+.dark-theme .object-cover,
+.dark-theme .object-fill,
+.dark-theme .object-none,
+.dark-theme .object-scale-down {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix all remaining object position classes */
+.dark-theme .object-bottom,
+.dark-theme .object-center,
+.dark-theme .object-left,
+.dark-theme .object-left-bottom,
+.dark-theme .object-left-top,
+.dark-theme .object-right,
+.dark-theme .object-right-bottom,
+.dark-theme .object-right-top,
+.dark-theme .object-top {
+    color: var(--text-secondary) !important;
+}
+
+/* ===== HERO COMPONENT DARK MODE FIXES ===== */
+
+/* Fix Hero section main container */
+.dark-theme .hero-section {
+    background: var(--bg-secondary) !important;
+}
+
+/* Fix Hero gradient backgrounds for dark mode */
+.dark-theme .bg-gradient-to-r.from-orange-100.via-white.to-orange-50 {
+    background: linear-gradient(to right, var(--bg-secondary) 0%, var(--bg-primary) 50%, var(--bg-secondary) 100%) !important;
+}
+
+/* Fix Hero decorative shapes for dark mode */
+.dark-theme .bg-orange-100,
+.dark-theme .bg-orange-200,
+.dark-theme .bg-yellow-100 {
+    background: var(--bg-accent) !important;
+}
+
+/* Fix Hero title text for dark mode */
+.dark-theme .hero-title {
+    color: var(--text-primary) !important;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix Hero description text for dark mode */
+.dark-theme .hero-description {
+    color: var(--text-secondary) !important;
+    background: var(--card-bg) !important;
+    border-left-color: var(--border-color) !important;
+}
+
+/* Fix Hero button text for dark mode */
+.dark-theme .hero-button {
+    color: white !important;
+}
+
+/* Fix Hero badge text for dark mode */
+.dark-theme .hero-badge {
+    color: white !important;
+}
+
+/* Fix Hero error fallback text for dark mode */
+.dark-theme .hero-error h1 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .hero-error p {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .hero-error .bg-orange-500 {
+    background: linear-gradient(135deg, #ea580c, #dc2626) !important;
+}
+
+/* Fix Hero image placeholder for dark mode */
+.dark-theme .hero-image-placeholder {
+    background: var(--bg-accent) !important;
+    color: var(--text-muted) !important;
+}
+
+/* Fix Hero decorative elements for dark mode */
+.dark-theme .hero-decorative-shape {
+    background: var(--bg-accent) !important;
+    opacity: 0.3 !important;
+}
+
+/* Fix Hero specific text color overrides */
+.dark-theme .text-gray-800 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .text-gray-500 {
+    color: var(--text-muted) !important;
+}
+
+/* Fix Hero shadow effects for dark mode */
+.dark-theme .shadow-lg {
+    box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color) !important;
+}
+
+.dark-theme .drop-shadow-lg {
+    filter: drop-shadow(0 10px 8px var(--shadow-color)) drop-shadow(0 4px 3px var(--shadow-color)) !important;
+}
+
+.dark-theme .drop-shadow-2xl {
+    filter: drop-shadow(0 25px 25px var(--shadow-color)) drop-shadow(0 16px 10px var(--shadow-color)) !important;
+}
+
+/* ===== OUR POLICY COMPONENT DARK MODE FIXES ===== */
+
+/* Fix OurPolicy section main container */
+.dark-theme .our-policy-section {
+    background: var(--bg-secondary) !important;
+}
+
+/* Fix OurPolicy decorative background elements */
+.dark-theme .our-policy-section .bg-gradient-to-r.from-orange-200\/30,
+.dark-theme .our-policy-section .bg-gradient-to-r.from-amber-200\/30 {
+    background: linear-gradient(to right, var(--bg-accent), var(--bg-accent)) !important;
+    opacity: 0.2 !important;
+}
+
+/* Fix OurPolicy section header text */
+.dark-theme .our-policy-section .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .our-policy-section .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix OurPolicy cards for dark mode */
+.dark-theme .our-policy-section .bg-white\/80,
+.dark-theme .our-policy-section .bg-white\/90 {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.dark-theme .our-policy-section .border-white\/20 {
+    border-color: var(--border-color) !important;
+}
+
+/* Fix OurPolicy card text colors */
+.dark-theme .our-policy-section .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .our-policy-section .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+.dark-theme .our-policy-section .text-gray-700 {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix OurPolicy hover text colors */
+.dark-theme .our-policy-section .group-hover\:text-orange-700:hover,
+.dark-theme .our-policy-section .group-hover\:text-amber-700:hover {
+    color: #fb923c !important;
+}
+
+/* Fix OurPolicy decorative elements */
+.dark-theme .our-policy-section .border-orange-300\/30,
+.dark-theme .our-policy-section .border-amber-300\/30 {
+    border-color: var(--border-color) !important;
+    opacity: 0.5 !important;
+}
+
+/* Fix OurPolicy shadow effects */
+.dark-theme .our-policy-section .shadow-xl,
+.dark-theme .our-policy-section .shadow-2xl {
+    box-shadow: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color) !important;
+}
+
+/* Fix OurPolicy backdrop blur effects */
+.dark-theme .our-policy-section .backdrop-blur-xl {
+    background: rgba(31, 41, 55, 0.8) !important;
+}
+
+/* Fix OurPolicy gradient text */
+.dark-theme .our-policy-section .bg-gradient-to-r.from-slate-900.via-orange-700.to-slate-900 {
+    background: linear-gradient(to right, var(--text-primary), #fb923c, var(--text-primary)) !important;
+}
+
+.dark-theme .our-policy-section .bg-gradient-to-r.from-orange-600.to-amber-600 {
+    background: linear-gradient(to right, #fb923c, #f59e0b) !important;
+}
+
+/* Fix OurPolicy decorative lines */
+.dark-theme .our-policy-section .bg-gradient-to-r.from-transparent.via-orange-400.to-transparent {
+    background: linear-gradient(to right, transparent, var(--border-color), transparent) !important;
+}
+
+/* Fix OurPolicy CTA button for dark mode */
+.dark-theme .our-policy-section .bg-gradient-to-r.from-orange-500.via-orange-600.to-orange-700 {
+    background: linear-gradient(to right, #ea580c, #dc2626, #b91c1c) !important;
+}
+
+.dark-theme .our-policy-section .hover\:shadow-orange-500\/30:hover {
+    box-shadow: 0 25px 50px -12px rgba(234, 88, 12, 0.3), 0 0 0 1px rgba(234, 88, 12, 0.1) !important;
+}
+
+/* Fix OurPolicy border colors */
+.dark-theme .our-policy-section .border-orange-400\/50 {
+    border-color: #fb923c !important;
+    opacity: 0.7 !important;
+}
+
+/* Fix OurPolicy icon backgrounds */
+.dark-theme .our-policy-section .bg-gradient-to-br.from-orange-400.to-amber-500,
+.dark-theme .our-policy-section .bg-gradient-to-br.from-amber-400.to-orange-500,
+.dark-theme .our-policy-section .bg-gradient-to-br.from-orange-500.to-amber-600 {
+    background: linear-gradient(135deg, #ea580c, #dc2626) !important;
+}
+
+/* Fix OurPolicy hover effect indicators */
+.dark-theme .our-policy-section .bg-gradient-to-r.from-orange-400.to-amber-500,
+.dark-theme .our-policy-section .bg-gradient-to-r.from-amber-400.to-orange-500,
+.dark-theme .our-policy-section .bg-gradient-to-r.from-orange-500.to-amber-600 {
+    background: linear-gradient(to right, #ea580c, #dc2626) !important;
+}
+
+/* Fix OurPolicy blur effects for dark mode */
+.dark-theme .our-policy-section .bg-gradient-to-r.from-orange-400\/20,
+.dark-theme .our-policy-section .bg-gradient-to-r.from-amber-400\/20 {
+    background: linear-gradient(to right, var(--bg-accent), var(--bg-accent)) !important;
+    opacity: 0.3 !important;
+}
+
+/* ===== OUR POLICY HEADER SECTION ENHANCED FIXES ===== */
+
+/* Fix OurPolicy eyebrow text for better visibility */
+.dark-theme .our-policy-section .text-orange-600 {
+    color: #fb923c !important;
+}
+
+.dark-theme .our-policy-section .bg-gradient-to-r.from-orange-600.to-amber-600.bg-clip-text {
+    background: linear-gradient(to right, #fb923c, #f59e0b) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: #fb923c !important;
+}
+
+/* Fix OurPolicy main title gradient text for better visibility */
+.dark-theme .our-policy-section .bg-gradient-to-r.from-slate-900.via-orange-700.to-slate-900.bg-clip-text {
+    background: linear-gradient(to right, var(--text-primary), #fb923c, var(--text-primary)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+/* Fix OurPolicy decorative lines for better visibility */
+.dark-theme .our-policy-section .bg-gradient-to-r.from-transparent.via-orange-400.to-transparent {
+    background: linear-gradient(to right, transparent, #fb923c, transparent) !important;
+}
+
+/* Fix OurPolicy header text container */
+.dark-theme .our-policy-section .text-center.mb-12 h2 {
+    color: var(--text-primary) !important;
+}
+
+.dark-theme .our-policy-section .text-center.mb-12 p {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix OurPolicy eyebrow container */
+.dark-theme .our-policy-section .inline-flex.items-center.gap-3 {
+    color: var(--text-primary) !important;
+}
+
+/* Enhanced visibility for OurPolicy header elements */
+.dark-theme .our-policy-section .text-center.mb-12 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix OurPolicy eyebrow text fallback */
+.dark-theme .our-policy-section .text-sm.font-semibold.uppercase.tracking-wider {
+    color: #fb923c !important;
+}
+
+/* Fix OurPolicy main title fallback */
+.dark-theme .our-policy-section .text-3xl.sm\:text-4xl.md\:text-5xl.font-bold {
+    color: var(--text-primary) !important;
+}
+
+/* Fix OurPolicy description text fallback */
+.dark-theme .our-policy-section .text-lg.max-w-2xl.mx-auto {
+    color: var(--text-secondary) !important;
+}
+
+/* Additional OurPolicy gradient text fixes for better browser compatibility */
+.dark-theme .our-policy-section .bg-clip-text.text-transparent {
+    background: linear-gradient(to right, #fb923c, #f59e0b) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: #fb923c !important;
+}
+
+/* Fix OurPolicy gradient text when background-clip doesn't work */
+.dark-theme .our-policy-section .bg-clip-text.text-transparent:not([style*="background-clip"]) {
+    color: #fb923c !important;
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+}
+
+/* Fix OurPolicy main title when gradient doesn't work */
+.dark-theme .our-policy-section .bg-clip-text.text-transparent[class*="from-slate-900"] {
+    background: linear-gradient(to right, var(--text-primary), #fb923c, var(--text-primary)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+/* Fallback for OurPolicy main title */
+.dark-theme .our-policy-section .bg-clip-text.text-transparent[class*="from-slate-900"]:not([style*="background-clip"]) {
+    color: var(--text-primary) !important;
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+}
+
 /* Custom shadow for scroll to top button */
 .shadow-3xl {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -633,7 +2203,9 @@ a.active hr {
     flex-direction: column;
     gap: 0.1rem;
     padding: 0.75rem;
-    background: white;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    transition: background-color var(--theme-transition), border-color var(--theme-transition);
 }
 
 @media (min-width: 640px) {
@@ -721,6 +2293,27 @@ a.active hr {
     animation-delay: 4s;
 }
 
+/* Theme-adaptive color orbs for App.jsx */
+.color-orb-1 {
+    background: var(--orb-color-1);
+}
+
+.color-orb-2 {
+    background: var(--orb-color-2);
+}
+
+.color-orb-3 {
+    background: var(--orb-color-3);
+}
+
+.color-orb-4 {
+    background: var(--orb-color-4);
+}
+
+.color-orb-5 {
+    background: var(--orb-color-5);
+}
+
 @media (max-width:640px) {
     a.active {
         background-color: black;
@@ -734,4 +2327,23 @@ a.active hr {
             color: white;
         }
     }
+
+    .theme-toggle-button {
+        position: relative;
+        left: 1rem;
+        transform: translateX(-1/2);
+    }
+}
+
+/* Thank You Page Animation Delays */
+.animation-delay-1000 {
+    animation-delay: 1s;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-3000 {
+    animation-delay: 3s;
 }

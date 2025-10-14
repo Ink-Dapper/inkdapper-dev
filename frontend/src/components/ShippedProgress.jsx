@@ -20,7 +20,9 @@ const ShippedProgress = () => {
       const response = await apiInstance.post('/order/user-orders', {})
       console.log(response.data)
       if (response.data.success) {
+      if (response.data.success) {
         let allOrdersItem = []
+        response.data.orders.map((item, index) => {
         response.data.orders.map((item, index) => {
           allOrdersItem.push(item)
         })
@@ -33,6 +35,7 @@ const ShippedProgress = () => {
 
   useEffect(() => {
     loadOrderDataOne()
+  }, [])
   }, [])
 
   return (
@@ -52,6 +55,10 @@ const ShippedProgress = () => {
               </div>
               <div className="h-1 bg-orange-600" style={{
                 width: `${item.status === 'Order placed' ? orderLoadingOne :
+                  item.status === 'Packing' ? orderLoadingTwo :
+                    item.status === 'Shipped' ? orderLoadingThree :
+                      item.status === 'Out for delivery' ? orderLoadingFour :
+                        item.status === 'Delivered' ? orderLoadingFive : orderLoadingOne
                   item.status === 'Packing' ? orderLoadingTwo :
                     item.status === 'Shipped' ? orderLoadingThree :
                       item.status === 'Out for delivery' ? orderLoadingFour :
