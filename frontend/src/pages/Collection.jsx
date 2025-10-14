@@ -121,7 +121,6 @@ const Collection = () => {
   }, [subCategory, products])
 
   const allChecked = useCallback((e) => {
-  const allChecked = useCallback((e) => {
     if (e.target.checked) {
       const allSubCategories = products.map(item => item.subCategory);
       setSubCategory([...new Set(allSubCategories)]);

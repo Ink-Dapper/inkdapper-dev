@@ -68,7 +68,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   }, []);
 
   const addToWishlistPage = useCallback(() => {
-  const addToWishlistPage = useCallback(() => {
     if (!token) {
       toast.error('Please login to add product to wishlist', { autoClose: 1000, });
     } else {
@@ -379,5 +378,4 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   );
 };
 
-export default memo(ProductItem);
 export default memo(ProductItem);

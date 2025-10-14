@@ -166,7 +166,6 @@ const HighlightedProducts = () => {
         {/* Enhanced Call to Action */}
         <div className="text-center">
           <div className="relative inline-block mt-10">
-          <div className="relative inline-block mt-10">
             <span className="relative z-10 flex items-center gap-3 group relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/25 transform hover:scale-105 border border-orange-400/50">
               Explore All Featured Products
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,10 +173,9 @@ const HighlightedProducts = () => {
               </svg>
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {/* Enhanced decorative elements around button */}
+            <div className="absolute -z-10 -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 rounded-full blur opacity-10 group-hover:opacity-50 transition-opacity duration-300"></div>
           </div>
-
-          {/* Enhanced decorative elements around button */}
-          <div className="absolute -z-10 -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 rounded-full blur opacity-10 group-hover:opacity-50 transition-opacity duration-300"></div>
 
           <p className="mt-4 text-sm text-slate-500">
             Discover <span className="font-semibold text-orange-600 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{highlightedProducts.length}</span>+ handpicked designs

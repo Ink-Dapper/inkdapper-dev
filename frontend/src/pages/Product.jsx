@@ -37,7 +37,7 @@ const Product = () => {
     return <div>Loading...</div>
   }
 
-  const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity, addToRecentlyViewed, navigate, wishlist } = context
+  const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity, addToRecentlyViewed, wishlist } = context
   const [productData, setProductData] = useState(false)
   const [productNotFound, setProductNotFound] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
