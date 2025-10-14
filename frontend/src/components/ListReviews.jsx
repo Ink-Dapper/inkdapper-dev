@@ -61,8 +61,8 @@ const ListReviews = ({ productId, showSyncButton = true }) => {
                           <FaStar
                             key={star}
                             className={`w-4 h-4 ${star <= Number(review.rating)
-                                ? 'text-amber-400'
-                                : 'text-gray-300'
+                              ? 'text-amber-400'
+                              : 'text-gray-300'
                               }`}
                           />
                         ))}
