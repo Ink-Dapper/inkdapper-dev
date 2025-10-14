@@ -377,5 +377,4 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     </div>
   );
 };
-
 export default memo(ProductItem);
