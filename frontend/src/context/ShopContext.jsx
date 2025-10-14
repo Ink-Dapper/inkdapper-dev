@@ -236,34 +236,41 @@ const ShopContextProvider = (props) => {
 
   const getProductsData = async () => {
     try {
+      console.log('🔄 Fetching products from API...');
       const response = await apiInstance.get('/product/list')
       if (response.data.success) {
         // Set products directly from API response
         const products = response.data.products || [];
         console.log(`✅ Loaded ${products.length} products from API`);
 
-        // Debug: Check if products have valid IDs
+        // Enhanced debugging: Check if products have valid IDs
         const productsWithoutId = products.filter(p => !p._id);
         if (productsWithoutId.length > 0) {
           console.error(`⚠️ Found ${productsWithoutId.length} products without _id:`, productsWithoutId);
         }
 
-        // Log first product for debugging
+        // Log first few products for debugging
         if (products.length > 0) {
-          console.log('First product sample:', {
-            _id: products[0]._id,
-            name: products[0].name,
-            slug: products[0].slug,
-            hasId: !!products[0]._id
-          });
+          console.log('First 3 products sample:', products.slice(0, 3).map(p => ({
+            _id: p._id,
+            name: p.name,
+            slug: p.slug,
+            hasId: !!p._id,
+            idType: typeof p._id
+          })));
         }
+
+        // Additional validation
+        const validProducts = products.filter(p => p._id && p.name);
+        console.log(`📊 Valid products: ${validProducts.length}/${products.length}`);
 
         setProducts(products)
       } else {
+        console.error('❌ API response not successful:', response.data);
         toast.error(response.data.message)
       }
     } catch (error) {
-      console.log(error)
+      console.error('❌ Error fetching products:', error)
       toast.error(error.message)
     }
   }
