@@ -148,12 +148,14 @@ const Login = () => {
     }
   }, [token]);
 
-  const InputField = useCallback(({ icon: Icon, type = "text", placeholder, value, onChange, required = true, className = "" }) => (
+  const InputField = useCallback(({ icon: Icon, type = "text", placeholder, value, onChange, required = true, className = "", id, name }) => (
     <div className={`relative group ${className}`}>
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <Icon className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
       </div>
       <input
+        id={id}
+        name={name}
         type={type}
         value={value}
         onChange={onChange}
@@ -164,12 +166,14 @@ const Login = () => {
     </div>
   ), []);
 
-  const PasswordField = useCallback(({ placeholder, value, onChange, required = true, className = "" }) => (
+  const PasswordField = useCallback(({ placeholder, value, onChange, required = true, className = "", id, name }) => (
     <div className={`relative group ${className}`}>
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <FaLock className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
       </div>
       <input
+        id={id}
+        name={name}
         type={showPassword ? 'text' : 'password'}
         value={value}
         onChange={onChange}
@@ -240,6 +244,8 @@ const Login = () => {
               <div className="space-y-4">
                 <InputField
                   icon={FaUser}
+                  id="signup-name"
+                  name="name"
                   placeholder="Full Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -247,17 +253,23 @@ const Login = () => {
                 <InputField
                   icon={FaEnvelope}
                   type="email"
+                  id="signup-email"
+                  name="email"
                   placeholder="Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 <InputField
                   icon={FaPhone}
+                  id="signup-phone"
+                  name="phone"
                   placeholder="Phone Number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                 />
                 <PasswordField
+                  id="signup-password"
+                  name="password"
                   placeholder="Password"
                   value={password}
                   onChange={onPasswordChange}
@@ -301,11 +313,15 @@ const Login = () => {
               <div className="space-y-4">
                 <InputField
                   icon={FaEnvelope}
+                  id="login-email"
+                  name="emailOrPhone"
                   placeholder="Email or Phone"
                   value={emailOrPhone}
                   onChange={(e) => setEmailOrPhone(e.target.value)}
                 />
                 <PasswordField
+                  id="login-password"
+                  name="password"
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -322,6 +338,8 @@ const Login = () => {
               <div className="space-y-4">
                 <InputField
                   icon={FaEnvelope}
+                  id="verification-token"
+                  name="verificationToken"
                   placeholder="Verification Token"
                   value={verificationToken}
                   onChange={(e) => setVerificationToken(e.target.value)}
@@ -342,6 +360,8 @@ const Login = () => {
                 <InputField
                   icon={FaEnvelope}
                   type="email"
+                  id="reset-email"
+                  name="resetEmail"
                   placeholder="Enter your registered email"
                   value={resetEmail}
                   onChange={(e) => setResetEmail(e.target.value)}
@@ -358,16 +378,22 @@ const Login = () => {
               <div className="space-y-4">
                 <InputField
                   icon={FaEnvelope}
+                  id="reset-code"
+                  name="resetCode"
                   placeholder="Enter the reset code"
                   value={resetCode}
                   onChange={(e) => setResetCode(e.target.value)}
                 />
                 <PasswordField
+                  id="new-password"
+                  name="newPassword"
                   placeholder="New Password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <PasswordField
+                  id="confirm-password"
+                  name="confirmPassword"
                   placeholder="Confirm New Password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}

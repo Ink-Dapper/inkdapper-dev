@@ -2,7 +2,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from '@mui/icons-material/Share';
 import { toast } from 'react-toastify';
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef, memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
@@ -45,21 +45,21 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     };
   }, []);
 
-  const addToWishlistPage = () => {
+  const addToWishlistPage = useCallback(() => {
     if (!token) {
-      toast.error('Please login to add product to cart', { autoClose: 1000, });
+      toast.error('Please login to add product to wishlist', { autoClose: 1000, });
     } else {
       addToWishlist(id);
     }
-  };
+  }, [token, addToWishlist, id]);
 
-  const funcFavWishlist = () => {
+  const funcFavWishlist = useCallback(() => {
     const obj = wishlist;
     const keys = Object.keys(obj);
     setFavWishlist(keys);
-  };
+  }, [wishlist]);
 
-  const createNew = () => {
+  const createNew = useCallback(() => {
     const subCategoryMap = {
       'Customtshirt': 'Custom T-shirt',
       'Oversizedtshirt': 'Oversized T-shirt',
@@ -76,15 +76,15 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     if (newText) {
       setChangeText(newText);
     }
-  };
+  }, [subCategory]);
 
-  const handleShare = (e) => {
+  const handleShare = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setShowShareMenu(!showShareMenu);
-  };
+  }, [showShareMenu]);
 
-  const shareOnWhatsApp = (e) => {
+  const shareOnWhatsApp = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -95,9 +95,9 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     window.open(whatsappUrl, '_blank');
     setShowShareMenu(false);
     toast.success('Opening WhatsApp sharing...', { autoClose: 1500 });
-  };
+  }, [id, safeSlug, name, currency, price]);
 
-  const shareOnInstagram = (e) => {
+  const shareOnInstagram = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -106,9 +106,9 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
     toast.info('Link copied! Open Instagram and paste in your story or message', { autoClose: 3000 });
     setShowShareMenu(false);
-  };
+  }, [id, safeSlug]);
 
-  const shareViaMessage = (e) => {
+  const shareViaMessage = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -133,7 +133,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
       toast.info('Link copied to clipboard!', { autoClose: 1500 });
       setShowShareMenu(false);
     }
-  };
+  }, [id, safeSlug, name, currency, price]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -151,7 +151,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   useEffect(() => {
     funcFavWishlist();
     createNew();
-  }, [wishlist]);
+  }, [wishlist, funcFavWishlist, createNew]);
 
   return (
     <div
@@ -230,13 +230,13 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
         to={`/product/${id}/${safeSlug}`}
       >
-        <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
+        <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl overflow-hidden bg-white border border-slate-100/50'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">
             <div className="w-full h-full relative" style={{ aspectRatio: '3/4' }}>
               <img
                 src={image[0]}
                 alt={name}
-                className={`transition-all duration-700 ease-in-out h-full w-full object-cover relative z-10 group-hover:scale-110 ${soldout ? 'opacity-50' : ''}`}
+                className={`transition-all duration-500 ease-in-out h-full w-full object-cover relative z-10 group-hover:scale-105 ${soldout ? 'opacity-50' : ''}`}
                 loading="lazy"
                 decoding="async"
                 width="300"
@@ -245,6 +245,12 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                   aspectRatio: '3/4',
                   objectFit: 'cover',
                   objectPosition: 'center'
+                }}
+                onLoad={(e) => {
+                  e.target.style.opacity = '1';
+                }}
+                onError={(e) => {
+                  e.target.src = '/placeholder-image.jpg'; // Fallback image
                 }}
               />
 
@@ -261,7 +267,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 <img
                   src={assets.logo_only}
                   alt="logo"
-                  className="!w-9 !h-8 opacity-80 group-hover:opacity-100 transition-all duration-500 transform group-hover:scale-110 drop-shadow-lg"
+                  className="!w-8 !h-7 opacity-80 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-105 drop-shadow-lg"
                   width="32"
                   height="32"
                   loading="lazy"
@@ -270,19 +276,17 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 />
               </div>
 
-              {/* Enhanced Quick View Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-8">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
-                  <div className="backdrop-blur-xl bg-white/95 px-6 py-3 rounded-full text-sm font-bold text-slate-800 shadow-2xl border border-white/20 hover:bg-white transition-colors duration-300">
+              {/* Simplified Quick View Overlay for mobile performance */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-6">
+                <div className="transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                  <div className="bg-white/90 px-4 py-2 rounded-lg text-xs font-semibold text-slate-800 shadow-lg border border-white/20">
                     Quick View
                   </div>
                 </div>
               </div>
 
-
-              {/* Enhanced Floating Elements */}
-              <div className="absolute top-4 left-4 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse"></div>
-              <div className="absolute top-6 right-16 w-2 h-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse animation-delay-2000"></div>
+              {/* Simplified Floating Elements for mobile performance */}
+              <div className="absolute top-3 left-3 w-2 h-2 bg-orange-500 rounded-full opacity-0 group-hover:opacity-60 transition-all duration-300"></div>
             </div>
 
 
@@ -387,4 +391,4 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   );
 };
 
-export default ProductItem;
+export default memo(ProductItem);

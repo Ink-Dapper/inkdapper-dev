@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
-import axios from 'axios'
+import apiInstance from '../utils/axios'
 import { Link } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination, Autoplay } from 'swiper/modules'
@@ -28,7 +28,7 @@ const ProfileListItems = () => {
       if (!token) {
         return null
       }
-      const response = await axios.post(backendUrl + '/api/order/user-details', {}, { headers: { token } })
+      const response = await apiInstance.post('/order/user-details', {})
       if (response.data.success) {
         setOrderData(response.data.orders.reverse().slice(0, 6))
         setOrderDataOne(shuffleArray(response.data.orders).slice(0, 5))

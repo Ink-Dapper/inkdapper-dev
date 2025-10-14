@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
-import axios from 'axios'
+import apiInstance from '../utils/axios'
 import { assets } from '../assets/assets'
 
 const ShippedProgress = () => {
@@ -17,11 +17,11 @@ const ShippedProgress = () => {
 
   const loadOrderDataOne = async () => {
     try {
-      const response = await axios.post(backendUrl + '/api/order/user-orders',{},{headers:{token}})
+      const response = await apiInstance.post('/order/user-orders', {})
       console.log(response.data)
-      if(response.data.success){
+      if (response.data.success) {
         let allOrdersItem = []
-        response.data.orders.map ((item, index) => {
+        response.data.orders.map((item, index) => {
           allOrdersItem.push(item)
         })
         setOrderDataOne(allOrdersItem)
@@ -33,7 +33,7 @@ const ShippedProgress = () => {
 
   useEffect(() => {
     loadOrderDataOne()
-  },[])
+  }, [])
 
   return (
     <div>
@@ -52,10 +52,10 @@ const ShippedProgress = () => {
               </div>
               <div className="h-1 bg-orange-600" style={{
                 width: `${item.status === 'Order placed' ? orderLoadingOne :
-                    item.status === 'Packing' ? orderLoadingTwo :
-                      item.status === 'Shipped' ? orderLoadingThree :
-                        item.status === 'Out for delivery' ? orderLoadingFour :
-                          item.status === 'Delivered' ? orderLoadingFive : orderLoadingOne
+                  item.status === 'Packing' ? orderLoadingTwo :
+                    item.status === 'Shipped' ? orderLoadingThree :
+                      item.status === 'Out for delivery' ? orderLoadingFour :
+                        item.status === 'Delivered' ? orderLoadingFive : orderLoadingOne
                   }%`
               }}>
               </div>

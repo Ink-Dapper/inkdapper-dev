@@ -109,7 +109,7 @@ const Contact = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold">Careers at Ink Dapper</h3>
+                    <h3 className="text-2xl font-bold text-white">Careers at Ink Dapper</h3>
                     <p className="text-orange-100">Join our amazing team</p>
                   </div>
                 </div>

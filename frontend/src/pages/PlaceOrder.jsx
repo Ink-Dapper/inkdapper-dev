@@ -2,15 +2,15 @@ import React, { useContext, useEffect, useState } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
 import CouponSection from '../components/CouponSection'
+import CartProductsDisplay from '../components/CartProductsDisplay'
 import { assets } from '../assets/assets'
 import { ShopContext } from '../context/ShopContext'
-import axios from '../utils/axios'
+import apiInstance from '../utils/axios'
 import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
 
-  const [method, setMethod] = useState('cod')
-  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount } = useContext(ShopContext)
+  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount, paymentMethod, updatePaymentMethod, getShippingMessage } = useContext(ShopContext)
   const [creditPtsVisible, setCreditPtsVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -42,7 +42,7 @@ const PlaceOrder = () => {
       handler: async (response) => {
         console.log('Razorpay response:', response);
         try {
-          const { data } = await axios.post(backendUrl + '/api/order/verify-razorpay', { ...response, ...orderData, razorpay_order_id: order.id }, { headers: { token } });
+          const { data } = await apiInstance.post('/order/verify-razorpay', { ...response, ...orderData, razorpay_order_id: order.id });
           if (data.success) {
             console.log('Verification successful:', data);
             clearCart();
@@ -94,20 +94,20 @@ const PlaceOrder = () => {
       let orderData = {
         address: formData,
         items: orderItems,
-        amount: getFinalAmount() + (typeof delivery_fee === 'number' ? delivery_fee : 0) - (creditPtsVisible ? creditPoints : 0)
+        amount: getFinalAmount() + delivery_fee - (creditPtsVisible ? creditPoints : 0)
       }
 
       if (creditPtsVisible) {
-        await axios.post(backendUrl + '/api/order/credit-clear', {}, { headers: { token } })
+        await apiInstance.post('/order/credit-clear', {})
         console.log('Credit is cleared')
       } else {
         console.log('Credit is not cleared')
       }
 
-      switch (method) {
+      switch (paymentMethod) {
         //API calls for COD
         case 'cod':
-          const response = await axios.post(backendUrl + '/api/order/place', orderData, { headers: { token } })
+          const response = await apiInstance.post('/order/place', orderData)
           if (response.data.success) {
             clearCart()
             navigate('/orders')
@@ -118,7 +118,7 @@ const PlaceOrder = () => {
           break;
 
         case 'razorpay':
-          const razorpayResponse = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token } })
+          const razorpayResponse = await apiInstance.post('/order/razorpay', orderData)
           if (razorpayResponse.data.success) {
             initPay(razorpayResponse.data.order, orderData)
             console.log(razorpayResponse.data.order)
@@ -132,8 +132,7 @@ const PlaceOrder = () => {
 
     } catch (error) {
       console.log(error)
-      res.json({ success: false, message: error.message })
-      toast.error(error.message)
+      toast.error(error.message || 'An error occurred while placing the order')
     }
   }
 
@@ -164,12 +163,13 @@ const PlaceOrder = () => {
               <p className='text-gray-600 text-sm'>Please provide your delivery details</p>
             </div>
 
-            <div className='space-y-6'>
+            <div className='space-y-6 mb-6'>
               {/* Name Fields */}
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                 <div className='space-y-2'>
                   <label className='text-sm font-medium text-gray-700'>First Name</label>
                   <input
+                    id="firstName"
                     required
                     onChange={onChangeHandler}
                     name='firstName'
@@ -182,6 +182,7 @@ const PlaceOrder = () => {
                 <div className='space-y-2'>
                   <label className='text-sm font-medium text-gray-700'>Last Name</label>
                   <input
+                    id="lastName"
                     required
                     onChange={onChangeHandler}
                     name='lastName'
@@ -197,6 +198,7 @@ const PlaceOrder = () => {
               <div className='space-y-2'>
                 <label className='text-sm font-medium text-gray-700'>Email Address</label>
                 <input
+                  id="email"
                   required
                   onChange={onChangeHandler}
                   name='email'
@@ -211,6 +213,7 @@ const PlaceOrder = () => {
               <div className='space-y-2'>
                 <label className='text-sm font-medium text-gray-700'>Street Address</label>
                 <input
+                  id="street"
                   required
                   onChange={onChangeHandler}
                   name='street'
@@ -226,6 +229,7 @@ const PlaceOrder = () => {
                 <div className='space-y-2'>
                   <label className='text-sm font-medium text-gray-700'>City</label>
                   <input
+                    id="city"
                     required
                     onChange={onChangeHandler}
                     name='city'
@@ -238,6 +242,7 @@ const PlaceOrder = () => {
                 <div className='space-y-2'>
                   <label className='text-sm font-medium text-gray-700'>State</label>
                   <input
+                    id="state"
                     required
                     onChange={onChangeHandler}
                     name='state'
@@ -254,6 +259,7 @@ const PlaceOrder = () => {
                 <div className='space-y-2'>
                   <label className='text-sm font-medium text-gray-700'>Zipcode</label>
                   <input
+                    id="zipcode"
                     required
                     onChange={onChangeHandler}
                     name='zipcode'
@@ -266,6 +272,7 @@ const PlaceOrder = () => {
                 <div className='space-y-2'>
                   <label className='text-sm font-medium text-gray-700'>Country</label>
                   <input
+                    id="country"
                     required
                     onChange={onChangeHandler}
                     name='country'
@@ -281,6 +288,7 @@ const PlaceOrder = () => {
               <div className='space-y-2'>
                 <label className='text-sm font-medium text-gray-700'>Phone Number</label>
                 <input
+                  id="phone"
                   required
                   onChange={onChangeHandler}
                   name='phone'
@@ -290,6 +298,11 @@ const PlaceOrder = () => {
                   placeholder='Enter phone number'
                 />
               </div>
+            </div>
+
+            {/* Cart Products Display */}
+            <div className='overflow-hidden'>
+              <CartProductsDisplay />
             </div>
           </div>
 
@@ -327,21 +340,21 @@ const PlaceOrder = () => {
               <div className='space-y-4'>
                 {/* Razorpay Option */}
                 <div
-                  onClick={() => setMethod('razorpay')}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${method === 'razorpay'
+                  onClick={() => updatePaymentMethod('razorpay')}
+                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === 'razorpay'
                     ? 'border-orange-500 bg-orange-50 shadow-md'
                     : 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-white'
                     }`}
                 >
                   <div className='flex items-center gap-4'>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === 'razorpay' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'razorpay' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
                       }`}>
-                      {method === 'razorpay' && (
+                      {paymentMethod === 'razorpay' && (
                         <div className='w-2 h-2 bg-white rounded-full'></div>
                       )}
                     </div>
                     <img src={assets.razorpay_logo} alt="razorpay_logo" className='h-6' />
-                    <span className={`font-medium ${method === 'razorpay' ? 'text-orange-600' : 'text-gray-700'
+                    <span className={`font-medium ${paymentMethod === 'razorpay' ? 'text-orange-600' : 'text-gray-700'
                       }`}>
                       Pay Online
                     </span>
@@ -350,16 +363,16 @@ const PlaceOrder = () => {
 
                 {/* COD Option */}
                 <div
-                  onClick={() => setMethod('cod')}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${method === 'cod'
+                  onClick={() => updatePaymentMethod('cod')}
+                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === 'cod'
                     ? 'border-orange-500 bg-orange-50 shadow-md'
                     : 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-white'
                     }`}
                 >
                   <div className='flex items-center gap-4'>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === 'cod' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cod' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
                       }`}>
-                      {method === 'cod' && (
+                      {paymentMethod === 'cod' && (
                         <div className='w-2 h-2 bg-white rounded-full'></div>
                       )}
                     </div>
@@ -367,11 +380,26 @@ const PlaceOrder = () => {
                       <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
-                      <span className={`font-medium ${method === 'cod' ? 'text-orange-600' : 'text-gray-700'
+                      <span className={`font-medium ${paymentMethod === 'cod' ? 'text-orange-600' : 'text-gray-700'
                         }`}>
                         Cash on Delivery
                       </span>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Information */}
+              <div className='mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200'>
+                <div className='flex items-center gap-3'>
+                  <div className='w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center'>
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className='text-sm font-bold text-blue-800'>Shipping Information</h4>
+                    <p className='text-xs text-blue-700'>{getShippingMessage()}</p>
                   </div>
                 </div>
               </div>

@@ -56,6 +56,8 @@ const SearchBar = () => {
 
                                 {/* Input Field */}
                                 <input
+                                    id="search-input"
+                                    name="search"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     onFocus={() => setIsFocused(true)}
@@ -66,6 +68,7 @@ const SearchBar = () => {
                                         }`}
                                     type="text"
                                     placeholder='Find your perfect t-shirt...'
+                                    autoComplete="off"
                                 />
 
                                 {/* Clear Button */}

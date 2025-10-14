@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { ShopContext } from '../context/ShopContext'
 
 const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
-    const { currency, delivery_fee, getCartAmount, creditPoints, appliedCoupon, couponDiscount, hasMultipleProducts, getMultiProductDiscount } = useContext(ShopContext)
+    const { currency, delivery_fee, getCartAmount, creditPoints, appliedCoupon, couponDiscount, hasMultipleProducts, getMultiProductDiscount, getDeliveryFeeDisplay, getShippingMessage, paymentMethod } = useContext(ShopContext)
 
     return (
         <div className='w-full relative'>
@@ -53,15 +53,19 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                 </div>
 
                 {/* Shipping Fee */}
-                <div className='flex items-center justify-between p-2 bg-gray-50 rounded-lg'>
+                <div className={`flex items-center justify-between p-2 rounded-lg ${delivery_fee === 0 ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}`}>
                     <div className='flex items-center gap-2'>
-                        <div className='w-5 h-5 bg-green-100 rounded-full flex items-center justify-center'>
-                            <span className="text-green-600 font-bold text-xs">₹</span>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center ${delivery_fee === 0 ? 'bg-green-100' : 'bg-orange-100'}`}>
+                            <span className={`font-bold text-xs ${delivery_fee === 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                                {delivery_fee === 0 ? '🚚' : '₹'}
+                            </span>
                         </div>
-                        <span className='text-gray-700 text-sm font-medium'>Shipping Fee</span>
+                        <span className={`text-sm font-medium ${delivery_fee === 0 ? 'text-green-700' : 'text-gray-700'}`}>
+                            Shipping Fee
+                        </span>
                     </div>
-                    <span className='text-gray-900 text-sm font-semibold'>
-                        {currency} {typeof delivery_fee === 'number' ? `${delivery_fee}.00` : delivery_fee}
+                    <span className={`text-sm font-semibold ${delivery_fee === 0 ? 'text-green-700' : 'text-gray-900'}`}>
+                        {delivery_fee === 0 ? 'Free' : `${currency} ${delivery_fee}.00`}
                     </span>
                 </div>
 
@@ -116,10 +120,22 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                         <span className='text-base font-bold text-gray-800'>Total Amount</span>
                     </div>
                     <span className='text-lg font-bold text-orange-600'>
-                        {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + (typeof delivery_fee === 'number' ? delivery_fee : 0) - (creditPtsVisible ? creditPoints : 0) - couponDiscount - getMultiProductDiscount()}.00
+                        {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee - (creditPtsVisible ? creditPoints : 0) - couponDiscount - getMultiProductDiscount()}.00
                     </span>
                 </div>
             </div>
+
+            {/* Shipping Info */}
+            {location.pathname === '/place-order' && (
+                <div className='mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200'>
+                    <div className='flex items-center gap-2'>
+                        <span className="text-blue-600 font-bold text-sm">ℹ️</span>
+                        <span className='text-xs text-blue-700 font-medium'>
+                            {getShippingMessage()}
+                        </span>
+                    </div>
+                </div>
+            )}
 
             {/* Savings Info */}
             {(creditPtsVisible && creditPoints > 0) || (appliedCoupon && couponDiscount > 0) || (hasMultipleProducts() && getMultiProductDiscount() > 0) ? (

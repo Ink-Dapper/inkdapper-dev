@@ -1,4 +1,4 @@
-import axios from 'axios'
+import apiInstance from '../utils/axios'
 import React, { useContext, useEffect, useState } from 'react'
 import { FaStar } from 'react-icons/fa'
 import { toast } from 'react-toastify'
@@ -24,7 +24,7 @@ const ProductReviewSection = ({ productId }) => {
     }
 
     try {
-      const response = await axios.post(backendUrl + "/api/review/post", {
+      const response = await apiInstance.post("/review/post", {
         reviewSub: reviewSub,
         reviewDesc: reviewDesc,
         productId: productId,
@@ -87,8 +87,8 @@ const ProductReviewSection = ({ productId }) => {
                   type="button"
                   onClick={() => setRating(star)}
                   className={`transition-all duration-200 transform hover:scale-110 ${rating >= star
-                      ? 'text-amber-400 drop-shadow-lg'
-                      : 'text-gray-300 hover:text-amber-300'
+                    ? 'text-amber-400 drop-shadow-lg'
+                    : 'text-gray-300 hover:text-amber-300'
                     }`}
                 >
                   <FaStar size={28} />

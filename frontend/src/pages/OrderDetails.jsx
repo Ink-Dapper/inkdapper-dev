@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
-import axios from '../utils/axios';
+import apiInstance from '../utils/axios';
 import Title from '../components/Title';
 
 const OrderDetails = () => {
   const { productId } = useParams();
-  const { backendUrl, token, currency, delivery_fee } = useContext(ShopContext)
+  const { backendUrl, token, currency, delivery_fee, getDeliveryFeeDisplay } = useContext(ShopContext)
   const [orderData, setOrderData] = useState([])
   const [productData, setProductData] = useState([]);
   const [isReturnExpired, setIsReturnExpired] = useState(false);
@@ -16,7 +16,7 @@ const OrderDetails = () => {
       if (!token) {
         return null;
       }
-      const response = await axios.post(backendUrl + '/api/order/user-details', {}, { headers: { token } });
+      const response = await apiInstance.post('/order/user-details', {});
       if (response.data.success) {
         console.log(response.data.orders)
         setOrderData(response.data.orders);
@@ -191,7 +191,7 @@ const OrderDetails = () => {
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">Shipping:</span>
                           <span className="font-semibold text-gray-900">
-                            {currency} {typeof delivery_fee === 'number' ? `${delivery_fee}.00` : delivery_fee}
+                            {delivery_fee === 0 ? 'Free' : `${currency} ${delivery_fee}.00`}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">

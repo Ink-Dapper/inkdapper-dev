@@ -36,12 +36,11 @@ const Product = () => {
     return <div>Loading...</div>
   }
 
-  const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity, addToRecentlyViewed } = context
+  const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity, addToRecentlyViewed, navigate, wishlist } = context
   const [productData, setProductData] = useState(false)
   const [image, setImage] = useState('')
   const [size, setSize] = useState('')
-  const [buyNow, setBuyNow] = useState('hidden')
-  const [wishlistCta, setWishlistCta] = useState('hidden')
+  const [buyNow, setBuyNow] = useState('block')
   const [wishlistCount, setWishlistCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0)
   const [averageRating, setAverageRating] = useState(0);
@@ -56,6 +55,7 @@ const Product = () => {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isWishlistLoading, setIsWishlistLoading] = useState(false);
   const shareMenuRef = useRef(null);
   const [popupPosition, setPopupPosition] = useState({ left: '0', bottom: '12' });
   const [thumbsSwiperInstance, setThumbsSwiperInstance] = useState(null);
@@ -68,6 +68,14 @@ const Product = () => {
     }
     fetchCounts();
   }, [getWishlistCount]);
+
+  // Check if current product is in wishlist
+  useEffect(() => {
+    if (productData && productData._id) {
+      const isInWishlist = wishlist[productData._id] && wishlist[productData._id] > 0;
+      setIsWishlisted(isInWishlist);
+    }
+  }, [productData, wishlist]);
 
 
 
@@ -115,27 +123,67 @@ const Product = () => {
 
       // Reset quantity to 1 after adding to cart
       setQuantity(1);
-
-      if (getCartCount() >= 0) {
-        setBuyNow('block')
-      }
     }
   }
 
-  const addToWishlistPage = () => {
+  const buyNowHandler = () => {
     if (!token) {
-      toast.error('Please login to add product to wishlist', { autoClose: 1000, })
+      toast.error('Please login to proceed with purchase', { autoClose: 1000, })
+    } else if (!size) {
+      toast.error('Select Product Size', {
+        autoClose: 2000, pauseOnHover: false,
+        transition: Flip
+      })
     } else {
-      addToWishlist(productData._id)
-      setIsWishlisted(!isWishlisted);
-      toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist', {
+      // Check if item already exists in cart
+      const existingQuantity = cartItems[productData._id]?.[size] || 0;
+      const newQuantity = existingQuantity + quantity;
+
+      // Check stock availability
+      const maxStock = productData.stock;
+      if (maxStock && newQuantity > maxStock) {
+        toast.error(`Only ${maxStock} items available in stock`, {
+          autoClose: 2000, pauseOnHover: false,
+          transition: Flip
+        });
+        return;
+      }
+
+      // Use updateQuantity to set the total quantity
+      updateQuantity(productData._id, size, newQuantity);
+
+      const itemText = quantity === 1 ? 'Item' : 'Items';
+      toast.success(`${quantity} ${itemText} Added To Cart`, {
         autoClose: 1000, pauseOnHover: false,
         transition: Flip
       })
 
-      if (wishlistCount >= 0) {
-        setWishlistCta('block')
-      }
+      // Reset quantity to 1 after adding to cart
+      setQuantity(1);
+
+      // Navigate to place-order page (like Proceed to Checkout)
+      navigate('/place-order');
+    }
+  }
+
+  const addToWishlistPage = async () => {
+    if (!token) {
+      toast.error('Please login to add product to wishlist', { autoClose: 1000, })
+      return;
+    }
+
+    if (isWishlistLoading) {
+      return; // Prevent multiple clicks
+    }
+
+    try {
+      setIsWishlistLoading(true);
+      await addToWishlist(productData._id);
+      // The isWishlisted state will be updated automatically via the useEffect when wishlist changes
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+    } finally {
+      setIsWishlistLoading(false);
     }
   }
 
@@ -320,7 +368,7 @@ const Product = () => {
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12'>
 
           {/* Product Images */}
-          <div className='space-y-4'>
+          <div className='space-y-4 relative'>
             {/* Main Image Gallery */}
             <div className='relative rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
               <Swiper
@@ -355,72 +403,87 @@ const Product = () => {
                   </SwiperSlide>
                 ))}
               </Swiper>
-
-              {/* Share and Wishlist buttons */}
-              <div className='absolute top-4 right-4 flex flex-col gap-2'>
-                <button
-                  onClick={addToWishlistPage}
-                  className={`p-3 rounded-full shadow-lg transition-all duration-300 ${isWishlisted
-                    ? 'bg-red-500 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
-                </button>
-
-                <button
-                  onClick={handleShareButtonClick}
-                  className='p-3 rounded-full bg-white shadow-lg text-gray-700 hover:bg-gray-50 transition-all duration-300'
-                >
-                  <Share2 className='w-5 h-5' />
-                </button>
-              </div>
-
-              {/* Share menu popup */}
-              {showShareMenu && (
-                <div
-                  ref={shareMenuRef}
-                  className="absolute top-20 right-4 bg-white rounded-xl shadow-xl p-3 z-30 border border-gray-100"
-                  style={{
-                    maxWidth: '200px',
-                    left: popupPosition.left === 'auto' ? 'auto' : '0',
-                    right: popupPosition.right,
-                  }}
-                >
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={shareOnWhatsApp}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                      </svg>
-                      <span className="text-sm font-medium">WhatsApp</span>
-                    </button>
-
-                    <button
-                      onClick={shareOnInstagram}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                      </svg>
-                      <span className="text-sm font-medium">Instagram</span>
-                    </button>
-
-                    <button
-                      onClick={shareViaMessage}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
-                      </svg>
-                      <span className="text-sm font-medium">Share</span>
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
+
+            {/* Share and Wishlist buttons - positioned over the image gallery */}
+            <div className='absolute top-4 right-4 flex flex-col gap-2 z-30'>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addToWishlistPage();
+                }}
+                disabled={isWishlistLoading}
+                className={`p-4 rounded-full shadow-xl transition-all duration-300 border-2 ${isWishlistLoading
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer'
+                  } ${isWishlisted
+                    ? 'bg-red-500 text-white border-red-500 hover:bg-red-600'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300 hover:border-red-300'
+                  }`}
+                title={isWishlistLoading ? 'Updating...' : (isWishlisted ? 'Remove from wishlist' : 'Add to wishlist')}
+                type="button"
+              >
+                {isWishlistLoading ? (
+                  <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Heart className={`w-6 h-6 ${isWishlisted ? 'fill-current' : ''}`} />
+                )}
+              </button>
+
+              <button
+                onClick={handleShareButtonClick}
+                className='p-4 rounded-full bg-white shadow-xl text-gray-700 hover:bg-gray-50 transition-all duration-300 border-2 border-gray-300'
+                title="Share product"
+              >
+                <Share2 className='w-6 h-6' />
+              </button>
+            </div>
+
+            {/* Share menu popup */}
+            {showShareMenu && (
+              <div
+                ref={shareMenuRef}
+                className="absolute top-36 !right-4 bg-white rounded-xl shadow-xl p-3 z-30 border border-gray-100"
+                style={{
+                  // maxWidth: '200px',
+                  // left: popupPosition.left === 'auto' ? 'auto' : '0',
+                  right: popupPosition.right,
+                }}
+              >
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={shareOnWhatsApp}
+                    className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                    {/* <span className="text-sm font-medium">WhatsApp</span> */}
+                  </button>
+
+                  <button
+                    onClick={shareOnInstagram}
+                    className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                    </svg>
+                    {/* <span className="text-sm font-medium">Instagram</span> */}
+                  </button>
+
+                  <button
+                    onClick={shareViaMessage}
+                    className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
+                    </svg>
+                    {/* <span className="text-sm font-medium">Share</span> */}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Thumbnail Gallery */}
             <div className='relative'>
@@ -687,64 +750,72 @@ const Product = () => {
               <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4'>
                 <button
                   onClick={addCartPageDetails}
-                  className='w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'
+                  className='w-full bg-orange-600 hover:bg-orange-700 text-white mb-4 font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'
                 >
                   Add to Cart
                 </button>
-                <Link to='/cart'>
-                  <button
-                    onClick={scrollToTop}
-                    className={`w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl ${buyNow}`}
-                  >
-                    Buy Now
-                  </button>
-                </Link>
+                <button
+                  onClick={buyNowHandler}
+                  className={`w-full bg-gray-900 hover:bg-gray-800 text-white mb-1 md:mb-4 font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl ${buyNow}`}
+                >
+                  Buy Now
+                </button>
               </div>
 
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <button
-                  onClick={addToWishlistPage}
-                  className={`w-full font-semibold py-4 px-6 rounded-xl transition-all duration-300 border-2 ${isWishlisted
-                    ? 'border-red-500 bg-red-50 text-red-700 hover:bg-red-100'
-                    : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50'
-                    }`}
-                >
-                  <div className='flex items-center justify-center gap-2'>
-                    <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
-                    {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
-                  </div>
-                </button>
-                <Link to='/wishlist'>
-                  <button className={`w-full border-2 border-gray-300 text-gray-700 font-semibold py-4 px-6 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 ${wishlistCta}`}>
-                    View Wishlist
-                  </button>
-                </Link>
-              </div>
 
 
 
               {/* Why Choose Us - Minimal */}
-              <div className='mt-4 bg-orange-50 rounded-lg p-3 border border-orange-100'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-2'>
-                    <div className='w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center'>
-                      <Truck className='w-3 h-3 text-white' />
+              {/* Shipping & Benefits Info */}
+              <div className='mt-6 space-y-4'>
+                {/* Free Delivery Banner */}
+                <div className='bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200'>
+                  <div className='flex items-center justify-center space-x-3'>
+                    <div className='w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-sm'>
+                      <Truck className='w-5 h-5 text-white' />
                     </div>
-                    <span className='text-xs font-medium text-gray-700'>Free Shipping</span>
+                    <div className='text-center'>
+                      <h3 className='text-sm font-bold text-green-800'>🚚 Free Delivery</h3>
+                      <p className='text-xs text-green-700'>On orders above ₹500</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Benefits Grid */}
+                <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+                  {/* Secure Payment */}
+                  <div className='flex items-center justify-center space-x-2 bg-blue-50 rounded-lg p-3 border border-blue-100'>
+                    <div className='w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center'>
+                      <Shield className='w-4 h-4 text-white' />
+                    </div>
+                    <div className='text-center'>
+                      <p className='text-xs font-semibold text-blue-800'>Secure</p>
+                      <p className='text-xs text-blue-600'>Payment</p>
+                    </div>
                   </div>
 
-                  <div className='flex items-center gap-2'>
-                    <div className='w-6 h-6 bg-blue-500 rounded-md flex items-center justify-center'>
-                      <Shield className='w-3 h-3 text-white' />
+                  {/* Easy Returns */}
+                  <div className='flex items-center justify-center space-x-2 bg-purple-50 rounded-lg p-3 border border-purple-100'>
+                    <div className='w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center'>
+                      <RotateCcw className='w-4 h-4 text-white' />
                     </div>
-                    <span className='text-xs font-medium text-gray-700'>Secure Payment</span>
+                    <div className='text-center'>
+                      <p className='text-xs font-semibold text-purple-800'>Easy</p>
+                      <p className='text-xs text-purple-600'>Returns</p>
+                    </div>
                   </div>
 
-                  <div className='flex items-center gap-2'>
-                    <div className='w-6 h-6 bg-green-500 rounded-md flex items-center justify-center'>
-                      <RotateCcw className='w-3 h-3 text-white' />
+                  {/* Quality Guarantee */}
+                  <div className='flex items-center justify-center space-x-2 bg-orange-50 rounded-lg p-3 border border-orange-100'>
+                    <div className='w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center'>
+                      <svg className='w-4 h-4 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' />
+                      </svg>
                     </div>
-                    <span className='text-xs font-medium text-gray-700'>Easy Returns</span>
+                    <div className='text-center'>
+                      <p className='text-xs font-semibold text-orange-800'>Quality</p>
+                      <p className='text-xs text-orange-600'>Guaranteed</p>
+                    </div>
                   </div>
                 </div>
               </div>

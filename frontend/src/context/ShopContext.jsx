@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiConfig } from "../config/api";
 import apiInstance from "../utils/axios";
@@ -11,7 +11,8 @@ const ShopContextProvider = (props) => {
   const [isContextReady, setIsContextReady] = useState(false);
 
   const currency = '₹'
-  const delivery_fee = 'Free'
+  const [paymentMethod, setPaymentMethod] = useState('cod') // Default to COD
+  const [deliveryFee, setDeliveryFee] = useState(49) // Default COD shipping fee
   // Use the API configuration
   const backendUrl = apiConfig.baseURL
   const [search, setSearch] = useState('')
@@ -42,6 +43,8 @@ const ShopContextProvider = (props) => {
   const [recentlyViewed, setRecentlyViewed] = useState([])
   const [recentlyViewedTimeout, setRecentlyViewedTimeout] = useState(null)
   const [highlightedProducts, setHighlightedProducts] = useState([])
+  const [highlightedProductsLoading, setHighlightedProductsLoading] = useState(false)
+  const highlightedProductsLoadingRef = useRef(false)
 
   const fetchUsersDetails = async () => {
     try {
@@ -264,19 +267,38 @@ const ShopContextProvider = (props) => {
     }
 
     try {
-      const response = await apiInstance.post('/wishlist/add', { itemId });
+      // Check if item is already in wishlist
+      const isInWishlist = wishlist[itemId] && wishlist[itemId] > 0;
+
+      let response;
+      if (isInWishlist) {
+        // Remove from wishlist
+        response = await apiInstance.post('/wishlist/update', { itemId, quantity: 0 });
+        if (response.data.success) {
+          toast.success('Item removed from wishlist', {
+            autoClose: 1000, pauseOnHover: false,
+            transition: Flip
+          });
+        }
+      } else {
+        // Add to wishlist
+        response = await apiInstance.post('/wishlist/add', { itemId });
+        if (response.data.success) {
+          toast.success('Item added to wishlist', {
+            autoClose: 1000, pauseOnHover: false,
+            transition: Flip
+          });
+        }
+      }
+
       if (response.data.success) {
-        toast.success(`One Item Is Added To Wishlist.`, {
-          autoClose: 1000, pauseOnHover: false,
-          transition: Flip
-        });
         // Refresh wishlist data from database
         await getUserWishlist(token);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.log('Error adding to wishlist:', error);
+      console.log('Error updating wishlist:', error);
       toast.error(error.response?.data?.message || error.message);
     }
   };
@@ -521,23 +543,85 @@ const ShopContextProvider = (props) => {
     return [];
   };
 
-  const fetchHighlightedProducts = async () => {
+  const fetchHighlightedProducts = useCallback(async () => {
+    // Prevent multiple simultaneous requests using ref
+    if (highlightedProductsLoadingRef.current) {
+      console.log('Highlighted products already loading, skipping request');
+      return;
+    }
+
+    highlightedProductsLoadingRef.current = true;
+    setHighlightedProductsLoading(true);
+
     try {
-      const response = await apiInstance.get('/highlighted-products');
+      // Create a timeout promise that rejects after 8 seconds (shorter than axios timeout)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 8000);
+      });
+
+      // Race between the API call and timeout
+      const response = await Promise.race([
+        apiInstance.get('/highlighted-products'),
+        timeoutPromise
+      ]);
+
       if (response.data.success) {
         setHighlightedProducts(response.data.highlightedProducts);
       } else {
         console.error('Failed to fetch highlighted products:', response.data.message);
+        // Set empty array as fallback
+        setHighlightedProducts([]);
       }
     } catch (error) {
       console.error('Error fetching highlighted products:', error);
+
+      // Set empty array as fallback to prevent component crashes
+      setHighlightedProducts([]);
+
+      // Log different types of errors for debugging
+      if (error.message === 'Request timeout') {
+        console.warn('Highlighted products request timed out - using fallback');
+      } else if (error.code === 'ECONNABORTED') {
+        console.warn('Highlighted products request was aborted - using fallback');
+      } else if (error.code === 'ERR_NETWORK') {
+        console.warn('Network error when fetching highlighted products - using fallback');
+      }
+    } finally {
+      highlightedProductsLoadingRef.current = false;
+      setHighlightedProductsLoading(false);
     }
-  };
+  }, []); // Empty dependency array - no dependencies needed
 
   const getFinalAmount = () => {
     const cartAmount = getCartAmount();
     const multiProductDiscount = getMultiProductDiscount();
     return Math.max(0, cartAmount - couponDiscount - multiProductDiscount);
+  };
+
+  // Function to update payment method and shipping charges
+  const updatePaymentMethod = (method) => {
+    setPaymentMethod(method);
+    if (method === 'razorpay' || method === 'online') {
+      setDeliveryFee(0); // Free delivery for online payment
+    } else {
+      setDeliveryFee(49); // COD shipping charge
+    }
+  };
+
+  // Function to get current delivery fee display
+  const getDeliveryFeeDisplay = () => {
+    if (deliveryFee === 0) {
+      return 'Free';
+    }
+    return deliveryFee;
+  };
+
+  // Function to get shipping message
+  const getShippingMessage = () => {
+    if (paymentMethod === 'razorpay' || paymentMethod === 'online') {
+      return 'Free delivery for online payment!';
+    }
+    return '₹49 delivery charge for Cash on Delivery';
   };
 
   useEffect(() => {
@@ -582,7 +666,8 @@ const ShopContextProvider = (props) => {
 
 
   const value = {
-    products, currency, delivery_fee,
+    products, currency, delivery_fee: deliveryFee, // Updated to use dynamic delivery fee
+    paymentMethod, updatePaymentMethod, getDeliveryFeeDisplay, getShippingMessage,
     search, setSearch, showSearch, setShowSearch,
     cartItems, addToCart, addToCartCombo, setCartItems, getCartCount,
     updateQuantity, getCartAmount, clearCart, updateCartAndSave,
@@ -595,7 +680,7 @@ const ShopContextProvider = (props) => {
     fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
     couponDiscount, getFinalAmount, hasMultipleProducts, getMultiProductDiscount,
     recentlyViewed, addToRecentlyViewed, getRecentlyViewed,
-    highlightedProducts, fetchHighlightedProducts
+    highlightedProducts, fetchHighlightedProducts, highlightedProductsLoading
   }
 
   if (!isContextReady) {

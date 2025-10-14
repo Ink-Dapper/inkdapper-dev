@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Title from '../components/Title'
-import axios from 'axios'
+import apiInstance from '../utils/axios'
 import { assets, teesCollection } from '../assets/assets'
 import { toast } from 'react-toastify'
 import { ShopContext } from '../context/ShopContext'
@@ -23,9 +23,7 @@ const Custom = () => {
         if (!token) {
           return;
         }
-        const response = await axios.post(backendUrl + "/api/user/profile", {}, {
-          headers: { token }
-        });
+        const response = await apiInstance.post("/user/profile", {});
         if (response.data.success) {
           setUserId(response.data.users._id);
         }
@@ -79,7 +77,7 @@ const Custom = () => {
       formDataOne.append("imageValue", imageValue);
 
       // Send the custom data to the backend
-      const response = await axios.post(backendUrl + "/api/cart/custom", formDataOne, { headers: { token } });
+      const response = await apiInstance.post("/cart/custom", formDataOne);
       console.log(response.data)
       if (response.data.success) {
         toast.success(response.data.message);
@@ -143,7 +141,7 @@ const Custom = () => {
                 teesCollection.map((item, index) => (
                   <div key={index} className=''>
                     <div className='w-12 h-16 flex gap-2'>
-                      <img onClick={() => {setImageId(item._id); setImage(item.image); setImageValue(item.color); }} src={item.image} key={index} alt="product-image" className='w-[100%] h-[100%] flex-shrink-0 cursor-pointer' />
+                      <img onClick={() => { setImageId(item._id); setImage(item.image); setImageValue(item.color); }} src={item.image} key={index} alt="product-image" className='w-[100%] h-[100%] flex-shrink-0 cursor-pointer' />
                     </div>
                   </div>
                 ))

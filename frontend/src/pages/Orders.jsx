@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import Title from '../components/Title';
-import axios from '../utils/axios';
+import apiInstance from '../utils/axios';
 import { assets } from '../assets/assets';
 import OrderProgress from '../components/OrderProgress';
 import OrderStatus from '../components/OrderStatus';
@@ -28,7 +28,7 @@ const Orders = () => {
   const loadOrderData = async () => {
     try {
       console.log('Loading order data with token:', token.substring(0, 20) + '...');
-      const response = await axios.post(backendUrl + '/api/order/user-details', {}, { headers: { token } });
+      const response = await apiInstance.post('/order/user-details', {});
       console.log('Order API response:', response.data);
       if (response.data.success) {
         let allOrdersItem = [];
@@ -110,11 +110,11 @@ const Orders = () => {
         if (!token) {
           return null;
         }
-        const response = await axios.post(backendUrl + '/api/order/user-orders', {
+        const response = await apiInstance.post('/order/user-orders', {
           returnOrderStatus: 'Order Returned',
           orderId: orderId,
           returnReason: returnReason
-        }, { headers: { token } });
+        });
         console.log(response.data);
         if (response.data.success) {
           setShowReturnConfirmation(false);
@@ -140,11 +140,11 @@ const Orders = () => {
         if (!token) {
           return null;
         }
-        const response = await axios.post(backendUrl + '/api/order/user-orders', {
+        const response = await apiInstance.post('/order/user-orders', {
           returnOrderStatus: 'Order Cancelled',
           orderId: orderId,
           cancelReason: cancelReason
-        }, { headers: { token } });
+        });
         console.log(response.data);
         if (response.data.success) {
           setShowCancelConfirmation(false);

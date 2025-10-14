@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useMemo } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import ProductItem from './ProductItemWrapper'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -22,21 +22,28 @@ function useIsMobile() {
 
 const AcidWashTees = () => {
   const { products } = useContext(ShopContext)
-  const [acidWashProducts, setAcidWashProducts] = useState([])
   const [swiper, setSwiper] = useState(null)
   const [loading, setLoading] = useState(true)
   const [swiperError, setSwiperError] = useState(false)
   const isMobile = useIsMobile()
 
-  useEffect(() => {
-    // Filter products for acid wash tees and sort by date (most recent first)
-    const filteredProducts = products
+  // Memoize the filtered products to prevent unnecessary re-renders
+  const acidWashProducts = useMemo(() => {
+    if (!products || products.length === 0) {
+      return [];
+    }
+
+    return products
       .filter(product => product.subCategory === 'Acidwash')
       .sort((a, b) => (b.date || 0) - (a.date || 0))
       .slice(0, 8); // Show up to 8 acid wash products
+  }, [products])
 
-    setAcidWashProducts(filteredProducts)
-    setLoading(false)
+  // Update loading state when products change
+  useEffect(() => {
+    if (products.length > 0) {
+      setLoading(false);
+    }
   }, [products])
 
   // Ensure swiper starts at first slide when products change
@@ -65,10 +72,12 @@ const AcidWashTees = () => {
     };
   }, [swiper])
 
-  // Debug swiper state
+  // Debug swiper state (reduced logging)
   useEffect(() => {
-    console.log('Swiper state:', { swiper: !!swiper, products: acidWashProducts.length });
-  }, [swiper, acidWashProducts])
+    if (acidWashProducts.length > 0) {
+      console.log('Swiper state:', { swiper: !!swiper, products: acidWashProducts.length });
+    }
+  }, [swiper, acidWashProducts.length]) // Only log when length changes, not on every render
 
   const handlePrevSlide = () => {
     try {

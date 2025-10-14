@@ -15,7 +15,7 @@ const instance = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  timeout: 15000, // 15 seconds timeout
+  timeout: 10000, // 10 seconds timeout (reduced from 15s for better UX)
   withCredentials: true, // Include credentials for CORS
 });
 
@@ -71,6 +71,11 @@ instance.interceptors.response.use(
         code: error.code,
         url: error.config?.url,
       });
+      
+      // Handle timeout errors specifically
+      if (error.code === 'ECONNABORTED' && error.message.includes('timeout')) {
+        console.warn(`Request to ${error.config?.url} timed out after ${error.config?.timeout}ms`);
+      }
     } else {
       // Something happened in setting up the request that triggered an Error
       console.error('Error:', error.message);

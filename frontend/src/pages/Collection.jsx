@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useMemo, useCallback, memo, useRef } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { assets, teesCollection } from '../assets/assets'
 import Title from '../components/Title'
@@ -8,6 +8,8 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+
+// ProductItem is already memoized in its own component
 
 const Collection = () => {
 
@@ -23,11 +25,65 @@ const Collection = () => {
   const [showMobileFilter, setShowMobileFilter] = useState(false)
   const [displayedProducts, setDisplayedProducts] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(15)
+  const [itemsPerPage] = useState(12) // Reduced for better mobile performance
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [isIntersecting, setIsIntersecting] = useState(false)
+  const loadMoreRef = useRef(null)
 
-  const toggleSubCategory = (e) => {
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search || '');
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Load more function - defined early to avoid reference errors
+  const loadMore = useCallback(() => {
+    setIsLoading(true)
+
+    // Reduced loading delay for better mobile experience
+    setTimeout(() => {
+      const nextPage = currentPage + 1
+      const startIndex = 0
+      const endIndex = nextPage * itemsPerPage
+      const newProducts = filterProducts.slice(startIndex, endIndex)
+
+      setDisplayedProducts(newProducts)
+      setCurrentPage(nextPage)
+      setHasMore(endIndex < filterProducts.length)
+      setIsLoading(false)
+    }, 200) // Reduced from 500ms to 200ms
+  }, [currentPage, itemsPerPage, filterProducts])
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasMore && !isLoading) {
+          loadMore();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '100px'
+      }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [hasMore, isLoading, loadMore]);
+
+  const toggleSubCategory = useCallback((e) => {
     const value = e.target.value;
 
     if (value === '') { // If the "All" checkbox is checked/unchecked
@@ -51,29 +107,33 @@ const Collection = () => {
 
     // Hide the filter section after selecting a subcategory
     setShowFilter(false);
-  }
+  }, [subCategory, products])
 
-  const allChecked = (e) => {
+  const allChecked = useCallback((e) => {
     if (e.target.checked) {
       const allSubCategories = products.map(item => item.subCategory);
       setSubCategory([...new Set(allSubCategories)]);
     } else {
       setSubCategory([]);
     }
-  }
+  }, [products])
 
-  const toggleColor = (color) => {
+  const toggleColor = useCallback((color) => {
     if (colors.includes(color)) {
       setColors(colors.filter(item => item !== color));
     } else {
       setColors([...colors, color]);
     }
-  }
+  }, [colors])
 
-  const applyFilter = () => {
+  // Memoized filtered products for better performance
+  const filteredProducts = useMemo(() => {
     let productsCopy = products.slice()
-    if (showSearch && search) {
-      productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
+
+    if (showSearch && debouncedSearch) {
+      productsCopy = productsCopy.filter(item =>
+        item.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+      )
     }
     if (category.length > 0) {
       productsCopy = productsCopy.filter(item => category.includes(item.category))
@@ -86,59 +146,48 @@ const Collection = () => {
         item.colors && item.colors.some(color => colors.includes(color))
       )
     }
-    setFilterProducts(productsCopy)
-  }
+    return productsCopy
+  }, [products, showSearch, debouncedSearch, category, subCategory, colors])
 
-  const sortProduct = () => {
-    let fpCopy = filterProducts.slice()
+  const applyFilter = useCallback(() => {
+    setFilterProducts(filteredProducts)
+  }, [filteredProducts])
+
+  // Memoized sorted products
+  const sortedProducts = useMemo(() => {
+    let sorted = [...filteredProducts]
 
     switch (sortType) {
       case 'low-high':
-        setFilterProducts(fpCopy.sort((a, b) => (a.price - b.price)))
-        break;
+        return sorted.sort((a, b) => (a.price - b.price))
       case 'high-low':
-        setFilterProducts(fpCopy.sort((a, b) => (b.price - a.price)))
-        break;
+        return sorted.sort((a, b) => (b.price - a.price))
       default:
-        applyFilter()
-        break;
+        return sorted
     }
-  }
+  }, [filteredProducts, sortType])
 
-  const loadMore = () => {
-    setIsLoading(true)
+  const sortProduct = useCallback(() => {
+    setFilterProducts(sortedProducts)
+  }, [sortedProducts])
 
-    // Simulate loading delay for better UX
-    setTimeout(() => {
-      const nextPage = currentPage + 1
-      const startIndex = 0
-      const endIndex = nextPage * itemsPerPage
-      const newProducts = filterProducts.slice(startIndex, endIndex)
-
-      setDisplayedProducts(newProducts)
-      setCurrentPage(nextPage)
-      setHasMore(endIndex < filterProducts.length)
-      setIsLoading(false)
-    }, 500)
-  }
-
-  const resetPagination = () => {
+  const resetPagination = useCallback(() => {
     setCurrentPage(1)
     setDisplayedProducts(filterProducts.slice(0, itemsPerPage))
     setHasMore(filterProducts.length > itemsPerPage)
-  }
+  }, [filterProducts, itemsPerPage])
 
   useEffect(() => {
     applyFilter()
-  }, [category, subCategory, colors, search, showSearch, products])
+  }, [applyFilter])
 
   useEffect(() => {
     sortProduct()
-  }, [sortType])
+  }, [sortProduct])
 
   useEffect(() => {
     resetPagination()
-  }, [filterProducts])
+  }, [resetPagination])
 
   return (
     <div className='min-h-screen'>
@@ -344,109 +393,53 @@ const Collection = () => {
       <SearchBar />
       <div className=''>
         <div className='max-w-8xl mx-auto px-4 lg:px-0 py-0 pb-1 lg:py-6 flex flex-col md:flex-row md:gap-4 lg:gap-6'>
-          {/* Mobile Filter and Sort Row */}
-          <div className="lg:hidden mb-6 p-2 shadow-lg rounded-2xl border border-white/60 absolute w-[90%] left-1/2 -translate-x-1/2 mx-auto bg-white/90 backdrop-blur-md z-50">
+          {/* Simplified Mobile Filter and Sort Row */}
+          <div className="lg:hidden mb-6 p-3 shadow-lg rounded-xl border border-gray-200 absolute w-[95%] left-1/2 -translate-x-1/2 mx-auto bg-white z-50">
             <div className="flex items-center gap-3">
               {/* Mobile Filter Button */}
               <button
                 onClick={() => setShowMobileFilter(!showMobileFilter)}
-                className="flex-1 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-4 py-3 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-3 text-sm"
+                className="flex-1 bg-orange-500 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 text-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
                 </svg>
                 {showMobileFilter ? 'Hide' : 'Filters'}
-                <svg className={`w-3 h-3 transition-transform duration-300 ${showMobileFilter ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
               </button>
 
-              {/* Mobile Sort Section */}
-              <div className="bg-gradient-to-r from-orange-50 to-pink-50 rounded-2xl p-2 border border-orange-200/50 flex-shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 px-2 py-1">
-                    <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M7 8h10M9 12h6M11 16h2" />
-                    </svg>
-                    <span className="text-xs font-semibold text-gray-700">Sort:</span>
-                  </div>
-                  <FormControl sx={{ minWidth: 100 }} size="small">
-                    <Select
-                      value={sortType}
-                      onChange={(e) => SetSortType(e.target.value)}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '8px',
-                          backgroundColor: 'white',
-                          '& fieldset': {
-                            border: 'none',
-                          },
-                          '&:hover fieldset': {
-                            border: 'none',
-                          },
-                          '&.Mui-focused fieldset': {
-                            border: 'none',
-                          },
-                        },
-                        '& .MuiSelect-select': {
-                          padding: '6px 8px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          color: '#374151',
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                            border: '1px solid #f3f4f6',
-                          },
-                        },
-                      }}
-                    >
-                      <MenuItem value="relevant" sx={{
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        '&:hover': { backgroundColor: '#fef3c7' },
-                        '&.Mui-selected': { backgroundColor: '#fef3c7' }
-                      }}>
-                        <div className="flex items-center gap-1">
-                          <svg className="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Relevant
-                        </div>
-                      </MenuItem>
-                      <MenuItem value="low-high" sx={{
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        '&:hover': { backgroundColor: '#fef3c7' },
-                        '&.Mui-selected': { backgroundColor: '#fef3c7' }
-                      }}>
-                        <div className="flex items-center gap-1">
-                          <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                          </svg>
-                          Low-High
-                        </div>
-                      </MenuItem>
-                      <MenuItem value="high-low" sx={{
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        '&:hover': { backgroundColor: '#fef3c7' },
-                        '&.Mui-selected': { backgroundColor: '#fef3c7' }
-                      }}>
-                        <div className="flex items-center gap-1">
-                          <svg className="w-3 h-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8V4m0 0l4 4m-4-4l-4 4m-6 0v12m0 0l-4-4m4 4l4-4" />
-                          </svg>
-                          High-Low
-                        </div>
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
+              {/* Simplified Mobile Sort Section */}
+              <div className="bg-gray-50 rounded-lg p-2 flex-shrink-0">
+                <FormControl sx={{ minWidth: 90 }} size="small">
+                  <Select
+                    value={sortType}
+                    onChange={(e) => SetSortType(e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '6px',
+                        backgroundColor: 'white',
+                        '& fieldset': { border: 'none' },
+                        '&:hover fieldset': { border: 'none' },
+                        '&.Mui-focused fieldset': { border: 'none' },
+                      },
+                      '& .MuiSelect-select': {
+                        padding: '4px 6px',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        color: '#374151',
+                      },
+                    }}
+                  >
+                    <MenuItem value="relevant" sx={{ fontSize: '11px', fontWeight: '500' }}>
+                      Relevant
+                    </MenuItem>
+                    <MenuItem value="low-high" sx={{ fontSize: '11px', fontWeight: '500' }}>
+                      Low-High
+                    </MenuItem>
+                    <MenuItem value="high-low" sx={{ fontSize: '11px', fontWeight: '500' }}>
+                      High-Low
+                    </MenuItem>
+                  </Select>
+                </FormControl>
               </div>
             </div>
           </div>
@@ -490,6 +483,7 @@ const Collection = () => {
                       <div className="flex items-center gap-2 lg:gap-3">
                         <input
                           type="radio"
+                          id={`category-${cat.value}`}
                           value={cat.value}
                           name="category"
                           className="sr-only"
@@ -700,6 +694,7 @@ const Collection = () => {
                           <div className="flex items-center gap-3">
                             <input
                               type="radio"
+                              id={`category-mobile-${cat.value}`}
                               value={cat.value}
                               name="category"
                               className="sr-only"
@@ -988,23 +983,31 @@ const Collection = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative">
                 {/* Grid background pattern */}
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
+
+                {/* Skeleton Loading */}
+                {isLoading && displayedProducts.length === 0 && (
+                  Array.from({ length: itemsPerPage }).map((_, index) => (
+                    <div key={`skeleton-${index}`} className="animate-pulse">
+                      <div className="bg-gray-200 rounded-2xl h-96"></div>
+                    </div>
+                  ))
+                )}
+
                 {displayedProducts.map((item, index) => (
                   <div
-                    key={index}
-                    className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
+                    key={item._id} // Use item._id instead of index for better React performance
+                    className="group transform transition-all duration-300 hover:scale-105 hover:-translate-y-1"
                     style={{
-                      animationDelay: `${index * 150}ms`
+                      animationDelay: `${index * 100}ms` // Reduced delay for faster appearance
                     }}
                   >
-                    {/* Bright Shadow Wrapper */}
+                    {/* Simplified Shadow Wrapper for better mobile performance */}
                     <div className="relative">
-                      {/* Bright colored shadows */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
+                      {/* Reduced shadow effects for mobile */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 to-pink-400 rounded-2xl blur-md opacity-0 group-hover:opacity-30 transition-all duration-300"></div>
 
-                      {/* Main card with enhanced shadows */}
-                      <div className="relative bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-lg lg:shadow-xl border border-white/60 overflow-hidden min-h-[350px] lg:min-h-[400px]">
+                      {/* Main card with simplified styling */}
+                      <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/60 overflow-hidden min-h-[320px] lg:min-h-[380px]">
                         <ProductItem
                           id={item._id}
                           name={item.name}
@@ -1014,6 +1017,7 @@ const Collection = () => {
                           subCategory={item.subCategory}
                           soldout={item.soldout}
                           slug={item.slug}
+                          comboPrices={item.comboPrices}
                         />
                       </div>
                     </div>
@@ -1021,33 +1025,25 @@ const Collection = () => {
                 ))}
               </div>
 
-              {/* Load More Button */}
+              {/* Infinite Scroll Trigger */}
               {hasMore && displayedProducts.length > 0 && (
-                <div className="flex justify-center mt-8 lg:mt-12">
-                  <button
-                    onClick={loadMore}
-                    disabled={isLoading}
-                    className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-8 lg:px-12 py-4 lg:py-5 rounded-2xl font-semibold hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm lg:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-3"
-                  >
-                    {isLoading ? (
-                      <>
-                        <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Loading...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        Load More Products
-                        <span className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold">
-                          {filterProducts.length - displayedProducts.length} left
-                        </span>
-                      </>
-                    )}
-                  </button>
+                <div ref={loadMoreRef} className="flex justify-center mt-8 lg:mt-12">
+                  {isLoading ? (
+                    <div className="flex items-center gap-3 bg-orange-500 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg">
+                      <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Loading more products...
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                      <p className="text-gray-600 text-sm">Scroll down to load more products</p>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {filterProducts.length - displayedProducts.length} more products available
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

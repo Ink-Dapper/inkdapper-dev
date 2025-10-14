@@ -4,24 +4,24 @@ import ProductItem from './ProductItemWrapper'
 import { Star, Sparkles, Zap } from 'lucide-react'
 
 const HighlightedProducts = () => {
-  const { highlightedProducts, fetchHighlightedProducts } = useContext(ShopContext)
-  const [loading, setLoading] = useState(true)
+  const { highlightedProducts, fetchHighlightedProducts, highlightedProductsLoading } = useContext(ShopContext)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const loadHighlightedProducts = async () => {
       try {
+        setError(null)
         await fetchHighlightedProducts()
       } catch (error) {
         console.error('Error loading highlighted products:', error)
-      } finally {
-        setLoading(false)
+        setError('Failed to load featured products')
       }
     }
 
     loadHighlightedProducts()
   }, [fetchHighlightedProducts])
 
-  if (loading) {
+  if (highlightedProductsLoading) {
     return (
       <div className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -34,6 +34,35 @@ const HighlightedProducts = () => {
     )
   }
 
+  // Handle error state
+  if (error) {
+    return (
+      <div className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Featured Products</h3>
+            <p className="text-gray-600 mb-4">We're having trouble loading our featured products. Please try refreshing the page.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render if no products (graceful degradation)
   if (!highlightedProducts || highlightedProducts.length === 0) {
     return null
   }
@@ -136,7 +165,7 @@ const HighlightedProducts = () => {
 
         {/* Enhanced Call to Action */}
         <div className="text-center">
-          <div className="relative inline-block mt-10 md:mt-0">
+          <div className="relative inline-block mt-10">
             <span className="relative z-10 flex items-center gap-3 group relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/25 transform hover:scale-105 border border-orange-400/50">
               Explore All Featured Products
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
