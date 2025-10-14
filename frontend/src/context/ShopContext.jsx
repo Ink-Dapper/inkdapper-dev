@@ -234,8 +234,29 @@ const ShopContextProvider = (props) => {
     return 0;
   }
 
+  // Test API connectivity first
+  const testApiConnection = async () => {
+    try {
+      console.log('🔍 Testing API connection...');
+      const response = await apiInstance.get('/test');
+      console.log('✅ API connection successful:', response.data);
+      return true;
+    } catch (error) {
+      console.error('❌ API connection failed:', error);
+      return false;
+    }
+  };
+
   const getProductsData = async () => {
     try {
+      // Test API connection first
+      const isApiConnected = await testApiConnection();
+      if (!isApiConnected) {
+        console.error('❌ Cannot fetch products - API connection failed');
+        toast.error('Unable to connect to server. Please check your connection.');
+        return;
+      }
+
       console.log('🔄 Fetching products from API...');
       const response = await apiInstance.get('/product/list')
       if (response.data.success) {
@@ -267,11 +288,17 @@ const ShopContextProvider = (props) => {
         setProducts(products)
       } else {
         console.error('❌ API response not successful:', response.data);
-        toast.error(response.data.message)
+        toast.error(response.data.message || 'Failed to load products')
       }
     } catch (error) {
       console.error('❌ Error fetching products:', error)
-      toast.error(error.message)
+      if (error.code === 'ECONNABORTED') {
+        toast.error('Request timeout - server may be slow to respond')
+      } else if (error.code === 'NETWORK_ERROR') {
+        toast.error('Network error - please check your internet connection')
+      } else {
+        toast.error('Failed to load products - please refresh the page')
+      }
     }
   }
 
