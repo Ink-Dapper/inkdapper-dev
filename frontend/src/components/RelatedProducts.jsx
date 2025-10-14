@@ -51,7 +51,7 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
   };
 
   return (
-    <section className='relative py-8 md:py-16 lg:py-24 overflow-hidden my-8 md:my-12 lg:my-24'>
+    <section className='relative py-2 md:py-16 lg:py-24 overflow-hidden my-2 md:my-12 lg:my-24'>
       {/* Section specific overlay for better content visibility */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-red-50/20 to-pink-50/30 backdrop-blur-sm"></div>
 
@@ -116,7 +116,7 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
                       <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
 
                       {/* Main card with enhanced shadows */}
-                      <div className="relative bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/60 overflow-hidden">
+                      <div className="relative bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/60 overflow-hidden related-products-item">
                         <ProductItem
                           id={item._id}
                           name={item.name}

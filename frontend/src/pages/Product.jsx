@@ -840,7 +840,7 @@ const Product = () => {
               <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4'>
                 <button
                   onClick={addCartPageDetails}
-                  className='w-full bg-orange-600 hover:bg-orange-700 text-white mb-4 font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'
+                  className='w-full bg-orange-600 hover:bg-orange-700 text-white mb-2 md:mb-4 font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'
                 >
                   Add to Cart
                 </button>
@@ -1148,7 +1148,7 @@ const Product = () => {
         </div>
 
         {/* Related Products */}
-        <div className='mt-16'>
+        <div className='mt-10 md:mt-16'>
           <RelatedProducts
             category={productData.category}
             subCategory={productData.subCategory}

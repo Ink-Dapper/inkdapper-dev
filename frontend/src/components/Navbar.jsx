@@ -284,14 +284,14 @@ const Navbar = () => {
                       <div className="py-1">
                         <button
                           onClick={() => navigate("/profile")}
-                          className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-200 flex items-center gap-3"
+                          className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 flex items-center gap-3"
                         >
                           <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
                           My Profile
                         </button>
                         <button
                           onClick={() => navigate("/orders")}
-                          className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-200 flex items-center gap-3"
+                          className="w-full px-4 py-3 text-left text-sm font-medium text-gray-700  hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-200 flex items-center gap-3"
                         >
                           <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
                           My Orders

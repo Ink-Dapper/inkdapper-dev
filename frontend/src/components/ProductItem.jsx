@@ -2,7 +2,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from '@mui/icons-material/Share';
 import { toast } from 'react-toastify';
-import React, { useContext, useEffect, useState, useRef, memo, useCallback } from 'react';
+import React, { useContext, useEffect, useState, useRef, memo, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
@@ -340,7 +340,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
             {/* Product Name */}
             <div className="flex items-start mt-1">
-              <h3 className='product-name text-sm md:text-lg font-semibold text-slate-900 group-hover:text-orange-700 transition-colors duration-300'>
+              <h3 className='product-name text-sm md:text-lg font-semibold text-slate-900 group-hover:text-orange-700 transition-colors duration-300 truncate'>
                 {name}
               </h3>
             </div>
@@ -358,7 +358,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
             </div>
 
             {/* Bottom Section */}
-            <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+            <div className="flex items-center justify-between pt-1 border-t border-slate-100 product-item-bottom-section">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full animate-pulse"></div>
                 <span className="text-xs font-semibold text-slate-600">Premium Quality</span>

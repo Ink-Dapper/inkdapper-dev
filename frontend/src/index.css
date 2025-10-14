@@ -2333,6 +2333,12 @@ a.active hr {
         left: 1rem;
         transform: translateX(-1/2);
     }
+
+    .related-products-item {
+        .product-item-bottom-section {
+            display: none;
+        }
+    }
 }
 
 /* Thank You Page Animation Delays */

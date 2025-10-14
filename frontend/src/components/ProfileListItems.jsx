@@ -173,7 +173,7 @@ const ProfileListItems = () => {
               spaceBetween={16}
               slidesPerView={1.2}
               centeredSlides={true}
-              loop={orderData.length > 3}
+              loop={orderData.length >= 3 && orderData.length > 1}
               autoplay={{
                 delay: 3000,
                 disableOnInteraction: false,
@@ -305,7 +305,7 @@ const ProfileListItems = () => {
               spaceBetween={16}
               slidesPerView={1.2}
               centeredSlides={true}
-              loop={orderDataOne.length > 3}
+              loop={orderDataOne.length >= 3 && orderDataOne.length > 1}
               autoplay={{
                 delay: 3500,
                 disableOnInteraction: false,

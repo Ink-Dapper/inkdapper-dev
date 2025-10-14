@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
 
-  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount, paymentMethod, updatePaymentMethod, getShippingMessage } = useContext(ShopContext)
+  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount, paymentMethod, updatePaymentMethod, getShippingMessage, getUserCart } = useContext(ShopContext)
   const [creditPtsVisible, setCreditPtsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -33,8 +33,7 @@ const PlaceOrder = () => {
   }
 
   const handlePaymentMethodChange = (newMethod) => {
-    setMethod(newMethod)
-    updateShippingFee(newMethod)
+    updatePaymentMethod(newMethod)
   }
 
   const initPay = (order, orderData) => {
@@ -181,7 +180,7 @@ const PlaceOrder = () => {
           break;
 
         default:
-          console.log('Unknown payment method:', method)
+          console.log('Unknown payment method:', paymentMethod)
           toast.error('Please select a valid payment method')
           break
       }
@@ -189,6 +188,8 @@ const PlaceOrder = () => {
     } catch (error) {
       console.log(error)
       toast.error(error.message || 'An error occurred while placing the order')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -203,12 +204,16 @@ const PlaceOrder = () => {
     // Only initialize once to prevent multiple API calls
     if (!isInitialized) {
       setIsInitialized(true);
-      getUserCart(token)
-      getCreditScore()
-      // Initialize shipping fee based on default method (COD)
-      updateShippingFee('cod')
+      if (getUserCart) {
+        getUserCart(token)
+      }
+      if (getCreditScore) {
+        getCreditScore()
+      }
+      // Initialize payment method (COD) - this will also set the shipping fee
+      updatePaymentMethod('cod')
     }
-  }, [token, navigate, getUserCart, getCreditScore, isInitialized, updateShippingFee]);
+  }, [token, navigate, getUserCart, getCreditScore, isInitialized, updatePaymentMethod]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">

@@ -37,6 +37,7 @@ const Collection = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [isIntersecting, setIsIntersecting] = useState(false)
+  const [showAllProducts, setShowAllProducts] = useState(false)
   const loadMoreRef = useRef(null)
 
   // Debounce search input

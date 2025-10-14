@@ -115,7 +115,6 @@ const Orders = () => {
           orderId: orderId,
           returnReason: returnReason
         });
-        });
         console.log(response.data);
         if (response.data.success) {
           setShowReturnConfirmation(false);
@@ -145,7 +144,6 @@ const Orders = () => {
           returnOrderStatus: 'Order Cancelled',
           orderId: orderId,
           cancelReason: cancelReason
-        });
         });
         console.log(response.data);
         if (response.data.success) {
@@ -265,7 +263,7 @@ const Orders = () => {
 
               {/* Order Stats */}
               <div className='mt-8 flex justify-center'>
-                <div className='grid grid-cols-1 sm:grid-cols-3 gap-6 w-full'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full'>
                   <div className='bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200 shadow-sm'>
                     <div className='text-2xl font-bold text-gray-900'>{orderData.length}</div>
                     <div className='text-sm text-gray-600 font-medium'>Total Orders</div>
@@ -282,6 +280,12 @@ const Orders = () => {
                     </div>
                     <div className='text-sm text-gray-600 font-medium'>In Progress</div>
                   </div>
+                  {/* <div className='bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200 shadow-sm'>
+                    <div className='text-2xl font-bold text-orange-600'>
+                      {currency} {orderData.reduce((total, item) => total + (item.amount || (item.price * item.quantity + (item.paymentMethod === 'Razorpay' ? 0 : 49))), 0)}
+                    </div>
+                    <div className='text-sm text-gray-600 font-medium'>Total Spent</div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -369,12 +373,44 @@ const Orders = () => {
                                 <h3 className='text-xl font-bold text-gray-900 mb-4 group-hover:text-green-600 transition-colors line-clamp-2'>{item.name}</h3>
                                 <div className='flex flex-col sm:flex-row sm:items-center gap-4 text-sm'>
                                   <div className='flex items-center gap-2'>
-                                    <span className='text-gray-600 font-medium'>Price:</span>
-                                    <span className='text-2xl font-bold text-green-600'>{currency} {item.price}</span>
+                                    <span className='text-gray-600 font-medium'>Unit Price:</span>
+                                    <span className='text-xl font-bold text-green-600'>{currency} {item.price}</span>
                                   </div>
                                   <div className='flex items-center gap-2'>
                                     <span className='text-gray-600 font-medium'>Size:</span>
                                     <span className='bg-gray-100 text-gray-800 px-3 py-1 rounded-lg font-medium border border-gray-200'>{item.size}</span>
+                                  </div>
+                                  <div className='flex items-center gap-2'>
+                                    <span className='text-gray-600 font-medium'>Quantity:</span>
+                                    <span className='bg-blue-100 text-blue-800 px-3 py-1 rounded-lg font-medium border border-blue-200'>{item.quantity}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Price Breakdown Section */}
+                              <div className='bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200'>
+                                <h4 className='text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2'>
+                                  <svg className='w-4 h-4 text-green-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' />
+                                  </svg>
+                                  Order Total Breakdown
+                                </h4>
+                                <div className='space-y-2'>
+                                  <div className='flex justify-between items-center text-sm'>
+                                    <span className='text-gray-600'>Item Total ({item.quantity} × {currency} {item.price}):</span>
+                                    <span className='font-medium text-gray-900'>{currency} {item.price * item.quantity}</span>
+                                  </div>
+                                  <div className='flex justify-between items-center text-sm'>
+                                    <span className='text-gray-600'>Delivery Charges:</span>
+                                    <span className={`font-medium ${item.paymentMethod === 'Razorpay' ? 'text-green-600' : 'text-gray-900'}`}>
+                                      {item.paymentMethod === 'Razorpay' ? 'FREE' : `${currency} 49`}
+                                    </span>
+                                  </div>
+                                  <div className='border-t border-gray-300 pt-2 mt-2'>
+                                    <div className='flex justify-between items-center'>
+                                      <span className='font-semibold text-gray-900'>Order Total:</span>
+                                      <span className='text-xl font-bold text-green-600'>{currency} {item.amount || (item.price * item.quantity + (item.paymentMethod === 'Razorpay' ? 0 : 49))}</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
