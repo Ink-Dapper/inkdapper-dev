@@ -234,37 +234,71 @@ const ShopContextProvider = (props) => {
     return 0;
   }
 
+  // Test API connectivity first
+  const testApiConnection = async () => {
+    try {
+      console.log('🔍 Testing API connection...');
+      const response = await apiInstance.get('/test');
+      console.log('✅ API connection successful:', response.data);
+      return true;
+    } catch (error) {
+      console.error('❌ API connection failed:', error);
+      return false;
+    }
+  };
+
   const getProductsData = async () => {
     try {
+      // Test API connection first
+      const isApiConnected = await testApiConnection();
+      if (!isApiConnected) {
+        console.error('❌ Cannot fetch products - API connection failed');
+        toast.error('Unable to connect to server. Please check your connection.');
+        return;
+      }
+
+      console.log('🔄 Fetching products from API...');
       const response = await apiInstance.get('/product/list')
       if (response.data.success) {
         // Set products directly from API response
         const products = response.data.products || [];
         console.log(`✅ Loaded ${products.length} products from API`);
 
-        // Debug: Check if products have valid IDs
+        // Enhanced debugging: Check if products have valid IDs
         const productsWithoutId = products.filter(p => !p._id);
         if (productsWithoutId.length > 0) {
           console.error(`⚠️ Found ${productsWithoutId.length} products without _id:`, productsWithoutId);
         }
 
-        // Log first product for debugging
+        // Log first few products for debugging
         if (products.length > 0) {
-          console.log('First product sample:', {
-            _id: products[0]._id,
-            name: products[0].name,
-            slug: products[0].slug,
-            hasId: !!products[0]._id
-          });
+          console.log('First 3 products sample:', products.slice(0, 3).map(p => ({
+            _id: p._id,
+            name: p.name,
+            slug: p.slug,
+            hasId: !!p._id,
+            idType: typeof p._id
+          })));
         }
+
+        // Additional validation
+        const validProducts = products.filter(p => p._id && p.name);
+        console.log(`📊 Valid products: ${validProducts.length}/${products.length}`);
 
         setProducts(products)
       } else {
-        toast.error(response.data.message)
+        console.error('❌ API response not successful:', response.data);
+        toast.error(response.data.message || 'Failed to load products')
       }
     } catch (error) {
-      console.log(error)
-      toast.error(error.message)
+      console.error('❌ Error fetching products:', error)
+      if (error.code === 'ECONNABORTED') {
+        toast.error('Request timeout - server may be slow to respond')
+      } else if (error.code === 'NETWORK_ERROR') {
+        toast.error('Network error - please check your internet connection')
+      } else {
+        toast.error('Failed to load products - please refresh the page')
+      }
     }
   }
 

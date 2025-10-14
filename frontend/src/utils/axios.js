@@ -3,11 +3,31 @@ import axios from 'axios';
 // Determine the base URL based on environment
 const getBaseURL = () => {
   const isDevelopment = import.meta.env.DEV;
-  const productionAPI = 'https://api.inkdapper.com';
   
-  // In development, use /api to leverage Vite proxy
-  // In production, use full URL with /api
-  return isDevelopment ? '/api' : `${productionAPI}/api`;
+  // Check for environment variables first
+  const envApiUrl = import.meta.env.VITE_API_URL;
+  
+  if (envApiUrl) {
+    console.log('Using API URL from environment:', envApiUrl);
+    return envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl}/api`;
+  }
+  
+  // Fallback URLs for production
+  const productionAPIs = [
+    'https://api.inkdapper.com',
+    'https://www.inkdapper.com/api',
+    'https://inkdapper.com/api',
+    window.location.origin + '/api' // Same domain fallback
+  ];
+  
+  if (isDevelopment) {
+    // In development, use /api to leverage Vite proxy
+    return '/api';
+  } else {
+    // In production, try the first production API
+    console.log('Production mode - using API:', productionAPIs[0]);
+    return `${productionAPIs[0]}/api`;
+  }
 };
 
 const instance = axios.create({
@@ -57,7 +77,9 @@ instance.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+    
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
@@ -66,6 +88,7 @@ instance.interceptors.response.use(
         statusText: error.response.statusText,
         data: error.response.data,
         url: error.config?.url,
+        baseURL: error.config?.baseURL,
       });
       
       // Handle specific error cases
@@ -82,7 +105,33 @@ instance.interceptors.response.use(
         message: error.message,
         code: error.code,
         url: error.config?.url,
+        baseURL: error.config?.baseURL,
       });
+      
+      // Handle network errors with fallback API URLs
+      if (!originalRequest._retry && !import.meta.env.DEV) {
+        originalRequest._retry = true;
+        
+        // Try fallback API URLs
+        const fallbackUrls = [
+          'https://www.inkdapper.com/api',
+          'https://inkdapper.com/api',
+          window.location.origin + '/api'
+        ];
+        
+        for (const fallbackUrl of fallbackUrls) {
+          if (fallbackUrl !== originalRequest.baseURL) {
+            try {
+              console.log(`🔄 Trying fallback API: ${fallbackUrl}`);
+              originalRequest.baseURL = fallbackUrl;
+              return instance(originalRequest);
+            } catch (fallbackError) {
+              console.warn(`❌ Fallback ${fallbackUrl} also failed:`, fallbackError.message);
+              continue;
+            }
+          }
+        }
+      }
       
       // Handle timeout errors specifically
       if (error.code === 'ECONNABORTED' && error.message.includes('timeout')) {

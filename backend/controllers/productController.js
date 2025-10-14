@@ -151,10 +151,31 @@ const updateBanner = async (req, res) => {
 // function for list products
 const listProducts = async (req, res) => {
   try {
+    console.log('🔄 Fetching products from database...');
     const products = await productModel.find({});
+    
+    // Enhanced debugging
+    console.log(`✅ Found ${products.length} products in database`);
+    
+    if (products.length > 0) {
+      console.log('First 3 products from DB:', products.slice(0, 3).map(p => ({
+        _id: p._id,
+        name: p.name,
+        slug: p.slug,
+        hasId: !!p._id,
+        idType: typeof p._id
+      })));
+      
+      // Check for products without IDs
+      const productsWithoutId = products.filter(p => !p._id);
+      if (productsWithoutId.length > 0) {
+        console.error(`⚠️ Found ${productsWithoutId.length} products without _id in database`);
+      }
+    }
+    
     res.json({ success: true, message: "Products Listed", products });
   } catch (error) {
-    console.log(error);
+    console.error('❌ Error fetching products from database:', error);
     res.json({ success: false, message: error.message });
   }
 };

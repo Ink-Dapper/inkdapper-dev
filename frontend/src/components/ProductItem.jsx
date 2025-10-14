@@ -8,12 +8,23 @@ import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 
 const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug, comboPrices }) => {
+  // Enhanced debugging for live site issues (only log when ID is missing)
+  if (!id) {
+    console.log('ProductItem received props with missing ID:', {
+      id,
+      name,
+      hasId: !!id,
+      idType: typeof id,
+      idValue: id
+    });
+  }
+
   // Use the provided id - ensure it's valid
   const productId = id;
 
   // Validation: only hide if id is explicitly invalid strings
-  if (id === 'undefined' || id === 'null' || id === '') {
-    console.error('ProductItem: Invalid id prop', { id, name });
+  if (id === 'undefined' || id === 'null' || id === '' || id === undefined || id === null) {
+    console.error('ProductItem: Invalid id prop', { id, name, idType: typeof id });
     return null;
   }
 
@@ -262,8 +273,9 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
             scrollToTop();
           }
         }}
-        className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
-        to={`/product/${id}/${safeSlug}`}
+        className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''} ${!productId ? 'pointer-events-none opacity-75' : ''}`}
+        to={productId ? `/product/${productId}/${safeSlug}` : '#'}
+        title={!productId ? 'Product ID missing - cannot navigate' : ''}
       >
         <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl overflow-hidden bg-white border border-slate-100/50'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">
