@@ -188,17 +188,12 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true,
         pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
-        passes: 3,
+        passes: 2,
         dead_code: true,
         global_defs: {
           'process.env.NODE_ENV': '"production"'
         },
-        unsafe: true,
-        unsafe_comps: true,
-        unsafe_math: true,
-        unsafe_proto: true,
-        unsafe_regexp: true,
-        unsafe_undefined: true,
+        unsafe: false,
         conditionals: true,
         evaluate: true,
         booleans: true,
@@ -221,7 +216,6 @@ export default defineConfig({
         typeofs: true,
         warnings: false,
         // Additional performance optimizations
-        drop_unused: true,
         keep_infinity: true,
         module: true,
         toplevel: true,
@@ -229,11 +223,7 @@ export default defineConfig({
       },
       mangle: {
         safari10: true,
-        properties: {
-          regex: /^_/
-        },
-        toplevel: true,
-        module: true
+        toplevel: true
       },
       format: {
         comments: false,
