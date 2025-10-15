@@ -17,12 +17,20 @@ const getBaseURL = () => {
     return '/api';
   }
   
-  // Production: Try same domain first (most reliable for VPS)
+  // Production: Multiple fallback options for better reliability
   const currentOrigin = window.location.origin;
-  const sameDomainApi = `${currentOrigin}/api`;
+  const hostname = window.location.hostname;
   
-  console.log('Production mode - using same domain API:', sameDomainApi);
-  return sameDomainApi;
+  // For VPS deployment, prioritize same domain
+  if (hostname.includes('inkdapper.com') || hostname.includes('localhost')) {
+    const sameDomainApi = `${currentOrigin}/api`;
+    console.log('Production mode - using same domain API:', sameDomainApi);
+    return sameDomainApi;
+  }
+  
+  // Fallback to external API
+  console.log('Production mode - using external API');
+  return 'https://api.inkdapper.com/api';
 };
 
 const instance = axios.create({

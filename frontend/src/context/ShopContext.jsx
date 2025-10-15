@@ -2,6 +2,7 @@ import { createContext, useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiConfig } from "../config/api";
 import apiInstance from "../utils/axios";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { Flip } from 'react-toastify';
 
@@ -238,11 +239,32 @@ const ShopContextProvider = (props) => {
   const testApiConnection = async () => {
     try {
       console.log('🔍 Testing API connection...');
+      console.log('Current API base URL:', apiInstance.defaults.baseURL);
+
+      // Run quick diagnostics in development
+      if (import.meta.env.DEV) {
+        const { quickApiTest } = await import('../utils/apiDiagnostics');
+        await quickApiTest();
+      }
+
       const response = await apiInstance.get('/test');
       console.log('✅ API connection successful:', response.data);
       return true;
     } catch (error) {
-      console.error('❌ API connection failed:', error);
+      console.error('❌ API connection failed:', {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        baseURL: apiInstance.defaults.baseURL,
+        url: error.config?.url
+      });
+
+      // Run full diagnostics in development
+      if (import.meta.env.DEV) {
+        const { runApiDiagnostics } = await import('../utils/apiDiagnostics');
+        await runApiDiagnostics();
+      }
+
       return false;
     }
   };
@@ -254,12 +276,47 @@ const ShopContextProvider = (props) => {
       if (!isApiConnected) {
         console.error('❌ Cannot fetch products - API connection failed');
 
-        // Mobile-specific error messages
-        const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
-        if (isMobile) {
-          toast.error('Connection issue on mobile. Please check your network and try again.');
-        } else {
-          toast.error('Unable to connect to server. Please check your connection.');
+        // Try fallback API URLs
+        const fallbackUrls = [
+          `${window.location.origin}/api`,
+          'https://api.inkdapper.com/api',
+          'https://www.inkdapper.com/api'
+        ];
+
+        let productsFetched = false;
+        for (const fallbackUrl of fallbackUrls) {
+          try {
+            console.log(`🔄 Trying fallback API: ${fallbackUrl}`);
+            const fallbackResponse = await axios.get(`${fallbackUrl}/product/list`, {
+              timeout: 10000,
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              }
+            });
+
+            if (fallbackResponse.data.success) {
+              const products = fallbackResponse.data.products || [];
+              console.log(`✅ Loaded ${products.length} products from fallback API: ${fallbackUrl}`);
+              setProducts(products);
+              productsFetched = true;
+              break;
+            }
+          } catch (fallbackError) {
+            console.warn(`❌ Fallback ${fallbackUrl} failed:`, fallbackError.message);
+            continue;
+          }
+        }
+
+        if (!productsFetched) {
+          // Mobile-specific error messages
+          const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
+          if (isMobile) {
+            toast.error('Connection issue on mobile. Please check your network and try again.');
+          } else {
+            toast.error('Unable to connect to server. Please check your connection.');
+          }
+          return;
         }
         return;
       }
@@ -296,37 +353,103 @@ const ShopContextProvider = (props) => {
       } else {
         console.error('❌ API response not successful:', response.data);
         toast.error(response.data.message || 'Failed to load products')
+
+        // Try fallback APIs if main API fails
+        const fallbackUrls = [
+          `${window.location.origin}/api`,
+          'https://api.inkdapper.com/api'
+        ];
+
+        for (const fallbackUrl of fallbackUrls) {
+          try {
+            console.log(`🔄 Trying fallback API after main failure: ${fallbackUrl}`);
+            const fallbackResponse = await axios.get(`${fallbackUrl}/product/list`, {
+              timeout: 10000,
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              }
+            });
+
+            if (fallbackResponse.data.success) {
+              const products = fallbackResponse.data.products || [];
+              console.log(`✅ Loaded ${products.length} products from fallback API: ${fallbackUrl}`);
+              setProducts(products);
+              toast.success('Products loaded from backup server');
+              return;
+            }
+          } catch (fallbackError) {
+            console.warn(`❌ Fallback ${fallbackUrl} failed:`, fallbackError.message);
+            continue;
+          }
+        }
       }
     } catch (error) {
       console.error('❌ Error fetching products:', error)
 
-      // Mobile-specific error handling
-      const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
+      // Try fallback APIs before showing error
+      const fallbackUrls = [
+        `${window.location.origin}/api`,
+        'https://api.inkdapper.com/api',
+        'https://www.inkdapper.com/api'
+      ];
 
-      if (error.code === 'ECONNABORTED') {
-        if (isMobile) {
-          toast.error('Slow mobile connection. Please wait or try again.');
-        } else {
-          toast.error('Request timeout - server may be slow to respond');
+      let productsFetched = false;
+      for (const fallbackUrl of fallbackUrls) {
+        try {
+          console.log(`🔄 Trying fallback API in catch block: ${fallbackUrl}`);
+          const fallbackResponse = await axios.get(`${fallbackUrl}/product/list`, {
+            timeout: 15000,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            }
+          });
+
+          if (fallbackResponse.data.success) {
+            const products = fallbackResponse.data.products || [];
+            console.log(`✅ Loaded ${products.length} products from fallback API: ${fallbackUrl}`);
+            setProducts(products);
+            toast.success('Products loaded from backup server');
+            productsFetched = true;
+            break;
+          }
+        } catch (fallbackError) {
+          console.warn(`❌ Fallback ${fallbackUrl} failed:`, fallbackError.message);
+          continue;
         }
-      } else if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
-        if (isMobile) {
-          toast.error('Mobile network issue. Please check your connection and try again.');
+      }
+
+      // Only show error if all fallbacks failed
+      if (!productsFetched) {
+        // Mobile-specific error handling
+        const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
+
+        if (error.code === 'ECONNABORTED') {
+          if (isMobile) {
+            toast.error('Slow mobile connection. Please wait or try again.');
+          } else {
+            toast.error('Request timeout - server may be slow to respond');
+          }
+        } else if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+          if (isMobile) {
+            toast.error('Mobile network issue. Please check your connection and try again.');
+          } else {
+            toast.error('Network error - please check your internet connection');
+          }
+        } else if (error.response?.status === 0) {
+          // CORS or network issue
+          if (isMobile) {
+            toast.error('Mobile connection blocked. Please try refreshing the page.');
+          } else {
+            toast.error('Connection blocked. Please refresh the page.');
+          }
         } else {
-          toast.error('Network error - please check your internet connection');
-        }
-      } else if (error.response?.status === 0) {
-        // CORS or network issue
-        if (isMobile) {
-          toast.error('Mobile connection blocked. Please try refreshing the page.');
-        } else {
-          toast.error('Connection blocked. Please refresh the page.');
-        }
-      } else {
-        if (isMobile) {
-          toast.error('Mobile loading issue. Please refresh the page.');
-        } else {
-          toast.error('Failed to load products - please refresh the page');
+          if (isMobile) {
+            toast.error('Mobile loading issue. Please refresh the page.');
+          } else {
+            toast.error('Failed to load products - please refresh the page');
+          }
         }
       }
     }
