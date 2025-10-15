@@ -170,12 +170,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// Add security headers
+// Add security headers and fix MIME types
 app.use((req, res, next) => {
   res.header('X-Content-Type-Options', 'nosniff');
   res.header('X-Frame-Options', 'DENY');
   res.header('X-XSS-Protection', '1; mode=block');
   res.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Fix MIME types for JavaScript files
+  if (req.path.endsWith('.jsx') || req.path.endsWith('.tsx') || req.path.endsWith('.mjs')) {
+    res.header('Content-Type', 'application/javascript; charset=utf-8');
+  } else if (req.path.endsWith('.js') && !req.path.endsWith('.json')) {
+    res.header('Content-Type', 'application/javascript; charset=utf-8');
+  } else if (req.path.endsWith('.ts')) {
+    res.header('Content-Type', 'application/javascript; charset=utf-8');
+  }
+  
   next();
 });
 
@@ -186,7 +196,21 @@ app.get('/api/test', (req, res) => {
     message: 'Backend server is running!',
     timestamp: new Date().toISOString(),
     cors: 'CORS is properly configured',
-    origin: req.headers.origin || 'No origin'
+    origin: req.headers.origin || 'No origin',
+    mimeTypes: 'MIME types are properly configured for JSX/TSX files'
+  });
+});
+
+// MIME type test endpoint
+app.get('/api/mime-test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'MIME type configuration test',
+    timestamp: new Date().toISOString(),
+    headers: {
+      'content-type': res.get('Content-Type'),
+      'x-content-type-options': res.get('X-Content-Type-Options')
+    }
   });
 });
 
@@ -216,13 +240,59 @@ if (process.env.NODE_ENV === 'production') {
     setHeaders: (res, path) => {
       if (path.endsWith('.html')) {
         res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
       } else if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (path.endsWith('.mjs')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (path.endsWith('.jsx')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (path.endsWith('.ts')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (path.endsWith('.tsx')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       } else if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (path.endsWith('.json')) {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      } else if (path.endsWith('.svg')) {
+        res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
+      } else if (path.endsWith('.png')) {
+        res.setHeader('Content-Type', 'image/png');
+      } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+        res.setHeader('Content-Type', 'image/jpeg');
+      } else if (path.endsWith('.webp')) {
+        res.setHeader('Content-Type', 'image/webp');
+      } else if (path.endsWith('.ico')) {
+        res.setHeader('Content-Type', 'image/x-icon');
+      } else if (path.endsWith('.woff2')) {
+        res.setHeader('Content-Type', 'font/woff2');
+      } else if (path.endsWith('.woff')) {
+        res.setHeader('Content-Type', 'font/woff');
+      } else if (path.endsWith('.ttf')) {
+        res.setHeader('Content-Type', 'font/ttf');
       }
     }
   }));
+  
+  // Additional middleware to fix any remaining MIME type issues
+  app.use((req, res, next) => {
+    // Fix JSX/TSX files that might be served with wrong MIME type
+    if (req.path.endsWith('.jsx') || req.path.endsWith('.tsx') || req.path.endsWith('.mjs')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
+    // Fix JS files
+    else if (req.path.endsWith('.js') && !req.path.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
+    next();
+  });
 }
 
 //api endpoints

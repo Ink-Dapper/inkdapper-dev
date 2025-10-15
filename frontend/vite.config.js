@@ -73,8 +73,17 @@ export default defineConfig({
     },
     middlewares: [
       (req, res, next) => {
-        if (req.url.endsWith('.jsx')) {
-          res.setHeader('Content-Type', 'application/javascript');
+        // Fix MIME types for JavaScript module files
+        if (req.url.endsWith('.jsx') || req.url.endsWith('.tsx') || req.url.endsWith('.mjs')) {
+          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        }
+        // Ensure JS files have correct MIME type
+        else if (req.url.endsWith('.js') && !req.url.endsWith('.json')) {
+          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        }
+        // Fix TypeScript files
+        else if (req.url.endsWith('.ts')) {
+          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
         }
         next();
       }
