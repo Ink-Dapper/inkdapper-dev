@@ -16,6 +16,7 @@ import ThemeToggle from './components/ThemeToggle';
 import { initPerformanceOptimizations } from './utils/performanceOptimizer';
 import { initMobileOptimizations } from './utils/mobileUtils';
 import { optimizeFonts, detectFontErrors } from './utils/fontOptimizer';
+import ApiStatusIndicator from './components/ApiStatusIndicator';
 
 // Lazy load modals
 const NewsletterModal = lazy(() => import('./components/NewsletterModal'));
@@ -153,6 +154,9 @@ const App = () => {
           </Suspense>
         </ErrorBoundary>
       </div>
+
+      {/* API Status Indicator - Production Only */}
+      <ApiStatusIndicator showInDevelopment={false} />
     </div>
   );
 };

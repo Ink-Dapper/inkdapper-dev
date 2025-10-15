@@ -17,19 +17,19 @@ const getBaseURL = () => {
     return '/api';
   }
   
-  // Production: Multiple fallback options for better reliability
+  // Production: Prioritize same domain API (most reliable)
   const currentOrigin = window.location.origin;
   const hostname = window.location.hostname;
   
-  // For VPS deployment, prioritize same domain
-  if (hostname.includes('inkdapper.com') || hostname.includes('localhost')) {
+  // Always use same domain API for better CORS and reliability
+  if (hostname.includes('inkdapper.com') || hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
     const sameDomainApi = `${currentOrigin}/api`;
     console.log('Production mode - using same domain API:', sameDomainApi);
     return sameDomainApi;
   }
   
-  // Fallback to external API
-  console.log('Production mode - using external API');
+  // Only fallback to external API if not on inkdapper domain
+  console.log('Production mode - using external API (not on inkdapper domain)');
   return 'https://api.inkdapper.com/api';
 };
 
@@ -131,19 +131,25 @@ instance.interceptors.response.use(
         code: error.code,
         url: error.config?.url,
         baseURL: error.config?.baseURL,
+        status: error.response?.status,
       });
+      
+      // Handle specific error codes
+      if (error.response?.status === 502) {
+        console.error('❌ 502 Bad Gateway - API server may be down or misconfigured');
+      }
       
       // Handle network errors with fallback API URLs
       if (!originalRequest._retry && !import.meta.env.DEV) {
         originalRequest._retry = true;
         
-        // Try fallback API URLs - prioritize same domain
+        // Try fallback API URLs - prioritize same domain and working endpoints
         const currentOrigin = window.location.origin;
         const fallbackUrls = [
-          `${currentOrigin}/api`, // Same domain first
-          'https://www.inkdapper.com/api',
-          'https://inkdapper.com/api',
-          'https://api.inkdapper.com/api'
+          `${currentOrigin}/api`, // Same domain first (most reliable)
+          'https://www.inkdapper.com/api', // Main site API
+          'https://inkdapper.com/api' // Root domain API
+          // Removed api.inkdapper.com due to CORS and 502 issues
         ];
         
         for (const fallbackUrl of fallbackUrls) {

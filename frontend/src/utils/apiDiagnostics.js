@@ -14,12 +14,17 @@ export const runApiDiagnostics = async () => {
     tests: []
   };
 
-  // Test URLs to check
-  const testUrls = [
-    `${window.location.origin}/api/test`,
-    'https://api.inkdapper.com/api/test',
-    'https://www.inkdapper.com/api/test'
-  ];
+  // Test URLs to check - only local in development to avoid CORS issues
+  const isDevelopment = import.meta.env.DEV;
+  const testUrls = isDevelopment 
+    ? [
+        `${window.location.origin}/api/test`
+      ]
+    : [
+        `${window.location.origin}/api/test`,
+        'https://api.inkdapper.com/api/test',
+        'https://www.inkdapper.com/api/test'
+      ];
 
   // Test each URL
   for (const url of testUrls) {

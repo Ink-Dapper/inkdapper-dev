@@ -276,11 +276,12 @@ const ShopContextProvider = (props) => {
       if (!isApiConnected) {
         console.error('❌ Cannot fetch products - API connection failed');
 
-        // Try fallback API URLs
+        // Try fallback API URLs - prioritize working endpoints
         const fallbackUrls = [
-          `${window.location.origin}/api`,
-          'https://api.inkdapper.com/api',
-          'https://www.inkdapper.com/api'
+          `${window.location.origin}/api`, // Same domain first
+          'https://www.inkdapper.com/api', // Main site API
+          'https://inkdapper.com/api' // Root domain API
+          // Removed api.inkdapper.com due to CORS and 502 issues
         ];
 
         let productsFetched = false;
@@ -357,7 +358,8 @@ const ShopContextProvider = (props) => {
         // Try fallback APIs if main API fails
         const fallbackUrls = [
           `${window.location.origin}/api`,
-          'https://api.inkdapper.com/api'
+          'https://www.inkdapper.com/api',
+          'https://inkdapper.com/api'
         ];
 
         for (const fallbackUrl of fallbackUrls) {
@@ -390,8 +392,8 @@ const ShopContextProvider = (props) => {
       // Try fallback APIs before showing error
       const fallbackUrls = [
         `${window.location.origin}/api`,
-        'https://api.inkdapper.com/api',
-        'https://www.inkdapper.com/api'
+        'https://www.inkdapper.com/api',
+        'https://inkdapper.com/api'
       ];
 
       let productsFetched = false;
@@ -437,12 +439,19 @@ const ShopContextProvider = (props) => {
           } else {
             toast.error('Network error - please check your internet connection');
           }
-        } else if (error.response?.status === 0) {
+        } else if (error.response?.status === 502) {
+          // Bad Gateway - API server issues
+          if (isMobile) {
+            toast.error('Server temporarily unavailable. Please try again in a moment.');
+          } else {
+            toast.error('Server error (502) - API server may be down. Please try again.');
+          }
+        } else if (error.response?.status === 0 || error.message.includes('CORS')) {
           // CORS or network issue
           if (isMobile) {
             toast.error('Mobile connection blocked. Please try refreshing the page.');
           } else {
-            toast.error('Connection blocked. Please refresh the page.');
+            toast.error('Connection blocked (CORS error). Please refresh the page.');
           }
         } else {
           if (isMobile) {
@@ -804,7 +813,7 @@ const ShopContextProvider = (props) => {
   const fetchHighlightedProducts = useCallback(async () => {
     // Prevent multiple simultaneous requests using ref
     if (highlightedProductsLoadingRef.current) {
-      console.log('Highlighted products already loading, skipping request');
+      console.log('🔄 Highlighted products already loading, skipping request');
       return;
     }
 
