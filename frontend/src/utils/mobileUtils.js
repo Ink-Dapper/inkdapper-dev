@@ -1,58 +1,138 @@
-// Mobile-specific utilities for better network handling
+// Mobile-specific utilities for better mobile experience
 
-// Check if the device is mobile
+// Detect mobile device
 export const isMobile = () => {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  return /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 };
 
-// Check network connectivity
-export const checkNetworkConnectivity = () => {
-  return navigator.onLine;
+// Detect iOS
+export const isIOS = () => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
 };
 
-// Get connection type if available
-export const getConnectionType = () => {
-  if ('connection' in navigator) {
-    return navigator.connection.effectiveType || 'unknown';
-  }
-  return 'unknown';
+// Detect Android
+export const isAndroid = () => {
+  return /Android/.test(navigator.userAgent);
 };
 
-// Check if connection is slow
-export const isSlowConnection = () => {
-  if ('connection' in navigator) {
-    const connection = navigator.connection;
-    return connection.effectiveType === 'slow-2g' || 
-           connection.effectiveType === '2g' || 
-           connection.effectiveType === '3g';
-  }
-  return false;
-};
+// Fix mobile scrolling issues
+export const fixMobileScrolling = () => {
+  if (!isMobile()) return;
 
-// Retry function with exponential backoff
-export const retryWithBackoff = async (fn, maxRetries = 3, baseDelay = 1000) => {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await fn();
-    } catch (error) {
-      if (i === maxRetries - 1) throw error;
-      
-      const delay = baseDelay * Math.pow(2, i);
-      await new Promise(resolve => setTimeout(resolve, delay));
+  // Prevent zoom on double tap
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (event) => {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+      event.preventDefault();
     }
+    lastTouchEnd = now;
+  }, false);
+
+  // Fix iOS Safari viewport height issues
+  if (isIOS()) {
+    const setVH = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    
+    setVH();
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
+  }
+
+  // Prevent pull-to-refresh on mobile
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  let startY = 0;
+  document.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    const currentY = e.touches[0].clientY;
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    
+    // Prevent pull-to-refresh when at top of page
+    if (scrollTop === 0 && currentY > startY) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // Fix Android Chrome address bar issues
+  if (isAndroid()) {
+    window.addEventListener('resize', () => {
+      setTimeout(() => {
+        window.scrollTo(0, 1);
+        window.scrollTo(0, 0);
+      }, 100);
+    });
   }
 };
 
-// Optimize image loading for mobile
-export const optimizeImageForMobile = (imageUrl, width = 400) => {
-  if (!imageUrl) return imageUrl;
+// Optimize images for mobile
+export const optimizeImagesForMobile = () => {
+  if (!isMobile()) return;
+
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    // Add loading="lazy" if not present
+    if (!img.hasAttribute('loading')) {
+      img.setAttribute('loading', 'lazy');
+    }
+    
+    // Add decoding="async" if not present
+    if (!img.hasAttribute('decoding')) {
+      img.setAttribute('decoding', 'async');
+    }
+  });
+};
+
+// Initialize mobile optimizations
+export const initMobileOptimizations = () => {
+  if (!isMobile()) return;
+
+  // Fix scrolling
+  fixMobileScrolling();
   
-  // If using a CDN that supports image optimization
-  if (imageUrl.includes('cloudinary.com')) {
-    return imageUrl.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`);
+  // Optimize images
+  optimizeImagesForMobile();
+  
+  // Add mobile class to body
+  document.body.classList.add('mobile-device');
+  
+  // Add platform-specific classes
+  if (isIOS()) {
+    document.body.classList.add('ios-device');
+  } else if (isAndroid()) {
+    document.body.classList.add('android-device');
   }
   
-  return imageUrl;
+  console.log('📱 Mobile optimizations initialized');
+};
+
+// Network status detection
+export const getNetworkStatus = () => {
+  if (navigator.connection) {
+    return {
+      effectiveType: navigator.connection.effectiveType,
+      downlink: navigator.connection.downlink,
+      rtt: navigator.connection.rtt,
+      saveData: navigator.connection.saveData
+    };
+  }
+  return null;
+};
+
+// Handle network changes
+export const handleNetworkChange = (callback) => {
+  if (navigator.connection) {
+    navigator.connection.addEventListener('change', callback);
+  }
 };
 
 // Debounce function for mobile performance
@@ -79,70 +159,5 @@ export const throttle = (func, limit) => {
       inThrottle = true;
       setTimeout(() => inThrottle = false, limit);
     }
-  };
-};
-
-// Save data mode detection
-export const isDataSaverMode = () => {
-  if ('connection' in navigator) {
-    return navigator.connection.saveData;
-  }
-  return false;
-};
-
-// Get device pixel ratio for responsive images
-export const getDevicePixelRatio = () => {
-  return window.devicePixelRatio || 1;
-};
-
-// Check if device supports touch
-export const isTouchDevice = () => {
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-};
-
-// Optimize API calls for mobile
-export const createMobileOptimizedApiCall = (apiCall, options = {}) => {
-  const {
-    retryCount = 3,
-    timeout = 10000,
-    useCache = true,
-    cacheTime = 5 * 60 * 1000 // 5 minutes
-  } = options;
-
-  return async (...args) => {
-    // Check network connectivity
-    if (!checkNetworkConnectivity()) {
-      throw new Error('No internet connection');
-    }
-
-    // Use cache if available and enabled
-    if (useCache && 'caches' in window) {
-      const cacheKey = `api_${JSON.stringify(args)}`;
-      const cachedResponse = sessionStorage.getItem(cacheKey);
-      if (cachedResponse) {
-        const { data, timestamp } = JSON.parse(cachedResponse);
-        if (Date.now() - timestamp < cacheTime) {
-          return data;
-        }
-      }
-    }
-
-    // Make API call with retry logic
-    const result = await retryWithBackoff(
-      () => apiCall(...args),
-      retryCount,
-      isSlowConnection() ? 2000 : 1000
-    );
-
-    // Cache the result
-    if (useCache && 'caches' in window) {
-      const cacheKey = `api_${JSON.stringify(args)}`;
-      sessionStorage.setItem(cacheKey, JSON.stringify({
-        data: result,
-        timestamp: Date.now()
-      }));
-    }
-
-    return result;
   };
 };

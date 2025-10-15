@@ -445,9 +445,9 @@ const Product = () => {
       <div className='py-3 px-4 md:px-8'>
         <div className='max-w-7xl mx-auto'>
           <nav className='flex items-center space-x-2 text-sm text-gray-500'>
-            <Link to='/' className='hover:text-orange-600 transition-colors'>Home</Link>
+            <Link to='/' className='hover:text-orange-600 transition-colors min-h-0'>Home</Link>
             <span>/</span>
-            <Link to='/collection' className='hover:text-orange-600 transition-colors'>Collection</Link>
+            <Link to='/collection' className='hover:text-orange-600 transition-colors min-h-0'>Collection</Link>
             <span>/</span>
             <span className='text-gray-900 font-medium truncate max-w-xs md:max-w-sm lg:max-w-md' title={productData.name}>{productData.name}</span>
           </nav>

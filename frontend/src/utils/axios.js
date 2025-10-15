@@ -12,22 +12,17 @@ const getBaseURL = () => {
     return envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl}/api`;
   }
   
-  // Fallback URLs for production
-  const productionAPIs = [
-    'https://api.inkdapper.com',
-    'https://www.inkdapper.com/api',
-    'https://inkdapper.com/api',
-    window.location.origin + '/api' // Same domain fallback
-  ];
-  
   if (isDevelopment) {
     // In development, use /api to leverage Vite proxy
     return '/api';
-  } else {
-    // In production, try the first production API
-    console.log('Production mode - using API:', productionAPIs[0]);
-    return `${productionAPIs[0]}/api`;
   }
+  
+  // Production: Try same domain first (most reliable for VPS)
+  const currentOrigin = window.location.origin;
+  const sameDomainApi = `${currentOrigin}/api`;
+  
+  console.log('Production mode - using same domain API:', sameDomainApi);
+  return sameDomainApi;
 };
 
 const instance = axios.create({
@@ -36,13 +31,16 @@ const instance = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  timeout: 10000, // 10 seconds timeout (reduced from 15s for better UX)
+  timeout: 15000, // 15 seconds timeout for mobile networks
   withCredentials: true, // Include credentials for CORS
   // Mobile-specific optimizations
-  maxRedirects: 5,
+  maxRedirects: 3, // Reduced for mobile
   validateStatus: function (status) {
     return status >= 200 && status < 300; // default
   },
+  // Mobile network optimizations
+  maxContentLength: 50 * 1024 * 1024, // 50MB
+  maxBodyLength: 50 * 1024 * 1024, // 50MB
 });
 
 // Request interceptor
@@ -55,13 +53,32 @@ instance.interceptors.request.use(
       config.headers.token = token; // Backend expects 'token' header, not 'Authorization'
     }
     
+    // Detect mobile device
+    const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    
     // Add device type header
-    config.headers['X-Device-Type'] = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop';
+    config.headers['X-Device-Type'] = isMobile ? 'mobile' : 'desktop';
     
     // Add mobile-specific headers
-    if (/Mobile|Android|iPhone|iPad/.test(navigator.userAgent)) {
+    if (isMobile) {
       config.headers['X-Mobile-Optimized'] = 'true';
-      config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+      config.headers['X-Platform'] = isIOS ? 'ios' : isAndroid ? 'android' : 'mobile';
+      
+      // Mobile network optimizations
+      if (isIOS) {
+        config.headers['X-iOS-Optimized'] = 'true';
+      }
+      if (isAndroid) {
+        config.headers['X-Android-Optimized'] = 'true';
+      }
+    }
+    
+    // Add connection info for mobile
+    if (navigator.connection) {
+      config.headers['X-Connection-Type'] = navigator.connection.effectiveType || 'unknown';
+      config.headers['X-Connection-Speed'] = navigator.connection.downlink || 'unknown';
     }
     
     return config;
@@ -112,11 +129,13 @@ instance.interceptors.response.use(
       if (!originalRequest._retry && !import.meta.env.DEV) {
         originalRequest._retry = true;
         
-        // Try fallback API URLs
+        // Try fallback API URLs - prioritize same domain
+        const currentOrigin = window.location.origin;
         const fallbackUrls = [
+          `${currentOrigin}/api`, // Same domain first
           'https://www.inkdapper.com/api',
           'https://inkdapper.com/api',
-          window.location.origin + '/api'
+          'https://api.inkdapper.com/api'
         ];
         
         for (const fallbackUrl of fallbackUrls) {
@@ -124,6 +143,10 @@ instance.interceptors.response.use(
             try {
               console.log(`🔄 Trying fallback API: ${fallbackUrl}`);
               originalRequest.baseURL = fallbackUrl;
+              // Add mobile-specific timeout for fallback
+              if (/Mobile|Android|iPhone|iPad/.test(navigator.userAgent)) {
+                originalRequest.timeout = 20000; // 20 seconds for mobile
+              }
               return instance(originalRequest);
             } catch (fallbackError) {
               console.warn(`❌ Fallback ${fallbackUrl} also failed:`, fallbackError.message);

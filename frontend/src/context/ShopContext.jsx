@@ -253,7 +253,14 @@ const ShopContextProvider = (props) => {
       const isApiConnected = await testApiConnection();
       if (!isApiConnected) {
         console.error('❌ Cannot fetch products - API connection failed');
-        toast.error('Unable to connect to server. Please check your connection.');
+
+        // Mobile-specific error messages
+        const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
+        if (isMobile) {
+          toast.error('Connection issue on mobile. Please check your network and try again.');
+        } else {
+          toast.error('Unable to connect to server. Please check your connection.');
+        }
         return;
       }
 
@@ -292,12 +299,35 @@ const ShopContextProvider = (props) => {
       }
     } catch (error) {
       console.error('❌ Error fetching products:', error)
+
+      // Mobile-specific error handling
+      const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
+
       if (error.code === 'ECONNABORTED') {
-        toast.error('Request timeout - server may be slow to respond')
-      } else if (error.code === 'NETWORK_ERROR') {
-        toast.error('Network error - please check your internet connection')
+        if (isMobile) {
+          toast.error('Slow mobile connection. Please wait or try again.');
+        } else {
+          toast.error('Request timeout - server may be slow to respond');
+        }
+      } else if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+        if (isMobile) {
+          toast.error('Mobile network issue. Please check your connection and try again.');
+        } else {
+          toast.error('Network error - please check your internet connection');
+        }
+      } else if (error.response?.status === 0) {
+        // CORS or network issue
+        if (isMobile) {
+          toast.error('Mobile connection blocked. Please try refreshing the page.');
+        } else {
+          toast.error('Connection blocked. Please refresh the page.');
+        }
       } else {
-        toast.error('Failed to load products - please refresh the page')
+        if (isMobile) {
+          toast.error('Mobile loading issue. Please refresh the page.');
+        } else {
+          toast.error('Failed to load products - please refresh the page');
+        }
       }
     }
   }

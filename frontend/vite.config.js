@@ -89,26 +89,88 @@ export default defineConfig({
   },
   build: {
     minify: "terser",
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500, // Reduced for better performance monitoring
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'react-router': ['react-router-dom'],
-          'ui-components': ['@mui/material', '@mui/icons-material', '@headlessui/react', '@heroicons/react'],
-          'utils': ['axios', 'lodash'],
-          'toastify': ['react-toastify'],
-          'swiper': ['swiper'],
-          'icons': ['react-icons', 'lucide-react'],
+        manualChunks: (id) => {
+          // Core React chunks
+          if (id.includes('react') || id.includes('react-dom')) {
+            return 'react-vendor';
+          }
+          
+          // Router chunk
+          if (id.includes('react-router')) {
+            return 'react-router';
+          }
+          
+          // UI Libraries - split by size
+          if (id.includes('@mui/material') || id.includes('@mui/icons-material')) {
+            return 'mui-components';
+          }
+          if (id.includes('@headlessui') || id.includes('@heroicons')) {
+            return 'headless-components';
+          }
+          
+          // Icons - separate chunk for better caching
+          if (id.includes('react-icons') || id.includes('lucide-react')) {
+            return 'icons';
+          }
+          
+          // Utilities
+          if (id.includes('axios') || id.includes('lodash') || id.includes('date-fns')) {
+            return 'utils';
+          }
+          
+          // Toast notifications
+          if (id.includes('react-toastify')) {
+            return 'toastify';
+          }
+          
+          // Swiper for carousels
+          if (id.includes('swiper')) {
+            return 'swiper';
+          }
+          
+          // Styled components
+          if (id.includes('styled-components') || id.includes('@emotion')) {
+            return 'styled-components';
+          }
+          
+          // JWT and auth
+          if (id.includes('jwt-decode')) {
+            return 'auth';
+          }
+          
+          // Workbox for service workers
+          if (id.includes('workbox')) {
+            return 'workbox';
+          }
+          
+          // Node modules
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         },
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'style.css') return 'assets/css/[name]-[hash][extname]';
-          if (assetInfo.name === 'main.js') return 'assets/js/[name]-[hash][extname]';
-          if (/\.(png|jpe?g|gif|svg|webp)$/.test(assetInfo.name)) {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          
+          if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(assetInfo.name)) {
             return 'assets/images/[name]-[hash][extname]';
+          }
+          if (/\.(css)$/i.test(assetInfo.name)) {
+            return 'assets/css/[name]-[hash][extname]';
+          }
+          if (/\.(js)$/i.test(assetInfo.name)) {
+            return 'assets/js/[name]-[hash][extname]';
+          }
+          if (/\.(woff2?|eot|ttf|otf)$/i.test(assetInfo.name)) {
+            return 'assets/fonts/[name]-[hash][extname]';
           }
           return 'assets/[name]-[hash][extname]';
         },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
       },
     },
     outDir: 'dist',
@@ -118,11 +180,14 @@ export default defineConfig({
     cssCodeSplit: true,
     reportCompressedSize: false,
     target: 'es2015',
+    // Performance optimizations
+    assetsInlineLimit: 4096, // Inline assets smaller than 4kb
+    cssTarget: 'es2015',
     terserOptions: {
       compress: {
         drop_console: true,
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
         passes: 3,
         dead_code: true,
         global_defs: {
@@ -154,19 +219,28 @@ export default defineConfig({
         inline: 3,
         reduce_funcs: true,
         typeofs: true,
-        warnings: false
+        warnings: false,
+        // Additional performance optimizations
+        drop_unused: true,
+        keep_infinity: true,
+        module: true,
+        toplevel: true,
+        top_retain: ['__webpack_require__', '__webpack_exports__', '__webpack_module__']
       },
       mangle: {
         safari10: true,
         properties: {
           regex: /^_/
-        }
+        },
+        toplevel: true,
+        module: true
       },
       format: {
         comments: false,
         ascii_only: true,
         beautify: false,
-        ecma: 2015
+        ecma: 2015,
+        safari10: true
       },
     },
   },
@@ -179,14 +253,30 @@ export default defineConfig({
       "@headlessui/react",
       "@heroicons/react",
       "axios",
-      "lodash"
+      "lodash",
+      "@mui/material",
+      "@mui/icons-material",
+      "swiper",
+      "react-icons",
+      "lucide-react",
+      "date-fns",
+      "jwt-decode"
     ],
     exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
     esbuildOptions: {
       target: 'es2015',
       treeShaking: true,
       minify: true,
-    }
+      // Additional optimizations
+      legalComments: 'none',
+      minifyIdentifiers: true,
+      minifySyntax: true,
+      minifyWhitespace: true,
+      drop: ['console', 'debugger'],
+      pure: ['console.log', 'console.info', 'console.debug', 'console.warn']
+    },
+    // Force optimization of these dependencies
+    force: true
   },
   base: '/',
   preview: {
