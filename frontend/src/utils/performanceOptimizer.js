@@ -3,9 +3,9 @@
 
 // Preload critical resources
 export const preloadCriticalResources = () => {
-  // Preload critical fonts
+  // Preload critical fonts - only Prata since we're using system fonts for body
   const fontPreloads = [
-    'https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap'
+    'https://fonts.googleapis.com/css2?family=Prata&display=swap'
   ];
 
   fontPreloads.forEach(font => {

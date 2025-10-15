@@ -76,14 +76,22 @@ export default defineConfig({
         // Fix MIME types for JavaScript module files
         if (req.url.endsWith('.jsx') || req.url.endsWith('.tsx') || req.url.endsWith('.mjs')) {
           res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+          console.log(`🔧 Dev MIME fix: ${req.url} -> application/javascript`);
         }
-        // Ensure JS files have correct MIME type
+        // Ensure JS files have correct MIME type (including chunks)
         else if (req.url.endsWith('.js') && !req.url.endsWith('.json')) {
           res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
         }
         // Fix TypeScript files
         else if (req.url.endsWith('.ts')) {
           res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        }
+        // Handle Vite chunk files
+        else if (req.url.includes('/@vite/') || req.url.includes('/src/')) {
+          if (req.url.includes('.js') && !req.url.includes('.json')) {
+            res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+            console.log(`🔧 Vite MIME fix: ${req.url} -> application/javascript`);
+          }
         }
         next();
       }

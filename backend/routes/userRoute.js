@@ -4,8 +4,26 @@ import authUser from '../middleware/auth.js'
 
 const userRouter = express.Router()
 
+// Debug middleware for user routes
+userRouter.use((req, res, next) => {
+  console.log('🔍 User Router Request:', {
+    method: req.method,
+    path: req.path,
+    url: req.url,
+    body: req.body
+  });
+  next();
+});
+
 userRouter.post('/register', registerUser)
-userRouter.post('/login', loginUser)
+userRouter.post('/login', (req, res) => {
+  console.log('🔍 Login route handler called:', {
+    method: req.method,
+    path: req.path,
+    body: req.body
+  });
+  loginUser(req, res);
+})
 userRouter.post('/admin', adminLogin)
 userRouter.post('/check-phone', checkPhone)
 userRouter.post('/profile', authUser, profileUser)

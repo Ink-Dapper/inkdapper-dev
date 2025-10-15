@@ -15,6 +15,7 @@ import { initIOSFixes, addIOSStyles } from './utils/iosSafariFix';
 import ThemeToggle from './components/ThemeToggle';
 import { initPerformanceOptimizations } from './utils/performanceOptimizer';
 import { initMobileOptimizations } from './utils/mobileUtils';
+import { optimizeFonts, detectFontErrors } from './utils/fontOptimizer';
 
 // Lazy load modals
 const NewsletterModal = lazy(() => import('./components/NewsletterModal'));
@@ -71,6 +72,10 @@ const App = () => {
 
     // Initialize mobile optimizations
     initMobileOptimizations();
+
+    // Initialize font optimizations
+    optimizeFonts();
+    detectFontErrors();
 
 
     // Register performance-optimized service worker

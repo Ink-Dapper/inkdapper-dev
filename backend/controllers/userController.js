@@ -36,6 +36,13 @@ const generateResetCode = () => {
 // Route for user login
 const loginUser = async (req, res) => {
   try {
+    console.log('🔍 Login request received:', {
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body
+    });
+    
     const { emailOrPhone, password } = req.body;
 
     if (!emailOrPhone) {

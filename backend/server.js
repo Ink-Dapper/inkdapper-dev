@@ -10,7 +10,7 @@ import orderRouter from './routes/orderRoute.js'
 import wishlistRouter from './routes/wishlistRoute.js'
 import reviewRouter from './routes/reviewRoute.js'
 import couponRouter from './routes/couponRoute.js'
-import bodyParser from 'body-parser';
+// bodyParser removed - using express.json() instead
 import newsLetterRoute from './routes/newsLetterRoute.js'
 import emailRouter from './routes/emailRoute.js'
 import highlightedProductRouter from './routes/highlightedProductRoute.js'
@@ -69,15 +69,12 @@ const corsOptions = {
   preflightContinue: false
 }
 
-// middlewares
-app.use(express.json())
+// Apply CORS first (before any other middleware)
+app.use(cors(corsOptions));
 
+// Body parsing middleware (single instance with proper limits)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(bodyParser.json());
-
-// Apply CORS before other middleware
-app.use(cors(corsOptions));
 
 // EMERGENCY CORS HEADERS - Add to ALL responses (Mobile Optimized)
 app.use((req, res, next) => {
@@ -180,10 +177,15 @@ app.use((req, res, next) => {
   // Fix MIME types for JavaScript files
   if (req.path.endsWith('.jsx') || req.path.endsWith('.tsx') || req.path.endsWith('.mjs')) {
     res.header('Content-Type', 'application/javascript; charset=utf-8');
+    console.log(`🔧 Global MIME fix: ${req.path} -> application/javascript`);
   } else if (req.path.endsWith('.js') && !req.path.endsWith('.json')) {
     res.header('Content-Type', 'application/javascript; charset=utf-8');
   } else if (req.path.endsWith('.ts')) {
     res.header('Content-Type', 'application/javascript; charset=utf-8');
+  } else if (req.path.includes('-') && req.path.includes('.js')) {
+    // Handle chunk files like utils-L-DV3rNH.js
+    res.header('Content-Type', 'application/javascript; charset=utf-8');
+    console.log(`🔧 Chunk MIME fix: ${req.path} -> application/javascript`);
   }
   
   next();
@@ -211,6 +213,22 @@ app.get('/api/mime-test', (req, res) => {
       'content-type': res.get('Content-Type'),
       'x-content-type-options': res.get('X-Content-Type-Options')
     }
+  });
+});
+
+// POST method test endpoint
+app.post('/api/post-test', (req, res) => {
+  console.log('📝 POST test request received:', {
+    method: req.method,
+    body: req.body,
+    headers: req.headers
+  });
+  
+  res.json({
+    success: true,
+    message: 'POST method test successful',
+    timestamp: new Date().toISOString(),
+    receivedData: req.body
   });
 });
 
@@ -244,6 +262,10 @@ if (process.env.NODE_ENV === 'production') {
       } else if (path.endsWith('.js')) {
         res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        // Special handling for chunk files
+        if (path.includes('-') && path.includes('.')) {
+          console.log(`🔧 Chunk file detected: ${path} -> application/javascript`);
+        }
       } else if (path.endsWith('.mjs')) {
         res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
@@ -286,14 +308,46 @@ if (process.env.NODE_ENV === 'production') {
     // Fix JSX/TSX files that might be served with wrong MIME type
     if (req.path.endsWith('.jsx') || req.path.endsWith('.tsx') || req.path.endsWith('.mjs')) {
       res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      console.log(`🔧 Fixed MIME type for ${req.path} -> application/javascript`);
     }
     // Fix JS files
     else if (req.path.endsWith('.js') && !req.path.endsWith('.json')) {
       res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
     }
+    // Fix module files
+    else if (req.path.includes('modules') || req.path.includes('chunks')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
     next();
   });
 }
+
+// Request logging middleware for debugging
+app.use('/api', (req, res, next) => {
+  console.log('📝 API Request:', {
+    method: req.method,
+    url: req.url,
+    path: req.path,
+    body: req.body,
+    headers: {
+      'content-type': req.headers['content-type'],
+      'origin': req.headers.origin,
+      'user-agent': req.headers['user-agent']
+    }
+  });
+  
+  // Log specific login requests
+  if (req.path === '/user/login' && req.method === 'POST') {
+    console.log('🔍 LOGIN REQUEST DETECTED:', {
+      method: req.method,
+      path: req.path,
+      body: req.body,
+      url: req.url
+    });
+  }
+  
+  next();
+});
 
 //api endpoints
 app.use('/api/user', userRouter)
@@ -307,6 +361,22 @@ app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
 app.use('/api/highlighted-products', highlightedProductRouter)
 app.use('/api/notifications', notificationRouter)
+
+// Catch-all route for debugging unmatched API routes
+app.use('/api/*', (req, res) => {
+  console.log('❌ UNMATCHED API ROUTE:', {
+    method: req.method,
+    url: req.url,
+    path: req.path,
+    body: req.body
+  });
+  res.status(404).json({
+    success: false,
+    message: 'API route not found',
+    requestedPath: req.path,
+    method: req.method
+  });
+});
 // Google Reviews - Commented out
 // app.use('/api/google-reviews', googleReviewRouter)
 

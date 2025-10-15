@@ -40,11 +40,7 @@
 
 /* Optimize font loading - using system fonts for better performance */
 
-@font-face {
-  font-family: 'Prata';
-  font-display: swap;
-  src: url('https://fonts.googleapis.com/css2?family=Prata&display=swap');
-}
+/* Prata font loaded via @import in index.css - no need for @font-face */
 
 /* Optimize images */
 img {
