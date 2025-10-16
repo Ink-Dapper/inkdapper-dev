@@ -122,7 +122,7 @@ const BestSeller = () => {
                 </div>
 
                 {/* Enhanced Call to Action */}
-                <div className="text-center mt-16 md:mt-20">
+                <div className="text-center mt-10">
                     <div className="relative inline-block">
                         <Link
                             to="/collection"

@@ -12,6 +12,7 @@ const ShopContextProvider = (props) => {
 
   const currency = '₹'
   const delivery_fee = 'Free'
+  const [paymentMethod, setPaymentMethod] = useState('cod')
   // Use the API configuration
   const backendUrl = apiConfig.baseURL
   const [search, setSearch] = useState('')
@@ -303,6 +304,20 @@ const ShopContextProvider = (props) => {
       const response = await apiInstance.post('/wishlist/update', { itemId, quantity: finalQuantity });
 
       if (response.data.success) {
+        // Show appropriate success message
+        if (finalQuantity === 0) {
+          toast.success('Item removed from wishlist successfully!', {
+            autoClose: 1500,
+            pauseOnHover: false,
+            transition: Flip
+          });
+        } else {
+          toast.success('Wishlist updated successfully!', {
+            autoClose: 1500,
+            pauseOnHover: false,
+            transition: Flip
+          });
+        }
         // Refresh wishlist data from database
         await getUserWishlist(token);
       } else {
@@ -540,6 +555,24 @@ const ShopContextProvider = (props) => {
     return Math.max(0, cartAmount - couponDiscount - multiProductDiscount);
   };
 
+  // Calculate shipping charges based on payment method
+  const getShippingCharges = () => {
+    if (paymentMethod === 'razorpay') {
+      return 0; // Free shipping for online payment
+    } else {
+      return 49; // ₹49 for COD
+    }
+  };
+
+  // Get shipping message based on payment method
+  const getShippingMessage = () => {
+    if (paymentMethod === 'razorpay') {
+      return 'Free shipping on online payment!';
+    } else {
+      return '₹49 shipping charge for Cash on Delivery';
+    }
+  };
+
   useEffect(() => {
     if (token) {
       fetchOrderDetails();
@@ -595,7 +628,8 @@ const ShopContextProvider = (props) => {
     fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
     couponDiscount, getFinalAmount, hasMultipleProducts, getMultiProductDiscount,
     recentlyViewed, addToRecentlyViewed, getRecentlyViewed,
-    highlightedProducts, fetchHighlightedProducts
+    highlightedProducts, fetchHighlightedProducts,
+    paymentMethod, setPaymentMethod, getShippingCharges, getShippingMessage
   }
 
   if (!isContextReady) {

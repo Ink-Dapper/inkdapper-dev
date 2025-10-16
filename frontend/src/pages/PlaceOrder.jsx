@@ -9,8 +9,7 @@ import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
 
-  const [method, setMethod] = useState('cod')
-  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount } = useContext(ShopContext)
+  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount, paymentMethod, setPaymentMethod, getShippingCharges } = useContext(ShopContext)
   const [creditPtsVisible, setCreditPtsVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -94,7 +93,7 @@ const PlaceOrder = () => {
       let orderData = {
         address: formData,
         items: orderItems,
-        amount: getFinalAmount() + (typeof delivery_fee === 'number' ? delivery_fee : 0) - (creditPtsVisible ? creditPoints : 0)
+        amount: getFinalAmount() + getShippingCharges() - (creditPtsVisible ? creditPoints : 0)
       }
 
       if (creditPtsVisible) {
@@ -104,7 +103,7 @@ const PlaceOrder = () => {
         console.log('Credit is not cleared')
       }
 
-      switch (method) {
+      switch (paymentMethod) {
         //API calls for COD
         case 'cod':
           const response = await axios.post(backendUrl + '/api/order/place', orderData, { headers: { token } })
@@ -327,51 +326,83 @@ const PlaceOrder = () => {
               <div className='space-y-4'>
                 {/* Razorpay Option */}
                 <div
-                  onClick={() => setMethod('razorpay')}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${method === 'razorpay'
+                  onClick={() => setPaymentMethod('razorpay')}
+                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === 'razorpay'
                     ? 'border-orange-500 bg-orange-50 shadow-md'
                     : 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-white'
                     }`}
                 >
                   <div className='flex items-center gap-4'>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === 'razorpay' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'razorpay' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
                       }`}>
-                      {method === 'razorpay' && (
+                      {paymentMethod === 'razorpay' && (
                         <div className='w-2 h-2 bg-white rounded-full'></div>
                       )}
                     </div>
-                    <img src={assets.razorpay_logo} alt="razorpay_logo" className='h-6' />
-                    <span className={`font-medium ${method === 'razorpay' ? 'text-orange-600' : 'text-gray-700'
-                      }`}>
-                      Pay Online
-                    </span>
+                    <div className='flex-1'>
+                      <div className='flex items-center gap-3'>
+                        <img src={assets.razorpay_logo} alt="razorpay_logo" className='h-6' />
+                        <span className={`font-medium ${paymentMethod === 'razorpay' ? 'text-orange-600' : 'text-gray-700'
+                          }`}>
+                          Pay Online
+                        </span>
+                      </div>
+                      <p className='text-xs text-green-600 font-medium mt-1 flex items-center gap-1'>
+                        <span>🎉</span>
+                        Free shipping
+                      </p>
+                    </div>
                   </div>
                 </div>
 
                 {/* COD Option */}
                 <div
-                  onClick={() => setMethod('cod')}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${method === 'cod'
+                  onClick={() => setPaymentMethod('cod')}
+                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${paymentMethod === 'cod'
                     ? 'border-orange-500 bg-orange-50 shadow-md'
                     : 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-white'
                     }`}
                 >
                   <div className='flex items-center gap-4'>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === 'cod' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cod' ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
                       }`}>
-                      {method === 'cod' && (
+                      {paymentMethod === 'cod' && (
                         <div className='w-2 h-2 bg-white rounded-full'></div>
                       )}
                     </div>
-                    <div className='flex items-center gap-3'>
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                      <span className={`font-medium ${method === 'cod' ? 'text-orange-600' : 'text-gray-700'
-                        }`}>
-                        Cash on Delivery
-                      </span>
+                    <div className='flex-1'>
+                      <div className='flex items-center gap-3'>
+                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span className={`font-medium ${paymentMethod === 'cod' ? 'text-orange-600' : 'text-gray-700'
+                          }`}>
+                          Cash on Delivery
+                        </span>
+                      </div>
+                      <p className='text-xs text-orange-600 font-medium mt-1 flex items-center gap-1'>
+                        <span>💰</span>
+                        ₹49 shipping
+                      </p>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Method Info */}
+              <div className='mt-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200'>
+                <div className='flex items-start gap-3'>
+                  <div className='w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5'>
+                    <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className='flex-1'>
+                    <h4 className='text-sm font-semibold text-blue-800 mb-1'>Payment & Shipping</h4>
+                    <p className='text-xs text-blue-700 leading-relaxed'>
+                      <strong>Online:</strong> Free shipping • <strong>COD:</strong> ₹49 shipping •
+                      Select method to see updated total
+                    </p>
                   </div>
                 </div>
               </div>

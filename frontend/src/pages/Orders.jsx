@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import Title from '../components/Title';
-import axios from '../utils/axios';
+import apiInstance from '../utils/axios';
 import { assets } from '../assets/assets';
 import OrderProgress from '../components/OrderProgress';
 import OrderStatus from '../components/OrderStatus';
@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 
 const Orders = () => {
-  const { backendUrl, token, currency } = useContext(ShopContext);
+  const { token, currency } = useContext(ShopContext);
   const navigate = useNavigate();
 
   const [orderData, setOrderData] = useState([]);
@@ -27,26 +27,32 @@ const Orders = () => {
 
   const loadOrderData = async () => {
     try {
-      console.log('Loading order data with token:', token.substring(0, 20) + '...');
-      const response = await axios.post(backendUrl + '/api/order/user-details', {}, { headers: { token } });
+      console.log('Loading order data...');
+      const response = await apiInstance.post('/order/user-details', {});
       console.log('Order API response:', response.data);
+
       if (response.data.success) {
         let allOrdersItem = [];
         if (response.data.orders && Array.isArray(response.data.orders)) {
-          response.data.orders.map((order) => {
+          console.log('Found orders:', response.data.orders.length);
+          response.data.orders.forEach((order) => {
+            console.log('Processing order:', order._id, 'with items:', order.items?.length || 0);
             if (order.items && Array.isArray(order.items)) {
-              order.items.map((item) => {
-                item['status'] = order.status;
-                item['payment'] = order.payment;
-                item['paymentMethod'] = order.paymentMethod;
-                item['date'] = order.date;
-                item['deliveryDate'] = order.deliveryDate;
-                item['returnDate'] = order.returnDate;
-                item['returnOrderStatus'] = order.returnOrderStatus;
-                item['returnReason'] = order.returnReason;
-                item['expectedDeliveryDate'] = order.expectedDeliveryDate;
-                item['orderId'] = order._id;
-                allOrdersItem.push(item);
+              order.items.forEach((item) => {
+                const processedItem = {
+                  ...item,
+                  status: order.status,
+                  payment: order.payment,
+                  paymentMethod: order.paymentMethod,
+                  date: order.date,
+                  deliveryDate: order.deliveryDate,
+                  returnDate: order.returnDate,
+                  returnOrderStatus: order.returnOrderStatus,
+                  returnReason: order.returnReason,
+                  expectedDeliveryDate: order.expectedDeliveryDate,
+                  orderId: order._id
+                };
+                allOrdersItem.push(processedItem);
                 setOrderStatus(order.status);
               });
             }
@@ -56,15 +62,17 @@ const Orders = () => {
         setOrderData(allOrdersItem.reverse());
         setIsLoading(false);
       } else {
-        console.log('API returned success: false');
+        console.log('API returned success: false, message:', response.data.message);
         setIsLoading(false);
       }
     } catch (error) {
-      console.log('Error loading order data:', error);
+      console.error('Error loading order data:', error);
       if (error.response) {
-        console.log('Error response:', error.response.data);
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
       }
       setIsLoading(false);
+      toast.error('Failed to load orders. Please try again.');
     }
   };
 
@@ -110,11 +118,11 @@ const Orders = () => {
         if (!token) {
           return null;
         }
-        const response = await axios.post(backendUrl + '/api/order/user-orders', {
+        const response = await apiInstance.post('/order/user-orders', {
           returnOrderStatus: 'Order Returned',
           orderId: orderId,
           returnReason: returnReason
-        }, { headers: { token } });
+        });
         console.log(response.data);
         if (response.data.success) {
           setShowReturnConfirmation(false);
@@ -140,11 +148,11 @@ const Orders = () => {
         if (!token) {
           return null;
         }
-        const response = await axios.post(backendUrl + '/api/order/user-orders', {
+        const response = await apiInstance.post('/order/user-orders', {
           returnOrderStatus: 'Order Cancelled',
           orderId: orderId,
           cancelReason: cancelReason
-        }, { headers: { token } });
+        });
         console.log(response.data);
         if (response.data.success) {
           setShowCancelConfirmation(false);

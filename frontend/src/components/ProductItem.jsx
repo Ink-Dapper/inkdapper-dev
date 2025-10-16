@@ -12,7 +12,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   let safeSlug = slug || (name ? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') : '');
   // Remove trailing dash if present
   if (safeSlug.endsWith('-')) safeSlug = safeSlug.slice(0, -1);
-  const { currency, scrollToTop, addToWishlist, token, wishlist, addToCartCombo } = useContext(ShopContext);
+  const { currency, scrollToTop, addToWishlist, updateWishlistQuantity, token, wishlist, addToCartCombo } = useContext(ShopContext);
 
   // Calculate offer percentage
   const calculateOfferPercentage = () => {
@@ -45,11 +45,18 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     };
   }, []);
 
-  const addToWishlistPage = () => {
+  const handleWishlistToggle = () => {
     if (!token) {
-      toast.error('Please login to add product to cart', { autoClose: 1000, });
+      toast.error('Please login to manage wishlist', { autoClose: 1000, });
     } else {
-      addToWishlist(id);
+      // Check if item is already in wishlist
+      if (favWishlist.includes(id)) {
+        // Remove from wishlist
+        updateWishlistQuantity(id, 0);
+      } else {
+        // Add to wishlist
+        addToWishlist(id);
+      }
     }
   };
 
@@ -162,11 +169,11 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
       {/* Enhanced Wishlist Button */}
       {favWishlist.includes(id) ?
         <FavoriteIcon
-          onClick={() => addToWishlistPage()}
+          onClick={handleWishlistToggle}
           className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-red-500 hover:text-red-600 transition-all duration-300 transform hover:scale-110 drop-shadow-lg bg-white/80 backdrop-blur-sm rounded-full p-1.5`}
         /> :
         <FavoriteBorderIcon
-          onClick={() => addToWishlistPage()}
+          onClick={handleWishlistToggle}
           className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-slate-600 hover:text-red-500 transition-all duration-300 transform hover:scale-110 drop-shadow-lg bg-white/80 backdrop-blur-sm rounded-full p-1.5`}
         />
       }{/* Enhanced Share Button */}
