@@ -411,7 +411,17 @@ app.get('/sitemap-main.xml', (req, res) => {
 
 // Handle all other routes for SPA only in production
 if (process.env.NODE_ENV === 'production') {
+  // Serve SPA for all non-API routes
   app.get('*', (req, res) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({
+        success: false,
+        message: 'API route not found',
+        path: req.path
+      });
+    }
+    
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'), {
       headers: {
         'Cache-Control': 'no-cache'

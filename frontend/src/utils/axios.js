@@ -37,16 +37,9 @@ const getBaseURL = () => {
       return envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl}/api`;
     }
     
-    // Try different API endpoints for production
-    const apiEndpoints = [
-      `${currentOrigin}/api`, // Same domain
-      `${currentOrigin}:4000/api`, // Same domain with port 4000
-      `https://api.inkdapper.com/api`, // Dedicated API subdomain
-      'https://www.inkdapper.com:4000/api' // Main domain with port
-    ];
-    
-    console.log('Production mode - will try API endpoints:', apiEndpoints);
-    return apiEndpoints[0]; // Return the first one as default
+    // Use same domain API to avoid CORS issues
+    console.log('Production mode - using same domain API to avoid CORS');
+    return `${currentOrigin}/api`;
   }
   
   // Only fallback to external API if not on inkdapper domain
@@ -171,12 +164,11 @@ instance.interceptors.response.use(
         let fallbackUrls = [];
         
         if (hostname.includes('inkdapper.com')) {
-          // Production fallback URLs
+          // Production fallback URLs - prioritize same domain to avoid CORS
           fallbackUrls = [
-            `${currentOrigin}/api`, // Same domain
-            `${currentOrigin}:4000/api`, // Same domain with port 4000
-            'https://api.inkdapper.com/api', // Dedicated API subdomain
-            'https://www.inkdapper.com:4000/api' // Main domain with port
+            `${currentOrigin}/api`, // Same domain (most reliable)
+            'https://www.inkdapper.com/api', // Main site API
+            'https://inkdapper.com/api' // Root domain API
           ];
         } else {
           // Development or other domains

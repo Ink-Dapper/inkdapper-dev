@@ -86,12 +86,17 @@ export default defineConfig({
         else if (req.url.endsWith('.ts')) {
           res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
         }
-        // Handle Vite chunk files
-        else if (req.url.includes('/@vite/') || req.url.includes('/src/')) {
+        // Handle Vite chunk files and module imports
+        else if (req.url.includes('/@vite/') || req.url.includes('/src/') || req.url.includes('data:text/jsx')) {
           if (req.url.includes('.js') && !req.url.includes('.json')) {
             res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
             console.log(`🔧 Vite MIME fix: ${req.url} -> application/javascript`);
           }
+        }
+        // Handle base64 encoded JSX modules
+        else if (req.url.startsWith('data:text/jsx;base64')) {
+          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+          console.log(`🔧 Base64 JSX MIME fix: ${req.url} -> application/javascript`);
         }
         next();
       }

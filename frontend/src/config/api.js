@@ -3,8 +3,8 @@ const getApiConfig = () => {
   // Check if we're in development mode
   const isDevelopment = import.meta.env.DEV;
   
-  // Production API URL - replace with your actual VPS domain
-  const PRODUCTION_API_URL = 'https://api.inkdapper.com';
+  // Production API URL - use same domain to avoid CORS issues
+  const PRODUCTION_API_URL = 'https://www.inkdapper.com';
   
   // In development, use empty string to leverage Vite proxy
   // In production, use the full URL
