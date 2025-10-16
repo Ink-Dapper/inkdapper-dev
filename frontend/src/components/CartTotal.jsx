@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { ShopContext } from '../context/ShopContext'
 
 const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
-    const { currency, delivery_fee, getCartAmount, creditPoints, appliedCoupon, couponDiscount, hasMultipleProducts, getMultiProductDiscount } = useContext(ShopContext)
+    const { currency, delivery_fee, getCartAmount, creditPoints, appliedCoupon, couponDiscount, hasMultipleProducts, getMultiProductDiscount, getShippingCharges, getShippingMessage } = useContext(ShopContext)
 
     return (
         <div className='w-full relative'>
@@ -61,8 +61,18 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                         <span className='text-gray-700 text-sm font-medium'>Shipping Fee</span>
                     </div>
                     <span className='text-gray-900 text-sm font-semibold'>
-                        {currency} {typeof delivery_fee === 'number' ? `${delivery_fee}.00` : delivery_fee}
+                        {currency} {getShippingCharges()}.00
                     </span>
+                </div>
+
+                {/* Shipping Message */}
+                <div className='p-2 bg-blue-50 rounded-lg border border-blue-200'>
+                    <div className='flex items-center gap-2'>
+                        <div className='w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center'>
+                            <span className="text-blue-600 font-bold text-xs">ℹ️</span>
+                        </div>
+                        <span className='text-blue-700 text-xs font-medium'>{getShippingMessage()}</span>
+                    </div>
                 </div>
 
                 {/* Multi-Product Discount */}
@@ -116,7 +126,7 @@ const CartTotal = ({ creditPtsVisible, setCreditPtsVisible }) => {
                         <span className='text-base font-bold text-gray-800'>Total Amount</span>
                     </div>
                     <span className='text-lg font-bold text-orange-600'>
-                        {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + (typeof delivery_fee === 'number' ? delivery_fee : 0) - (creditPtsVisible ? creditPoints : 0) - couponDiscount - getMultiProductDiscount()}.00
+                        {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + getShippingCharges() - (creditPtsVisible ? creditPoints : 0) - couponDiscount - getMultiProductDiscount()}.00
                     </span>
                 </div>
             </div>

@@ -249,7 +249,7 @@ const RecentlyViewed = () => {
         </div>
 
         {/* Enhanced Call to Action */}
-        <div className="text-center mt-16 md:mt-20">
+        <div className="text-center mt-10">
           <div className="inline-flex items-center gap-4">
             <button
               onClick={handleRecentlyViewedClick}

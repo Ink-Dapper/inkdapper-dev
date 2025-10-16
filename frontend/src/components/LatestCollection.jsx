@@ -110,7 +110,7 @@ const LatestCollection = () => {
                 </div>
 
                 {/* Desktop Products Grid */}
-                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-8 md:mb-12 relative">
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-10 relative">
                     {/* Grid background pattern */}
                     <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
                     {latestProducts.map((item, index) => (

@@ -9,17 +9,19 @@ const HighlightedProducts = () => {
 
   useEffect(() => {
     const loadHighlightedProducts = async () => {
-      try {
-        await fetchHighlightedProducts()
-      } catch (error) {
-        console.error('Error loading highlighted products:', error)
-      } finally {
-        setLoading(false)
+      // Only fetch if we don't already have data
+      if (highlightedProducts.length === 0) {
+        try {
+          await fetchHighlightedProducts()
+        } catch (error) {
+          console.error('Error loading highlighted products:', error)
+        }
       }
+      setLoading(false)
     }
 
     loadHighlightedProducts()
-  }, [fetchHighlightedProducts])
+  }, [highlightedProducts.length])
 
   if (loading) {
     return (
@@ -136,7 +138,7 @@ const HighlightedProducts = () => {
 
         {/* Enhanced Call to Action */}
         <div className="text-center">
-          <div className="relative inline-block mt-10 md:mt-0">
+          <div className="relative inline-block mt-10">
             <span className="relative z-10 flex items-center gap-3 group relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/25 transform hover:scale-105 border border-orange-400/50">
               Explore All Featured Products
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
