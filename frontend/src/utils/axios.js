@@ -42,9 +42,9 @@ const getBaseURL = () => {
     return `${currentOrigin}/api`;
   }
   
-  // Only fallback to external API if not on inkdapper domain
-  console.log('Production mode - using external API (not on inkdapper domain)');
-  return 'https://api.inkdapper.com/api';
+  // Fallback to main domain API
+  console.log('Production mode - using main domain API as fallback');
+  return 'https://www.inkdapper.com/api';
 };
 
 const instance = axios.create({
@@ -174,8 +174,7 @@ instance.interceptors.response.use(
           // Development or other domains
           fallbackUrls = [
             `${currentOrigin}/api`, // Same domain first (most reliable)
-            'https://www.inkdapper.com/api', // Main site API
-            'https://inkdapper.com/api' // Root domain API
+            'https://www.inkdapper.com/api' // Main site API only
           ];
         }
         

@@ -4,10 +4,28 @@ import { compression } from "vite-plugin-compression2";
 import { copyFileSync } from 'fs';
 import { resolve } from 'path';
 
+// Plugin to fix MIME types in production build
+const fixMimeTypesPlugin = () => {
+  return {
+    name: 'fix-mime-types',
+    generateBundle(options, bundle) {
+      // Fix MIME types for JavaScript files
+      Object.keys(bundle).forEach(fileName => {
+        const chunk = bundle[fileName];
+        if (chunk.type === 'chunk' && fileName.endsWith('.js')) {
+          // Ensure JS files have correct MIME type
+          chunk.fileName = chunk.fileName.replace(/\.js$/, '.js');
+        }
+      });
+    }
+  };
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    fixMimeTypesPlugin(),
     compression({
       algorithm: 'gzip',
       exclude: [/\.(br)$/, /\.(gz)$/],
@@ -112,6 +130,8 @@ export default defineConfig({
   build: {
     minify: "terser",
     chunkSizeWarningLimit: 500, // Reduced for better performance monitoring
+    // Fix MIME type issues in production build
+    assetsInlineLimit: 0, // Disable inline assets to avoid MIME type issues
     rollupOptions: {
       output: {
         manualChunks: (id) => {

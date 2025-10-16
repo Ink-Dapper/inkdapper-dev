@@ -2,7 +2,7 @@
 
 ## Issues Identified and Fixed
 
-### 1. Service Worker CORS Issues (NEW)
+### 1. Service Worker CORS Issues (UPDATED)
 **Error**: `Access to fetch at 'https://inkdapper.com/api/product/list' from origin 'https://www.inkdapper.com' has been blocked by CORS policy`
 
 **Root Cause**: Service worker was trying to fetch API endpoints during installation and using cache-first strategy with old cached responses
@@ -12,6 +12,8 @@
 - Removed API endpoint pre-caching during service worker installation
 - Updated cache version to force service worker update
 - Enhanced error handling for API requests
+- Fixed axios configuration to use correct API endpoints
+- Removed problematic fallback URLs that caused CORS issues
 
 ### 2. MIME Type Error for JSX Module Script
 **Error**: `Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/jsx"`
@@ -53,6 +55,17 @@
 - Enhanced static asset caching with MIME type correction
 - Improved cache strategy for JS/JSX files
 
+### 5. 405 Method Not Allowed Error (NEW)
+**Error**: `POST https://www.inkdapper.com/api/user/login 405 (Not Allowed)`
+
+**Root Cause**: CORS preflight requests were not being handled properly
+
+**Fixes Applied**:
+- Enhanced CORS preflight request handling
+- Added detailed logging for debugging API requests
+- Improved error handling in user routes
+- Fixed axios configuration to prevent method conflicts
+
 ## Files Modified
 
 ### Frontend Files:
@@ -70,23 +83,27 @@
 2. `deploy-production-fixes.bat` - Production deployment script
 3. `fix-service-worker-cors.bat` - Service worker CORS fix script
 4. `deploy-service-worker-fixes.bat` - Production service worker fix script
-5. `clear-service-worker-cache.js` - Browser console script to clear service worker cache
-6. `PERFORMANCE_FIXES_SUMMARY.md` - This summary document
+5. `fix-all-issues.bat` - Comprehensive fix script for all issues
+6. `deploy-all-fixes.bat` - Production deployment script for all fixes
+7. `clear-service-worker-cache.js` - Browser console script to clear service worker cache
+8. `PERFORMANCE_FIXES_SUMMARY.md` - This summary document
 
 ## Deployment Instructions
 
 ### For Development:
-1. Run `fix-service-worker-cors.bat` (recommended for CORS issues)
-2. Or run `fix-performance-issues.bat` for general fixes
-3. This will clean, rebuild, and start both frontend and backend servers
+1. Run `fix-all-issues.bat` (recommended - fixes all issues)
+2. Or run `fix-service-worker-cors.bat` for CORS-specific issues
+3. Or run `fix-performance-issues.bat` for general fixes
+4. This will clean, rebuild, and start both frontend and backend servers
 
 ### For Production:
-1. Run `deploy-service-worker-fixes.bat` (recommended for CORS issues)
-2. Or run `deploy-production-fixes.bat` for general fixes
-3. Upload the `frontend/dist` folder to your web server
-4. Upload the `backend` folder to your VPS
-5. Restart your backend server
-6. Clear browser cache and service worker cache
+1. Run `deploy-all-fixes.bat` (recommended - fixes all issues)
+2. Or run `deploy-service-worker-fixes.bat` for CORS-specific issues
+3. Or run `deploy-production-fixes.bat` for general fixes
+4. Upload the `frontend/dist` folder to your web server
+5. Upload the `backend` folder to your VPS
+6. Restart your backend server
+7. Clear browser cache and service worker cache
 
 ### Service Worker Cache Clearing:
 1. Open browser DevTools (F12)

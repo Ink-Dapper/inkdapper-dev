@@ -123,6 +123,35 @@ app.use((req, res, next) => {
 
 // Handle preflight requests explicitly
 app.options('*', (req, res) => {
+  console.log('🔍 Preflight request:', {
+    method: req.method,
+    url: req.url,
+    origin: req.headers.origin,
+    headers: req.headers
+  });
+  
+  // Set CORS headers for preflight
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://www.inkdapper.com',
+    'https://inkdapper.com',
+    'https://admin.inkdapper.com',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000'
+  ];
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', 'https://www.inkdapper.com');
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, token, X-Requested-With, X-Device-Type, Accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, User-Agent');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400');
+  
   res.status(200).end();
 });
 
