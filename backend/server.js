@@ -126,7 +126,6 @@ app.options('*', (req, res) => {
   res.status(200).end();
 });
 
-app.use(bodyParser.json())
 
 // Health check endpoint
 app.get('/health', (req, res) => {
