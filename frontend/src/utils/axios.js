@@ -1,12 +1,34 @@
 import axios from 'axios';
 
 // Determine the base URL based on environment
+const normalizeBaseUrl = (url) => {
+  if (!url) return null;
+
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  // Ensure we have a protocol so axios doesn't treat it as relative
+  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+
+  // Always append the /api prefix once
+  return `${withProtocol.replace(/\/+$/, '')}/api`;
+};
+
 const getBaseURL = () => {
   const isDevelopment = import.meta.env.DEV;
-  const productionAPI = 'https://api.inkdapper.com';
-  
-  // Always include /api prefix for both development and production
-  return isDevelopment ? '/api' : `${productionAPI}/api`;
+  const envApiUrl = normalizeBaseUrl(import.meta.env.VITE_API_URL);
+  const productionAPI = normalizeBaseUrl('https://api.inkdapper.com');
+
+  if (isDevelopment) {
+    return '/api';
+  }
+
+  // Prefer explicit env override when provided
+  if (envApiUrl) {
+    return envApiUrl;
+  }
+
+  return productionAPI;
 };
 
 const instance = axios.create({
