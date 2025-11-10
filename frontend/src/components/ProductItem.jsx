@@ -170,17 +170,17 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
       {favWishlist.includes(id) ?
         <FavoriteIcon
           onClick={handleWishlistToggle}
-          className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-red-500 hover:text-red-600 transition-all duration-300 transform hover:scale-110 drop-shadow-lg bg-white/80 backdrop-blur-sm rounded-full p-1.5`}
+          className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-red-500 hover:text-red-600 transition-all duration-300 transform hover:scale-110 drop-shadow-lg glass-button rounded-full p-1.5`}
         /> :
         <FavoriteBorderIcon
           onClick={handleWishlistToggle}
-          className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-slate-600 hover:text-red-500 transition-all duration-300 transform hover:scale-110 drop-shadow-lg bg-white/80 backdrop-blur-sm rounded-full p-1.5`}
+          className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-slate-600 hover:text-red-500 transition-all duration-300 transform hover:scale-110 drop-shadow-lg glass-button rounded-full p-1.5`}
         />
       }{/* Enhanced Share Button */}
       <div className="absolute right-4 top-16 sm:top-16 z-20">
         <button
           onClick={(e) => handleShare(e)}
-          className="share-button hover:text-slate-800 transition-all duration-300 transform hover:scale-110 bg-white/90 backdrop-blur-sm rounded-full p-1.5 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center shadow-lg border border-white/20"
+          className="share-button hover:text-slate-800 transition-all duration-300 transform hover:scale-110 glass-button rounded-full p-1.5 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center shadow-lg"
         >
           <ShareIcon className="text-slate-600 group-hover:text-slate-800 drop-shadow-lg" fontSize="small" />
         </button>
@@ -189,7 +189,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         {showShareMenu && (
           <div
             ref={shareMenuRef}
-            className="absolute -left-6 sm:-left-6 top-9 backdrop-blur-xl bg-white/95 rounded-2xl shadow-2xl p-2 sm:p-3 z-30 border border-white/20 min-w-[140px] sm:min-w-[160px]"
+            className="absolute -left-6 sm:-left-6 top-9 glass-card rounded-2xl shadow-2xl p-2 sm:p-3 z-30 min-w-[140px] sm:min-w-[160px]"
           >
             <div className="flex flex-col gap-2 sm:gap-3">
               <button
@@ -237,7 +237,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
         to={`/product/${id}/${safeSlug}`}
       >
-        <div className='transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden bg-white border border-slate-100/50'>
+        <div className='glass-product-card transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">
             <div className="w-full h-full relative" style={{ aspectRatio: '3/4' }}>
               <img
