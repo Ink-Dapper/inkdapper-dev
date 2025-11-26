@@ -226,7 +226,7 @@ const OrderDetails = () => {
                   </span>
                 </div>
 
-                <Link to={`/product/${order.items[0]._id}/${order.items[0].slug}`}>
+                <Link to={`/product/${order.items[0].slug}`}>
                   <button className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
                     <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />

@@ -76,7 +76,8 @@ const App = () => {
               <Route path="/custom" element={<Custom />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/product/:productId/:slug" element={<Product />} />
+              {/* Product detail route now uses only SEO-friendly slug in the URL */}
+              <Route path="/product/:slug" element={<Product />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/login" element={<Login />} />
               <Route path="/place-order" element={<PlaceOrder />} />

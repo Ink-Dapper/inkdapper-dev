@@ -80,7 +80,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
+    const productUrl = `${window.location.origin}/product/${safeSlug}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
@@ -93,7 +93,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
+    const productUrl = `${window.location.origin}/product/${safeSlug}`;
     navigator.clipboard.writeText(productUrl);
 
     toast.info('Link copied! Open Instagram and paste in your story or message', { autoClose: 3000 });
@@ -104,7 +104,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${id}/${safeSlug}`;
+    const productUrl = `${window.location.origin}/product/${safeSlug}`;
     const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
 
     if (navigator.share) {
@@ -205,7 +205,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
           }
         }}
         className={`text-slate-700 cursor-pointer ${soldout ? 'pointer-events-none' : ''}`}
-        to={`/product/${id}/${safeSlug}`}
+        to={`/product/${safeSlug}`}
       >
         <div className='glass-product-card transition-all duration-500 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:bright-shadow-multi rounded-2xl md:rounded-3xl overflow-hidden'>
           <div className="overflow-hidden h-72 sm:h-80 bg-gradient-to-br from-slate-50 via-white to-slate-50 flex justify-center items-center relative product-image">

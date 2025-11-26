@@ -27,8 +27,16 @@ function useIsMobile() {
   return isMobile;
 }
 
+// Helper to safely generate a slug from a product name
+const generateSlugFromName = (name) => {
+  if (!name) return '';
+  let safeSlug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+  if (safeSlug.endsWith('-')) safeSlug = safeSlug.slice(0, -1);
+  return safeSlug;
+};
+
 const Product = () => {
-  const { productId, slug } = useParams()
+  const { slug } = useParams();
   const context = useContext(ShopContext)
 
   // Safety check to prevent destructuring undefined context
@@ -68,17 +76,25 @@ const Product = () => {
     }
     fetchCounts();
   }, [getWishlistCount]);
-
-
-
   const fetchProductData = async () => {
-    products.map((item) => {
-      if (item._id === productId) {
-        setProductData(item)
-        setImage(item.image[0])
-        return null
+    if (!products || products.length === 0 || !slug) return;
+
+    const foundProduct = products.find((item) => {
+      if (item.slug) {
+        return item.slug === slug;
       }
-    })
+      // Fallback to name-based slug if slug is missing on the product
+      return generateSlugFromName(item.name) === slug;
+    });
+
+    if (foundProduct) {
+      setProductData(foundProduct);
+      if (foundProduct.image && foundProduct.image.length > 0) {
+        setImage(foundProduct.image[0]);
+      }
+    } else {
+      setProductData(false);
+    }
   }
 
   const addCartPageDetails = () => {
@@ -156,7 +172,8 @@ const Product = () => {
   }
 
   const getProductReviewCount = () => {
-    const productReviews = reviewList.filter(item => item.productId === productId);
+    if (!productData) return;
+    const productReviews = reviewList.filter(item => item.productId === productData._id);
     const reviewCount = productReviews.length
     setReviewCount(reviewCount)
 
@@ -190,7 +207,7 @@ const Product = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${productId}/${productData.slug}`;
+    const productUrl = `${window.location.origin}/product/${productData.slug}`;
     const shareText = `Check out this amazing product: ${productData.name} - ${currency} ${productData.price}\n${productUrl}`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
@@ -203,7 +220,7 @@ const Product = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${productId}/${productData.slug}`;
+    const productUrl = `${window.location.origin}/product/${productData.slug}`;
     navigator.clipboard.writeText(productUrl);
 
     toast.info('Link copied! Open Instagram and paste in your story or message', { autoClose: 3000 });
@@ -214,7 +231,7 @@ const Product = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    const productUrl = `${window.location.origin}/product/${productId}/${productData.slug}`;
+    const productUrl = `${window.location.origin}/product/${productData.slug}`;
     const shareText = `Check out this amazing product: ${productData.name} - ${currency} ${productData.price}\n${productUrl}`;
 
     if (navigator.share) {
@@ -239,22 +256,23 @@ const Product = () => {
   const stars = [1, 2, 3, 4, 5];
 
   useEffect(() => {
-    fetchProductData()
-    getProductReviewCount()
-    createNew();
-  }, [productId, products])
+    fetchProductData();
+  }, [slug, products]);
 
-  // Separate useEffect for other dependencies
+  // Update review counts and labels when product or reviews change
   useEffect(() => {
-    getProductReviewCount()
-  }, [reviewList])
+    if (productData) {
+      getProductReviewCount();
+      createNew();
+    }
+  }, [productData, reviewList]);
 
   // Separate useEffect for recently viewed to avoid conflicts
   useEffect(() => {
-    if (productData && productData._id === productId) {
+    if (productData) {
       addToRecentlyViewed(productData)
     }
-  }, [productData, productId])
+  }, [productData])
 
   // Initialize arrow opacity when thumbs swiper is ready
   useEffect(() => {
