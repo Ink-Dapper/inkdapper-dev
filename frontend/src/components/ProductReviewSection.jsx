@@ -146,7 +146,7 @@ const ProductReviewSection = ({ productId }) => {
         </form>
 
         {/* Decorative Image */}
-        <div className='hidden lg:block absolute top-8 right-8 opacity-10'>
+        <div className='hidden lg:block absolute top-20 right-8 opacity-10'>
           <img
             src={assets.about_us}
             alt="review"
