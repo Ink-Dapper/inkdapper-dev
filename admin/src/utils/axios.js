@@ -9,7 +9,7 @@ const getBaseURL = () => {
   }
   
   const isDevelopment = import.meta.env.DEV;
-  const productionAPI = 'https://api.inkdapper.com';
+  const productionAPI = 'https://api.inkdapper.com/api';
   
   console.log('Environment detection:');
   console.log('import.meta.env.DEV:', import.meta.env.DEV);
@@ -17,12 +17,9 @@ const getBaseURL = () => {
   console.log('import.meta.env.PROD:', import.meta.env.PROD);
   console.log('isDevelopment:', isDevelopment);
   
-  // TEMPORARY: Force development mode for testing
-  const forceDev = true;
-  console.log('Force development mode:', forceDev);
-  
-  // Always include /api prefix for both development and production
-  const baseURL = (isDevelopment || forceDev) ? '/api' : `${productionAPI}/api`;
+  // In development, hit local backend via Vite proxy (/api -> localhost:4000)
+  // In production, talk directly to the API domain
+  const baseURL = isDevelopment ? '/api' : productionAPI;
   console.log('Final baseURL:', baseURL);
   
   return baseURL;
