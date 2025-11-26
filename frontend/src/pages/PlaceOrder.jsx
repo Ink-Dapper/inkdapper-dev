@@ -4,13 +4,14 @@ import CartTotal from '../components/CartTotal'
 import CouponSection from '../components/CouponSection'
 import { assets } from '../assets/assets'
 import { ShopContext } from '../context/ShopContext'
-import axios from '../utils/axios'
+import apiInstance from '../utils/axios'
 import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
 
-  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount, paymentMethod, setPaymentMethod, getShippingCharges } = useContext(ShopContext)
+  const { navigate, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, getCreditScore, creditPoints, validateCoupon, removeCoupon, appliedCoupon, couponDiscount, clearCart, getFinalAmount, paymentMethod, setPaymentMethod, getShippingCharges } = useContext(ShopContext)
   const [creditPtsVisible, setCreditPtsVisible] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -29,6 +30,17 @@ const PlaceOrder = () => {
     setFormData(data => ({ ...data, [name]: value }))
   }
 
+  const showThankYouAndRedirect = (message = 'Thank you! Your order has been placed successfully.') => {
+    setShowThankYou(true);
+    toast.success(message);
+
+    // Redirect to orders page after 5 seconds
+    setTimeout(() => {
+      setShowThankYou(false);
+      navigate('/orders');
+    }, 5000);
+  };
+
   const initPay = (order, orderData) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY,
@@ -41,12 +53,11 @@ const PlaceOrder = () => {
       handler: async (response) => {
         console.log('Razorpay response:', response);
         try {
-          const { data } = await axios.post(backendUrl + '/api/order/verify-razorpay', { ...response, ...orderData, razorpay_order_id: order.id }, { headers: { token } });
+          const { data } = await apiInstance.post('/order/verify-razorpay', { ...response, ...orderData, razorpay_order_id: order.id });
           if (data.success) {
             console.log('Verification successful:', data);
             clearCart();
-            navigate('/orders');
-            toast.success('Payment successful');
+            showThankYouAndRedirect('Thank you! Your payment was successful and your order has been placed.');
           } else {
             console.log('Verification failed:', data);
             navigate('/place-order');
@@ -106,18 +117,17 @@ const PlaceOrder = () => {
       switch (paymentMethod) {
         //API calls for COD
         case 'cod':
-          const response = await axios.post(backendUrl + '/api/order/place', orderData, { headers: { token } })
+          const response = await apiInstance.post('/order/place', orderData)
           if (response.data.success) {
             clearCart()
-            navigate('/orders')
-            toast.success('Order placed successfully')
+            showThankYouAndRedirect('Thank you! Your order has been placed successfully.');
           } else {
             toast.error(response.data.message)
           }
           break;
 
         case 'razorpay':
-          const razorpayResponse = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token } })
+          const razorpayResponse = await apiInstance.post('/order/razorpay', orderData)
           if (razorpayResponse.data.success) {
             initPay(razorpayResponse.data.order, orderData)
             console.log(razorpayResponse.data.order)
@@ -130,9 +140,9 @@ const PlaceOrder = () => {
       }
 
     } catch (error) {
-      console.log(error)
-      res.json({ success: false, message: error.message })
-      toast.error(error.message)
+      console.log('Place order error:', error)
+      const message = error.response?.data?.message || error.message || 'Something went wrong while placing your order'
+      toast.error(message)
     }
   }
 
@@ -141,6 +151,28 @@ const PlaceOrder = () => {
   }, []);
 
   return (
+    <>
+      {showThankYou && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Thank you for your order!</h2>
+            <p className="text-gray-600 mb-4">
+              We&apos;re processing your order and will send you an update soon.
+            </p>
+            <p className="text-sm text-gray-500">
+              You will be redirected to your orders in a few seconds...
+            </p>
+          </div>
+        </div>
+      )}
+
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <form onSubmit={onSubmitHandler} className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12'>
@@ -427,6 +459,7 @@ const PlaceOrder = () => {
         </form>
       </div>
     </div>
+    </>
   )
 }
 

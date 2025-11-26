@@ -120,8 +120,18 @@ const ShopContextProvider = (props) => {
   }
 
   useEffect(() => {
+    if (!token) return;
+
+    // Initial load when admin logs in
     fetchAllOrders();
-    usersList()
+    usersList();
+
+    // Poll for new orders so admin sees updates without manual refresh
+    const intervalId = setInterval(() => {
+      fetchAllOrders();
+    }, 5000); // every 5 seconds
+
+    return () => clearInterval(intervalId);
   }, [token]);
 
   const value = {

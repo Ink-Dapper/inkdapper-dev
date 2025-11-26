@@ -3,6 +3,7 @@ import userModel from "../models/userModel.js";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import Razorpay from "razorpay";
+import { createNotification } from "./notificationController.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -45,8 +46,7 @@ const placeOrder = async (req, res) => {
       expectedDeliveryDate: expectedDeliveryDate,
     };
 
-    const newOrder = new orderModel(orderData);
-    await newOrder.save();
+    const newOrder = await new orderModel(orderData).save();
 
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
     console.log(items);
@@ -94,6 +94,17 @@ const placeOrder = async (req, res) => {
         console.log("Email sent: " + info.response);
       }
     });
+
+    // Create admin notification for new COD order
+    try {
+      await createNotification(
+        `New COD order placed (Order ID: ${newOrder._id})`,
+        newOrder._id
+      );
+    } catch (notifError) {
+      console.error("Failed to create COD order notification:", notifError);
+      // Don't fail the order placement if notification creation fails
+    }
 
     res.json({ success: true, message: "Order Placed" });
   } catch (error) {
@@ -163,8 +174,7 @@ const verifyRazorpay = async (req, res) => {
         expectedDeliveryDate: expectedDeliveryDate,
       };
 
-      const newOrder = new orderModel(orderData);
-      await newOrder.save();
+      const newOrder = await new orderModel(orderData).save();
 
       await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
@@ -212,6 +222,17 @@ const verifyRazorpay = async (req, res) => {
           console.log("Email sent: " + info.response);
         }
       });
+
+      // Create admin notification for successful Razorpay order
+      try {
+        await createNotification(
+          `New prepaid order placed via Razorpay (Order ID: ${newOrder._id})`,
+          newOrder._id
+        );
+      } catch (notifError) {
+        console.error("Failed to create Razorpay order notification:", notifError);
+        // Don't fail the order placement if notification creation fails
+      }
 
       res.json({ success: true, message: "Payment Successful", orderInfo });
     } else {
