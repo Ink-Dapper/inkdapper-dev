@@ -85,7 +85,7 @@ const RecentlyViewed = () => {
             </span>
           </h2>
 
-          <p className="max-w-4xl mx-auto text-lg sm:text-xl md:text-2xl text-slate-600 leading-relaxed mb-8 md:mb-10 px-4">
+          <p className="max-w-4xl mx-auto text-lg sm:text-xl md:text-2xl text-slate-600 leading-relaxed mb-8 md:mb-10 md:px-4 px-1 text-wrap-balance">
             <span className="font-bold text-slate-800 bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">Continue Your Style Journey:</span> Pick up where you left off with the products you've been exploring. Your personal style evolution starts here.
           </p>
 

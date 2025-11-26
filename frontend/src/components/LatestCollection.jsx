@@ -88,7 +88,7 @@ const LatestCollection = () => {
                         </span>
                     </h2>
 
-                    <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed mb-6 md:mb-8 px-4">
+                    <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed mb-6 md:mb-8 md:px-4 px-1 text-wrap-balance">
                         <span className="font-semibold text-slate-800 bg-gradient-to-r from-slate-800 to-orange-600 bg-clip-text text-transparent">Fresh & Updated:</span> Discover our most recently updated products – featuring the latest designs, improved quality, and newest additions to our collection. Stay ahead with the freshest styles from Ink Dapper.
                     </p>
 
