@@ -9,6 +9,8 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
+const MAX_RENDERED_PRODUCTS = 60 // hard cap to avoid Safari/iOS crashes when too many cards are mounted
+
 const Collection = () => {
 
   const { products, search, showSearch, scrollToTop } = useContext(ShopContext)
@@ -112,20 +114,23 @@ const Collection = () => {
     setTimeout(() => {
       const nextPage = currentPage + 1
       const startIndex = 0
-      const endIndex = nextPage * itemsPerPage
+      const requestedEndIndex = nextPage * itemsPerPage
+      const endIndex = Math.min(requestedEndIndex, MAX_RENDERED_PRODUCTS, filterProducts.length)
       const newProducts = filterProducts.slice(startIndex, endIndex)
 
       setDisplayedProducts(newProducts)
       setCurrentPage(nextPage)
-      setHasMore(endIndex < filterProducts.length)
+      // Only allow more if we haven't hit the data end AND the render cap
+      setHasMore(endIndex < filterProducts.length && endIndex < MAX_RENDERED_PRODUCTS)
       setIsLoading(false)
     }, 500)
   }
 
   const resetPagination = () => {
     setCurrentPage(1)
-    setDisplayedProducts(filterProducts.slice(0, itemsPerPage))
-    setHasMore(filterProducts.length > itemsPerPage)
+    const initialEndIndex = Math.min(itemsPerPage, MAX_RENDERED_PRODUCTS, filterProducts.length)
+    setDisplayedProducts(filterProducts.slice(0, initialEndIndex))
+    setHasMore(initialEndIndex < filterProducts.length && initialEndIndex < MAX_RENDERED_PRODUCTS)
   }
 
   useEffect(() => {
@@ -142,7 +147,7 @@ const Collection = () => {
 
   return (
     <div className='min-h-screen'>
-      {/* Mobile-Optimized Product-Focused Banner Section - Hidden on Mobile */}
+      {/* Product-Focused Banner Section - Heavy visuals kept only for large screens to reduce mobile crashes */}
       <div className='relative overflow-hidden bg-gradient-to-r from-orange-500 via-pink-500 via-purple-600 to-teal-500 w-full hidden lg:block'>
         {/* Product Image Background Overlay */}
         <div className='absolute inset-0 bg-black/20'></div>
@@ -217,7 +222,7 @@ const Collection = () => {
             </div>
           </div>
 
-          {/* Mobile Product Showcase - Visible only on Mobile */}
+          {/* Mobile Product Showcase - Visible only on Mobile (kept lightweight) */}
           <div className='lg:hidden absolute inset-0 flex items-center justify-center'>
             <div className='relative w-full max-w-sm'>
               {/* Mobile Product Grid */}
@@ -874,14 +879,15 @@ const Collection = () => {
 
           {/* Products Section - Mobile Optimized */}
           <div className='flex-1 relative'>
-            {/* Section specific overlay for better content visibility */}
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-red-50/20 to-pink-50/30 backdrop-blur-sm rounded-3xl"></div>
+            {/* Section specific overlay and floating elements:
+                Heavy blurs/animations are disabled on mobile to improve iOS stability */}
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-red-50/20 to-pink-50/30 backdrop-blur-sm rounded-3xl hidden md:block"></div>
 
-            {/* Floating decorative elements */}
-            <div className='absolute top-10 left-1/4 w-16 h-16 lg:w-24 lg:h-24 bg-gradient-to-br from-orange-300/20 to-red-400/20 rounded-full blur-xl lg:blur-2xl animate-pulse'></div>
-            <div className='absolute top-20 right-1/3 w-12 h-12 lg:w-20 lg:h-20 bg-gradient-to-br from-pink-300/20 to-purple-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-1000'></div>
-            <div className='absolute bottom-10 left-1/2 w-14 h-14 lg:w-18 lg:h-18 bg-gradient-to-br from-teal-300/20 to-cyan-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-500'></div>
-            <div className='absolute top-1/2 right-1/4 w-10 h-10 lg:w-16 lg:h-16 bg-gradient-to-br from-purple-300/20 to-pink-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-1500'></div>
+            {/* Floating decorative elements (desktop / tablet only) */}
+            <div className='hidden md:block absolute top-10 left-1/4 w-16 h-16 lg:w-24 lg:h-24 bg-gradient-to-br from-orange-300/20 to-red-400/20 rounded-full blur-xl lg:blur-2xl animate-pulse'></div>
+            <div className='hidden md:block absolute top-20 right-1/3 w-12 h-12 lg:w-20 lg:h-20 bg-gradient-to-br from-pink-300/20 to-purple-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-1000'></div>
+            <div className='hidden md:block absolute bottom-10 left-1/2 w-14 h-14 lg:w-18 lg:h-18 bg-gradient-to-br from-teal-300/20 to-cyan-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-500'></div>
+            <div className='hidden md:block absolute top-1/2 right-1/4 w-10 h-10 lg:w-16 lg:h-16 bg-gradient-to-br from-purple-300/20 to-pink-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-1500'></div>
 
             <div className="relative z-10">
               {/* Mobile-Optimized Header */}
@@ -986,22 +992,22 @@ const Collection = () => {
 
               {/* Mobile-Optimized Products Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative">
-                {/* Grid background pattern */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
+                {/* Grid background pattern (desktop / tablet only) */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10 hidden md:block"></div>
                 {displayedProducts.map((item, index) => (
                   <div
                     key={index}
-                    className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
+                    className="group transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 md:animate-fadeInUp"
                     style={{
                       animationDelay: `${index * 150}ms`
                     }}
                   >
-                    {/* Bright Shadow Wrapper */}
+                    {/* Bright Shadow Wrapper - heavy glow only on larger screens */}
                     <div className="relative">
-                      {/* Bright colored shadows */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
+                      {/* Bright colored shadows (disabled on mobile to reduce GPU/memory load) */}
+                      <div className="hidden md:block absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
+                      <div className="hidden md:block absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
+                      <div className="hidden md:block absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
 
                       {/* Main card with enhanced shadows */}
                       <div className="relative bg-white/90 backdrop-blur-md rounded-2xl lg:rounded-3xl shadow-lg lg:shadow-xl border border-white/60 overflow-hidden min-h-[350px] lg:min-h-[400px]">
