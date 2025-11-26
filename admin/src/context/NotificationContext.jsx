@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 import { ShopContext } from './ShopContext';
 
 const NotificationContext = createContext();
@@ -12,53 +12,48 @@ export const NotificationProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const { token } = useContext(ShopContext);
 
-  useEffect(() => {
-    // Temporarily disable socket connection for development
-    // TODO: Add Socket.IO to backend server when needed
-
-    // Load existing notifications only if authenticated
-    if (token) {
-      fetchNotifications();
-    }
-  }, [token]);
-
-  // Use relative URLs to leverage Vite proxy in development
-  const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'https://api.inkdapper.com');
-
   const fetchNotifications = async () => {
     if (!token) {
       return; // Don't fetch if not authenticated
     }
     try {
-      const response = await axios.get(`${backendUrl}/api/notifications`, {
-        headers: { token }
-      });
+      const response = await axiosInstance.get('/notifications');
       if (response.data.success) {
-        setNotifications(response.data.notifications);
-        setUnreadCount(response.data.notifications.filter(n => !n.isRead).length);
+        // Only keep unread notifications in state so seen ones stay cleared
+        const unread = response.data.notifications.filter(n => !n.isRead);
+        setNotifications(unread);
+        setUnreadCount(unread.length);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
   };
 
+  // Initial load and polling for new notifications while admin is logged in
+  useEffect(() => {
+    if (!token) return;
+
+    // Initial fetch
+    fetchNotifications();
+
+    // Poll every 5 seconds for new notifications
+    const intervalId = setInterval(() => {
+      fetchNotifications();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [token]);
+
   const markAsRead = async (notificationId) => {
     if (!token) {
       return; // Don't mark as read if not authenticated
     }
     try {
-      const response = await axios.put(
-        `${backendUrl}/api/notifications/${notificationId}/read`,
-        {},
-        { headers: { token } }
-      );
+      const response = await axiosInstance.put(`/notifications/${notificationId}/read`, {});
       if (response.data.success) {
+        // Remove the notification from the list after it has been read
         setNotifications(prev =>
-          prev.map(notification =>
-            notification._id === notificationId
-              ? { ...notification, isRead: true }
-              : notification
-          )
+          prev.filter(notification => notification._id !== notificationId)
         );
         setUnreadCount(prev => Math.max(0, prev - 1));
       }

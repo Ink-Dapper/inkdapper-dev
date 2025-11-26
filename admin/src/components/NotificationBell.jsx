@@ -1,16 +1,31 @@
 import React, { useState } from 'react';
 import { useNotifications } from '../context/NotificationContext';
 import { Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const NotificationBell = () => {
   const { notifications, unreadCount, markAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleNotificationClick = (notification) => {
     if (!notification.isRead) {
       markAsRead(notification._id);
     }
-    // You can add navigation to order details here if needed
+    // Close the dropdown and navigate to Orders page
+    setIsOpen(false);
+    navigate('/orders');
+  };
+
+  const formatOrderSummary = (notification) => {
+    const order = notification.orderId;
+    if (!order) return null;
+
+    const shortId = order._id ? order._id.slice(-8) : '';
+    const method = order.paymentMethod || 'Unknown method';
+    const amount = typeof order.amount === 'number' ? order.amount.toFixed(2) : order.amount;
+
+    return `Order #${shortId} • ${method} • ₹${amount}`;
   };
 
   return (
@@ -35,19 +50,34 @@ const NotificationBell = () => {
               {notifications.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No notifications</p>
               ) : (
-                notifications.map((notification) => (
-                  <div
-                    key={notification._id}
-                    onClick={() => handleNotificationClick(notification)}
-                    className={`p-3 border-b cursor-pointer hover:bg-gray-50 ${!notification.isRead ? 'bg-blue-50' : ''
-                      }`}
-                  >
-                    <p className="text-sm">{notification.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(notification.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                ))
+                notifications.map((notification) => {
+                  const orderSummary = formatOrderSummary(notification);
+                  return (
+                    <div
+                      key={notification._id}
+                      onClick={() => handleNotificationClick(notification)}
+                      className={`p-3 border-b cursor-pointer hover:bg-gray-50 ${!notification.isRead ? 'bg-blue-50' : ''}`}
+                    >
+                      <div className="flex items-start justify-between mb-1">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                          New Order
+                        </span>
+                        {!notification.isRead && (
+                          <span className="w-2 h-2 rounded-full bg-blue-500 mt-1" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-800">{notification.message}</p>
+                      {orderSummary && (
+                        <p className="text-xs text-gray-600 mt-1">
+                          {orderSummary}
+                        </p>
+                      )}
+                      <p className="text-[11px] text-gray-400 mt-1">
+                        {new Date(notification.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
@@ -57,4 +87,4 @@ const NotificationBell = () => {
   );
 };
 
-export default NotificationBell; 
+export default NotificationBell;

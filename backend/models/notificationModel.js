@@ -7,7 +7,8 @@ const notificationSchema = new mongoose.Schema({
   },
   orderId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Order'
+    // Reference the correct Mongoose model name for orders
+    ref: 'order'
   },
   isRead: {
     type: Boolean,
