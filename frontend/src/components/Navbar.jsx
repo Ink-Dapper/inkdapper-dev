@@ -249,23 +249,26 @@ const Navbar = () => {
 
             {/* Profile Section */}
             <div className="group relative">
-              <div className="p-2 rounded-full bg-gray-50 hover:bg-orange-50 transition-all duration-300 cursor-pointer group-hover:scale-110">
-                <AccountCircleOutlinedIcon
-                  onClick={() => {
-                    const currentToken = token || localStorage.getItem('token');
-                    if (!currentToken) {
-                      // Navigate to login immediately
-                      navigate("/login");
-                    }
-                  }}
-                  alt="profile icon"
-                  className="text-slate-600 group-hover:text-orange-600 transition-all duration-300"
-                  sx={{ fontSize: 24 }}
-                />
-                {token && (
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full flex justify-center items-center cursor-pointer uppercase font-bold text-xs shadow-lg border-2 border-white">
+              <div
+                className="p-2 rounded-full bg-gray-50 hover:bg-orange-50 transition-all duration-300 cursor-pointer group-hover:scale-110"
+                onClick={() => {
+                  const currentToken = token || localStorage.getItem('token');
+                  if (!currentToken) {
+                    // Navigate to login immediately
+                    navigate("/login");
+                  }
+                }}
+              >
+                {token ? (
+                  <div className="relative w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full flex justify-center items-center uppercase font-bold text-sm shadow-lg border-2 border-white">
                     {userNameLetter}
                   </div>
+                ) : (
+                  <AccountCircleOutlinedIcon
+                    alt="profile icon"
+                    className="text-slate-600 group-hover:text-orange-600 transition-all duration-300"
+                    sx={{ fontSize: 24 }}
+                  />
                 )}
               </div>
               <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-600 transition-all duration-300 group-hover:w-8"></div>
@@ -385,13 +388,15 @@ const Navbar = () => {
                   }}
                   className="mobile-profile-icon relative p-1.5 cursor-pointer"
                 >
-                  <AccountCircleOutlinedIcon className="text-white group-hover:text-gray-200 transition-colors duration-300" sx={{ fontSize: 28 }} />
-
-                  {/* User Avatar Badge */}
-                  {token && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-full flex justify-center items-center text-xs font-bold shadow-lg border-2 border-gray-900 transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                  {token ? (
+                    <div className="relative w-8 h-8 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-full flex justify-center items-center text-xs font-bold shadow-lg border-2 border-gray-900">
                       {userNameLetter}
                     </div>
+                  ) : (
+                    <AccountCircleOutlinedIcon
+                      className="text-white group-hover:text-gray-200 transition-colors duration-300"
+                      sx={{ fontSize: 28 }}
+                    />
                   )}
                 </div>
               </div>

@@ -175,7 +175,7 @@ const AcidWashTees = () => {
             </span>
           </h2>
 
-          <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed mb-6 md:mb-8 px-4">
+          <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed mb-6 md:mb-8 md:px-4 px-1 text-wrap-balance">
             <span className="font-semibold text-slate-800 bg-gradient-to-r from-slate-800 to-orange-600 bg-clip-text text-transparent">Vintage Vibes:</span> Experience the unique, weathered look of acid wash tees. Each piece is crafted with care to give you that authentic vintage aesthetic with modern comfort.
           </p>
 
@@ -296,7 +296,7 @@ const AcidWashTees = () => {
                     <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
                       style={{ animationDelay: `${index * 150}ms` }}>
                       {/* Bright Shadow Wrapper */}
-                      <div className="relative">
+                      <div className="relative w-[285px] md:w-full">
                         {/* Bright colored shadows */}
                         <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
                         <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>

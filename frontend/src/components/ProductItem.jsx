@@ -81,7 +81,8 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.stopPropagation();
 
     const productUrl = `${window.location.origin}/product/${safeSlug}`;
-    const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
+    const firstImage = image && image.length > 0 ? image[0] : '';
+    const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}${firstImage ? `\n${firstImage}` : ''}`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
     window.open(whatsappUrl, '_blank');
@@ -94,7 +95,9 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.stopPropagation();
 
     const productUrl = `${window.location.origin}/product/${safeSlug}`;
-    navigator.clipboard.writeText(productUrl);
+    const firstImage = image && image.length > 0 ? image[0] : '';
+    const textToCopy = firstImage ? `${productUrl}\n${firstImage}` : productUrl;
+    navigator.clipboard.writeText(textToCopy);
 
     toast.info('Link copied! Open Instagram and paste in your story or message', { autoClose: 3000 });
     setShowShareMenu(false);
@@ -105,12 +108,13 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.stopPropagation();
 
     const productUrl = `${window.location.origin}/product/${safeSlug}`;
-    const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}`;
+    const firstImage = image && image.length > 0 ? image[0] : '';
+    const shareText = `Check out this amazing product: ${name} - ${currency} ${price}\n${productUrl}${firstImage ? `\n${firstImage}` : ''}`;
 
     if (navigator.share) {
       navigator.share({
         title: name,
-        text: `Check out this amazing product: ${name} - ${currency} ${price}`,
+        text: shareText,
         url: productUrl,
       })
         .then(() => setShowShareMenu(false))
@@ -132,6 +136,25 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     createNew();
   }, [wishlist]);
 
+  // Close share menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
+        setShowShareMenu(false);
+      }
+    };
+
+    if (showShareMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showShareMenu]);
+
   return (
     <div
       className='relative group'
@@ -146,8 +169,8 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
           onClick={handleWishlistToggle}
           className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-slate-600 hover:text-red-500 transition-all duration-300 transform hover:scale-110 drop-shadow-lg glass-button rounded-full p-1.5`}
         />
-      }{/* Enhanced Share Button (hidden on very small screens to reduce DOM/overdraw) */}
-      <div className="hidden xs:block absolute right-4 top-16 sm:top-16 z-20">
+      }{/* Enhanced Share Button - visible on all screen sizes */}
+      <div className="absolute right-4 top-16 sm:top-16 z-20">
         <button
           onClick={(e) => handleShare(e)}
           className="share-button hover:text-slate-800 transition-all duration-300 transform hover:scale-110 glass-button rounded-full p-1.5 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center shadow-lg"
@@ -159,7 +182,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
         {showShareMenu && (
           <div
             ref={shareMenuRef}
-            className="absolute -left-6 sm:-left-6 top-9 glass-card rounded-2xl shadow-2xl p-2 sm:p-3 z-30 min-w-[140px] sm:min-w-[160px]"
+            className="absolute -left-2 sm:-left-6 top-12 glass-card rounded-2xl shadow-2xl p-2 sm:p-3 z-30 min-w-auto"
           >
             <div className="flex flex-col gap-2 sm:gap-3">
               <button

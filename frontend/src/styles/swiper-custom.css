@@ -30,7 +30,11 @@
 
 .acid-wash-tees-section .swiper-slide {
   width: auto !important;
-  margin-right: 40px !important;
+  margin-right: 10px !important;
+}
+
+.acid-wash-tees-section .acid-wash-tees-shadow {
+  width: 265px !important;
 }
 
 .recently-viewed-section .swiper-slide {

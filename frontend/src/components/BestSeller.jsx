@@ -47,7 +47,7 @@ const BestSeller = () => {
                         </span>
                     </h2>
 
-                    <p className="max-w-4xl mx-auto text-lg sm:text-xl md:text-2xl text-slate-600 leading-relaxed mb-8 md:mb-10 px-4">
+                    <p className="max-w-4xl mx-auto text-lg sm:text-xl md:text-2xl text-slate-600 leading-relaxed mb-8 md:mb-10 md:px-4 px-1 text-wrap-balance">
                         <span className="font-bold text-slate-800 bg-gradient-to-r from-slate-800 to-orange-600 bg-clip-text text-transparent">Fan Favorites You Can't Miss:</span> Our best-selling pieces are the proof that style and comfort go hand in hand. From custom creations to everyday essentials, these items have won the hearts of the Ink Dapper community.
                     </p>
 
