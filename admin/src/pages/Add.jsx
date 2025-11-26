@@ -159,12 +159,17 @@ const Add = ({ token }) => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {[1, 2, 3, 4].map((num) => (
-                <label key={num} htmlFor={`image${num}`} className="group cursor-pointer">
+              {[
+                { value: image1, set: setImage1, id: 'image1', label: 'Image 1' },
+                { value: image2, set: setImage2, id: 'image2', label: 'Image 2' },
+                { value: image3, set: setImage3, id: 'image3', label: 'Image 3' },
+                { value: image4, set: setImage4, id: 'image4', label: 'Image 4' },
+              ].map(({ value, set, id, label }) => (
+                <label key={id} htmlFor={id} className="group cursor-pointer">
                   <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-2 hover:border-blue-400 transition-colors duration-200 bg-gray-50 hover:bg-blue-50">
                     <img
                       className="w-full h-20 object-cover rounded-md"
-                      src={eval(`!image${num}`) ? assets.upload_area : URL.createObjectURL(eval(`image${num}`))}
+                      src={!value ? assets.upload_area : URL.createObjectURL(value)}
                       alt=""
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
@@ -174,9 +179,9 @@ const Add = ({ token }) => {
                         </svg>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1 text-center">Image {num}</p>
+                    <p className="text-xs text-gray-500 mt-1 text-center">{label}</p>
                   </div>
-                  <input onChange={(e) => eval(`setImage${num}(e.target.files[0])`)} type="file" id={`image${num}`} hidden accept="image/*" />
+                  <input onChange={(e) => set(e.target.files[0])} type="file" id={id} hidden accept="image/*" />
                 </label>
               ))}
             </div>
@@ -184,12 +189,16 @@ const Add = ({ token }) => {
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Review Images</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {[1, 2, 3].map((num) => (
-                  <label key={num} htmlFor={`reviewImage${num}`} className="group cursor-pointer">
+                {[
+                  { value: reviewImage1, set: setReviewImage1, id: 'reviewImage1', label: 'Review 1' },
+                  { value: reviewImage2, set: setReviewImage2, id: 'reviewImage2', label: 'Review 2' },
+                  { value: reviewImage3, set: setReviewImage3, id: 'reviewImage3', label: 'Review 3' },
+                ].map(({ value, set, id, label }) => (
+                  <label key={id} htmlFor={id} className="group cursor-pointer">
                     <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-2 hover:border-green-400 transition-colors duration-200 bg-gray-50 hover:bg-green-50">
                       <img
                         className="w-full h-24 object-cover rounded-md"
-                        src={eval(`!reviewImage${num}`) ? assets.upload_area : URL.createObjectURL(eval(`reviewImage${num}`))}
+                        src={!value ? assets.upload_area : URL.createObjectURL(value)}
                         alt=""
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
@@ -199,9 +208,9 @@ const Add = ({ token }) => {
                           </svg>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1 text-center">Review {num}</p>
+                      <p className="text-xs text-gray-500 mt-1 text-center">{label}</p>
                     </div>
-                    <input onChange={(e) => eval(`setReviewImage${num}(e.target.files[0])`)} type="file" id={`reviewImage${num}`} hidden accept="image/*" />
+                    <input onChange={(e) => set(e.target.files[0])} type="file" id={id} hidden accept="image/*" />
                   </label>
                 ))}
               </div>

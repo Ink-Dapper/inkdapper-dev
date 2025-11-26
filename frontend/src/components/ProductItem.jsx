@@ -28,22 +28,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   const [favWishlist, setFavWishlist] = useState([]);
   const [changeText, setChangeText] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const shareMenuRef = useRef(null);
-  const messageChannelRef = useRef(null);
-
-  useEffect(() => {
-    // Initialize message channel
-    messageChannelRef.current = new MessageChannel();
-
-    // Cleanup function
-    return () => {
-      if (messageChannelRef.current) {
-        messageChannelRef.current.port1.close();
-        messageChannelRef.current.port2.close();
-      }
-    };
-  }, []);
 
   const handleWishlistToggle = () => {
     if (!token) {
@@ -143,19 +128,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   };
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
-        setShowShareMenu(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
     funcFavWishlist();
     createNew();
   }, [wishlist]);
@@ -163,8 +135,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   return (
     <div
       className='relative group'
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Enhanced Wishlist Button */}
       {favWishlist.includes(id) ?
@@ -176,8 +146,8 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
           onClick={handleWishlistToggle}
           className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-slate-600 hover:text-red-500 transition-all duration-300 transform hover:scale-110 drop-shadow-lg glass-button rounded-full p-1.5`}
         />
-      }{/* Enhanced Share Button */}
-      <div className="absolute right-4 top-16 sm:top-16 z-20">
+      }{/* Enhanced Share Button (hidden on very small screens to reduce DOM/overdraw) */}
+      <div className="hidden xs:block absolute right-4 top-16 sm:top-16 z-20">
         <button
           onClick={(e) => handleShare(e)}
           className="share-button hover:text-slate-800 transition-all duration-300 transform hover:scale-110 glass-button rounded-full p-1.5 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center shadow-lg"
@@ -277,8 +247,8 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 />
               </div>
 
-              {/* Enhanced Quick View Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-8">
+              {/* Enhanced Quick View Overlay - desktop / tablet only */}
+              <div className="hidden md:flex absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 items-end justify-center pb-8">
                 <div className="transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
                   <div className="backdrop-blur-xl bg-white/95 px-6 py-3 rounded-full text-sm font-bold text-slate-800 shadow-2xl border border-white/20 hover:bg-white transition-colors duration-300">
                     Quick View
@@ -287,9 +257,9 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
               </div>
 
 
-              {/* Enhanced Floating Elements */}
-              <div className="absolute top-4 left-4 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse"></div>
-              <div className="absolute top-6 right-16 w-2 h-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse animation-delay-2000"></div>
+              {/* Enhanced Floating Elements - desktop / tablet only */}
+              <div className="hidden md:block absolute top-4 left-4 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse"></div>
+              <div className="hidden md:block absolute top-6 right-16 w-2 h-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-0 group-hover:scale-100 animate-pulse animation-delay-2000"></div>
             </div>
 
 
@@ -375,10 +345,10 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
             {/* Bottom Section */}
             <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-semibold text-slate-600">Premium Quality</span>
-              </div>
+              <span className="text-xs font-semibold text-slate-600 flex items-center gap-2">
+                <span className="hidden md:inline-block w-2 h-2 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full animate-pulse"></span>
+                Premium Quality
+              </span>
 
               {/* View Details Badge */}
               <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">

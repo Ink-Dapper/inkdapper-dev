@@ -814,91 +814,91 @@ const Product = () => {
         </div>
 
         {/* Review Images */}
-        {productData.reviewImage && productData.reviewImage.length > 0 && (
-          <div className='mt-8 md:mt-16 rounded-2xl shadow-sm border border-gray-100 p-4 md:p-2'>
-            <h2 className='text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6'>Customer Reviews</h2>
+        {/* {!productData.soldout &&
+          (productData.stock === undefined || productData.stock > 0) &&
+          productData.reviewImage &&
+          productData.reviewImage.length > 0 && (
+            <div className='mt-8 md:mt-16 rounded-2xl shadow-sm border border-gray-100 p-4 md:p-2'>
+              <h2 className='text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6'>Customer Reviews</h2>
 
-            {/* Mobile Design - Slider */}
-            <div className='md:hidden'>
-              <Swiper
-                modules={[Pagination, Navigation]}
-                spaceBetween={12}
-                slidesPerView={2.5}
-                centeredSlides={false}
-                loop={false}
-                pagination={{
-                  clickable: true,
-                  dynamicBullets: true,
-                  renderBullet: function (index, className) {
-                    return '<span class="' + className + ' bg-orange-500 w-2 h-2"></span>';
-                  }
-                }}
-                navigation={{
-                  nextEl: '.swiper-button-next-reviews',
-                  prevEl: '.swiper-button-prev-reviews',
-                }}
-                className='w-full pb-8'
-                breakpoints={{
-                  320: {
-                    slidesPerView: 2.2,
-                    spaceBetween: 8,
-                  },
-                  375: {
-                    slidesPerView: 2.5,
-                    spaceBetween: 10,
-                  },
-                  425: {
-                    slidesPerView: 3,
-                    spaceBetween: 12,
-                  },
-                }}
-              >
-                {productData.reviewImage.map((item, index) => (
-                  <SwiperSlide key={index}>
-                    <div className='group cursor-pointer'>
-                      <div className='aspect-square rounded-xl overflow-hidden border-2 border-gray-200 hover:border-orange-300 transition-all duration-300 shadow-sm'>
-                        <img
-                          src={item}
-                          alt={`Customer review ${index + 1}`}
-                          className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
-                          onClick={() => openModalOne(index)}
-                        />
+              <div className='md:hidden'>
+                <Swiper
+                  modules={[Pagination, Navigation]}
+                  spaceBetween={12}
+                  slidesPerView={2.5}
+                  centeredSlides={false}
+                  loop={false}
+                  pagination={{
+                    clickable: true,
+                    dynamicBullets: true,
+                    renderBullet: function (index, className) {
+                      return '<span class="' + className + ' bg-orange-500 w-2 h-2"></span>';
+                    }
+                  }}
+                  navigation={{
+                    nextEl: '.swiper-button-next-reviews',
+                    prevEl: '.swiper-button-prev-reviews',
+                  }}
+                  className='w-full pb-8'
+                  breakpoints={{
+                    320: {
+                      slidesPerView: 2.2,
+                      spaceBetween: 8,
+                    },
+                    375: {
+                      slidesPerView: 2.5,
+                      spaceBetween: 10,
+                    },
+                    425: {
+                      slidesPerView: 3,
+                      spaceBetween: 12,
+                    },
+                  }}
+                >
+                  {productData.reviewImage.map((item, index) => (
+                    <SwiperSlide key={index}>
+                      <div className='group cursor-pointer'>
+                        <div className='aspect-square rounded-xl overflow-hidden border-2 border-gray-200 hover:border-orange-300 transition-all duration-300 shadow-sm'>
+                          <img
+                            src={item}
+                            alt={`Customer review ${index + 1}`}
+                            className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
+                            onClick={() => openModalOne(index)}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
+                    </SwiperSlide>
+                  ))}
 
-                {/* Custom Navigation Buttons */}
-                <div className='swiper-button-prev-reviews absolute left-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-all duration-200'>
-                  <svg className='w-4 h-4 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
-                  </svg>
-                </div>
-                <div className='swiper-button-next-reviews absolute right-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-all duration-200'>
-                  <svg className='w-4 h-4 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
-                  </svg>
-                </div>
-              </Swiper>
-            </div>
-
-            {/* Desktop Design - Grid */}
-            <div className='hidden md:grid md:grid-cols-4 lg:grid-cols-6 gap-4'>
-              {productData.reviewImage.map((item, index) => (
-                <div key={index} className='group cursor-pointer'>
-                  <div className='aspect-square rounded-lg overflow-hidden border border-gray-200 hover:border-orange-300 transition-all duration-300'>
-                    <img
-                      src={item}
-                      alt={`Customer review ${index + 1}`}
-                      className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
-                      onClick={() => openModalOne(index)}
-                    />
+                  <div className='swiper-button-prev-reviews absolute left-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-all duration-200'>
+                    <svg className='w-4 h-4 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+                    </svg>
                   </div>
-                </div>
-              ))}
+                  <div className='swiper-button-next-reviews absolute right-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-all duration-200'>
+                    <svg className='w-4 h-4 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
+                    </svg>
+                  </div>
+                </Swiper>
+              </div>
+
+              <div className='hidden md:grid md:grid-cols-4 lg:grid-cols-6 gap-4'>
+                {productData.reviewImage.map((item, index) => (
+                  <div key={index} className='group cursor-pointer'>
+                    <div className='aspect-square rounded-lg overflow-hidden border border-gray-200 hover:border-orange-300 transition-all duration-300'>
+                      <img
+                        src={item}
+                        alt={`Customer review ${index + 1}`}
+                        className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
+                        onClick={() => openModalOne(index)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )} */}
 
         {/* Product Description */}
         <div className='mt-8 md:mt-16 rounded-2xl shadow-sm border border-gray-100 p-2'>
