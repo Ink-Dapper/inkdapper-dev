@@ -1,15 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { assets } from '../assets/assets';
 import apiInstance from '../utils/axios';
+import { ShopContext } from '../context/ShopContext';
 
 const Chatbot = () => {
+  const { products } = useContext(ShopContext) || { products: [] };
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: 'bot',
-      content: 'Hello! 👋 Welcome to Ink Dapper. I\'m here to help you with any questions about our t-shirts, orders, shipping, returns, or anything else. How can I assist you today?',
+      content: 'Hello! 👋 I\'m iD Bot, your AI assistant. I\'m here to help you with any questions about our t-shirts, orders, shipping, returns, or anything else. How can I assist you today?',
       timestamp: new Date()
     }
   ]);
@@ -251,6 +254,28 @@ const Chatbot = () => {
                 'You can reach support via email (support@inkdapper.com) or phone or WhatsApp (+91 9994005696) during business hours.\n\n' +
                 'Tell me briefly what the issue is (order problem, product question, refund, etc.) and I’ll guide you before you contact them.';
             } else {
+              // Check if user mentioned a product name
+              const matchedProduct = searchProductByName(userMessage);
+              
+              if (matchedProduct) {
+                const productLink = generateProductLink(matchedProduct);
+                botResponse = `I found the product "${matchedProduct.name}"! 🎉\n\nClick the link below to view the product page:\n\n[View ${matchedProduct.name}](${productLink})\n\nPrice: ₹${matchedProduct.price || 'N/A'}\n\nWould you like to know more about this product or need help with something else?`;
+                
+                // Store product link in message for rendering
+                const botMessage = {
+                  id: Date.now() + 1,
+                  type: 'bot',
+                  content: botResponse,
+                  timestamp: new Date(),
+                  productLink: productLink,
+                  productName: matchedProduct.name
+                };
+                
+                setMessages(prev => [...prev, botMessage]);
+                setIsTyping(false);
+                return; // Exit early since we've handled the product search
+              }
+              
               // Fallback to AI assistant for any other kind of question
               try {
                 const history = messages.map(m => ({
@@ -334,11 +359,18 @@ const Chatbot = () => {
         <div className="fixed bottom-16 left-2 md:bottom-16 md:right-5 md:left-auto z-50">
           <button
             onClick={toggleChat}
-            className="w-14 h-14 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+            className="w-14 h-14 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 relative group"
           >
-            <svg className="w-6 h-6 text-white mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
+            {/* Animated Bot Icon */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 animate-pulse opacity-75"></div>
+            <div className="relative z-10 flex items-center justify-center">
+              <svg className="w-6 h-6 text-white animate-bounce group-hover:animate-none" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            {/* Pulsing notification ring */}
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-ping"></div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
           </button>
         </div>
       )}
@@ -350,13 +382,19 @@ const Chatbot = () => {
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 md:p-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 md:space-x-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                  {/* Animated Bot Avatar */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 animate-pulse"></div>
+                  <div className="relative z-10 flex items-center justify-center">
+                    <svg className="w-5 h-5 md:w-6 md:h-6 text-white animate-bounce" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  {/* Pulsing ring animation */}
+                  <div className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping"></div>
                 </div>
                 <div className="min-w-0 flex-1 overflow-hidden">
-                  <h3 className="font-semibold text-sm truncate">Ink Dapper Support</h3>
+                  <h3 className="font-semibold text-sm truncate">iD Bot</h3>
                   <p className="text-xs text-orange-100 truncate">Online • Ready to help</p>
                 </div>
               </div>
@@ -393,7 +431,23 @@ const Chatbot = () => {
                     : 'bg-gray-100 text-gray-800'
                     }`}
                 >
-                  <div className="whitespace-pre-line text-sm leading-relaxed break-words overflow-hidden">{message.content}</div>
+                  <div className="whitespace-pre-line text-sm leading-relaxed break-words overflow-hidden">
+                    {message.content}
+                    {message.productLink && (
+                      <div className="mt-3">
+                        <Link
+                          to={message.productLink}
+                          onClick={() => {
+                            setIsOpen(false);
+                            navigate(message.productLink);
+                          }}
+                          className="inline-block px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+                        >
+                          View {message.productName} →
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                   <p className={`text-xs mt-1 ${message.type === 'user' ? 'text-orange-100' : 'text-gray-500'
                     }`}>
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
