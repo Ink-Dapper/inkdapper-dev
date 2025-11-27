@@ -700,6 +700,10 @@ a.active hr {
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
     }
+
+    .swiper-wrapper {
+        left: -2rem;
+    }
 }
 
 /* Dark Mode Glass Morphism Support */

@@ -77,34 +77,34 @@ export const ChatbotProvider = ({ children }) => {
     const message = userMessage.toLowerCase();
 
     if (message.includes('order') || message.includes('track')) {
-      return '📦 **Order Tracking Information:**\n\nTo check your order status:\n\n1️⃣ **Profile Section** → Go to "Orders" in your account\n2️⃣ **Order Number** → Use your order number to track\n3️⃣ **Email Updates** → Check your email for tracking links\n4️⃣ **SMS Updates** → Receive real-time delivery updates\n\n**Order Status Flow:**\n🔄 Processing → 📤 Shipped → 🚚 Out for Delivery → ✅ Delivered\n\nNeed help with a specific order? Just share your order number!';
+      return '📦 Order tracking information:\n\nTo check your order status:\n\n1. Go to the Orders section in your account profile\n2. Use your order number to track the order\n3. Check your email for tracking links\n4. Watch for SMS updates with delivery details\n\nOrder status usually moves from Processing, to Shipped, to Out for delivery, to Delivered.\n\nNeed help with a specific order? You can share your order number.';
     }
 
     if (message.includes('product') || message.includes('size') || message.includes('material')) {
-      return '👕 **Product Information & Size Guide:**\n\n**Available Sizes:**\n• **XS** (34-36" chest) - Slim fit\n• **S** (36-38" chest) - Regular fit\n• **M** (38-40" chest) - Regular fit\n• **L** (40-42" chest) - Regular fit\n• **XL** (42-44" chest) - Comfortable fit\n• **XXL** (44-46" chest) - Comfortable fit\n\n**Material & Quality:**\n• **Fabric:** 100% Premium Cotton\n• **Weight:** 180 GSM (comfortable for all seasons)\n• **Features:** Breathable, soft, durable\n• **Designs:** Unique artistic prints, vibrant colors\n\nNeed help measuring or size recommendations?';
+      return '👕 Product information and size guide:\n\nAvailable sizes:\n- XS (34–36" chest) – slim fit\n- S (36–38" chest) – regular fit\n- M (38–40" chest) – regular fit\n- L (40–42" chest) – regular fit\n- XL (42–44" chest) – comfortable fit\n- XXL (44–46" chest) – comfortable fit\n\nMaterial and quality:\n- Fabric: 100% premium cotton\n- Weight: around 180 GSM, comfortable for all seasons\n- Features: breathable, soft and durable\n- Designs: unique artistic prints with vibrant colors\n\nYou can ask for help with measurements or size recommendations.';
     }
 
     if (message.includes('shipping') || message.includes('delivery')) {
-      return '🚚 **Shipping & Delivery Information:**\n\n**Available Shipping Options:**\n\n**Standard Delivery:**\n⏱️ **Time:** 3-5 business days\n💰 **Cost:** Free on orders above ₹999\n📦 **Tracking:** Real-time updates\n\n**Express Delivery:**\n⚡ **Time:** 1-2 business days\n💰 **Cost:** Additional ₹200\n📦 **Priority handling**\n\n**Cash on Delivery (COD):**\n💵 **Available:** Up to ₹2000\n🔒 **Secure:** Pay on delivery\n📱 **SMS confirmation**\n\n**Real-time tracking** included with all orders! 📍';
+      return '🚚 Shipping and delivery information:\n\nStandard delivery:\n- Time: 3–5 business days\n- Cost: free on orders above ₹999\n- Tracking: real-time updates\n\nExpress delivery:\n- Time: 1–2 business days\n- Cost: additional ₹200\n- Priority handling\n\nCash on delivery (COD):\n- Available up to ₹2000\n- Secure payment on delivery\n- SMS confirmation\n\nReal-time tracking is included with all orders.';
     }
 
     if (message.includes('return') || message.includes('refund')) {
-      return '🔄 **Return & Refund Policy:**\n\n**Return Window:** 7 days from delivery date\n**Free Returns:** For defective items\n**Easy Process:** Through your account\n\n**Return Process Steps:**\n1️⃣ Go to your Orders section\n2️⃣ Select the item to return\n3️⃣ Choose return reason\n4️⃣ Print return label\n5️⃣ Pack item securely\n6️⃣ Drop at nearest pickup point\n\n**Refunds:** Processed in 3-5 business days 💰';
+      return '🔄 Return and refund policy:\n\nReturn window: 7 days from delivery date.\nFree returns are available for defective items.\nYou can start a return from your account.\n\nReturn process steps:\n1. Go to your Orders section\n2. Select the item you want to return\n3. Choose a return reason\n4. Print the return label (if provided)\n5. Pack the item securely\n6. Drop it at the nearest pickup point\n\nRefunds are usually processed in 3–5 business days.';
     }
 
     if (message.includes('contact') || message.includes('support')) {
-      return '📞 **Contact Support Information:**\n\n**Multiple Ways to Reach Us:**\n\n**📧 Email Support:**\n• **Address:** support@inkdapper.com\n• **Response Time:** Within 24 hours\n\n**📞 Phone Support:**\n• **Number:** +91 9994005696\n• **Hours:** Mon-Sat 9 AM - 6 PM\n\n**💬 Live Chat:**\n• **Available:** 24/7 (you\'re using it now!)\n• **Response:** Instant\n\n**📱 WhatsApp Support:**\n• **Number:** +91 9994005696\n• **Hours:** Mon-Sat 9 AM - 6 PM\n\nWe\'re here to help! 🎯';
+      return '📞 Contact support information:\n\nEmail support:\n- Address: support@inkdapper.com\n- Typical response time: within 24 hours\n\nPhone support:\n- Number: +91 9994005696\n- Hours: Monday to Saturday, 9 AM – 6 PM\n\nLive chat:\n- Available 24/7 here on the website\n- Best for quick questions\n\nWhatsApp support:\n- Number: +91 9994005696\n- Hours: Monday to Saturday, 9 AM – 6 PM\n\nWe are here to help you.';
     }
 
     if (message.includes('price') || message.includes('cost')) {
-      return '💰 **Pricing Information:**\n\n**T-shirt Price Range:**\n• **Regular Designs:** ₹599 - ₹899\n• **Premium Designs:** ₹799 - ₹1299\n• **Custom Designs:** ₹999 - ₹1499\n• **Limited Edition:** ₹899 - ₹1599\n\n**Shipping Costs:**\n• **Free Shipping:** On orders above ₹999\n• **Standard Delivery:** ₹99 (below ₹999)\n• **Express Delivery:** +₹200\n• **COD:** No additional charge\n\n**Discounts & Offers:**\n• **First Order:** 10% off\n• **Bulk Orders:** 15% off (5+ items)\n• **Student Discount:** 5% off\n• **Seasonal Sales:** Up to 50% off\n\nPrices may vary based on design complexity and current offers!';
+      return '💰 Pricing information:\n\nT-shirt price range:\n- Regular designs: about ₹599 – ₹899\n- Premium designs: about ₹799 – ₹1299\n- Custom designs: about ₹999 – ₹1499\n- Limited edition: about ₹899 – ₹1599\n\nShipping costs:\n- Free shipping on orders above ₹999\n- Standard delivery: ₹99 for orders below ₹999\n- Express delivery: +₹200\n- COD: no additional charge\n\nDiscounts and offers may be available depending on current promotions.';
     }
 
     if (message.includes('account') || message.includes('profile')) {
-      return '👤 **Account & Profile Management:**\n\n**Profile Settings:**\n• **Personal Information:** Update name, email, phone\n• **Password:** Change password securely\n• **Addresses:** Manage delivery addresses\n• **Preferences:** Communication preferences\n\n**Order Management:**\n📋 **Order History:** View all past orders\n📄 **Invoices:** Download order invoices\n📦 **Current Orders:** Track active orders\n❤️ **Wishlist:** Save favorite items\n\n**Account Features:**\n🔔 **Notifications:** Order updates, offers\n💳 **Payment Methods:** Saved cards, UPI\n🎁 **Rewards:** Loyalty points, discounts\n\nNeed help with your account?';
+      return '👤 Account and profile management:\n\nProfile settings:\n- Update your name, email and phone number\n- Change your password securely\n- Manage your delivery addresses\n- Adjust communication preferences\n\nOrder management:\n- View your full order history\n- Download invoices\n- Track active orders\n- Save favourite items using the wishlist\n\nAccount features:\n- Receive notifications about orders and offers\n- Save payment methods such as cards or UPI\n- Earn loyalty-style discounts when available\n\nYou can ask for help with any specific account task.';
     }
 
-    return 'Thank you for your message! 🤗 I\'m here to help with:\n\n📦 **Order tracking & status**\n👕 **Product information & sizes**\n🚚 **Shipping & delivery**\n🔄 **Returns & refunds**\n📞 **Contact support**\n💰 **Pricing & offers**\n👤 **Account management**\n🎁 **Discounts & promotions**\n\nWhat would you like to know more about? Feel free to ask anything specific!';
+    return 'Thank you for your message. I am your Ink Dapper virtual assistant and I can help with:\n\n📦 Order tracking and status\n👕 Product information and sizes\n🚚 Shipping and delivery\n🔄 Returns and refunds\n📞 Contacting support\n💰 Pricing and offers\n👤 Account management\n\nTell me what you want to know more about, or ask a specific question.';
   };
 
   const clearChat = () => {

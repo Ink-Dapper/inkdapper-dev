@@ -1,3 +1,14 @@
+// Suppress punycode deprecation warning (coming from dependencies)
+process.removeAllListeners('warning');
+process.on('warning', (warning) => {
+  if (warning.name === 'DeprecationWarning' && warning.message.includes('punycode')) {
+    // Suppress punycode deprecation warnings from dependencies
+    return;
+  }
+  // Show other warnings normally
+  console.warn(warning.name, warning.message);
+});
+
 import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
@@ -15,6 +26,7 @@ import newsLetterRoute from './routes/newsLetterRoute.js'
 import emailRouter from './routes/emailRoute.js'
 import highlightedProductRouter from './routes/highlightedProductRoute.js'
 import notificationRouter from './routes/notificationRoute.js'
+import chatRouter from './routes/chatRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import adminAuth from './middleware/adminAuth.js'
@@ -185,6 +197,7 @@ app.use('/api/newsletter', newsLetterRoute)
 app.use('/api/email', emailRouter)
 app.use('/api/highlighted-products', highlightedProductRouter)
 app.use('/api/notifications', notificationRouter)
+app.use('/api/chat', chatRouter)
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {
