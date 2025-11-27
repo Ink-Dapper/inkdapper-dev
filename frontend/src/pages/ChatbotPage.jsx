@@ -1,14 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { assets } from '../assets/assets';
 import apiInstance from '../utils/axios';
+import { ShopContext } from '../context/ShopContext';
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: 'bot',
-      content: 'Hello! 👋 Welcome to Ink Dapper Support. I\'m here to help you with any questions about our t-shirts, orders, shipping, returns, or anything else. How can I assist you today?',
+      content: 'Hello! 👋 I\'m iD Bot, your AI assistant. I\'m here to help you with any questions about our t-shirts, orders, shipping, returns, or anything else. How can I assist you today?',
       timestamp: new Date()
     }
   ]);
@@ -94,6 +95,52 @@ const ChatbotPage = () => {
     }
 
     return null;
+  };
+
+  // Search for products by name
+  const searchProductByName = (message) => {
+    if (!products || products.length === 0) return null;
+    
+    const messageLower = message.toLowerCase().trim();
+    
+    // Try to find exact or partial matches
+    let bestMatch = null;
+    let bestMatchScore = 0;
+    
+    products.forEach(product => {
+      if (!product.name) return;
+      
+      const productNameLower = product.name.toLowerCase();
+      
+      // Exact match gets highest score
+      if (messageLower === productNameLower) {
+        bestMatch = product;
+        bestMatchScore = 100;
+        return;
+      }
+      
+      // Check if product name is contained in message or vice versa
+      if (messageLower.includes(productNameLower) || productNameLower.includes(messageLower)) {
+        const matchLength = Math.min(messageLower.length, productNameLower.length);
+        const score = (matchLength / Math.max(messageLower.length, productNameLower.length)) * 80;
+        
+        if (score > bestMatchScore) {
+          bestMatch = product;
+          bestMatchScore = score;
+        }
+      }
+    });
+    
+    return bestMatch;
+  };
+
+  // Generate product link
+  const generateProductLink = (product) => {
+    if (!product) return null;
+    
+    // Use slug if available, otherwise generate from name
+    const slug = product.slug || product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+    return `/product/${slug}`;
   };
 
   const buildOrderStatusMessage = (order) => {
@@ -335,9 +382,32 @@ const ChatbotPage = () => {
             } else if (lower.includes('support') || lower.includes('contact')) {
               botResponse =
                 'You can contact support by email (support@inkdapper.com) or phone or WhatsApp (+91 9994005696) during support hours.\n' +
-                'Tell me briefly what the problem is (order, refund, payment, product, etc.) and I’ll guide you first.';
+                'Tell me briefly what the problem is (order, refund, payment, product, etc.) and I'll guide you first.';
               suggestions = ['I have an issue with my order', 'Payment related issue', 'Refund not received'];
             } else {
+              // Check if user mentioned a product name
+              const matchedProduct = searchProductByName(userMessage);
+              
+              if (matchedProduct) {
+                const productLink = generateProductLink(matchedProduct);
+                botResponse = `I found the product "${matchedProduct.name}"! 🎉\n\nClick the link below to view the product page:\n\n[View ${matchedProduct.name}](${productLink})\n\nPrice: ₹${matchedProduct.price || 'N/A'}\n\nWould you like to know more about this product or need help with something else?`;
+                suggestions = ['Tell me about sizes', 'What is the return policy?', 'How long is delivery?'];
+                
+                // Store product link in message for rendering
+                const botMessage = {
+                  id: Date.now() + 1,
+                  type: 'bot',
+                  content: botResponse,
+                  timestamp: new Date(),
+                  productLink: productLink,
+                  productName: matchedProduct.name
+                };
+                
+                setMessages(prev => [...prev, botMessage]);
+                setIsTyping(false);
+                return; // Exit early since we've handled the product search
+              }
+              
               // Fallback to AI assistant for any other type of question
               try {
                 const history = messages.map(m => ({
@@ -425,14 +495,19 @@ const ChatbotPage = () => {
               </Link>
             </div>
             <div className="flex items-center space-x-2 md:space-x-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center relative">
+                {/* Animated Bot Avatar */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 animate-pulse"></div>
+                <div className="relative z-10 flex items-center justify-center">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 text-white animate-bounce" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <div className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping"></div>
               </div>
               <div className="min-w-0">
-                <h1 className="text-lg md:text-xl font-bold text-gray-900 truncate">Ink Dapper Support</h1>
-                <p className="text-xs md:text-sm text-gray-500 truncate">Live Chat Assistant</p>
+                <h1 className="text-lg md:text-xl font-bold text-gray-900 truncate">iD Bot</h1>
+                <p className="text-xs md:text-sm text-gray-500 truncate">AI Chat Assistant</p>
               </div>
             </div>
           </div>
@@ -475,14 +550,19 @@ const ChatbotPage = () => {
               {/* Chat Header */}
               <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 flex-shrink-0">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center relative">
+                    {/* Animated Bot Avatar */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 animate-pulse"></div>
+                    <div className="relative z-10 flex items-center justify-center">
+                      <svg className="w-7 h-7 text-white animate-bounce" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <div className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping"></div>
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold">Chat with Support</h2>
-                    <p className="text-orange-100">We're here to help you 24/7</p>
+                    <h2 className="text-xl font-semibold">Chat with iD Bot</h2>
+                    <p className="text-orange-100">Your AI assistant is here to help 24/7</p>
                   </div>
                 </div>
               </div>
@@ -500,7 +580,20 @@ const ChatbotPage = () => {
                         : 'bg-gray-100 text-gray-800'
                         }`}
                     >
-                      <div className="whitespace-pre-line text-sm leading-relaxed">{message.content}</div>
+                      <div className="whitespace-pre-line text-sm leading-relaxed">
+                        {message.content}
+                        {message.productLink && (
+                          <div className="mt-3">
+                            <Link
+                              to={message.productLink}
+                              onClick={() => navigate(message.productLink)}
+                              className="inline-block px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+                            >
+                              View {message.productName} →
+                            </Link>
+                          </div>
+                        )}
+                      </div>
                       <p className={`text-xs mt-2 ${message.type === 'user' ? 'text-orange-100' : 'text-gray-500'
                         }`}>
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
