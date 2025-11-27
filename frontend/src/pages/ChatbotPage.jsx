@@ -380,9 +380,9 @@ const ChatbotPage = () => {
                 suggestions = ['How long do refunds take?', 'What items are not returnable?'];
               }
             } else if (lower.includes('support') || lower.includes('contact')) {
-              botResponse =
-                'You can contact support by email (support@inkdapper.com) or phone or WhatsApp (+91 9994005696) during support hours.\n' +
-                'Tell me briefly what the problem is (order, refund, payment, product, etc.) and I'll guide you first.';
+                botResponse =
+                  'You can contact support by email (support@inkdapper.com) or phone or WhatsApp (+91 9994005696) during support hours.\n' +
+                  'Tell me briefly what the problem is (order, refund, payment, product, etc.) and I\'ll guide you first.';
               suggestions = ['I have an issue with my order', 'Payment related issue', 'Refund not received'];
             } else {
               // Check if user mentioned a product name
