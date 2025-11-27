@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { assets } from '../assets/assets';
+import apiInstance from '../utils/axios';
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([
@@ -13,6 +14,7 @@ const ChatbotPage = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [pendingOrderQuery, setPendingOrderQuery] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -71,12 +73,103 @@ const ChatbotPage = () => {
   ];
 
   const quickReplies = [
+    'Order status of my latest order',
     'How do I track my order?',
     'What are your shipping options?',
     'How do I return an item?',
     'What sizes do you offer?',
     'How can I contact support?'
   ];
+
+  const extractOrderIdentifier = (message) => {
+    const lower = message.toLowerCase();
+
+    if (lower.includes('latest order') || lower.includes('recent order')) {
+      return { type: 'latest' };
+    }
+
+    const idMatch = message.match(/([a-f0-9]{6,24})/i);
+    if (idMatch) {
+      return { type: 'id', value: idMatch[1] };
+    }
+
+    return null;
+  };
+
+  const buildOrderStatusMessage = (order) => {
+    if (!order) {
+      return 'I could not find an order with that ID in your account. Please double-check the order ID shown in your My Orders section or in your confirmation email.';
+    }
+
+    const shortId = order._id?.slice(-8) || '';
+    const status = order.status || 'Not available';
+    const expectedDelivery = order.expectedDeliveryDate
+      ? new Date(order.expectedDeliveryDate).toLocaleDateString()
+      : null;
+    const deliveryDate = order.deliveryDate
+      ? new Date(order.deliveryDate).toLocaleDateString()
+      : null;
+    const returnStatus = order.returnOrderStatus || 'No return/cancel request found';
+
+    let msg = `📦 Order details for #${shortId}\n\n`;
+    msg += `Current status: ${status}\n`;
+
+    if (deliveryDate) {
+      msg += `Delivered on: ${deliveryDate}\n`;
+    } else if (expectedDelivery) {
+      msg += `Expected delivery: ${expectedDelivery}\n`;
+    }
+
+    if (order.paymentMethod) {
+      msg += `Payment method: ${order.paymentMethod}\n`;
+    }
+
+    if (order.amount) {
+      msg += `Order amount: ₹${order.amount}\n`;
+    }
+
+    msg += `\nReturn / cancel status: ${returnStatus}\n`;
+
+    if (order.returnDate) {
+      const returnBy = new Date(order.returnDate).toLocaleDateString();
+      msg += `Return window until: ${returnBy}\n`;
+    }
+
+    msg += `\nYou can see full order details and live tracking in the My Orders section of your account.`;
+    return msg;
+  };
+
+  const fetchOrderFromBackend = async (identifier) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return 'To check your order status, please log in first. Once logged in, open the My Orders page or ask me again with your order ID.';
+      }
+
+      const response = await apiInstance.post('/order/user-details', {});
+      const orders = response.data?.orders || [];
+
+      if (!orders.length) {
+        return 'I could not find any orders on your account yet. Once you place an order, you can ask me to track it using the order ID.';
+      }
+
+      let targetOrder = null;
+
+      if (!identifier || identifier.type === 'latest') {
+        targetOrder = orders[orders.length - 1];
+      } else if (identifier.type === 'id') {
+        const id = identifier.value;
+        targetOrder =
+          orders.find((o) => o._id === id) ||
+          orders.find((o) => o._id && o._id.toLowerCase().endsWith(id.toLowerCase()));
+      }
+
+      return buildOrderStatusMessage(targetOrder);
+    } catch (error) {
+      console.error('Error fetching order details in chatbot page:', error);
+      return 'Sorry, I had trouble fetching your order details right now. Please open the My Orders page or try again in a moment.';
+    }
+  };
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
@@ -105,57 +198,187 @@ const ChatbotPage = () => {
   const handleBotResponse = (userMessage) => {
     setIsTyping(true);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       let botResponse = '';
       let suggestions = [];
+      const lower = userMessage.toLowerCase();
 
-      switch (userMessage.toLowerCase()) {
-        case 'orders':
-        case 'how do i track my order?':
-          botResponse = '📦 **Order Tracking Information:**\n\n**How to Track Your Order:**\n\n1️⃣ **Profile Section** → Go to "Orders" in your account\n2️⃣ **Order Number** → Use your order number to track\n3️⃣ **Email Updates** → Check your email for tracking links\n4️⃣ **SMS Updates** → Receive real-time delivery updates\n\n**Order Status Flow:**\n🔄 Processing → 📤 Shipped → 🚚 Out for Delivery → ✅ Delivered\n\n**Need Help?**\n• Can\'t find your order? Check your email for order confirmation\n• Order number starts with "ID" followed by numbers\n• Contact us if you need assistance with tracking\n\nNeed help with a specific order? Just share your order number!';
-          suggestions = ['What if my order is delayed?', 'Can I change my delivery address?', 'How long does processing take?', 'What if my package is lost?'];
-          break;
-        case 'products':
-        case 'what sizes do you offer?':
-          botResponse = '👕 **Product Information & Size Guide:**\n\n**Available Sizes:**\n• **XS** (34-36" chest) - Slim fit\n• **S** (36-38" chest) - Regular fit\n• **M** (38-40" chest) - Regular fit\n• **L** (40-42" chest) - Regular fit\n• **XL** (42-44" chest) - Comfortable fit\n• **XXL** (44-46" chest) - Comfortable fit\n\n**Material & Quality:**\n• **Fabric:** 100% Premium Cotton\n• **Weight:** 180 GSM (comfortable for all seasons)\n• **Features:** Breathable, soft, durable\n• **Designs:** Unique artistic prints, vibrant colors\n\n**How to Choose Your Size:**\n1. Measure your chest circumference\n2. Compare with our size chart\n3. Consider your preferred fit (slim/regular)\n4. Check customer reviews for fit feedback\n\n**Special Features:**\n• Pre-shrunk fabric\n• Reinforced stitching\n• Fade-resistant prints\n• Eco-friendly materials\n\nNeed help measuring or size recommendations?';
-          suggestions = ['What materials do you use?', 'Do you have plus sizes?', 'How do I choose the right size?', 'Are your t-shirts pre-shrunk?'];
-          break;
-        case 'shipping':
-        case 'what are your shipping options?':
-          botResponse = '🚚 **Shipping & Delivery Information:**\n\n**Available Shipping Options:**\n\n**Standard Delivery:**\n⏱️ **Time:** 3-5 business days\n💰 **Cost:** Free on orders above ₹999\n📦 **Tracking:** Real-time updates\n\n**Express Delivery:**\n⚡ **Time:** 1-2 business days\n💰 **Cost:** Additional ₹200\n📦 **Priority handling**\n\n**Cash on Delivery (COD):**\n💵 **Available:** Up to ₹2000\n🔒 **Secure:** Pay on delivery\n📱 **SMS confirmation**\n\n**Delivery Coverage:**\n📍 **Pan India:** All major cities and towns\n🌍 **Remote areas:** 5-7 business days\n🏪 **Pickup points:** Available in select locations\n\n**What\'s Included:**\n✅ Real-time tracking\n✅ SMS/Email updates\n✅ Insurance coverage\n✅ Secure packaging\n✅ Contactless delivery\n\n**Delivery Times:**\n• **Metro cities:** 1-3 days\n• **Tier 2 cities:** 3-5 days\n• **Small towns:** 5-7 days\n\nNeed specific delivery time for your location?';
-          suggestions = ['What if my package is lost?', 'Do you ship internationally?', 'Can I change delivery address?', 'What about rural areas?'];
-          break;
-        case 'returns':
-        case 'how do i return an item?':
-          botResponse = '🔄 **Return & Refund Policy:**\n\n**Return Window:** 7 days from delivery date\n**Free Returns:** For defective items\n**Easy Process:** Through your account\n\n**Return Reasons Accepted:**\n✅ Wrong size received\n✅ Defective product\n✅ Damaged during shipping\n✅ Not as described\n✅ Quality issues\n\n**Return Process Steps:**\n1️⃣ Go to your Orders section\n2️⃣ Select the item to return\n3️⃣ Choose return reason\n4️⃣ Print return label\n5️⃣ Pack item securely\n6️⃣ Drop at nearest pickup point\n\n**Return Conditions:**\n• Item must be unworn\n• Original tags attached\n• No stains or damage\n• Original packaging preferred\n\n**Refund Information:**\n💰 **Processing Time:** 3-5 business days\n💳 **Method:** Original payment method\n📧 **Confirmation:** Email notification\n\n**Exchange Options:**\n🔄 **Size Exchange:** Available\n🎨 **Design Change:** Subject to availability\n💰 **Refund:** Full amount minus shipping\n\n**What\'s Not Returnable:**\n❌ Worn or washed items\n❌ Items without tags\n❌ Custom/personalized items\n❌ Sale/clearance items\n\nNeed help with your return?';
-          suggestions = ['What if item is damaged?', 'Can I exchange for different size?', 'How long do refunds take?', 'What about international returns?'];
-          break;
-        case 'support':
-        case 'how can i contact support?':
-          botResponse = '📞 **Contact Support Information:**\n\n**Multiple Ways to Reach Us:**\n\n**📧 Email Support:**\n• **Address:** support@inkdapper.com\n• **Response Time:** Within 24 hours\n• **Best for:** Detailed inquiries, complaints\n\n**📞 Phone Support:**\n• **Number:** +91 9994005696\n• **Hours:** Mon-Sat 9 AM - 6 PM\n• **Best for:** Urgent issues, immediate help\n\n**💬 Live Chat:**\n• **Available:** 24/7 (you\'re using it now!)\n• **Response:** Instant\n• **Best for:** Quick questions, general info\n\n**📱 WhatsApp Support:**\n• **Number:** +91 9994005696\n• **Hours:** Mon-Sat 9 AM - 6 PM\n• **Best for:** Order updates, quick queries\n\n**Support Hours:**\n📅 **Monday - Saturday:** 9:00 AM - 6:00 PM\n📅 **Sunday:** 10:00 AM - 4:00 PM\n📅 **Holidays:** Limited support available\n\n**Response Time Guarantees:**\n• **Email:** Within 24 hours\n• **Phone:** Immediate during business hours\n• **Chat:** Instant (like now!)\n• **WhatsApp:** Within 2 hours\n\n**What to Include in Your Message:**\n• Order number (if applicable)\n• Clear description of issue\n• Screenshots (if needed)\n• Your contact information\n\n**Escalation Process:**\n1. Contact support team\n2. If not resolved in 24 hours\n3. Escalate to senior support\n4. Manager review if needed\n\nWe\'re here to help! 🎯';
-          suggestions = ['What if I need urgent help?', 'Can I speak to a manager?', 'Do you have a FAQ section?', 'What about after-hours support?'];
-          break;
-        case 'account':
-          botResponse = '👤 **Account & Profile Management:**\n\n**Profile Settings:**\n• **Personal Information:** Update name, email, phone\n• **Password:** Change password securely\n• **Addresses:** Manage delivery addresses\n• **Preferences:** Communication preferences\n\n**Order Management:**\n📋 **Order History:** View all past orders\n📄 **Invoices:** Download order invoices\n📦 **Current Orders:** Track active orders\n❤️ **Wishlist:** Save favorite items\n\n**Account Features:**\n🔔 **Notifications:** Order updates, offers\n💳 **Payment Methods:** Saved cards, UPI\n🎁 **Rewards:** Loyalty points, discounts\n📱 **Mobile App:** Download our app\n\n**Security Features:**\n🔒 **Two-Factor Authentication:** Available\n📧 **Email Verification:** Required\n🔐 **Secure Login:** OTP verification\n\n**Privacy Settings:**\n• **Data Sharing:** Control marketing communications\n• **Profile Visibility:** Manage public profile\n• **Data Export:** Download your data\n• **Account Deletion:** Permanent removal option\n\n**Troubleshooting:**\n• **Can\'t Login:** Use forgot password\n• **Email Issues:** Check spam folder\n• **Account Locked:** Contact support\n• **Data Issues:** Request data export\n\nNeed help with your account?';
-          suggestions = ['How do I change my password?', 'Can I delete my account?', 'How do I update my address?', 'What about data privacy?'];
-          break;
-        default:
-          if (userMessage.toLowerCase().includes('order') || userMessage.toLowerCase().includes('track')) {
-            botResponse = '📦 **Order Tracking Help:**\n\nTo track your order:\n1. Visit your profile → Orders section\n2. Enter your order number\n3. Check email for updates\n4. Use SMS tracking link\n\nNeed your order number? Check your order confirmation email!';
-            suggestions = ['What if my order is delayed?', 'Can I change delivery address?', 'How long does processing take?'];
-          } else if (userMessage.toLowerCase().includes('size') || userMessage.toLowerCase().includes('fit')) {
-            botResponse = '👕 **Size Guide & Fit Information:**\n\n**How to Choose Your Size:**\n• Measure your chest circumference\n• Compare with our size chart\n• Consider your preferred fit (slim/regular)\n• Check customer reviews for fit feedback\n\n**Available Sizes:** XS, S, M, L, XL, XXL\n\n**Fit Types:**\n• **Slim Fit:** XS, S (tighter fit)\n• **Regular Fit:** M, L (standard fit)\n• **Comfortable Fit:** XL, XXL (looser fit)\n\nNeed help measuring? I can guide you through it!';
-            suggestions = ['How do I measure my chest?', 'What if size doesn\'t fit?', 'Do you have size charts?'];
-          } else if (userMessage.toLowerCase().includes('price') || userMessage.toLowerCase().includes('cost')) {
-            botResponse = '💰 **Pricing Information:**\n\n**T-shirt Price Range:**\n• **Regular Designs:** ₹599 - ₹899\n• **Premium Designs:** ₹799 - ₹1299\n• **Custom Designs:** ₹999 - ₹1499\n• **Limited Edition:** ₹899 - ₹1599\n\n**Shipping Costs:**\n• **Free Shipping:** On orders above ₹999\n• **Standard Delivery:** ₹99 (below ₹999)\n• **Express Delivery:** +₹200\n• **COD:** No additional charge\n\n**Discounts & Offers:**\n• **First Order:** 10% off\n• **Bulk Orders:** 15% off (5+ items)\n• **Student Discount:** 5% off\n• **Seasonal Sales:** Up to 50% off\n\n**Payment Options:**\n💳 Credit/Debit Cards\n📱 UPI\n🏦 Net Banking\n💵 Cash on Delivery\n\nPrices may vary based on design complexity and current offers!';
-            suggestions = ['Do you have student discounts?', 'What about bulk orders?', 'Are there seasonal sales?'];
-          } else if (userMessage.toLowerCase().includes('delivery') || userMessage.toLowerCase().includes('shipping')) {
-            botResponse = '🚚 **Delivery Information:**\n\n**Delivery Options:**\n• **Standard:** 3-5 days (Free above ₹999)\n• **Express:** 1-2 days (+₹200)\n• **COD:** Available up to ₹2000\n\n**Coverage:**\n📍 Pan India delivery\n🌍 Remote areas: 5-7 days\n🏪 Pickup points available\n\n**Tracking:** Real-time updates via email/SMS\n**Insurance:** All packages insured\n**Secure:** Contactless delivery available\n\nWhere are you located? I can give you specific delivery times!';
-            suggestions = ['What about rural areas?', 'Do you have pickup points?', 'Is contactless delivery safe?'];
-          } else {
-            botResponse = 'Thank you for your message! 🤗 I\'m here to help with:\n\n📦 **Order tracking & status**\n👕 **Product information & sizes**\n🚚 **Shipping & delivery**\n🔄 **Returns & refunds**\n📞 **Contact support**\n💰 **Pricing & offers**\n👤 **Account management**\n🎁 **Discounts & promotions**\n\nWhat would you like to know more about? Feel free to ask anything specific!';
-            suggestions = ['Tell me about your products', 'How do I place an order?', 'What\'s your return policy?', 'Do you have discounts?'];
-          }
+      if (pendingOrderQuery) {
+        const identifier = extractOrderIdentifier(userMessage);
+        botResponse = await fetchOrderFromBackend(identifier);
+        suggestions = ['What if my order is delayed?', 'How do I return this order?', 'How can I contact support?'];
+        setPendingOrderQuery(null);
+      } else if (lower.includes('order status') || lower.includes('track my order') || lower.includes('latest order')) {
+        const identifier = extractOrderIdentifier(userMessage);
+        if (!identifier) {
+          setPendingOrderQuery({ reason: 'order-status' });
+          botResponse =
+            'To check your order status or tracking, please reply with:\n\n' +
+            '- Your order ID (for example, the last 8 characters shown as #XXXXXXXX), or\n' +
+            '- Type: latest order, to see the status of your most recent order.';
+          suggestions = ['latest order', 'Where can I see my order ID?'];
+        } else {
+          botResponse = await fetchOrderFromBackend(identifier);
+          suggestions = ['What if my order is delayed?', 'How do I return this order?', 'How can I contact support?'];
+        }
+      } else {
+        switch (lower) {
+          case 'orders':
+          case 'how do i track my order?':
+            botResponse =
+              '📦 Order tracking information:\n\n' +
+              'Best way to track:\n' +
+              '1. Go to My Orders in your profile\n' +
+              '2. Select the order (ID like #XXXXXXXX)\n' +
+              '3. View live status and tracking timeline\n\n' +
+              'You can also tell me your order ID or say: latest order, and I will fetch the status for you.';
+            suggestions = ['latest order', 'Where can I see my order ID?'];
+            break;
+          case 'products':
+          case 'what sizes do you offer?':
+            botResponse =
+              '👕 Product information and size guide:\n\n' +
+              'Available sizes: XS, S, M, L, XL, XXL\n' +
+              'Fabric: 100% premium cotton (around 180 GSM)\n' +
+              'Fit: Regular and comfortable for daily wear\n\n' +
+              'For each design, the product page shows detailed fabric, fit and care instructions.\n' +
+              'Tell me your height, weight and fit preference and I can suggest a size.';
+            suggestions = ['How do I choose the right size?', 'Are your t-shirts pre-shrunk?', 'Do you have plus sizes?'];
+            break;
+          case 'shipping':
+          case 'what are your shipping options?':
+            botResponse =
+              '🚚 Shipping and delivery information:\n\n' +
+              'Standard delivery: 3–5 business days (free above ₹999)\n' +
+              'Express delivery: 1–2 business days (+₹200)\n' +
+              'COD: available up to ₹2000\n\n' +
+              'Coverage: pan India with tracking, SMS or email updates and secure packaging.';
+            suggestions = ['Do you ship to my city?', 'What if my package is delayed?', 'Can I change my delivery address?'];
+            break;
+          case 'returns':
+          case 'how do i return an item?':
+            botResponse =
+              '🔄 Return and refund policy:\n\n' +
+              'Return window: usually 7 days from delivery (check your order card for the exact date)\n' +
+              'How to start a return:\n' +
+              '1. Go to My Orders\n' +
+              '2. Select the order\n' +
+              '3. Choose Return and fill in the reason\n\n' +
+              'If you want me to check your return or refund status, share your order ID or type: latest order.';
+            suggestions = ['Check return status of latest order', 'How long do refunds take?', 'What items are not returnable?'];
+            break;
+          case 'support':
+          case 'how can i contact support?':
+            botResponse =
+              '📞 Contact support:\n\n' +
+              'Email: support@inkdapper.com (reply within 24 hours)\n' +
+              'Phone or WhatsApp: +91 9994005696 (Mon–Sat 9 AM – 6 PM)\n' +
+              'Live chat: you are already here\n\n' +
+              'Tell me your issue (order, product, refund, payment and so on) and I will guide you before you reach support.';
+            suggestions = ['I have an issue with my order', 'Payment related issue', 'Refund not received'];
+            break;
+          case 'account':
+            botResponse =
+              '👤 Account and profile management:\n\n' +
+              'You can update your name, email, phone, addresses and password from your profile.\n' +
+              'In My Orders, you can see all past orders, invoices and live tracking.\n\n' +
+              'If you tell me what you want to change (address, password and so on), I will give you exact steps.';
+            suggestions = ['How do I change my password?', 'How do I update my address?', 'How can I see my past orders?'];
+            break;
+          default:
+            if (lower.includes('order') || lower.includes('track')) {
+              const identifier = extractOrderIdentifier(userMessage);
+              if (!identifier) {
+                setPendingOrderQuery({ reason: 'order-status' });
+                botResponse =
+                  '📦 To help with order details or tracking, please reply with your order ID or simply say: latest order, so I can look it up.';
+                suggestions = ['latest order', 'Where can I see my order ID?'];
+              } else {
+                botResponse = await fetchOrderFromBackend(identifier);
+                suggestions = ['What if my order is delayed?', 'How do I return this order?', 'How can I contact support?'];
+              }
+            } else if (lower.includes('size') || lower.includes('fit')) {
+              botResponse =
+                '👕 Size guide and fit:\n\n' +
+                '- Measure your chest and compare it with our size chart on the product page\n' +
+                '- Pick your usual size for a regular fit, one size up for a relaxed fit\n' +
+                '- Sizes: XS, S, M, L, XL, XXL\n\n' +
+                'Share your height, weight and fit preference, and I can suggest a size.';
+              suggestions = ['How do I measure my chest?', 'What if the size does not fit?', 'Do you have size charts?'];
+            } else if (lower.includes('price') || lower.includes('cost')) {
+              botResponse =
+                '💰 Pricing and offers:\n\n' +
+                '- Regular designs: around ₹599–₹899\n' +
+                '- Premium designs: around ₹799–₹1299\n' +
+                '- Special or custom designs may be higher\n\n' +
+                'Check the home page and product pages for active coupons and seasonal offers.';
+              suggestions = ['Do you have any discounts?', 'What about bulk order pricing?', 'Is shipping free?'];
+            } else if (lower.includes('delivery') || lower.includes('shipping')) {
+              botResponse =
+                '🚚 Delivery details:\n\n' +
+                '- Standard: 3–5 working days (free above ₹999)\n' +
+                '- Express: 1–2 working days (+₹200)\n' +
+                '- COD: available up to ₹2000\n\n' +
+                'You can always see exact dates and live tracking on the order card in My Orders.';
+              suggestions = ['Do you deliver to my pincode?', 'What if my package is delayed?', 'Can I change my delivery address?'];
+            } else if (lower.includes('return') || lower.includes('refund')) {
+              const identifier = extractOrderIdentifier(userMessage);
+              if (!identifier) {
+                setPendingOrderQuery({ reason: 'return-status' });
+                botResponse =
+                  '🔄 For return or refund status, please reply with your order ID or type: latest order, and I will check it for you.';
+                suggestions = ['Check return status of latest order', 'How long do refunds take?'];
+              } else {
+                botResponse = await fetchOrderFromBackend(identifier);
+                suggestions = ['How long do refunds take?', 'What items are not returnable?'];
+              }
+            } else if (lower.includes('support') || lower.includes('contact')) {
+              botResponse =
+                'You can contact support by email (support@inkdapper.com) or phone or WhatsApp (+91 9994005696) during support hours.\n' +
+                'Tell me briefly what the problem is (order, refund, payment, product, etc.) and I’ll guide you first.';
+              suggestions = ['I have an issue with my order', 'Payment related issue', 'Refund not received'];
+            } else {
+              // Fallback to AI assistant for any other type of question
+              try {
+                const history = messages.map(m => ({
+                  role: m.type === 'user' ? 'user' : 'assistant',
+                  content: m.content,
+                }));
+
+                const response = await apiInstance.post('/chat/ai', {
+                  message: userMessage,
+                  history,
+                });
+
+                if (response.data?.success && response.data.reply) {
+                  botResponse = response.data.reply;
+                } else {
+                  botResponse =
+                    'I could not generate a detailed answer for that right now. Please try asking again in a moment or rephrase your question.';
+                }
+
+                suggestions = ['Ask about your order', 'Ask about products', 'Ask about shipping or returns'];
+              } catch (error) {
+                console.error('AI chat error (chat page):', error);
+                console.error('Error details:', {
+                  message: error.message,
+                  response: error.response?.data,
+                  status: error.response?.status,
+                });
+                
+                // More helpful error message
+                if (error.response?.status === 500) {
+                  botResponse = error.response?.data?.message || 
+                    'The AI assistant is temporarily unavailable. Please try again in a moment, or ask specifically about orders, products, shipping or returns.';
+                } else if (error.response?.status === 401) {
+                  botResponse = 'AI service configuration issue. Please contact support.';
+                } else {
+                  botResponse = 'I had trouble connecting to the AI assistant. Please try again in a moment, or ask specifically about orders, products, shipping or returns.';
+                }
+                suggestions = ['Order status of my latest order', 'What is your return policy?', 'How can I contact support?'];
+              }
+            }
+        }
       }
 
       const botMessage = {
@@ -316,8 +539,8 @@ const ChatbotPage = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Quick Replies */}
-              {messages.length === 1 && !isTyping && (
+              {/* Quick Replies - always visible when not typing */}
+              {!isTyping && (
                 <div className="px-6 pb-4 flex-shrink-0">
                   <p className="text-sm text-gray-600 mb-3">Quick questions:</p>
                   <div className="flex flex-wrap gap-2">

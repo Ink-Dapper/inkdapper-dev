@@ -250,9 +250,14 @@ const Footer = () => {
       </div>
       <div className='w-full mb-8 md:mb-0 px-4 sm:px-6 lg:px-8'>
         <hr className="border-gray-200" />
-        <div className="py-4 md:py-5 text-center">
-          <p className='text-xs md:text-sm text-gray-600'>
+        <div className="py-4 md:py-5 text-center hidden md:block">
+          <p className='text-xs md:text-sm text-gray-600 px-6 md:px-0'>
             Copyright 2024 - {new Date().getFullYear()} © www.inkdapper.com - All Right Reserved.
+          </p>
+        </div>
+        <div className="py-4 md:py-5 text-center md:hidden">
+          <p className='text-xs md:text-sm text-gray-600 px-6 md:px-0'>
+            Copyright 2024 - {new Date().getFullYear()} © www.inkdapper.com <br />- All Right Reserved.
           </p>
         </div>
       </div>
