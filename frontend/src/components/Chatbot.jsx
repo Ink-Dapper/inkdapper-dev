@@ -175,39 +175,39 @@ const Chatbot = () => {
         }
       } else {
         switch (lower) {
-          case 'product information':
+        case 'product information':
             botResponse =
               '👕 Product information:\n\n' +
               'Available sizes: XS, S, M, L, XL, XXL\n' +
               'Material: 100% premium cotton (around 180 GSM)\n' +
               'Fit: Regular, comfortable everyday fit\n\n' +
               'Each product page shows detailed fabric, fit and care info. You can ask me about sizes, material, or a specific product if you need more help.';
-            break;
-          case 'shipping & delivery':
+          break;
+        case 'shipping & delivery':
             botResponse =
               '🚚 Shipping options:\n\n' +
               'Standard delivery: 3–5 business days (free above ₹999)\n' +
               'Express delivery: 1–2 business days (+₹200)\n' +
               'Cash on delivery (COD): available up to ₹2000\n\n' +
               'All orders come with tracking, SMS or email updates and secure packaging.';
-            break;
-          case 'returns & refunds':
+          break;
+        case 'returns & refunds':
             botResponse =
               '🔄 Returns and refunds:\n\n' +
               'Return window: usually 7 days from delivery (see your order card for the exact date)\n' +
               'Return status: you can see live status in My Orders after you select the order\n' +
               'Refund time: typically 3–5 business days after the return is approved\n\n' +
               'If you share your order ID or type: latest order, I can check the current return or cancel status for you.';
-            break;
-          case 'contact support':
+          break;
+        case 'contact support':
             botResponse =
               '📞 Contact support:\n\n' +
               'Email: support@inkdapper.com\n' +
               'Phone or WhatsApp: +91 9994005696\n' +
               'Support hours: Monday to Saturday, 9 AM – 6 PM, Sunday 10 AM – 4 PM\n\n' +
               'You can also continue here in live chat and I will guide you as much as possible.';
-            break;
-          default:
+          break;
+        default:
             if (lower.includes('order') || lower.includes('track')) {
               const identifier = extractOrderIdentifier(userMessage);
               if (!identifier) {
@@ -308,12 +308,12 @@ const Chatbot = () => {
                     'The AI assistant is temporarily unavailable. Please try again in a moment, or ask about orders, products, shipping or returns.';
                 } else if (error.response?.status === 401) {
                   botResponse = 'AI service configuration issue. Please contact support.';
-                } else {
+          } else {
                   botResponse = 'I had trouble connecting to the AI assistant. Please try again in a moment, or ask about orders, products, shipping or returns.';
                 }
               }
             }
-        }
+          }
       }
 
       const botMessage = {
@@ -366,7 +366,7 @@ const Chatbot = () => {
             <div className="relative z-10 flex items-center justify-center">
               <svg className="w-6 h-6 text-white animate-bounce group-hover:animate-none" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
+            </svg>
             </div>
             {/* Pulsing notification ring */}
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-ping"></div>
@@ -388,7 +388,7 @@ const Chatbot = () => {
                   <div className="relative z-10 flex items-center justify-center">
                     <svg className="w-5 h-5 md:w-6 md:h-6 text-white animate-bounce" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
+                  </svg>
                   </div>
                   {/* Pulsing ring animation */}
                   <div className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping"></div>
