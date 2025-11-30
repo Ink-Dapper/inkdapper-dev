@@ -65,7 +65,7 @@ const App = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 px-3 pb-5 md:pb-0 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
+      <div className="relative z-10 px-3 pt-16 md:pt-0 pb-5 md:pb-0 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
         <ToastContainer />
         <Navbar />
         <ErrorBoundary>

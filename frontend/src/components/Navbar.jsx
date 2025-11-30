@@ -148,8 +148,8 @@ const Navbar = () => {
   }, [location.pathname]);
 
   return (
-    <div className="">
-      <div className="flex items-center md:flex-row justify-between flex-row-reverse py-3 md:py-5 font-medium">
+    <div className="navbar-container-sticky">
+      <div className="navbar-container-sticky-inner flex items-center md:flex-row justify-between flex-row-reverse py-3 md:py-5 font-medium">
         <Link to="/">
           <div className="relative flex items-center justify-center px-4 py-3 group overflow-hidden">
             {/* Main Blob Background - Compact Shape */}
