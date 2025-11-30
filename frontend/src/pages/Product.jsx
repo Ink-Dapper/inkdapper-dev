@@ -766,7 +766,7 @@ const Product = () => {
 
               {/* Why Choose Us - Minimal */}
               <div className='mt-4 bg-orange-50 rounded-lg p-3 border border-orange-100'>
-                <div className='flex items-center justify-between'>
+                <div className='flex items-center justify-between gap-1'>
                   <div className='flex items-center gap-2'>
                     <div className='w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center'>
                       <Truck className='w-3 h-3 text-white' />

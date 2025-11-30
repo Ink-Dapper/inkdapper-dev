@@ -450,7 +450,7 @@ const Navbar = () => {
         </div>
       </div>
       {/* {sliderBar menu for mobile} */}
-      <div className={`fixed top-0 z-[1000] left-0 bottom-0 overflow-hidden bg-white/95 backdrop-blur-md transition-all duration-300 ease-in-out ${visible ? "w-full" : "w-0"}`}>
+      <div className={`fixed top-0 z-[1105] left-0 bottom-0 overflow-hidden bg-white/95 backdrop-blur-md transition-all duration-300 ease-in-out ${visible ? "w-full" : "w-0"}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
