@@ -260,7 +260,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(port, ()=> {
+app.listen(port, '127.0.0.1', ()=> {
     console.log(`Server is running on port ${port}`)
     console.log(`CORS enabled for production domains`)
     console.log(`Allowed origins: https://www.inkdapper.com, https://admin.inkdapper.com`)
