@@ -12,7 +12,8 @@ import {
   Mail,
   Tag,
   Star,
-  Droplets
+  Droplets,
+  HardDrive,
 } from 'lucide-react'
 
 const Sidebar = () => {
@@ -199,6 +200,20 @@ const Sidebar = () => {
         >
           <Tag className='w-5 h-5 transition-colors' />
           <span className='font-medium'>Coupons</span>
+        </NavLink>
+
+        {/* Storage Manager */}
+        <NavLink
+          to='/storage'
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+            }`
+          }
+        >
+          <HardDrive className='w-5 h-5 transition-colors' />
+          <span className='font-medium'>Storage</span>
         </NavLink>
       </div>
 
