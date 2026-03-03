@@ -13,7 +13,7 @@ import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
 import connectDB from './config/mongodb.js'
-import connectCloudinary from './config/cloudinary.js'
+import { connectMinio } from './config/minio.js'
 import userRouter from './routes/userRoute.js'
 import productRouter from './routes/productRoute.js'
 import cartRouter from './routes/cartRoute.js'
@@ -27,6 +27,7 @@ import emailRouter from './routes/emailRoute.js'
 import highlightedProductRouter from './routes/highlightedProductRoute.js'
 import notificationRouter from './routes/notificationRoute.js'
 import chatRouter from './routes/chatRoute.js'
+import storageRouter from './routes/storageRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import adminAuth from './middleware/adminAuth.js'
@@ -38,7 +39,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 connectDB()
-connectCloudinary()
+connectMinio().catch((err) => {
+  console.error('MinIO startup error (server will continue):', err.message);
+})
 
 // Enhanced CORS configuration
 const corsOptions = {
@@ -108,13 +111,13 @@ app.options('*', cors(corsOptions));
 
 app.use(bodyParser.json())
 
-// Add request logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  next();
-});
+// Request logging — method + URL only, dev mode only (headers/body omitted for security)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+  });
+}
 
 // Set correct MIME type for JSX files and other assets
 app.use((req, res, next) => {
@@ -198,6 +201,7 @@ app.use('/api/email', emailRouter)
 app.use('/api/highlighted-products', highlightedProductRouter)
 app.use('/api/notifications', notificationRouter)
 app.use('/api/chat', chatRouter)
+app.use('/api/storage', storageRouter)
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {

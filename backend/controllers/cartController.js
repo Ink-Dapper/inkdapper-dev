@@ -1,5 +1,5 @@
 import userModel from "../models/userModel.js";
-import { v2 as cloudinary } from "cloudinary";
+import { uploadFile } from "../services/storageService.js";
 import { v4 as uuidv4 } from "uuid";
 
 // add products to user cart
@@ -53,15 +53,12 @@ const addToCartCustom = async (req, res) => {
     const reviewImageCustom =
       req.files.reviewImageCustom && req.files.reviewImageCustom[0];
 
-    const images = [reviewImageCustom].filter((item) => item !== undefined);
+    const images = [reviewImageCustom].filter(Boolean);
 
-    let imagesUrl = await Promise.all(
-      images.map(async (item) => {
-        let result = await cloudinary.uploader.upload(item.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      })
+    const imagesUrl = await Promise.all(
+      images.map((item) =>
+        uploadFile(item.buffer, item.originalname, item.mimetype, 'custom')
+      )
     );
 
     const customItem = {

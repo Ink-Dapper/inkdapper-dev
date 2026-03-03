@@ -1,17 +1,17 @@
-import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
 import AddBannerModel from "../models/addBannerModel.js";
+import { uploadFile, deleteFile } from "../services/storageService.js";
 
 // Helper function to generate slug from product name
 function slugify(text) {
   return text
     .toString()
     .toLowerCase()
-    .replace(/\s+/g, '-')           // Replace spaces with -
-    .replace(/[^a-z0-9\-]/g, '')    // Remove all non-alphanumeric except -
-    .replace(/\-+/g, '-')           // Replace multiple - with single -
-    .replace(/^-+/, '')              // Trim - from start of text
-    .replace(/-+$/, '');             // Trim - from end of text
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9\-]/g, '')
+    .replace(/\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
 }
 
 // function for add product
@@ -36,34 +36,24 @@ const addProduct = async (req, res) => {
     const image3 = req.files.image3 && req.files.image3[0];
     const image4 = req.files.image4 && req.files.image4[0];
 
-    const images = [image1, image2, image3, image4].filter(
-      (item) => item !== undefined
-    );
+    const images = [image1, image2, image3, image4].filter(Boolean);
 
-    let imagesUrl = await Promise.all(
-      images.map(async (item) => {
-        let result = await cloudinary.uploader.upload(item.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      })
+    const imagesUrl = await Promise.all(
+      images.map((item) =>
+        uploadFile(item.buffer, item.originalname, item.mimetype, 'products')
+      )
     );
 
     const reviewImage1 = req.files.reviewImage1 && req.files.reviewImage1[0];
     const reviewImage2 = req.files.reviewImage2 && req.files.reviewImage2[0];
     const reviewImage3 = req.files.reviewImage3 && req.files.reviewImage3[0];
 
-    const reviewImages = [reviewImage1, reviewImage2, reviewImage3].filter(
-      (item) => item !== undefined
-    );
+    const reviewImages = [reviewImage1, reviewImage2, reviewImage3].filter(Boolean);
 
-    let reviewImagesUrl = await Promise.all(
-      reviewImages.map(async (item) => {
-        let result = await cloudinary.uploader.upload(item.path, {
-          resource_type: "image",
-        });
-        return result.secure_url;
-      })
+    const reviewImagesUrl = await Promise.all(
+      reviewImages.map((item) =>
+        uploadFile(item.buffer, item.originalname, item.mimetype, 'products/reviews')
+      )
     );
 
     const productData = {
@@ -104,14 +94,14 @@ const addBanner = async (req, res) => {
       return res.status(400).json({ success: false, message: "No image provided" });
     }
 
-    let result = await cloudinary.uploader.upload(imageBanner.path, {
-      resource_type: "image",
-    });
+    const imageUrl = await uploadFile(
+      imageBanner.buffer,
+      imageBanner.originalname,
+      imageBanner.mimetype,
+      'banners'
+    );
 
-    const bannerData = {
-      imageBanner: [result.secure_url],
-    };
-
+    const bannerData = { imageBanner: [imageUrl] };
     console.log(bannerData);
 
     const banner = new AddBannerModel(bannerData);
@@ -134,10 +124,18 @@ const updateBanner = async (req, res) => {
     }
 
     if (req.file) {
-      let result = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: "image",
-      });
-      banner.imageBanner = [result.secure_url];
+      // Delete the old image from MinIO before replacing
+      if (banner.imageBanner && banner.imageBanner[0]) {
+        await deleteFile(banner.imageBanner[0]);
+      }
+
+      const imageUrl = await uploadFile(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype,
+        'banners'
+      );
+      banner.imageBanner = [imageUrl];
     }
 
     await banner.save();
@@ -149,7 +147,7 @@ const updateBanner = async (req, res) => {
 };
 
 // function for list products
-const listProducts = async (req, res) => {
+const listProducts = async (_req, res) => {
   try {
     const products = await productModel.find({});
     res.json({ success: true, message: "Products Listed", products });
@@ -160,7 +158,7 @@ const listProducts = async (req, res) => {
 };
 
 // function for list Banner
-const listBanner = async (req, res) => {
+const listBanner = async (_req, res) => {
   try {
     const banners = await AddBannerModel.find({});
     res.json({ success: true, message: "Banner Listed", banners });
@@ -198,13 +196,11 @@ const editProduct = async (req, res) => {
     const { id } = req.params;
     const { name, description, beforePrice, price, code, category, subCategory, sizes, colors, bestseller, comboPrices } = req.body;
 
-    // Find the existing product
     const existingProduct = await productModel.findById(id);
     if (!existingProduct) {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    // Prepare the updated product data
     let productData = {
       name,
       description,
@@ -216,30 +212,30 @@ const editProduct = async (req, res) => {
       bestseller: bestseller === "true" ? true : false,
       sizes: JSON.parse(sizes),
       colors: colors ? JSON.parse(colors) : existingProduct.colors || [],
-      image: existingProduct.image, // Start with existing images
-      reviewImage: existingProduct.reviewImage, // Start with existing review images
+      image: [...existingProduct.image],
+      reviewImage: [...existingProduct.reviewImage],
       slug: slugify(name),
       comboPrices: comboPrices ? JSON.parse(comboPrices) : existingProduct.comboPrices || [],
     };
 
-    // Handle image updates
+    // Upload any newly provided images and replace the corresponding slot
     const imageFields = ['image1', 'image2', 'image3', 'image4', 'reviewImage1', 'reviewImage2', 'reviewImage3'];
-    for (let field of imageFields) {
+    for (const field of imageFields) {
       if (req.files[field]) {
-        let result = await cloudinary.uploader.upload(req.files[field][0].path, { resource_type: 'image' });
+        const file = req.files[field][0];
+        const url = await uploadFile(file.buffer, file.originalname, file.mimetype, 'products');
+
         if (field.startsWith('reviewImage')) {
           const index = parseInt(field.replace('reviewImage', '')) - 1;
-          productData.reviewImage[index] = result.secure_url;
+          productData.reviewImage[index] = url;
         } else {
           const index = parseInt(field.replace('image', '')) - 1;
-          productData.image[index] = result.secure_url;
+          productData.image[index] = url;
         }
       }
     }
 
-    // Update the product in the database
     const updatedProduct = await productModel.findByIdAndUpdate(id, productData, { new: true });
-
     res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
   } catch (error) {
     console.error(error);
@@ -255,6 +251,12 @@ const deleteBanner = async (req, res) => {
     if (!banner) {
       return res.status(404).json({ success: false, message: "Banner not found" });
     }
+
+    // Clean up the file from MinIO as well
+    if (banner.imageBanner && banner.imageBanner[0]) {
+      await deleteFile(banner.imageBanner[0]);
+    }
+
     res.json({ success: true, message: "Banner Deleted" });
   } catch (error) {
     console.log(error);
@@ -266,7 +268,7 @@ const toggleSoldout = async (req, res) => {
   try {
     const { id } = req.params;
     const product = await productModel.findById(id);
-    
+
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
@@ -303,5 +305,5 @@ export {
   deleteBanner,
   updateBanner,
   toggleSoldout,
-  getProducts
+  getProducts,
 };
