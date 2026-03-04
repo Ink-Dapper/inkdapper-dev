@@ -3,6 +3,7 @@ import {
   addProduct,
   listProducts,
   removeProduct,
+  removeMultipleProducts,
   singleProduct,
   editProduct,
   addBanner,
@@ -35,6 +36,7 @@ productRouter.post("/add",adminAuth,
 productRouter.post("/add-banner",adminAuth,
   upload.single('imageBanner'), addBanner);
 productRouter.post("/remove", adminAuth, removeProduct);
+productRouter.post("/remove-multiple", adminAuth, removeMultipleProducts);
 productRouter.post("/single", singleProduct);
 productRouter.get("/list", listProducts);
 productRouter.get("/banner-list", listBanner);
