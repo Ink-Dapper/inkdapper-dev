@@ -14,217 +14,160 @@ import {
   Star,
   Droplets,
   HardDrive,
+  Layers,
+  X,
 } from 'lucide-react'
+import { assets } from '../assets/assets'
 
-const Sidebar = () => {
+const navGroups = [
+  {
+    label: 'Overview',
+    items: [
+      { to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+    ],
+  },
+  {
+    label: 'Catalog',
+    items: [
+      { to: '/add', icon: PlusCircle, label: 'Add Product' },
+      { to: '/list', icon: List, label: 'All Products' },
+      { to: '/highlighted-products', icon: Star, label: 'Highlighted' },
+      { to: '/acid-wash-products', icon: Droplets, label: 'Acid Wash' },
+    ],
+  },
+  {
+    label: 'Storefront',
+    items: [
+      { to: '/add-banner', icon: Image, label: 'Add Banner' },
+      { to: '/banner-list', icon: Layers, label: 'Banner List' },
+    ],
+  },
+  {
+    label: 'Orders',
+    items: [
+      { to: '/orders', icon: ShoppingBag, label: 'All Orders' },
+      { to: '/cancel-orders', icon: XCircle, label: 'Cancellations' },
+      { to: '/return-orders', icon: RotateCcw, label: 'Returns' },
+    ],
+  },
+  {
+    label: 'Customers',
+    items: [
+      { to: '/user-list', icon: Users, label: 'Users' },
+      { to: '/newsletter-subscribers', icon: Mail, label: 'Newsletter' },
+    ],
+  },
+  {
+    label: 'Marketing',
+    items: [
+      { to: '/coupons', icon: Tag, label: 'Coupons' },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { to: '/storage', icon: HardDrive, label: 'Storage' },
+    ],
+  },
+]
+
+const Sidebar = ({ open, onClose }) => {
   return (
-    <div className='w-[280px] bg-gradient-to-b from-slate-50 to-white border-r border-slate-200 shadow-sm min-h-screen flex flex-col'>
-      {/* Logo/Brand Section */}
-      <div className='p-6 border-b border-slate-200 flex-shrink-0'>
-        <div className='flex items-center gap-3'>
-          <div className='w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center'>
-            <LayoutDashboard className='w-6 h-6 text-white' />
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 z-50 h-full w-64 flex flex-col
+          bg-gray-950 transition-transform duration-300 ease-in-out
+          lg:static lg:z-auto lg:translate-x-0 lg:shrink-0
+          ${open ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        {/* Brand */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <img src={assets.ink_dapper_logo} alt="logo" className="w-6 h-6 object-contain brightness-0 invert" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-base leading-tight">InkDapper</p>
+              <p className="text-gray-500 text-xs">Admin Console</p>
+            </div>
           </div>
-          <div>
-            <h1 className='text-xl font-bold text-slate-800'>Admin Panel</h1>
-            <p className='text-sm text-slate-500'>InkDapper</p>
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin">
+          {navGroups.map((group) => (
+            <div key={group.label}>
+              <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600 select-none">
+                {group.label}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map(({ to, icon: Icon, label, exact }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={exact}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                        isActive
+                          ? 'bg-orange-500/15 text-orange-400 border border-orange-500/20'
+                          : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <Icon
+                          className={`w-4.5 h-4.5 shrink-0 transition-colors ${
+                            isActive ? 'text-orange-400' : 'text-gray-500 group-hover:text-gray-300'
+                          }`}
+                          size={18}
+                        />
+                        {label}
+                        {isActive && (
+                          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+                        )}
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer */}
+        <div className="px-5 py-4 border-t border-white/10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center shrink-0">
+              <span className="text-white text-xs font-bold">A</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-white text-xs font-semibold truncate">Admin</p>
+              <p className="text-gray-500 text-[10px] truncate">admin@inkdapper.com</p>
+            </div>
+            <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shrink-0" title="Online" />
           </div>
         </div>
-      </div>
-
-      {/* Navigation Menu */}
-      <div className='p-4 space-y-2 flex-1 overflow-y-auto'>
-        {/* Dashboard */}
-        <NavLink
-          to='/'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <LayoutDashboard className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Dashboard</span>
-        </NavLink>
-
-        {/* Users List */}
-        <NavLink
-          to='/user-list'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <Users className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Users List</span>
-        </NavLink>
-
-        {/* Newsletter */}
-        <NavLink
-          to='/newsletter-subscribers'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <Mail className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Newsletter</span>
-        </NavLink>
-
-        {/* Add Banner */}
-        <NavLink
-          to='/add-banner'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <Image className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Add Banner</span>
-        </NavLink>
-
-        {/* Add Items */}
-        <NavLink
-          to='/add'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <PlusCircle className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Add Items</span>
-        </NavLink>
-
-        {/* List Items */}
-        <NavLink
-          to='/list'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <List className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>List Items</span>
-        </NavLink>
-
-        {/* Orders */}
-        <NavLink
-          to='/orders'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <ShoppingBag className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Orders</span>
-        </NavLink>
-
-        {/* Return Orders */}
-        <NavLink
-          to='/return-orders'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <RotateCcw className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Return Orders</span>
-        </NavLink>
-
-        {/* Cancel Orders */}
-        <NavLink
-          to='/cancel-orders'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <XCircle className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Cancel Orders</span>
-        </NavLink>
-
-        {/* Highlighted Products */}
-        <NavLink
-          to='/highlighted-products'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <Star className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Highlighted Products</span>
-        </NavLink>
-
-        {/* Acid Wash Products */}
-        <NavLink
-          to='/acid-wash-products'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <Droplets className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Acid Wash Products</span>
-        </NavLink>
-
-        {/* Coupons */}
-        <NavLink
-          to='/coupons'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <Tag className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Coupons</span>
-        </NavLink>
-
-        {/* Storage Manager */}
-        <NavLink
-          to='/storage'
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200 group ${isActive
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
-            }`
-          }
-        >
-          <HardDrive className='w-5 h-5 transition-colors' />
-          <span className='font-medium'>Storage</span>
-        </NavLink>
-      </div>
-
-      {/* Footer Section */}
-      <div className='p-4 border-t border-slate-200 bg-slate-50 flex-shrink-0'>
-        <div className='text-center'>
-          <p className='text-sm text-slate-500'>Admin Panel v1.0</p>
-          <p className='text-xs text-slate-400 mt-1'>© 2024 InkDapper</p>
-        </div>
-      </div>
-    </div>
+      </aside>
+    </>
   )
 }
 
