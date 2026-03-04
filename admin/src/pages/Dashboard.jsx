@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useMemo } from 'react'
 import OrderTable from '../components/OrderTable'
 import { ShopContext } from '../context/ShopContext'
 import { useNavigate } from 'react-router-dom'
@@ -56,37 +56,69 @@ const Dashboard = ({ token }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showStatusDropdown, showDateDropdown]);
 
-  // Enhanced data for charts
-  const productDetailsData = [
-    { name: 'T-Shirts', value: 45, color: '#3B82F6' },
-    { name: 'Hoodies', value: 30, color: '#10B981' },
-    { name: 'Accessories', value: 15, color: '#F59E0B' },
-    { name: 'Custom Designs', value: 10, color: '#EF4444' },
-  ];
+  // ─── Helpers to skip cancelled / returned orders ──────────────
+  const isValidOrder = (order) =>
+    order.status !== 'Cancelled' &&
+    order.returnOrderStatus !== 'Return Confirmed';
 
-  // Monthly revenue data for line chart
-  const monthlyRevenueData = [
-    { month: 'Jan', revenue: 45000, orders: 45 },
-    { month: 'Feb', revenue: 52000, orders: 52 },
-    { month: 'Mar', revenue: 48000, orders: 48 },
-    { month: 'Apr', revenue: 61000, orders: 61 },
-    { month: 'May', revenue: 55000, orders: 55 },
-    { month: 'Jun', revenue: 67000, orders: 67 },
-    { month: 'Jul', revenue: 72000, orders: 72 },
-    { month: 'Aug', revenue: 68000, orders: 68 },
-    { month: 'Sep', revenue: 75000, orders: 75 },
-    { month: 'Oct', revenue: 82000, orders: 82 },
-    { month: 'Nov', revenue: 78000, orders: 78 },
-    { month: 'Dec', revenue: 89000, orders: 89 },
-  ];
+  // ─── Monthly revenue line-chart data (current year, real orders) ──
+  const monthlyRevenueData = useMemo(() => {
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const currentYear = new Date().getFullYear();
+    const data = MONTHS.map((month) => ({ month, revenue: 0, orders: 0 }));
+    (orders || []).forEach((order) => {
+      if (!isValidOrder(order)) return;
+      const d = new Date(order.date || order.createdAt);
+      if (d.getFullYear() !== currentYear) return;
+      const idx = d.getMonth();
+      data[idx].revenue += Number(order.totalAmount || order.amount || 0);
+      data[idx].orders += 1;
+    });
+    return data;
+  }, [orders]);
 
-  // Top selling products data
-  const topProductsData = [
-    { name: 'Classic White Tee', sales: 156, revenue: 23400 },
-    { name: 'Premium Black Hoodie', sales: 98, revenue: 29400 },
-    { name: 'Custom Design T-Shirt', sales: 87, revenue: 17400 },
-    { name: 'Limited Edition Print', sales: 65, revenue: 19500 },
-  ];
+  // ─── Product distribution pie-chart (by subCategory from order items) ──
+  const productDetailsData = useMemo(() => {
+    const COLORS = ['#f97316','#3B82F6','#10B981','#8B5CF6','#EC4899','#F59E0B','#EF4444','#06B6D4'];
+    const counts = {};
+    (orders || []).forEach((order) => {
+      if (!isValidOrder(order)) return;
+      (order.items || []).forEach((item) => {
+        const cat = item.subCategory || item.category || 'Other';
+        counts[cat] = (counts[cat] || 0) + (Number(item.quantity) || 1);
+      });
+    });
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    if (total === 0) return [{ name: 'No sales yet', value: 100, color: '#e5e7eb' }];
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, count], i) => ({
+        name,
+        value: Math.round((count / total) * 100),
+        count,
+        color: COLORS[i % COLORS.length],
+      }));
+  }, [orders]);
+
+  // ─── Top selling products (aggregated from order items) ──────────
+  const topProductsData = useMemo(() => {
+    const map = {};
+    (orders || []).forEach((order) => {
+      if (!isValidOrder(order)) return;
+      (order.items || []).forEach((item) => {
+        const key = item.name || item.productId || 'Unknown Product';
+        if (!map[key]) map[key] = { name: key, sales: 0, revenue: 0 };
+        const qty = Number(item.quantity) || 1;
+        const price = Number(item.price) || 0;
+        map[key].sales += qty;
+        map[key].revenue += qty * price;
+      });
+    });
+    return Object.values(map)
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 5);
+  }, [orders]);
 
   useEffect(() => {
     if (orders) {
@@ -344,12 +376,21 @@ const Dashboard = ({ token }) => {
           <div className='flex items-center justify-between mb-6'>
             <div>
               <h3 className='text-lg font-semibold text-gray-900 mb-1'>Revenue Overview</h3>
-              <p className='text-sm text-gray-600'>Monthly revenue trends</p>
+              <p className='text-sm text-gray-600'>Monthly revenue — {new Date().getFullYear()}</p>
             </div>
-            <div className='flex items-center gap-2 text-emerald-600'>
-              <ArrowUpRight className='w-4 h-4' />
-              <span className='text-sm font-medium'>+23% from last month</span>
-            </div>
+            {(() => {
+              const now = new Date();
+              const thisM = monthlyRevenueData[now.getMonth()]?.revenue || 0;
+              const prevM = monthlyRevenueData[Math.max(0, now.getMonth() - 1)]?.revenue || 0;
+              if (prevM === 0) return null;
+              const pct = Math.round(((thisM - prevM) / prevM) * 100);
+              return (
+                <div className={`flex items-center gap-1.5 text-sm font-medium ${pct >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  {pct >= 0 ? <ArrowUpRight className='w-4 h-4' /> : <ArrowDownRight className='w-4 h-4' />}
+                  <span>{pct >= 0 ? '+' : ''}{pct}% vs last month</span>
+                </div>
+              );
+            })()}
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={monthlyRevenueData}>
@@ -414,8 +455,8 @@ const Dashboard = ({ token }) => {
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8'>
         {/* Product Distribution */}
         <div className='bg-white p-6 rounded-xl shadow-sm border border-gray-100'>
-          <h3 className='text-lg font-semibold text-gray-900 mb-4'>Product Distribution</h3>
-          <p className='text-sm text-gray-600 mb-6'>Sales by product category</p>
+          <h3 className='text-lg font-semibold text-gray-900 mb-1'>Product Distribution</h3>
+          <p className='text-sm text-gray-600 mb-6'>Units sold by product type (from orders)</p>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -442,13 +483,15 @@ const Dashboard = ({ token }) => {
               />
             </PieChart>
           </ResponsiveContainer>
-          <div className='grid grid-cols-2 gap-4 mt-6'>
+          <div className='grid grid-cols-2 gap-3 mt-6'>
             {productDetailsData.map((entry, index) => (
               <div key={`legend-${index}`} className='flex items-center gap-3 p-3 bg-gray-50 rounded-lg'>
-                <span className='w-4 h-4 rounded-full' style={{ backgroundColor: entry.color }}></span>
-                <div>
-                  <p className='text-sm font-medium text-gray-900'>{entry.name}</p>
-                  <p className='text-xs text-gray-500'>{entry.value}%</p>
+                <span className='w-3 h-3 rounded-full shrink-0' style={{ backgroundColor: entry.color }}></span>
+                <div className='min-w-0'>
+                  <p className='text-sm font-medium text-gray-900 truncate'>{entry.name}</p>
+                  <p className='text-xs text-gray-500'>
+                    {entry.value}%{entry.count != null ? ` · ${entry.count} sold` : ''}
+                  </p>
                 </div>
               </div>
             ))}
@@ -457,30 +500,45 @@ const Dashboard = ({ token }) => {
 
         {/* Top Selling Products */}
         <div className='bg-white p-6 rounded-xl shadow-sm border border-gray-100'>
-          <h3 className='text-lg font-semibold text-gray-900 mb-4'>Top Selling Products</h3>
-          <p className='text-sm text-gray-600 mb-6'>Best performers this month</p>
-          <div className='space-y-4'>
-            {topProductsData.map((product, index) => (
-              <div key={index} className='flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors'>
-                <div className='flex items-center gap-4'>
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm ${index === 0 ? 'bg-yellow-500' :
-                    index === 1 ? 'bg-gray-400' :
-                      index === 2 ? 'bg-amber-600' : 'bg-gray-500'
-                    }`}>
-                    #{index + 1}
+          <h3 className='text-lg font-semibold text-gray-900 mb-1'>Top Selling Products</h3>
+          <p className='text-sm text-gray-600 mb-6'>Best performers based on delivered orders</p>
+          {topProductsData.length === 0 ? (
+            <div className='flex flex-col items-center justify-center py-12 text-gray-400'>
+              <Package className='w-10 h-10 mb-3 opacity-40' />
+              <p className='text-sm font-medium'>No sales data yet</p>
+              <p className='text-xs mt-1'>Sales will appear here once orders are delivered</p>
+            </div>
+          ) : (
+            <div className='space-y-3'>
+              {topProductsData.map((product, index) => {
+                const maxSales = topProductsData[0]?.sales || 1;
+                const barWidth = Math.round((product.sales / maxSales) * 100);
+                const rankColors = ['bg-yellow-500','bg-gray-400','bg-amber-600','bg-gray-400','bg-gray-400'];
+                return (
+                  <div key={index} className='p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors'>
+                    <div className='flex items-center justify-between mb-2'>
+                      <div className='flex items-center gap-3 min-w-0'>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs shrink-0 ${rankColors[index] || 'bg-gray-400'}`}>
+                          #{index + 1}
+                        </div>
+                        <p className='font-medium text-gray-900 text-sm truncate'>{product.name}</p>
+                      </div>
+                      <div className='text-right shrink-0 ml-3'>
+                        <p className='font-semibold text-gray-900 text-sm'>{formatCurrency(product.revenue)}</p>
+                        <p className='text-xs text-gray-500'>{product.sales} sold</p>
+                      </div>
+                    </div>
+                    <div className='w-full bg-gray-200 rounded-full h-1.5'>
+                      <div
+                        className='bg-orange-400 h-1.5 rounded-full transition-all duration-500'
+                        style={{ width: `${barWidth}%` }}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <p className='font-medium text-gray-900'>{product.name}</p>
-                    <p className='text-sm text-gray-500'>{product.sales} units sold</p>
-                  </div>
-                </div>
-                <div className='text-right'>
-                  <p className='font-semibold text-gray-900'>{formatCurrency(product.revenue)}</p>
-                  <p className='text-xs text-gray-500'>Revenue</p>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

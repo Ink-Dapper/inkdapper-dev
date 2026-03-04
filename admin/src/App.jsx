@@ -7,9 +7,8 @@ import List from './pages/List'
 import Orders from './pages/Orders'
 import Login from './components/Login'
 import Dashboard from './pages/Dashboard'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaTimes } from 'react-icons/fa';
 import CompeleteDelivery from './pages/CompeleteDelivery'
 import ReturnOrders from './pages/ReturnOrders'
 import ReturnOrderCompleted from './pages/ReturnOrderCompleted'
@@ -25,73 +24,75 @@ import AcidWashProducts from './pages/AcidWashProducts'
 import StorageManager from './pages/StorageManager'
 import { NotificationProvider } from './context/NotificationContext';
 
-// Use relative URLs to leverage Vite proxy in development
 export const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'https://api.inkdapper.com')
-export const currency = <span className='font-semibold gap-2'>₹</span>
+export const currency = <span className='font-semibold'>₹</span>
 
 const App = () => {
-
-  const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : '')
+  const [token, setToken] = useState(localStorage.getItem('token') || '')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     localStorage.setItem('token', token)
   }, [token])
 
+  // Close sidebar on route change (mobile)
+  const handleSidebarClose = () => setSidebarOpen(false)
+
   return (
     <NotificationProvider>
-      <div className='bg-gray-50 min-h-screen'>
-        <ToastContainer />
-        {token === ""
-          ? <Login setToken={setToken} />
-          : <>
-            <Navbar setToken={setToken} />
-            <hr className='border-gray-200' />
-            <div className='flex w-full'>
-              <Sidebar />
-              <div className='flex-1 p-4 lg:p-6 text-gray-600 text-base overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400'>
-                <style>
-                  {`
-                    .scrollbar-thin::-webkit-scrollbar {
-                      width: 8px;
-                    }
-                    .scrollbar-thin::-webkit-scrollbar-track {
-                      background: #f8fafc;
-                      border-radius: 10px;
-                    }
-                    .scrollbar-thin::-webkit-scrollbar-thumb {
-                      background: #cbd5e1;
-                      border-radius: 10px;
-                    }
-                    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-                      background: #94a3b8;
-                    }
-                  `}
-                </style>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        toastClassName="!rounded-xl !font-medium !text-sm !shadow-lg"
+      />
+
+      {token === '' ? (
+        <Login setToken={setToken} />
+      ) : (
+        <div className="flex h-screen bg-gray-50 overflow-hidden">
+          {/* Sidebar */}
+          <Sidebar open={sidebarOpen} onClose={handleSidebarClose} />
+
+          {/* Main content column */}
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            {/* Sticky Navbar */}
+            <Navbar
+              setToken={setToken}
+              onMenuClick={() => setSidebarOpen(true)}
+            />
+
+            {/* Page content */}
+            <main className="flex-1 overflow-y-auto scrollbar-thin">
+              <div className="p-4 lg:p-6 min-h-full">
                 <Routes>
-                  <Route path="/add" element={<Add token={token} />} />
-                  <Route path="/list" element={<List token={token} />} />
-                  <Route path="/orders" element={<Orders token={token} />} />
-                  <Route path="/" element={<Dashboard token={token} />} />
-                  <Route path="/complete-delivery" element={<CompeleteDelivery token={token} />} />
-                  <Route path="/return-orders" element={<ReturnOrders token={token} />} />
-                  <Route path="/return-orders-complete" element={<ReturnOrderCompleted token={token} />} />
-                  <Route path="/add-banner" element={<BannerImages token={token} />} />
-                  <Route path="/user-list" element={<UserList token={token} />} />
-                  <Route path="/cancel-orders" element={<CancelOrders token={token} />} />
-                  <Route path="/cancel-order-completed" element={<CancelOrderCompleted token={token} />} />
-                  <Route path="/banner-list" element={<BannerList token={token} />} />
-                  <Route path="/banner-images" element={<BannerImages token={token} />} />
-                  <Route path="/newsletter-subscribers" element={<NewsletterSubscribers token={token} />} />
-                  <Route path="/highlighted-products" element={<HighlightedProducts token={token} />} />
-                  <Route path="/acid-wash-products" element={<AcidWashProducts token={token} />} />
-                  <Route path="/coupons" element={<Coupons token={token} />} />
-                  <Route path="/storage" element={<StorageManager token={token} />} />
+                  <Route path="/"                        element={<Dashboard token={token} />} />
+                  <Route path="/add"                     element={<Add token={token} />} />
+                  <Route path="/list"                    element={<List token={token} />} />
+                  <Route path="/orders"                  element={<Orders token={token} />} />
+                  <Route path="/complete-delivery"       element={<CompeleteDelivery token={token} />} />
+                  <Route path="/return-orders"           element={<ReturnOrders token={token} />} />
+                  <Route path="/return-orders-complete"  element={<ReturnOrderCompleted token={token} />} />
+                  <Route path="/add-banner"              element={<BannerImages token={token} />} />
+                  <Route path="/user-list"               element={<UserList token={token} />} />
+                  <Route path="/cancel-orders"           element={<CancelOrders token={token} />} />
+                  <Route path="/cancel-order-completed"  element={<CancelOrderCompleted token={token} />} />
+                  <Route path="/banner-list"             element={<BannerList token={token} />} />
+                  <Route path="/banner-images"           element={<BannerImages token={token} />} />
+                  <Route path="/newsletter-subscribers"  element={<NewsletterSubscribers token={token} />} />
+                  <Route path="/highlighted-products"    element={<HighlightedProducts token={token} />} />
+                  <Route path="/acid-wash-products"      element={<AcidWashProducts token={token} />} />
+                  <Route path="/coupons"                 element={<Coupons token={token} />} />
+                  <Route path="/storage"                 element={<StorageManager token={token} />} />
                 </Routes>
               </div>
-            </div>
-          </>
-        }
-      </div>
+            </main>
+          </div>
+        </div>
+      )}
     </NotificationProvider>
   )
 }
