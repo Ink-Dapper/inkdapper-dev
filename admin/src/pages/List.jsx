@@ -43,6 +43,8 @@ const List = ({ token }) => {
   const [showActionDropdown, setShowActionDropdown] = useState({});
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'grid'
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -130,6 +132,45 @@ const List = ({ token }) => {
   const closeConfirmModal = () => {
     setIsConfirmModalOpen(false);
     setProductIdToRemove(null);
+  };
+
+  const toggleSelectProduct = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredProducts.length && filteredProducts.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredProducts.map(p => p._id)));
+    }
+  };
+
+  const removeMultipleProducts = async () => {
+    try {
+      const ids = Array.from(selectedIds);
+      const response = await axios.post(
+        backendUrl + '/api/product/remove-multiple',
+        { ids },
+        { headers: { token } }
+      );
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setSelectedIds(new Set());
+        await fetchList();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsBulkDeleteModalOpen(false);
+    }
   };
 
   const openEditModal = (product) => {
@@ -428,6 +469,30 @@ const List = ({ token }) => {
         </div>
       </div>
 
+      {/* Selection Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg px-6 py-3 mb-4 flex items-center justify-between">
+          <span className="text-sm font-medium text-orange-800">
+            {selectedIds.size} product{selectedIds.size > 1 ? 's' : ''} selected
+          </span>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-white transition-colors"
+            >
+              Clear
+            </button>
+            <button
+              onClick={() => setIsBulkDeleteModalOpen(true)}
+              className="px-4 py-2 text-sm text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Products Display */}
       {viewMode === 'table' ? (
         /* Table View */
@@ -436,6 +501,14 @@ const List = ({ token }) => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-4 py-3 w-10">
+                    <input
+                      type="checkbox"
+                      checked={filteredProducts.length > 0 && selectedIds.size === filteredProducts.length}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                    />
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Product
                   </th>
@@ -455,7 +528,15 @@ const List = ({ token }) => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredProducts.map((product, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
+                  <tr key={index} className={`hover:bg-gray-50 ${selectedIds.has(product._id) ? 'bg-orange-50' : ''}`}>
+                    <td className="px-4 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(product._id)}
+                        onChange={() => toggleSelectProduct(product._id)}
+                        className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-12 w-12">
@@ -573,13 +654,21 @@ const List = ({ token }) => {
         /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div key={index} className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 ${selectedIds.has(product._id) ? 'ring-2 ring-orange-400' : ''}`}>
               <div className="relative">
                 <img
                   src={product.image[0]}
                   alt={product.name}
                   className="w-full h-48 object-cover"
                 />
+                <div className="absolute top-2 left-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(product._id)}
+                    onChange={() => toggleSelectProduct(product._id)}
+                    className="w-5 h-5 text-orange-600 bg-white border-gray-300 rounded focus:ring-orange-500 focus:ring-2 cursor-pointer shadow"
+                  />
+                </div>
                 <div className="absolute top-2 right-2">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.soldout
                     ? 'bg-red-100 text-red-800'
@@ -671,13 +760,44 @@ const List = ({ token }) => {
                 onClick={closeConfirmModal}
                 className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
               >
-                Cancel
+                No
               </button>
               <button
                 onClick={removeProduct}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
               >
-                Delete
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {isBulkDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-800">Delete {selectedIds.size} Products</h2>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete <span className="font-semibold text-red-600">{selectedIds.size} product{selectedIds.size > 1 ? 's' : ''}</span>? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsBulkDeleteModalOpen(false)}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
+              >
+                No
+              </button>
+              <button
+                onClick={removeMultipleProducts}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+              >
+                Yes
               </button>
             </div>
           </div>

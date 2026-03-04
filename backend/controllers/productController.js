@@ -38,9 +38,17 @@ const addProduct = async (req, res) => {
 
     const images = [image1, image2, image3, image4].filter(Boolean);
 
+    // Build structured folder: products/{code}/{primaryColor}/
+    const parsedColors = colors ? JSON.parse(colors) : [];
+    const primaryColor = parsedColors[0]
+      ? parsedColors[0].toLowerCase().replace(/\s+/g, '-')
+      : 'default';
+    const safeCode = (code || '').replace(/[^a-zA-Z0-9\-_]/g, '') || 'unknown';
+    const productFolder = `products/${safeCode}/${primaryColor}`;
+
     const imagesUrl = await Promise.all(
       images.map((item) =>
-        uploadFile(item.buffer, item.originalname, item.mimetype, 'products')
+        uploadFile(item.buffer, item.originalname, item.mimetype, productFolder)
       )
     );
 
@@ -52,7 +60,7 @@ const addProduct = async (req, res) => {
 
     const reviewImagesUrl = await Promise.all(
       reviewImages.map((item) =>
-        uploadFile(item.buffer, item.originalname, item.mimetype, 'products/reviews')
+        uploadFile(item.buffer, item.originalname, item.mimetype, `products/${safeCode}/reviews`)
       )
     );
 
@@ -179,6 +187,21 @@ const removeProduct = async (req, res) => {
   }
 };
 
+// function for removing multiple products
+const removeMultipleProducts = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, message: "No product IDs provided" });
+    }
+    await productModel.deleteMany({ _id: { $in: ids } });
+    res.json({ success: true, message: `${ids.length} product(s) removed` });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 // function for single products
 const singleProduct = async (req, res) => {
   try {
@@ -218,14 +241,24 @@ const editProduct = async (req, res) => {
       comboPrices: comboPrices ? JSON.parse(comboPrices) : existingProduct.comboPrices || [],
     };
 
+    // Build structured folder: products/{code}/{primaryColor}/
+    const editParsedColors = productData.colors;
+    const editPrimaryColor = editParsedColors[0]
+      ? editParsedColors[0].toLowerCase().replace(/\s+/g, '-')
+      : 'default';
+    const editSafeCode = (productData.code || '').replace(/[^a-zA-Z0-9\-_]/g, '') || 'unknown';
+    const editProductFolder = `products/${editSafeCode}/${editPrimaryColor}`;
+    const editReviewFolder = `products/${editSafeCode}/reviews`;
+
     // Upload any newly provided images and replace the corresponding slot
     const imageFields = ['image1', 'image2', 'image3', 'image4', 'reviewImage1', 'reviewImage2', 'reviewImage3'];
     for (const field of imageFields) {
       if (req.files[field]) {
         const file = req.files[field][0];
-        const url = await uploadFile(file.buffer, file.originalname, file.mimetype, 'products');
+        const isReview = field.startsWith('reviewImage');
+        const url = await uploadFile(file.buffer, file.originalname, file.mimetype, isReview ? editReviewFolder : editProductFolder);
 
-        if (field.startsWith('reviewImage')) {
+        if (isReview) {
           const index = parseInt(field.replace('reviewImage', '')) - 1;
           productData.reviewImage[index] = url;
         } else {
@@ -299,6 +332,7 @@ export {
   addBanner,
   listProducts,
   removeProduct,
+  removeMultipleProducts,
   singleProduct,
   editProduct,
   listBanner,
