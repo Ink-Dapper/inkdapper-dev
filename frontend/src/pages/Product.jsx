@@ -343,27 +343,32 @@ const Product = () => {
   };
 
   return productData ? (
-    <div className='min-h-screen'>
+    <div className='min-h-screen ragged-section'>
+      <div className='ragged-noise' />
+
       {/* Breadcrumb */}
-      <div className='py-3 px-4 md:px-8'>
+      <div className='relative py-3 px-4 md:px-8' style={{ borderBottom: '1px solid rgba(249,115,22,0.15)', background: 'rgba(10,10,11,0.85)' }}>
+        <div className='absolute left-0 top-0 bottom-0 w-0.5' style={{ background: 'linear-gradient(180deg, #f97316, rgba(249,115,22,0.1))' }} />
         <div className='max-w-7xl mx-auto'>
-          <nav className='flex items-center space-x-2 text-sm text-gray-500'>
-            <Link to='/' className='hover:text-orange-600 transition-colors'>Home</Link>
-            <span>/</span>
-            <Link to='/collection' className='hover:text-orange-600 transition-colors'>Collection</Link>
-            <span>/</span>
-            <span className='text-gray-900 font-medium truncate max-w-xs md:max-w-sm lg:max-w-md' title={productData.name}>{productData.name}</span>
+          <nav className='flex items-center space-x-2 text-sm !bg-transparent'>
+            <Link to='/' className='hover:text-orange-400 transition-colors text-slate-500 font-medium'>Home</Link>
+            <span className='text-orange-500/40 font-bold'>/</span>
+            <Link to='/collection' className='hover:text-orange-400 transition-colors text-slate-500 font-medium'>Collection</Link>
+            <span className='text-orange-500/40 font-bold'>/</span>
+            <span className='text-slate-200 font-semibold truncate max-w-xs md:max-w-sm lg:max-w-md' title={productData.name}>{productData.name}</span>
           </nav>
         </div>
       </div>
 
-      <div className='max-w-7xl mx-auto px-2 md:px-8 py-2'>
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12'>
+      <div className='max-w-7xl mx-auto px-2 md:px-8 py-6 relative z-10'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14'>
 
           {/* Product Images */}
           <div className='space-y-4'>
+            {/* Corner accent */}
+            <div className='absolute top-0 left-0 w-16 h-16 pointer-events-none' style={{ background: 'radial-gradient(circle at 0% 0%, rgba(249,115,22,0.18), transparent 70%)' }} />
             {/* Main Image Gallery */}
-            <div className='relative rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
+            <div className='relative rounded-2xl overflow-hidden' style={{ border: '1px solid rgba(249,115,22,0.25)', boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(249,115,22,0.05) inset' }}>
               <Swiper
                 modules={[Pagination, Thumbs]}
                 spaceBetween={0}
@@ -401,17 +406,15 @@ const Product = () => {
               <div className='absolute top-4 right-4 flex flex-col gap-2 z-20'>
                 <button
                   onClick={addToWishlistPage}
-                  className={`p-3 rounded-full shadow-lg transition-all duration-300 ${isWishlisted
-                    ? 'bg-red-500 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                  className={`p-3 rounded-full transition-all duration-300 border ${isWishlisted ? 'bg-red-500 border-red-500 text-white shadow-[0_0_16px_rgba(239,68,68,0.4)]' : 'border-orange-500/40 text-orange-300 hover:bg-orange-500/20'}`}
+                  style={{ background: isWishlisted ? undefined : 'rgba(13,13,14,0.85)', backdropFilter: 'blur(8px)' }}
                 >
                   <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                 </button>
-
                 <button
                   onClick={handleShareButtonClick}
-                  className='p-3 rounded-full bg-white shadow-lg text-gray-700 hover:bg-gray-50 transition-all duration-300 glass-button share-button'
+                  className='p-3 rounded-full border border-orange-500/40 text-orange-300 hover:bg-orange-500/20 transition-all duration-300'
+                  style={{ background: 'rgba(13,13,14,0.85)', backdropFilter: 'blur(8px)' }}
                 >
                   <Share2 className='w-5 h-5' />
                 </button>
@@ -421,42 +424,27 @@ const Product = () => {
               {showShareMenu && (
                 <div
                   ref={shareMenuRef}
-                  className="absolute top-32 right-4 bg-white rounded-xl shadow-xl p-3 z-30 border border-gray-100"
-                  style={{
-                    maxWidth: '200px',
-                    // left: popupPosition.left === 'auto' ? 'auto' : '0',
-                    // right: popupPosition.right,
-                  }}
+                  className="absolute top-32 right-4 rounded-xl p-3 z-30"
+                  style={{ background: '#0f0f11', border: '1px solid rgba(249,115,22,0.25)', boxShadow: '0 16px 40px rgba(0,0,0,0.7)', maxWidth: '180px' }}
                 >
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={shareOnWhatsApp}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5 text-green-500" fill="orange" viewBox="0 0 24 24">
+                  <div className="flex flex-col gap-1">
+                    <button onClick={shareOnWhatsApp} className="flex items-center gap-3 p-2.5 hover:bg-orange-500/10 rounded-lg transition-colors">
+                      <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                       </svg>
-                      {/* <span className="text-sm font-medium">WhatsApp</span> */}
+                      <span className="text-sm font-medium text-slate-300">WhatsApp</span>
                     </button>
-
-                    <button
-                      onClick={shareOnInstagram}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5 text-pink-500" fill="orange" viewBox="0 0 24 24">
+                    <button onClick={shareOnInstagram} className="flex items-center gap-3 p-2.5 hover:bg-orange-500/10 rounded-lg transition-colors">
+                      <svg className="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                       </svg>
-                      {/* <span className="text-sm font-medium">Instagram</span> */}
+                      <span className="text-sm font-medium text-slate-300">Instagram</span>
                     </button>
-
-                    <button
-                      onClick={shareViaMessage}
-                      className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5 text-blue-500" fill="orange" viewBox="0 0 24 24">
+                    <button onClick={shareViaMessage} className="flex items-center gap-3 p-2.5 hover:bg-orange-500/10 rounded-lg transition-colors">
+                      <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
                       </svg>
-                      {/* <span className="text-sm font-medium">Share</span> */}
+                      <span className="text-sm font-medium text-slate-300">Share</span>
                     </button>
                   </div>
                 </div>
@@ -501,8 +489,8 @@ const Product = () => {
                   <SwiperSlide key={index}>
                     <div
                       className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300 ${activeIndex === index
-                        ? 'border-orange-500 shadow-lg'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]'
+                        : 'border-slate-700 hover:border-orange-500/50'
                         }`}
                       onClick={() => {
                         // Update main swiper
@@ -527,18 +515,18 @@ const Product = () => {
 
               {/* Custom Navigation Buttons for Thumbnails */}
               <div
-                className='swiper-button-prev-thumbs absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-all duration-200 cursor-pointer'
-                style={{ opacity: thumbsSwiperInstance?.isBeginning ? 0.3 : 1 }}
+                className='swiper-button-prev-thumbs absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200'
+                style={{ background: 'rgba(13,13,14,0.9)', border: '1px solid rgba(249,115,22,0.35)', opacity: thumbsSwiperInstance?.isBeginning ? 0.3 : 1 }}
               >
-                <svg className='w-4 h-4 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <svg className='w-4 h-4 text-orange-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
                 </svg>
               </div>
               <div
-                className='swiper-button-next-thumbs absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-all duration-200 cursor-pointer'
-                style={{ opacity: thumbsSwiperInstance?.isEnd ? 0.3 : 1 }}
+                className='swiper-button-next-thumbs absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200'
+                style={{ background: 'rgba(13,13,14,0.9)', border: '1px solid rgba(249,115,22,0.35)', opacity: thumbsSwiperInstance?.isEnd ? 0.3 : 1 }}
               >
-                <svg className='w-4 h-4 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <svg className='w-4 h-4 text-orange-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
                 </svg>
               </div>
@@ -546,88 +534,84 @@ const Product = () => {
           </div>
 
           {/* Product Information */}
-          <div className='space-y-6'>
+          <div className='space-y-5 lg:pl-6 lg:border-l' style={{ borderColor: 'rgba(249,115,22,0.12)' }}>
             {/* Product Header */}
             <div className='space-y-3'>
-              <div className='flex items-center gap-2'>
-                <span className='px-3 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full'>
+              <div className='flex items-center gap-2 flex-wrap'>
+                <span className='ragged-pill text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 inline-flex items-center gap-1.5'>
+                  <span className='w-1.5 h-1.5 bg-orange-400 rounded-full' />
                   {changeText}
                 </span>
-                <span className='px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full'>
-                  In Stock
-                </span>
+                {!productData.soldout && (
+                  <span className='inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold' style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399' }}>
+                    <span className='w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse' />
+                    In Stock
+                  </span>
+                )}
               </div>
 
-              <h1 className='text-3xl md:text-4xl font-bold text-gray-900 leading-tight'>
+              <h1 className='ragged-title leading-tight' style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>
                 {productData.name}
               </h1>
 
               {/* Rating */}
               <div className='flex items-center gap-3'>
-                <div className='flex items-center gap-1'>
+                <div className='flex items-center gap-0.5'>
                   {stars.map((starValue) => (
-                    <FaStar
-                      key={starValue}
-                      className={`w-4 h-4 ${averageRating >= starValue ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                    />
+                    <FaStar key={starValue} className={`w-4 h-4 ${averageRating >= starValue ? 'text-yellow-400' : 'text-slate-700'}`} />
                   ))}
                 </div>
-                <span className='text-sm text-gray-600'>({reviewCount} reviews)</span>
-                <span className='text-sm text-gray-400'>|</span>
-                <span className='text-sm text-gray-600'>★★★★★</span>
+                <span className='text-sm text-slate-500'>({reviewCount} reviews)</span>
+                <span className='text-slate-700'>|</span>
+                <span className='text-sm text-yellow-400 tracking-wider'>★★★★★</span>
               </div>
             </div>
 
             {/* Price */}
-            <div className='space-y-2'>
-              <div className='flex items-center gap-4'>
-                <span className='text-3xl md:text-4xl font-bold text-gray-900'>
+            <div className='py-4 border-y border-orange-500/15 space-y-3'>
+              <div className='flex items-center gap-4 flex-wrap'>
+                <span className='font-extrabold text-white' style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2rem, 5vw, 3rem)', letterSpacing: '0.03em' }}>
                   {currency} {productData.price}
                 </span>
                 {productData.beforePrice && (
-                  <span className='text-xl text-gray-500 line-through'>
-                    {currency} {productData.beforePrice}
-                  </span>
+                  <span className='text-xl text-slate-600 line-through'>{currency} {productData.beforePrice}</span>
                 )}
                 {productData.beforePrice && (
-                  <span className='px-2 py-1 bg-red-100 text-red-700 text-sm font-medium rounded'>
+                  <span className='px-2.5 py-1 rounded-lg text-sm font-bold' style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
                     {Math.round(((productData.beforePrice - productData.price) / productData.beforePrice) * 100)}% OFF
                   </span>
                 )}
               </div>
 
-              {/* Combo Pricing Display */}
+              {/* Combo Pricing */}
               {productData.comboPrices && productData.comboPrices.length > 0 && (
-                <div className='mt-4 space-y-3'>
-                  <div className='text-sm font-semibold text-gray-700 uppercase tracking-wide'>Combo Offers</div>
+                <div className='space-y-3'>
+                  <div className='text-[11px] font-extrabold text-orange-400 uppercase tracking-[0.18em]'>Combo Offers</div>
                   <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
                     {productData.comboPrices.map((combo, index) => (
-                      <div key={index} className='bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 hover:shadow-md transition-all duration-300'>
+                      <div key={index} className='rounded-xl p-4 transition-all duration-300' style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.25)' }}>
                         <div className='flex items-center justify-between mb-3'>
                           <div className='flex items-center gap-3'>
-                            <div className='w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-lg flex items-center justify-center'>
-                              <span className='text-white font-bold text-lg'>{combo.quantity}x</span>
+                            <div className='w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0' style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.35), rgba(245,158,11,0.25))', border: '1px solid rgba(249,115,22,0.3)' }}>
+                              <span className='text-orange-300 font-extrabold text-lg' style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{combo.quantity}x</span>
                             </div>
                             <div>
-                              <div className='font-bold text-gray-900'>{currency} {combo.price} each</div>
-                              <div className='text-sm text-gray-600'>Total: {currency} {combo.quantity * combo.price}</div>
+                              <div className='font-bold text-white text-sm'>{currency} {combo.price} each</div>
+                              <div className='text-xs text-slate-500'>Total: {currency} {combo.quantity * combo.price}</div>
                             </div>
                           </div>
                           {combo.discount > 0 && (
                             <div className='text-right'>
-                              <div className='text-sm font-bold text-green-600'>{combo.discount}% OFF</div>
-                              <div className='text-xs text-gray-500'>Save {currency} {Math.round((combo.quantity * combo.price * combo.discount) / 100)}</div>
+                              <div className='text-sm font-bold text-emerald-400'>{combo.discount}% OFF</div>
+                              <div className='text-xs text-slate-600'>Save {currency} {Math.round((combo.quantity * combo.price * combo.discount) / 100)}</div>
                             </div>
                           )}
                         </div>
                         <button
                           onClick={() => addToCartCombo(productData._id, combo.quantity, size || 'M')}
                           disabled={productData.soldout}
-                          className='w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2'
+                          className='w-full ragged-solid-btn py-2.5 px-4 font-bold text-sm uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed'
                         >
-                          <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h6.5' />
-                          </svg>
                           Add {combo.quantity} to Cart
                         </button>
                       </div>
@@ -638,45 +622,25 @@ const Product = () => {
             </div>
 
             {/* Description */}
-            <div className='space-y-3'>
-              <p className='text-gray-600 leading-relaxed'>
-                {productData.description}
-              </p>
-              {/* {productData.description.length > 100 && (
-                <button
-                  onClick={toggleDescription}
-                  className='text-orange-600 hover:text-orange-700 font-medium text-sm transition-colors'
-                >
-                  {isExpanded ? 'Show less' : 'Read more'}
-                </button>
-              )} */}
-            </div>
+            <p className='text-slate-400 leading-relaxed text-sm'>{productData.description}</p>
 
             {/* Size Selection */}
-            <div className='space-y-4'>
+            <div className='space-y-3'>
               <div className='flex items-center justify-between'>
-                <h3 className='text-base font-semibold text-gray-900'>Select Size</h3>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className='text-orange-600 hover:text-orange-700 text-xs font-medium underline transition-colors duration-200'
-                >
+                <h3 className='text-xs font-extrabold text-slate-400 uppercase tracking-[0.18em]'>Select Size</h3>
+                <button onClick={() => setIsModalOpen(true)} className='text-orange-400 hover:text-orange-300 text-xs font-bold underline transition-colors duration-200'>
                   Size Guide
                 </button>
               </div>
-
               <div className='grid grid-cols-4 gap-3'>
                 {productData.sizes.map((item, index) => (
                   <button
                     key={index}
                     onClick={() => setSize(item)}
-                    className={`relative h-12 rounded-xl border-2 font-semibold text-sm transition-all duration-300 transform hover:scale-105 ${item === size
-                      ? 'border-orange-500 bg-orange-500 text-white shadow-lg shadow-orange-200'
-                      : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700'
-                      }`}
+                    className={`relative h-12 rounded-xl border-2 font-bold text-sm transition-all duration-300 hover:scale-105 ${item === size ? 'border-orange-500 text-white shadow-[0_0_16px_rgba(249,115,22,0.35)]' : 'border-slate-700 text-slate-400 hover:border-orange-500/50 hover:text-orange-300'}`}
+                    style={{ background: item === size ? 'linear-gradient(135deg, rgba(249,115,22,0.25), rgba(245,158,11,0.15))' : 'rgba(255,255,255,0.03)' }}
                   >
-                    <span className='absolute inset-0 flex items-center justify-center'>
-                      {item}
-                    </span>
+                    <span className='absolute inset-0 flex items-center justify-center text-slate-100'>{item}</span>
                     {item === size && (
                       <div className='absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center'>
                         <svg className='w-2.5 h-2.5 text-white' fill='currentColor' viewBox='0 0 20 20'>
@@ -691,101 +655,65 @@ const Product = () => {
 
             {/* Quantity */}
             <div className='space-y-3'>
-              <h3 className='text-base font-semibold text-gray-900'>Quantity</h3>
+              <h3 className='text-xs font-extrabold text-slate-400 uppercase tracking-[0.18em]'>Quantity</h3>
               <div className='flex items-center gap-4'>
-                <div className='flex items-center border-2 border-gray-200 rounded-xl shadow-sm overflow-hidden'>
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className='w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-all duration-200 border-r border-gray-200'
-                  >
-                    <svg className='w-5 h-5 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M20 12H4' />
-                    </svg>
+                <div className='flex items-center rounded-xl overflow-hidden' style={{ border: '1px solid rgba(249,115,22,0.3)', background: 'rgba(255,255,255,0.03)' }}>
+                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className='w-12 h-12 flex items-center justify-center text-orange-400 hover:bg-orange-500/15 transition-all duration-200 border-r border-orange-500/20'>
+                    <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M20 12H4' /></svg>
                   </button>
-                  <span className='w-16 h-12 flex items-center justify-center text-lg font-bold text-gray-900 bg-white'>
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => {
-                      const maxStock = productData.stock || Infinity;
-                      setQuantity(Math.min(quantity + 1, maxStock));
-                    }}
-                    className='w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-all duration-200 border-l border-gray-200'
-                  >
-                    <svg className='w-5 h-5 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M12 4v16m8-8H4' />
-                    </svg>
+                  <span className='w-16 h-12 flex items-center justify-center text-lg font-bold text-white'>{quantity}</span>
+                  <button onClick={() => { const maxStock = productData.stock || Infinity; setQuantity(Math.min(quantity + 1, maxStock)); }} className='w-12 h-12 flex items-center justify-center text-orange-400 hover:bg-orange-500/15 transition-all duration-200 border-l border-orange-500/20'>
+                    <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M12 4v16m8-8H4' /></svg>
                   </button>
                 </div>
-                <span className='text-sm text-gray-500 font-medium'>
-                  {productData.stock || 'Unlimited'} available
-                </span>
+                <span className='text-sm text-slate-500 font-medium'>{productData.stock || 'Unlimited'} available</span>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className='space-y-4'>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4'>
-                <button
-                  onClick={addCartPageDetails}
-                  className='w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'
-                >
+            <div className='space-y-3'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                <button onClick={addCartPageDetails} className='w-full ragged-solid-btn py-4 px-6 font-extrabold text-sm uppercase tracking-widest'>
                   Add to Cart
                 </button>
-                <Link to='/cart'>
-                  <button
-                    onClick={scrollToTop}
-                    className={`w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl ${buyNow}`}
-                  >
+                <Link to='/cart' className={buyNow}>
+                  <button onClick={scrollToTop} className='w-full py-4 px-6 font-extrabold text-sm uppercase tracking-widest rounded-xl transition-all duration-300 hover:scale-105 text-white border border-white/15 hover:bg-white/10'>
                     Buy Now
                   </button>
                 </Link>
               </div>
-
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
                 <button
                   onClick={addToWishlistPage}
-                  className={`w-full font-semibold py-4 px-6 rounded-xl transition-all duration-300 border-2 ${isWishlisted
-                    ? 'border-red-500 bg-red-50 text-red-700 hover:bg-red-100'
-                    : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50'
-                    }`}
+                  className={`w-full py-4 px-6 font-bold text-sm uppercase tracking-wide rounded-xl transition-all duration-300 border-2 ${isWishlisted ? 'border-red-500/60 text-red-400 hover:bg-red-500/10' : 'border-slate-700 text-slate-400 hover:border-orange-500/50 hover:text-orange-300'}`}
+                  style={{ background: isWishlisted ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)' }}
                 >
-                  <div className='flex items-center justify-center gap-2'>
+                  <div className='flex items-center justify-center gap-2 text-inherit'>
                     <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                     {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
                   </div>
                 </button>
-                <Link to='/wishlist'>
-                  <button className={`w-full border-2 border-gray-300 text-gray-700 font-semibold py-4 px-6 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 ${wishlistCta}`}>
-                    View Wishlist
-                  </button>
+                <Link to='/wishlist' className={wishlistCta}>
+                  <button className='w-full ragged-outline-btn py-4 px-6 font-bold text-sm uppercase tracking-wide'>View Wishlist</button>
                 </Link>
               </div>
 
-
-
-              {/* Why Choose Us - Minimal */}
-              <div className='mt-4 bg-orange-50 rounded-lg p-3 border border-orange-100'>
-                <div className='flex items-center justify-between gap-1'>
+              {/* Trust mini bar */}
+              <div className='rounded-xl p-3' style={{ background: 'rgba(249,115,22,0.07)', border: '1px solid rgba(249,115,22,0.18)' }}>
+                <div className='flex items-center justify-between gap-2'>
                   <div className='flex items-center gap-2'>
-                    <div className='w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center'>
-                      <Truck className='w-3 h-3 text-white' />
-                    </div>
-                    <span className='text-xs font-medium text-gray-700'>Free Shipping</span>
+                    <div className='w-6 h-6 rounded-md flex items-center justify-center bg-orange-500/80'><Truck className='w-3 h-3 text-white' /></div>
+                    <span className='text-xs font-semibold text-slate-400'>Free Shipping</span>
                   </div>
-
+                  <div className='w-px h-4 bg-orange-500/20' />
                   <div className='flex items-center gap-2'>
-                    <div className='w-6 h-6 bg-blue-500 rounded-md flex items-center justify-center'>
-                      <Shield className='w-3 h-3 text-white' />
-                    </div>
-                    <span className='text-xs font-medium text-gray-700'>Secure Payment</span>
+                    <div className='w-6 h-6 rounded-md flex items-center justify-center bg-blue-500/80'><Shield className='w-3 h-3 text-white' /></div>
+                    <span className='text-xs font-semibold text-slate-400'>Secure Pay</span>
                   </div>
-
+                  <div className='w-px h-4 bg-orange-500/20' />
                   <div className='flex items-center gap-2'>
-                    <div className='w-6 h-6 bg-green-500 rounded-md flex items-center justify-center'>
-                      <RotateCcw className='w-3 h-3 text-white' />
-                    </div>
-                    <span className='text-xs font-medium text-gray-700'>Easy Returns</span>
+                    <div className='w-6 h-6 rounded-md flex items-center justify-center bg-emerald-500/80'><RotateCcw className='w-3 h-3 text-white' /></div>
+                    <span className='text-xs font-semibold text-slate-400'>Easy Returns</span>
                   </div>
                 </div>
               </div>
@@ -793,64 +721,39 @@ const Product = () => {
           </div>
         </div>
 
+        {/* Section Divider */}
+        <div className='relative my-8 md:my-12'>
+          <div className='h-px' style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.4), rgba(249,115,22,0.2), transparent)' }} />
+          <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full' style={{ background: '#f97316', boxShadow: '0 0 8px rgba(249,115,22,0.6)' }} />
+        </div>
+
         {/* Product Features */}
-        <div className='mt-6 md:mt-16 rounded-2xl shadow-sm border border-gray-100 py-8 px-4'>
-          <h2 className='text-2xl font-bold text-gray-900 mb-8'>Product Features</h2>
+        <div className='relative ragged-section rounded-2xl py-8 px-5 overflow-hidden' style={{ border: '1px solid rgba(249,115,22,0.22)' }}>
+          <div className='ragged-divider' />
+          <div className='flex items-center gap-3 mt-4 mb-8'>
+            <div className='w-1 h-7 rounded-full flex-shrink-0' style={{ background: 'linear-gradient(180deg, #f97316, #f59e0b)' }} />
+            <h2 className='ragged-title' style={{ fontSize: 'clamp(1.4rem,3vw,2rem)' }}>Product Features</h2>
+            <div className='flex-1 h-px' style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.4), transparent)' }} />
+          </div>
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6'>
-            <div className='text-center space-y-3'>
-              <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto'>
-                <Paintbrush className='w-6 h-6 text-orange-600' />
+            {[
+              { icon: <Paintbrush className='w-6 h-6 text-orange-400' />, label: 'Design', value: productData.design || changeText || 'Custom Print' },
+              { icon: <Shirt className='w-6 h-6 text-orange-400' />, label: 'Fit', value: productData.fit || 'Oversized' },
+              { icon: <Circle className='w-6 h-6 text-orange-400' />, label: 'Neck', value: productData.neck || 'Round Neck' },
+              { icon: <Leaf className='w-6 h-6 text-orange-400' />, label: 'Material', value: productData.material || 'Cotton' },
+              { icon: <Calendar className='w-6 h-6 text-orange-400' />, label: 'Occasion', value: productData.occasion || 'Casual Wear' },
+              { icon: <Hand className='w-6 h-6 text-orange-400' />, label: 'Sleeve Style', value: productData.sleeveStyle || 'Half Sleeve' },
+            ].map(({ icon, label, value }) => (
+              <div key={label} className='text-center space-y-3'>
+                <div className='w-12 h-12 rounded-xl flex items-center justify-center mx-auto' style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.25)' }}>
+                  {icon}
+                </div>
+                <div>
+                  <p className='text-xs text-slate-500 uppercase tracking-wider'>{label}</p>
+                  <p className='font-semibold text-slate-200 text-sm mt-0.5'>{value}</p>
+                </div>
               </div>
-              <div>
-                <p className='text-sm text-gray-500'>Design</p>
-                <p className='font-semibold text-gray-900'>{productData.design || changeText || "Custom Print"}</p>
-              </div>
-            </div>
-            <div className='text-center space-y-3'>
-              <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto'>
-                <Shirt className='w-6 h-6 text-orange-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Fit</p>
-                <p className='font-semibold text-gray-900'>{productData.fit || "Oversized"}</p>
-              </div>
-            </div>
-            <div className='text-center space-y-3'>
-              <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto'>
-                <Circle className='w-6 h-6 text-orange-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Neck</p>
-                <p className='font-semibold text-gray-900'>{productData.neck || "Round Neck"}</p>
-              </div>
-            </div>
-            <div className='text-center space-y-3'>
-              <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto'>
-                <Leaf className='w-6 h-6 text-orange-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Material</p>
-                <p className='font-semibold text-gray-900'>{productData.material || "Cotton"}</p>
-              </div>
-            </div>
-            <div className='text-center space-y-3'>
-              <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto'>
-                <Calendar className='w-6 h-6 text-orange-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Occasion</p>
-                <p className='font-semibold text-gray-900'>{productData.occasion || "Casual Wear"}</p>
-              </div>
-            </div>
-            <div className='text-center space-y-3'>
-              <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto'>
-                <Hand className='w-6 h-6 text-orange-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-500'>Sleeve Style</p>
-                <p className='font-semibold text-gray-900'>{productData.sleeveStyle || "Half Sleeve"}</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -941,24 +844,35 @@ const Product = () => {
             </div>
           )} */}
 
+        {/* Section Divider */}
+        <div className='relative my-8 md:my-12'>
+          <div className='h-px' style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.4), rgba(249,115,22,0.2), transparent)' }} />
+          <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full' style={{ background: '#f97316', boxShadow: '0 0 8px rgba(249,115,22,0.6)' }} />
+        </div>
+
         {/* Product Description */}
-        <div className='mt-8 md:mt-16 rounded-2xl shadow-sm border border-gray-100 p-2'>
-          <h2 className='text-2xl font-bold text-gray-900 mb-6'>Product Description</h2>
-          <div className='prose prose-gray max-w-none'>
-            <p className='text-gray-600 leading-relaxed mb-4'>
-              Unleash your inner trendsetter with the <span className='font-semibold text-gray-900'>Inkdapper {productData.name} T-shirt</span>! Crafted for those who love to stand out, this oversized tee combines comfort with bold, custom style. Featuring unique DTF sticker prints and a striking bleach design, it's the perfect choice for anyone who wants to express their individuality.
+        <div className='relative ragged-section rounded-2xl p-5 md:p-8 overflow-hidden' style={{ border: '1px solid rgba(249,115,22,0.22)' }}>
+          <div className='ragged-divider' />
+          <div className='flex items-center gap-3 mt-4 mb-6'>
+            <div className='w-1 h-7 rounded-full flex-shrink-0' style={{ background: 'linear-gradient(180deg, #f97316, #f59e0b)' }} />
+            <h2 className='ragged-title' style={{ fontSize: 'clamp(1.4rem,3vw,2rem)' }}>Product Description</h2>
+            <div className='flex-1 h-px' style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.4), transparent)' }} />
+          </div>
+          <div className='max-w-none'>
+            <p className='text-slate-400 leading-relaxed mb-4'>
+              Unleash your inner trendsetter with the <span className='font-semibold text-slate-200'>Inkdapper {productData.name} T-shirt</span>! Crafted for those who love to stand out, this oversized tee combines comfort with bold, custom style. Featuring unique DTF sticker prints and a striking bleach design, it's the perfect choice for anyone who wants to express their individuality.
             </p>
             {(!isMobile || isExpanded) && (
-              <p className='text-gray-600 leading-relaxed mb-4'>
+              <p className='text-slate-400 leading-relaxed mb-4'>
                 Made from 100% soft, breathable cotton jersey, this oversized t-shirt offers a relaxed fit for all-day comfort. The custom DTF prints and bleach effects ensure every piece is one-of-a-kind, making your look as unique as you are. Easy to care for: simply toss it in the wash with the rest of your laundry.
               </p>
             )}
             {isExpanded && (
               <>
-                <p className='text-gray-600 leading-relaxed mb-4'>
+                <p className='text-slate-400 leading-relaxed mb-4'>
                   The oversized silhouette makes it a versatile addition to your wardrobe—pair it with jeans for a streetwear vibe or layer it for a more creative, layered look. Whether you're lounging at home, heading out with friends, or making a statement on the go, this tee brings effortless cool to any setting.
                 </p>
-                <p className='text-gray-600 leading-relaxed mb-4'>
+                <p className='text-slate-400 leading-relaxed mb-4'>
                   For those who believe fashion is about self-expression, this t-shirt is your invitation to break the mold. Ready to upgrade your style? Make your mark with Inkdapper's custom oversized tees!
                 </p>
               </>
@@ -966,61 +880,57 @@ const Product = () => {
             {productData.description.length > 100 && (
               <button
                 onClick={toggleDescription}
-                className='text-orange-600 hover:text-orange-700 font-medium transition-colors'
+                className='text-orange-400 hover:text-orange-300 font-medium transition-colors text-sm'
               >
                 {isExpanded ? 'Show less' : 'Read more'}
               </button>
             )}
           </div>
 
-          <div className='mt-8 grid grid-cols-1 md:grid-cols-2 gap-8'>
-            <div className='space-y-4'>
-              <h3 className='font-semibold text-gray-900 text-lg'>Product Specifications</h3>
-              <div className='bg-gray-50 rounded-lg p-4 space-y-3'>
-                <div className='flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0'>
-                  <span className='text-sm text-gray-600 font-medium'>Fit:</span>
-                  <span className='text-sm text-gray-900 font-semibold'>Oversized</span>
-                </div>
-                <div className='flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0'>
-                  <span className='text-sm text-gray-600 font-medium'>Material:</span>
-                  <span className='text-sm text-gray-900 font-semibold'>100% Cotton</span>
-                </div>
-                <div className='flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0'>
-                  <span className='text-sm text-gray-600 font-medium'>Neck:</span>
-                  <span className='text-sm text-gray-900 font-semibold'>Round Neck</span>
-                </div>
-                <div className='flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0'>
-                  <span className='text-sm text-gray-600 font-medium'>Sleeve:</span>
-                  <span className='text-sm text-gray-900 font-semibold'>Half Sleeve</span>
-                </div>
+          <div className='mt-8 grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='space-y-3'>
+              <h3 className='font-semibold text-slate-200 text-base uppercase tracking-wider text-orange-400'>Product Specifications</h3>
+              <div className='rounded-xl p-4 space-y-1' style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(249,115,22,0.12)' }}>
+                {[
+                  { label: 'Fit', value: 'Oversized' },
+                  { label: 'Material', value: '100% Cotton' },
+                  { label: 'Neck', value: 'Round Neck' },
+                  { label: 'Sleeve', value: 'Half Sleeve' },
+                ].map(({ label, value }, i, arr) => (
+                  <div key={label} className='flex items-center justify-between py-2' style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(249,115,22,0.08)' : 'none' }}>
+                    <span className='text-sm text-slate-500 font-medium'>{label}:</span>
+                    <span className='text-sm text-slate-200 font-semibold'>{value}</span>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className='space-y-4'>
-              <h3 className='font-semibold text-gray-900 text-lg'>Care Instructions</h3>
-              <div className='bg-gray-50 rounded-lg p-4 space-y-3'>
-                <div className='flex items-start gap-3 py-2'>
-                  <span className='text-orange-500 font-bold'>•</span>
-                  <span className='text-sm text-gray-700'>Machine wash cold</span>
-                </div>
-                <div className='flex items-start gap-3 py-2'>
-                  <span className='text-orange-500 font-bold'>•</span>
-                  <span className='text-sm text-gray-700'>Tumble dry low</span>
-                </div>
-                <div className='flex items-start gap-3 py-2'>
-                  <span className='text-orange-500 font-bold'>•</span>
-                  <span className='text-sm text-gray-700'>Do not bleach</span>
-                </div>
-                <div className='flex items-start gap-3 py-2'>
-                  <span className='text-orange-500 font-bold'>•</span>
-                  <span className='text-sm text-gray-700'>Iron on low heat if needed</span>
-                </div>
+            <div className='space-y-3'>
+              <h3 className='font-semibold text-base uppercase tracking-wider text-orange-400'>Care Instructions</h3>
+              <div className='rounded-xl p-4 space-y-1' style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(249,115,22,0.12)' }}>
+                {['Machine wash cold', 'Tumble dry low', 'Do not bleach', 'Iron on low heat if needed'].map((item) => (
+                  <div key={item} className='flex items-start gap-3 py-2'>
+                    <span className='text-orange-500 font-bold mt-0.5'>•</span>
+                    <span className='text-sm text-slate-400'>{item}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
+        {/* Section Divider */}
+        <div className='relative my-8 md:my-12'>
+          <div className='h-px' style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.4), rgba(249,115,22,0.2), transparent)' }} />
+          <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full' style={{ background: '#f97316', boxShadow: '0 0 8px rgba(249,115,22,0.6)' }} />
+        </div>
+
         {/* Reviews Section */}
-        <div className='mt-8 md:mt-16'>
+        <div>
+          <div className='flex items-center gap-3 mb-8'>
+            <div className='w-1 h-7 rounded-full flex-shrink-0' style={{ background: 'linear-gradient(180deg, #f97316, #f59e0b)' }} />
+            <h2 className='ragged-title' style={{ fontSize: 'clamp(1.4rem,3vw,2rem)' }}>Customer Reviews</h2>
+            <div className='flex-1 h-px' style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.4), transparent)' }} />
+          </div>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
             <ProductReviewSection productId={productData._id} />
             <ListReviews />
@@ -1028,7 +938,7 @@ const Product = () => {
         </div>
 
         {/* Related Products */}
-        <div className='mt-16'>
+        <div className='mt-4'>
           <RelatedProducts
             category={productData.category}
             subCategory={productData.subCategory}
@@ -1039,21 +949,22 @@ const Product = () => {
 
       {/* Size Guide Modal */}
       {isModalOpen && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4'>
-          <div className='bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto'>
-            <div className='p-6 border-b border-gray-200 flex items-center justify-between'>
-              <h3 className='text-xl font-bold text-gray-900'>Size Guide</h3>
+        <div className='fixed inset-0 z-50 flex items-center justify-center p-4' style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}>
+          <div className='rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto' style={{ background: '#0f0f11', border: '1px solid rgba(249,115,22,0.25)', boxShadow: '0 24px 60px rgba(0,0,0,0.8)' }}>
+            <div className='p-5 flex items-center justify-between' style={{ borderBottom: '1px solid rgba(249,115,22,0.15)' }}>
+              <h3 className='ragged-title text-xl' style={{ fontSize: '1.3rem' }}>Size Guide</h3>
               <button
                 onClick={closeModal}
-                className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+                className='p-2 rounded-lg transition-colors text-slate-400 hover:text-orange-400'
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
-                <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
                 </svg>
               </button>
             </div>
             <div className='p-6'>
-              <img src={assets.product_size} alt='Size guide' className='w-full h-auto' />
+              <img src={assets.product_size} alt='Size guide' className='w-full h-auto rounded-xl' />
             </div>
           </div>
         </div>
@@ -1061,15 +972,16 @@ const Product = () => {
 
       {/* Review Images Modal */}
       {isModalOpenOne && (
-        <div className='fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4'>
-          <div className='bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden'>
-            <div className='p-4 border-b border-gray-200 flex items-center justify-between'>
-              <h3 className='text-lg font-semibold text-gray-900'>Customer Reviews</h3>
+        <div className='fixed inset-0 z-50 flex items-center justify-center p-4' style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)' }}>
+          <div className='rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden' style={{ background: '#0f0f11', border: '1px solid rgba(249,115,22,0.25)', boxShadow: '0 24px 60px rgba(0,0,0,0.9)' }}>
+            <div className='p-4 flex items-center justify-between' style={{ borderBottom: '1px solid rgba(249,115,22,0.15)' }}>
+              <h3 className='ragged-title text-lg' style={{ fontSize: '1.1rem' }}>Customer Reviews</h3>
               <button
                 onClick={closeModalOne}
-                className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+                className='p-2 rounded-lg transition-colors text-slate-400 hover:text-orange-400'
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
-                <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
                 </svg>
               </button>
@@ -1090,7 +1002,7 @@ const Product = () => {
                     <img
                       src={item}
                       alt={`Customer review ${index + 1}`}
-                      className='w-full h-auto max-h-[70vh] object-contain'
+                      className='w-full h-auto max-h-[70vh] object-contain rounded-xl'
                     />
                   </SwiperSlide>
                 ))}
@@ -1101,19 +1013,18 @@ const Product = () => {
       )}
     </div>
   ) : (
-    <div className='min-h-screen flex items-center justify-center'>
-      <div className='text-center space-y-4'>
-        <div className='text-6xl font-bold text-gray-300'>404</div>
-        <h1 className='text-2xl font-semibold text-gray-600'>Product Not Found</h1>
-        <p className='text-gray-500 max-w-md'>
+    <div className='min-h-screen flex items-center justify-center ragged-section'>
+      <div className='text-center space-y-5 px-6'>
+        <div className='ragged-title' style={{ fontSize: 'clamp(4rem,15vw,8rem)', lineHeight: 1, color: 'rgba(249,115,22,0.25)' }}>404</div>
+        <h1 className='ragged-title' style={{ fontSize: 'clamp(1.4rem,4vw,2.2rem)' }}>Product Not Found</h1>
+        <p className='text-slate-500 max-w-md mx-auto text-sm leading-relaxed'>
           The product you're looking for doesn't exist or has been removed.
           Please check the URL and try again.
         </p>
-        <Link
-          to='/collection'
-          className='inline-block bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors'
-        >
-          Browse Products
+        <Link to='/collection'>
+          <button className='ragged-solid-btn px-8 py-3 font-bold text-sm uppercase tracking-widest mt-2'>
+            Browse Products
+          </button>
         </Link>
       </div>
     </div>

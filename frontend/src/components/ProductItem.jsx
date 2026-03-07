@@ -1,8 +1,5 @@
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ShareIcon from '@mui/icons-material/Share';
 import { toast } from 'react-toastify';
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import { useContext, useEffect, useMemo, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
@@ -25,33 +22,10 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   };
 
   const offerPercentage = calculateOfferPercentage();
-  const [favWishlist, setFavWishlist] = useState([]);
-  const [changeText, setChangeText] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
   const shareMenuRef = useRef(null);
-
-  const handleWishlistToggle = () => {
-    if (!token) {
-      toast.error('Please login to manage wishlist', { autoClose: 1000, });
-    } else {
-      // Check if item is already in wishlist
-      if (favWishlist.includes(id)) {
-        // Remove from wishlist
-        updateWishlistQuantity(id, 0);
-      } else {
-        // Add to wishlist
-        addToWishlist(id);
-      }
-    }
-  };
-
-  const funcFavWishlist = () => {
-    const obj = wishlist;
-    const keys = Object.keys(obj);
-    setFavWishlist(keys);
-  };
-
-  const createNew = () => {
+  const favWishlist = useMemo(() => Object.keys(wishlist || {}), [wishlist]);
+  const changeText = useMemo(() => {
     const subCategoryMap = {
       'Customtshirt': 'Custom T-shirt',
       'Oversizedtshirt': 'Oversized T-shirt',
@@ -64,9 +38,22 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
       'Sweattshirts': 'Sweat T-shirt'
     };
 
-    const newText = subCategoryMap[subCategory];
-    if (newText) {
-      setChangeText(newText);
+    return subCategoryMap[subCategory] || '';
+  }, [subCategory]);
+  const isWishlisted = favWishlist.includes(id);
+
+  const handleWishlistToggle = () => {
+    if (!token) {
+      toast.error('Please login to manage wishlist', { autoClose: 1000, });
+    } else {
+      // Check if item is already in wishlist
+      if (isWishlisted) {
+        // Remove from wishlist
+        updateWishlistQuantity(id, 0);
+      } else {
+        // Add to wishlist
+        addToWishlist(id);
+      }
     }
   };
 
@@ -131,11 +118,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     }
   };
 
-  useEffect(() => {
-    funcFavWishlist();
-    createNew();
-  }, [wishlist]);
-
   // Close share menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -160,22 +142,40 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
       className='relative group'
     >
       {/* Enhanced Wishlist Button */}
-      {favWishlist.includes(id) ?
-        <FavoriteIcon
+      {isWishlisted ? (
+        <button
+          type="button"
           onClick={handleWishlistToggle}
-          className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-red-500 hover:text-red-600 transition-all duration-300 transform hover:scale-110 drop-shadow-lg glass-button rounded-full p-1.5`}
-        /> :
-        <FavoriteBorderIcon
+          aria-label="Remove from wishlist"
+          className="absolute right-4 top-4 z-30 w-9 h-9 flex items-center justify-center cursor-pointer text-red-500 hover:text-red-600 transition-all duration-300 transform hover:scale-110 drop-shadow-lg glass-button rounded-full p-1.5"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 0 1 7.5 3C9.24 3 10.91 3.81 12 5.09 13.09 3.81 14.76 3 16.5 3A5.5 5.5 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.53L12 21.35z" />
+          </svg>
+        </button>
+      ) : (
+        <button
+          type="button"
           onClick={handleWishlistToggle}
-          className={`absolute right-4 top-4 z-30 !w-9 !h-9 flex items-center justify-center cursor-pointer text-slate-600 hover:text-red-500 transition-all duration-300 transform hover:scale-110 drop-shadow-lg glass-button rounded-full p-1.5`}
-        />
-      }{/* Enhanced Share Button - visible on all screen sizes */}
+          aria-label="Add to wishlist"
+          className="absolute right-4 top-4 z-30 w-9 h-9 flex items-center justify-center cursor-pointer text-slate-600 hover:text-red-500 transition-all duration-300 transform hover:scale-110 drop-shadow-lg glass-button rounded-full p-1.5"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </button>
+      )}{/* Enhanced Share Button - visible on all screen sizes */}
       <div className="absolute right-4 top-16 sm:top-16 z-20">
         <button
           onClick={(e) => handleShare(e)}
           className="share-button hover:text-slate-800 transition-all duration-300 transform hover:scale-110 glass-button rounded-full p-1.5 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center shadow-lg"
         >
-          <ShareIcon className="text-slate-600 group-hover:text-slate-800 drop-shadow-lg" fontSize="small" />
+          <svg className="w-4 h-4 text-slate-600 group-hover:text-slate-800 drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49" />
+          </svg>
         </button>
 
         {/* Enhanced Share Menu */}
@@ -189,7 +189,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 onClick={(e) => shareOnWhatsApp(e)}
                 className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-slate-50 rounded-xl w-full transition-all duration-300 transform hover:scale-105"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#555">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.68-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
               </button>
@@ -198,13 +198,13 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 onClick={(e) => shareOnInstagram(e)}
                 className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-slate-50 rounded-xl w-full transition-all duration-300 transform hover:scale-105"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
                   <linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#F9CE34" />
                     <stop offset="25%" stopColor="#EE2A7B" />
                     <stop offset="50%" stopColor="#6228D7" />
                   </linearGradient>
-                  <path fill="#555" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                  <path fill="#ffffff" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                 </svg>
               </button>
 
@@ -212,7 +212,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 onClick={(e) => shareViaMessage(e)}
                 className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-slate-50 rounded-xl w-full transition-all duration-300 transform hover:scale-105"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#555">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff">
                   <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
                 </svg>
               </button>

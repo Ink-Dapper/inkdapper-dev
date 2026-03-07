@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNotifications } from '../context/NotificationContext';
 import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const NotificationBell = () => {
-  const { notifications, unreadCount, markAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isOpen && unreadCount > 0) {
+      markAllAsRead();
+    }
+  }, [isOpen, unreadCount]);
 
   const handleNotificationClick = (notification) => {
     if (!notification.isRead) {

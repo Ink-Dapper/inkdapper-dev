@@ -7,7 +7,8 @@
       "Bash(curl -s \"http://localhost:4000/api/test\")",
       "Bash(xargs grep -l \"upload\\\\|Upload\")",
       "Bash(xargs grep -l \"product\\\\|upload\")",
-      "Bash(xargs grep -l \"image\\\\|file\\\\|upload\")"
+      "Bash(xargs grep -l \"image\\\\|file\\\\|upload\")",
+      "Bash(xargs cat)"
     ]
   }
 }

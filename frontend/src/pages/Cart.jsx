@@ -3,6 +3,7 @@ import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title'
 import { assets } from '../assets/assets'
 import CartTotal from '../components/CartTotal'
+import CheckoutProgress from '../components/CheckoutProgress'
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -70,217 +71,196 @@ const Cart = () => {
   }, [cartItems, products, getCustomData])
 
   return (
-    <div className='min-h-screen'>
-      {/* Header Section */}
-      <div className='bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-lg'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          <div className='flex flex-col md:flex-row md:items-center md:justify-between space-y-6 md:space-y-0'>
-            <div className='text-center md:text-left'>
-              <h1 className='text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-900 via-orange-600 to-red-600 bg-clip-text text-transparent'>
-                Shopping Cart
-              </h1>
-              <p className='text-slate-600 mt-3 text-lg'>Review your items and proceed to checkout</p>
+    <div className='ragged-section min-h-screen' style={{ background: '#0d0d0e' }}>
+      <div className='ragged-noise' />
+
+      <div className='relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 sm:py-14'>
+
+        {/* ── Page Header ── */}
+        <div className='text-center mb-10'>
+          <div className='inline-flex items-center gap-3 mb-4'>
+            <div className='w-8 h-px' style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.6))' }} />
+            <span className='text-xs font-bold uppercase tracking-[0.22em] text-orange-400'>My Cart</span>
+            <div className='w-8 h-px' style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.6), transparent)' }} />
+          </div>
+          <h1 className='ragged-title mb-5' style={{ fontSize: 'clamp(2.2rem, 6vw, 4rem)' }}>Shopping Cart</h1>
+
+          <CheckoutProgress currentStep={0} />
+        </div>
+
+        {/* ── Discount / Combo banners ── */}
+        {!hasMultipleProducts() && showCartTotal.length > 0 && (
+          <div className='mb-6 rounded-xl px-5 py-3.5 flex items-center gap-4'
+            style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)' }}>
+            <div className='w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0'
+              style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
+              <svg className='w-4 h-4 text-blue-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' />
+              </svg>
             </div>
-            <div className='hidden md:block'>
-              <div className='flex items-center space-x-6'>
-                <div className='flex items-center'>
-                  <div className='w-10 h-10 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg'>
-                    1
-                  </div>
-                  <span className='ml-3 text-slate-700 font-medium'>Cart</span>
-                </div>
-                <div className='w-12 h-1 bg-gradient-to-r from-orange-200 to-red-200 rounded-full'></div>
-                <div className='flex items-center'>
-                  <div className='w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 text-sm font-medium'>
-                    2
-                  </div>
-                  <span className='ml-3 text-slate-500'>Checkout</span>
-                </div>
-                <div className='w-12 h-1 bg-gradient-to-r from-orange-200 to-red-200 rounded-full'></div>
-                <div className='flex items-center'>
-                  <div className='w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 text-sm font-medium'>
-                    3
-                  </div>
-                  <span className='ml-3 text-slate-500'>Complete</span>
-                </div>
-              </div>
+            <div>
+              <div className='text-sm font-bold text-blue-400'>Get 7% Off!</div>
+              <div className='text-xs text-slate-600'>Buy more than one product or increase quantity to unlock discount</div>
             </div>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Discount Encouragement Message */}
-      {!hasMultipleProducts() && showCartTotal.length > 0 && (
-        <div className='bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200'>
-          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
-            <div className='flex items-center justify-center space-x-3'>
-              <div className='flex items-center space-x-2'>
-                <div className='w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center'>
-                  <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' />
-                  </svg>
-                </div>
-                <div className='text-center'>
-                  <h3 className='text-lg font-bold text-blue-800'>💡 Get 7% Off!</h3>
-                  <p className='text-sm text-blue-700'>Buy more than one product or increase quantity to unlock discount</p>
-                </div>
-              </div>
+        {hasMultipleProducts() && (
+          <div className='mb-6 rounded-xl px-5 py-3.5 flex items-center gap-4'
+            style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.18)' }}>
+            <div className='w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0'
+              style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
+              <svg className='w-4 h-4 text-green-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' />
+              </svg>
+            </div>
+            <div>
+              <div className='text-sm font-bold text-green-400'>Combo Offer Active!</div>
+              <div className='text-xs text-slate-600'>You're getting 7% off for ordering multiple items!</div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Combo Offer Message */}
-      {hasMultipleProducts() && (
-        <div className='bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200'>
-          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
-            <div className='flex items-center justify-center space-x-3'>
-              <div className='flex items-center space-x-2'>
-                <div className='w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center'>
-                  <svg className='w-5 h-5 text-white' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' />
-                  </svg>
-                </div>
-                <div className='text-center'>
-                  <h3 className='text-lg font-bold text-green-800'>🎉 Combo Offer Active!</h3>
-                  <p className='text-sm text-green-700'>You're getting 7% off for ordering multiple items!</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className='max-w-8xl mx-auto px-4 sm:px-0 py-8'>
+        {/* ── Main Content ── */}
         {showCartTotal.length === 0 ? (
-          // Empty Cart State
-          <div className='text-center py-20 md:py-32'>
-            <div className='max-w-lg mx-auto'>
-              <div className='w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center shadow-xl'>
-                <svg className='w-16 h-16 text-orange-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+          /* Empty Cart */
+          <div className='text-center py-24'>
+            <div className='relative inline-flex items-center justify-center mb-8'>
+              <div className='absolute w-36 h-36 rounded-full blur-2xl pointer-events-none'
+                style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.08), transparent 70%)' }} />
+              <div className='relative w-24 h-24 rounded-full flex items-center justify-center'
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                <svg className='w-12 h-12' style={{ color: 'rgba(249,115,22,0.4)' }} fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
                 </svg>
               </div>
-              <h2 className='text-3xl font-bold text-slate-900 mb-4'>Your cart is empty</h2>
-              <p className='text-slate-600 mb-10 text-lg'>Looks like you haven't added any items to your cart yet.</p>
-              <button
-                onClick={() => { navigate('/collection'); scrollToTop(); }}
-                className='inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-xl hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all duration-300 transform hover:scale-105 shadow-lg'
-              >
-                <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
-                </svg>
-                Start Shopping
-              </button>
             </div>
+            <h2 className='ragged-title mb-4' style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)' }}>Your Cart Is Empty</h2>
+            <p className='text-slate-500 mb-8 text-base'>Looks like you haven't added any items yet.</p>
+            <button
+              onClick={() => { navigate('/collection'); scrollToTop(); }}
+              className='inline-flex items-center gap-2 px-7 py-3.5 font-bold text-xs uppercase tracking-[0.1em] rounded-xl transition-all duration-300 hover:-translate-y-0.5'
+              style={{ background: 'linear-gradient(135deg, #f97316, #f59e0b)', color: '#0d0d0e', boxShadow: '0 0 20px rgba(249,115,22,0.25)' }}
+            >
+              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
+              </svg>
+              Start Shopping
+            </button>
           </div>
         ) : (
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-            {/* Cart Items */}
+
+            {/* ── Cart Items ── */}
             <div className='lg:col-span-2'>
-              <div className='bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden'>
-                <div className='px-6 py-6 bg-gradient-to-r from-slate-50 to-orange-50 border-b border-slate-100'>
-                  <h2 className='text-xl font-bold text-slate-900 flex items-center'>
-                    <svg className='w-6 h-6 mr-3 text-orange-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <div className='relative rounded-2xl overflow-hidden'
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(249,115,22,0.15)' }}>
+                {/* Top accent bar */}
+                <div className='absolute top-0 left-0 w-full h-0.5'
+                  style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b, transparent)' }} />
+
+                {/* Card header */}
+                <div className='px-6 py-5 flex items-center gap-3'
+                  style={{ borderBottom: '1px solid rgba(249,115,22,0.1)' }}>
+                  <div className='w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0'
+                    style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                    <svg className='w-4 h-4 text-orange-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                       <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
                     </svg>
-                    Cart Items ({cartData.length + customDataArray.length})
-                  </h2>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <div className='w-0.5 h-4 rounded-full' style={{ background: 'linear-gradient(180deg, #f97316, #f59e0b)' }} />
+                    <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', fontSize: '1.15rem', color: '#f1f5f9' }}>
+                      Cart Items ({cartData.length + customDataArray.length})
+                    </h2>
+                  </div>
                 </div>
 
-                <div className='divide-y divide-slate-100'>
+                {/* Items list */}
+                <div>
                   {/* Regular Products */}
                   {cartData.length > 0 && cartData.map((item, index) => {
                     const productData = products.find((product) => product._id === item._id);
-                    if (!productData) {
-                      return null;
-                    }
+                    if (!productData) return null;
                     return (
-                      <div key={index} className='p-6 shadow-sm mb-2 hover:bg-gradient-to-r hover:from-orange-50/50 hover:to-red-50/50 transition-all duration-300 relative'>
-                        <div className='flex flex-col sm:flex-row sm:items-start space-y-4 sm:space-y-0 sm:space-x-6'>
+                      <div key={index} className='relative p-5 md:p-6 group transition-colors duration-300'
+                        style={{ borderBottom: '1px solid rgba(249,115,22,0.07)' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(249,115,22,0.03)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <div className='flex flex-col sm:flex-row sm:items-start gap-5'>
+
                           {/* Product Image */}
                           <div className='flex-shrink-0 flex justify-center sm:justify-start'>
-                            <div className='relative group'>
+                            <div className='relative'>
                               <img
-                                className='w-48 h-52 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover rounded-xl border-2 border-slate-200 shadow-md group-hover:border-orange-300 transition-all duration-300'
+                                className='w-44 h-48 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover rounded-xl transition-all duration-300'
+                                style={{ border: '1px solid rgba(249,115,22,0.2)' }}
                                 src={productData.image[0]}
                                 alt={productData.name}
                               />
-                              <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
                             </div>
                           </div>
 
                           {/* Product Details */}
                           <div className='flex-1 min-w-0 flex flex-col'>
-                            {/* Remove Button - Mobile Only */}
+                            {/* Mobile remove */}
                             <button
                               onClick={() => updateQuantity(item._id, item.size, 0)}
-                              className='absolute top-2 right-2 sm:hidden p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-300'
-                              title='Remove item'
+                              className='absolute top-3 right-3 sm:hidden p-1.5 rounded-lg transition-all duration-200'
+                              style={{ color: '#475569' }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = 'transparent'; }}
                             >
-                              <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                              <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
                               </svg>
                             </button>
 
-                            <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-4 sm:space-y-0'>
+                            <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4'>
                               <div className='flex-1'>
-                                <h3 className='text-lg md:text-xl font-bold text-slate-900 mb-2'>{productData.name}</h3>
-                                <p className='text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4'>
-                                  {currency} {productData.price}
-                                </p>
+                                <h3 className='text-base md:text-lg font-bold mb-1' style={{ color: '#f1f5f9' }}>{productData.name}</h3>
+                                <p className='text-xl font-bold text-orange-400 mb-3'>{currency} {productData.price}</p>
 
-                                {/* Combo Pricing Info */}
+                                {/* Combo Pricing */}
                                 {productData.comboPrices && productData.comboPrices.length > 0 && (
                                   <div className='mb-3'>
-                                    <div className='text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2'>Available Combo Offers</div>
+                                    <div className='text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600 mb-2'>Combo Offers</div>
                                     <div className='flex flex-wrap gap-2'>
-                                      {productData.comboPrices.slice(0, 2).map((combo, comboIndex) => (
-                                        <div key={comboIndex} className='bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-200 rounded-lg px-2 py-1 text-xs'>
-                                          <div className='font-bold text-yellow-800'>{combo.quantity}x for {currency} {combo.price} each</div>
-                                          {combo.discount > 0 && (
-                                            <div className='text-green-600 font-medium'>{combo.discount}% OFF</div>
-                                          )}
+                                      {productData.comboPrices.slice(0, 2).map((combo, ci) => (
+                                        <div key={ci} className='rounded-lg px-2.5 py-1.5'
+                                          style={{ background: 'rgba(249,115,22,0.07)', border: '1px solid rgba(249,115,22,0.18)' }}>
+                                          <div className='font-bold text-orange-400 text-xs'>{combo.quantity}x for {currency} {combo.price} each</div>
+                                          {combo.discount > 0 && <div className='text-green-400 text-xs'>{combo.discount}% OFF</div>}
                                         </div>
                                       ))}
                                       {productData.comboPrices.length > 2 && (
-                                        <div className='bg-gradient-to-r from-slate-100 to-slate-200 border border-slate-300 rounded-lg px-2 py-1 text-xs'>
-                                          <div className='font-bold text-slate-700'>+{productData.comboPrices.length - 2} more</div>
+                                        <div className='rounded-lg px-2.5 py-1.5'
+                                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                          <div className='text-slate-500 text-xs font-bold'>+{productData.comboPrices.length - 2} more</div>
                                         </div>
                                       )}
                                     </div>
                                   </div>
                                 )}
 
-                                {/* Size and Quantity on same line */}
-                                <div className='flex flex-row items-start space-x-4 mb-4'>
-                                  {/* Size Selector */}
-                                  <div className='flex flex-col space-y-1'>
-                                    <span className='text-sm font-medium text-slate-700'>Size:</span>
-                                    <div className='bg-slate-50 border-2 h-8 md:h-12 border-slate-300 rounded-xl shadow-md hover:border-orange-300 transition-all duration-300 flex items-center'>
-                                      <FormControl size="small" sx={{ minWidth: 100, sm: { minWidth: 140 } }}>
+                                {/* Size & Quantity */}
+                                <div className='flex flex-row items-end gap-4 mb-3'>
+                                  {/* Size */}
+                                  <div className='flex flex-col gap-1'>
+                                    <span className='text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600'>Size</span>
+                                    <div className='rounded-xl overflow-hidden'
+                                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                                      <FormControl size='small' sx={{ minWidth: 100 }}>
                                         <Select
                                           value={item.size}
                                           onChange={(e) => updateSize(item._id, e.target.value, item.quantity)}
                                           sx={{
-                                            '& .MuiOutlinedInput-notchedOutline': {
-                                              borderColor: 'transparent',
-                                              borderRadius: '12px',
-                                            },
-                                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                                              borderColor: 'transparent',
-                                            },
-                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                              borderColor: 'transparent',
-                                            },
-                                            '& .MuiSelect-select': {
-                                              padding: '8px 12px',
-                                              borderRadius: '12px',
-                                              height: '40px',
-                                              display: 'flex',
-                                              alignItems: 'center',
-                                            },
+                                            color: '#cbd5e1',
+                                            '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                            '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                            '& .MuiSelect-select': { padding: '8px 12px', fontSize: '0.875rem' },
+                                            '& .MuiSelect-icon': { color: '#64748b' },
                                           }}
                                         >
                                           {productData.sizes.map((size) => (
@@ -291,25 +271,29 @@ const Cart = () => {
                                     </div>
                                   </div>
 
-                                  {/* Quantity Controls */}
-                                  <div className='flex flex-col space-y-1'>
-                                    <span className='text-sm font-medium text-slate-700'>Quantity:</span>
-                                    <div className='flex items-center bg-slate-50 border-2 border-slate-300 rounded-xl shadow-md hover:border-orange-300 transition-all duration-300'>
+                                  {/* Quantity */}
+                                  <div className='flex flex-col gap-1'>
+                                    <span className='text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600'>Quantity</span>
+                                    <div className='flex items-center rounded-xl overflow-hidden'
+                                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(249,115,22,0.2)' }}>
                                       <button
                                         onClick={() => updateQuantity(item._id, item.size, item.quantity - 1)}
-                                        className='px-2 py-1 sm:px-4 sm:py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-l-xl'
                                         disabled={item.quantity <= 1}
+                                        className='px-3 py-2.5 text-slate-500 hover:text-orange-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200'
                                       >
-                                        <svg className='w-3 h-3 sm:w-5 sm:h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                        <svg className='w-3.5 h-3.5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                           <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M20 12H4' />
                                         </svg>
                                       </button>
-                                      <span className='px-2 py-1 sm:px-6 sm:py-2 text-center min-w-[2rem] sm:min-w-[4rem] font-bold text-slate-900 text-sm sm:text-lg border-x border-slate-200'>{item.quantity}</span>
+                                      <span className='px-4 py-2 text-center font-bold text-slate-200 text-sm'
+                                        style={{ borderLeft: '1px solid rgba(249,115,22,0.15)', borderRight: '1px solid rgba(249,115,22,0.15)' }}>
+                                        {item.quantity}
+                                      </span>
                                       <button
                                         onClick={() => updateQuantity(item._id, item.size, item.quantity + 1)}
-                                        className='px-2 py-1 sm:px-4 sm:py-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 rounded-r-xl'
+                                        className='px-3 py-2.5 text-slate-500 hover:text-orange-400 transition-colors duration-200'
                                       >
-                                        <svg className='w-3 h-3 sm:w-5 sm:h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                        <svg className='w-3.5 h-3.5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                           <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 4v16m8-8H4' />
                                         </svg>
                                       </button>
@@ -318,26 +302,27 @@ const Cart = () => {
                                 </div>
                               </div>
 
-                              {/* Remove Button - Desktop Only */}
+                              {/* Desktop remove */}
                               <button
                                 onClick={() => updateQuantity(item._id, item.size, 0)}
-                                className='hidden sm:flex flex-shrink-0 p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-300 self-start'
-                                title='Remove item'
+                                className='hidden sm:flex flex-shrink-0 p-2 rounded-xl self-start transition-all duration-200'
+                                style={{ color: '#475569' }}
+                                onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = 'transparent'; }}
                               >
-                                <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
                                 </svg>
                               </button>
                             </div>
 
-                            {/* Total Price */}
-                            <div className='flex justify-between items-center md:justify-end mt-4'>
-                              <span className='text-base text-slate-500 font-bold '>Total Price : </span>
-                              <div className='text-right'>
-                                <p className='text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent'>
-                                  {currency} {(productData.price * item.quantity).toFixed(2)}
-                                </p>
-                              </div>
+                            {/* Item total */}
+                            <div className='flex items-center justify-between mt-3 pt-3'
+                              style={{ borderTop: '1px solid rgba(249,115,22,0.08)' }}>
+                              <span className='text-xs font-bold uppercase tracking-[0.12em] text-slate-600'>Item Total</span>
+                              <span className='text-lg font-bold text-green-400'>
+                                {currency} {(productData.price * item.quantity).toFixed(2)}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -347,75 +332,82 @@ const Cart = () => {
 
                   {/* Custom Products */}
                   {customDataArray.length > 0 && customDataArray.map((data, index) => (
-                    <div key={`custom-${index}`} className='p-6 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 transition-all duration-300'>
-                      <div className='flex flex-col sm:flex-row sm:items-start space-y-4 sm:space-y-0 sm:space-x-6'>
-                        {/* Product Image */}
+                    <div key={`custom-${index}`} className='relative p-5 md:p-6 transition-colors duration-300'
+                      style={{ borderBottom: '1px solid rgba(249,115,22,0.07)' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(249,115,22,0.03)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <div className='flex flex-col sm:flex-row sm:items-start gap-5'>
+
+                        {/* Image */}
                         <div className='flex-shrink-0 flex justify-center sm:justify-start'>
-                          <div className='relative group'>
-                            <img
-                              className='w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover rounded-xl border-2 border-slate-200 shadow-md group-hover:border-purple-300 transition-all duration-300'
-                              src={data.reviewImageCustom}
-                              alt={data.name}
-                            />
-                            <div className='absolute inset-0 bg-gradient-to-t from-purple-500/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
-                          </div>
+                          <img
+                            className='w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover rounded-xl transition-all duration-300'
+                            style={{ border: '1px solid rgba(168,85,247,0.25)' }}
+                            src={data.reviewImageCustom}
+                            alt={data.name}
+                          />
                         </div>
 
-                        {/* Product Details */}
+                        {/* Details */}
                         <div className='flex-1 min-w-0 flex flex-col relative'>
-                          {/* Remove Button - Mobile Only */}
+                          {/* Mobile remove */}
                           <button
                             onClick={() => updateCustomQuantity(data._id, data.size, 0)}
-                            className='absolute top-0 right-0 sm:hidden p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-300'
-                            title='Remove item'
+                            className='absolute top-0 right-0 sm:hidden p-1.5 rounded-lg transition-all duration-200'
+                            style={{ color: '#475569' }}
+                            onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = 'transparent'; }}
                           >
                             <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                               <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
                             </svg>
                           </button>
 
-                          <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-4 sm:space-y-0'>
+                          <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4'>
                             <div className='flex-1'>
-                              <div className='flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mb-2'>
-                                <h3 className='text-lg md:text-xl font-bold text-slate-900'>{data.name}</h3>
-                                <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md'>
+                              <div className='flex flex-wrap items-center gap-2 mb-1'>
+                                <h3 className='text-base md:text-lg font-bold' style={{ color: '#f1f5f9' }}>{data.name}</h3>
+                                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-[0.12em]'
+                                  style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.25)', color: '#c084fc' }}>
                                   Custom Design
                                 </span>
                               </div>
-                              <p className='text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4'>
-                                {currency} {data.price}
-                              </p>
+                              <p className='text-xl font-bold mb-3' style={{ color: '#c084fc' }}>{currency} {data.price}</p>
 
-                              {/* Size and Quantity on same line */}
-                              <div className='flex flex-row items-start space-x-4 mb-4'>
-                                <div className='flex flex-col space-y-1'>
-                                  <span className='text-sm font-medium text-slate-700'>Size: <span className='font-bold text-slate-900'>{data.size}</span></span>
+                              <div className='flex flex-row items-center gap-4 mb-3'>
+                                <div className='flex items-center gap-2'>
+                                  <span className='text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600'>Size</span>
+                                  <span className='text-sm font-bold text-slate-300'>{data.size}</span>
                                 </div>
-                                <div className='flex flex-col space-y-1'>
-                                  <span className='text-sm font-medium text-slate-700'>Quantity: <span className='font-bold text-slate-900'>{data.quantity}</span></span>
+                                <div className='w-px h-4' style={{ background: 'rgba(255,255,255,0.08)' }} />
+                                <div className='flex items-center gap-2'>
+                                  <span className='text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600'>Qty</span>
+                                  <span className='text-sm font-bold text-slate-300'>{data.quantity}</span>
                                 </div>
                               </div>
                             </div>
 
-                            {/* Remove Button - Desktop Only */}
+                            {/* Desktop remove */}
                             <button
                               onClick={() => updateCustomQuantity(data._id, data.size, 0)}
-                              className='hidden sm:flex flex-shrink-0 p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-300 self-start'
-                              title='Remove item'
+                              className='hidden sm:flex flex-shrink-0 p-2 rounded-xl self-start transition-all duration-200'
+                              style={{ color: '#475569' }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = 'transparent'; }}
                             >
-                              <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                              <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
                               </svg>
                             </button>
                           </div>
 
-                          {/* Total Price */}
-                          <div className='flex justify-end mt-4'>
-                            <div className='text-right'>
-                              <p className='text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'>
-                                {currency} {(data.price * data.quantity).toFixed(2)}
-                              </p>
-                            </div>
+                          {/* Item total */}
+                          <div className='flex items-center justify-between mt-3 pt-3'
+                            style={{ borderTop: '1px solid rgba(249,115,22,0.08)' }}>
+                            <span className='text-xs font-bold uppercase tracking-[0.12em] text-slate-600'>Item Total</span>
+                            <span className='text-lg font-bold' style={{ color: '#c084fc' }}>
+                              {currency} {(data.price * data.quantity).toFixed(2)}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -425,52 +417,64 @@ const Cart = () => {
               </div>
             </div>
 
-            {/* Order Summary */}
+            {/* ── Order Summary Sidebar ── */}
             <div className='lg:col-span-1'>
-              <div className='bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 sticky top-4 overflow-hidden'>
-                <div className='px-6 py-6 bg-gradient-to-r from-slate-50 to-orange-50 border-b border-slate-100'>
-                  <h2 className='text-xl font-bold text-slate-900 flex items-center'>
-                    <svg className='w-6 h-6 mr-3 text-orange-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' />
-                    </svg>
+              <div className='relative rounded-2xl overflow-hidden sticky top-4'
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(249,115,22,0.15)' }}>
+                {/* Top accent bar */}
+                <div className='absolute top-0 left-0 w-full h-0.5'
+                  style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b, transparent)' }} />
+                {/* Corner glow */}
+                <div className='absolute top-0 right-0 w-40 h-40 pointer-events-none'
+                  style={{ background: 'radial-gradient(circle at top right, rgba(249,115,22,0.06), transparent 70%)' }} />
+
+                {/* Header */}
+                <div className='relative px-6 py-5 flex items-center gap-2'
+                  style={{ borderBottom: '1px solid rgba(249,115,22,0.1)' }}>
+                  <div className='w-0.5 h-5 rounded-full' style={{ background: 'linear-gradient(180deg, #f97316, #f59e0b)' }} />
+                  <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', fontSize: '1.15rem', color: '#f1f5f9' }}>
                     Order Summary
                   </h2>
                 </div>
 
-                <div className='p-6'>
+                <div className='relative p-6'>
                   <CartTotal />
 
-                  <div className='mt-8 space-y-4'>
+                  <div className='mt-6 space-y-3'>
                     <button
                       onClick={() => navigate('/place-order')}
-                      className='w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-4 px-6 rounded-xl font-bold hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-3'
+                      className='w-full py-3.5 font-bold rounded-xl transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2 text-xs uppercase tracking-[0.1em]'
+                      style={{ background: 'linear-gradient(135deg, #f97316, #f59e0b)', color: '#0d0d0e', boxShadow: '0 0 20px rgba(249,115,22,0.2)' }}
                     >
-                      <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                      <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' />
                       </svg>
-                      <span>Proceed to Checkout</span>
+                      Proceed to Checkout
                     </button>
 
                     <button
                       onClick={() => navigate('/')}
-                      className='w-full bg-slate-100 text-slate-700 py-4 px-6 rounded-xl font-semibold hover:bg-slate-200 focus:outline-none focus:ring-4 focus:ring-slate-300 transition-all duration-300 transform hover:scale-105'
+                      className='w-full py-3.5 font-semibold rounded-xl transition-all duration-200 text-xs uppercase tracking-[0.08em]'
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#94a3b8'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#64748b'; }}
                     >
                       Continue Shopping
                     </button>
                   </div>
 
-                  {/* Security Badge */}
-                  <div className='mt-8 pt-6 border-t border-slate-200'>
-                    <div className='flex items-center space-x-3 text-sm text-slate-600 bg-green-50 p-4 rounded-xl'>
-                      <svg className='w-6 h-6 text-green-500 flex-shrink-0' fill='currentColor' viewBox='0 0 20 20'>
-                        <path fillRule='evenodd' d='M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z' clipRule='evenodd' />
-                      </svg>
-                      <span className='font-medium'>Secure checkout with SSL encryption</span>
-                    </div>
+                  {/* Security badge */}
+                  <div className='mt-5 pt-4 flex items-center gap-2.5'
+                    style={{ borderTop: '1px solid rgba(249,115,22,0.08)' }}>
+                    <svg className='w-4 h-4 text-green-400 flex-shrink-0' fill='currentColor' viewBox='0 0 20 20'>
+                      <path fillRule='evenodd' d='M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z' clipRule='evenodd' />
+                    </svg>
+                    <span className='text-xs text-slate-600'>Secure checkout with SSL encryption</span>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         )}
       </div>

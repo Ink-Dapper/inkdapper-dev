@@ -9,7 +9,6 @@ const useNotifications = () => useContext(NotificationContext);
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [socket, setSocket] = useState(null);
   const { token } = useContext(ShopContext);
 
   const fetchNotifications = async () => {
@@ -49,7 +48,7 @@ export const NotificationProvider = ({ children }) => {
       return; // Don't mark as read if not authenticated
     }
     try {
-      const response = await axiosInstance.put(`/notifications/${notificationId}/read`, {});
+      const response = await axiosInstance.patch(`/notifications/${notificationId}/read`, {});
       if (response.data.success) {
         // Remove the notification from the list after it has been read
         setNotifications(prev =>
@@ -62,10 +61,30 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  const markAllAsRead = async () => {
+    if (!token) return;
+    const unreadIds = notifications.filter(n => !n.isRead).map(n => n._id);
+    if (!unreadIds.length) return;
+
+    // Optimistic UI update so count drops as soon as admin sees notifications
+    setNotifications([]);
+    setUnreadCount(0);
+
+    try {
+      await Promise.allSettled(
+        unreadIds.map((id) => axiosInstance.patch(`/notifications/${id}/read`, {}))
+      );
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      fetchNotifications();
+    }
+  };
+
   const value = {
     notifications,
     unreadCount,
     markAsRead,
+    markAllAsRead,
     fetchNotifications
   };
 
