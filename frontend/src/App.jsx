@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Footer from './components/Footer';
@@ -39,6 +39,9 @@ const ChatbotPage = lazy(() => import(/* webpackChunkName: "chatbot" */ './pages
 const JobExplore = lazy(() => import(/* webpackChunkName: "job-explore" */ './pages/JobExplore'));
 
 const App = () => {
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+
   // Initialize global error handling
   useEffect(() => {
     setupGlobalErrorHandling();
@@ -88,7 +91,7 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
-          <Footer />
+          {!isLoginPage && <Footer />}
           <ScrollToTop />
           <Suspense fallback={null}>
             <Chatbot />

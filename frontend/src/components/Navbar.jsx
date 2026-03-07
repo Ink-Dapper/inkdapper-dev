@@ -32,19 +32,21 @@ const CustomNavLink = ({ to, children, scrollToTop }) => {
     <Link
       to={to}
       onClick={handleClick}
-      className={`relative group px-4 py-2.5 rounded-[12px] transition-all duration-300 ease-out uppercase tracking-[0.08em] text-xs font-bold ${isActive
+      className={`relative group px-4 py-2.5 transition-all duration-200 ease-out uppercase tracking-[0.1em] text-xs font-black ${isActive
         ? 'text-[#0f0f10]'
-        : 'text-slate-300 hover:text-orange-100 hover:-translate-y-[1px]'
+        : 'text-slate-300 hover:text-orange-200'
         }`}
       style={isActive
         ? {
-          background: 'linear-gradient(135deg, rgba(251,146,60,0.98), rgba(245,158,11,0.95))',
+          background: 'linear-gradient(135deg, rgba(251,146,60,0.98), rgba(245,158,11,0.92))',
           border: '1px solid rgba(251,146,60,0.9)',
-          boxShadow: '0 10px 22px rgba(249,115,22,0.38), inset 0 1px 0 rgba(255,255,255,0.35)'
+          boxShadow: '0 8px 20px rgba(249,115,22,0.45), inset 0 1px 0 rgba(255,255,255,0.25)',
+          clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)'
         }
         : {
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015))',
-          border: '1px solid rgba(148,163,184,0.22)'
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(148,163,184,0.18)',
+          clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)'
         }}
     >
       <span className="absolute top-1 right-1 w-1 h-1 rounded-full opacity-70"
@@ -61,73 +63,42 @@ const CustomNavLink = ({ to, children, scrollToTop }) => {
 };
 
 const Navbar = () => {
+  // All hooks MUST be at the top — before any conditional returns (Rules of Hooks)
   const [visible, setVisible] = useState(false);
-  const context = useContext(ShopContext);
-
-  // Safety check to prevent destructuring undefined context
-  if (!context) {
-    return <div>Loading...</div>
-  }
-
-  const {
-    setShowSearch,
-    getCartCount,
-    navigate,
-    token,
-    setToken,
-    setCartItems,
-    getWishlistCount,
-    setWishlist,
-    wishlist,
-    usersDetails,
-    clearCart,
-    scrollToTop,
-  } = context;
   const [wishlistCount, setWishlistCount] = useState(0);
-  const [value, setValue] = useState("recent");
   const [mobMenu, setMobMenu] = useState("hidden");
   const [userNameLetter, setUserNameLetter] = useState("");
   const [fullUserName, setFullUserName] = useState("");
 
+  const location = useLocation();
+  const context = useContext(ShopContext);
+
+  const {
+    getCartCount,
+    navigate,
+    token,
+    setToken,
+    getWishlistCount,
+    wishlist,
+    usersDetails,
+    scrollToTop,
+  } = context || {};
+
   useEffect(() => {
+    if (!getWishlistCount) return;
     const fetchCounts = async () => {
-      const wishlistCount = await getWishlistCount();
-      setWishlistCount(wishlistCount);
+      const count = await getWishlistCount();
+      setWishlistCount(count);
     };
     fetchCounts();
   }, [getWishlistCount, wishlist]);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  const subMenuVisible = () => {
-    if (mobMenu === "hidden") {
-      setMobMenu("visible");
-    } else {
-      setMobMenu("hidden");
-    }
-  };
-
-  const logout = () => {
-    navigate("/login");
-    localStorage.removeItem("token");
-    setToken("");
-    // Don't clear cart or wishlist on logout - keep them for when user logs back in
-    // clearCart(); // Removed to preserve cart across sessions
-    // setWishlist({}); // Removed to preserve wishlist across sessions
-  };
-
-
-  const userName = () => {
-    usersDetails.map((user) => {
+  useEffect(() => {
+    if (!usersDetails) return;
+    usersDetails.forEach((user) => {
       setUserNameLetter(user.users.name[0]);
       setFullUserName(user.users.name);
     });
-  };
-
-  useEffect(() => {
-    userName();
   }, [usersDetails]);
 
   // Reset mobile menu when token changes (login/logout)
@@ -141,74 +112,64 @@ const Navbar = () => {
       if (mobMenu === "visible") {
         const isClickInsideDropdown = event.target.closest('.mobile-profile-dropdown');
         const isClickOnProfileIcon = event.target.closest('.mobile-profile-icon');
-
         if (!isClickInsideDropdown && !isClickOnProfileIcon) {
           setMobMenu("hidden");
         }
       }
     };
-
     document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
+    return () => { document.removeEventListener('click', handleClickOutside); };
   }, [mobMenu]);
 
   // Close mobile menu on route change
-  const location = useLocation();
   useEffect(() => {
     setMobMenu("hidden");
   }, [location.pathname]);
 
+  // Conditional renders AFTER all hooks
+  if (location.pathname === '/login') return null;
+  if (!context) return <div>Loading...</div>;
+
+  const subMenuVisible = () => {
+    setMobMenu(prev => prev === "hidden" ? "visible" : "hidden");
+  };
+
+  const logout = () => {
+    navigate("/login");
+    localStorage.removeItem("token");
+    setToken("");
+  };
+
   return (
     <div className="navbar-container-sticky">
       <div className="navbar-container-sticky-inner flex items-center md:flex-row justify-between flex-row-reverse py-3 md:py-5 font-medium px-[7vw]">
-        <Link to="/">
-          <div className="relative flex items-center justify-center px-4 py-3 group overflow-hidden">
-            {/* Main Blob Background - Compact Shape */}
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-300 via-orange-500 to-orange-700 rounded-[30px_15px_40px_20px] shadow-lg transition-all duration-700"></div>
-
-            {/* Floating Blob Elements - Compact */}
-            <div className="absolute inset-0 rounded-[30px_15px_40px_20px] overflow-hidden">
-              {/* Top Left Blob */}
-              <div className="absolute -top-2 -left-2 w-10 h-10 bg-gradient-to-br from-orange-200 to-orange-400 rounded-full blur-lg opacity-80 transition-all duration-1000"></div>
-
-              {/* Bottom Right Blob */}
-              <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-300 rounded-full blur-lg opacity-70 transition-all duration-1000" style={{ animationDelay: '0.4s' }}></div>
-
-              {/* Center Right Blob */}
-              <div className="absolute top-1/2 -right-1 w-8 h-8 bg-gradient-to-br from-orange-50 to-orange-200 rounded-full blur-md opacity-60 transition-all duration-1000" style={{ animationDelay: '0.8s' }}></div>
-
-              {/* Top Center Blob */}
-              <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-orange-300 rounded-full blur-sm opacity-50 transition-all duration-800"></div>
-
-              {/* Bottom Left Blob */}
-              <div className="absolute bottom-0 left-1/4 w-3 h-3 bg-orange-200 rounded-full blur-sm opacity-40 transition-all duration-800"></div>
-
-              {/* Middle Left Blob */}
-              <div className="absolute top-1/3 -left-1 w-2 h-2 bg-orange-100 rounded-full blur-sm opacity-30 transition-all duration-600"></div>
-            </div>
-
-            {/* Enhanced Shimmer Effect */}
-            <div className="absolute inset-0 rounded-[30px_15px_40px_20px] bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-15 -translate-x-full transition-transform duration-1200"></div>
-
-            {/* Glowing Border Effect */}
-            <div className="absolute inset-0 rounded-[30px_15px_40px_20px] bg-gradient-to-r from-orange-300/20 via-transparent to-orange-300/20 opacity-0 transition-opacity duration-500"></div>
-
-            {/* Logo */}
-            <img src={assets.inkdapper_logo} className="md:w-10 w-8 relative z-10 drop-shadow-lg" alt="logo" />
-            {/* <p className='md:text-2xl text-xl font-medium'>Ink Dapper</p> */}
+        <Link to="/" className="group">
+          <div className="relative flex items-center justify-center p-3 transition-all duration-200 group-active:scale-95"
+            style={{
+              background: 'linear-gradient(135deg, rgba(251,146,60,0.95) 0%, rgba(245,158,11,0.88) 100%)',
+              clipPath: 'polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0% 100%,0% 10px)',
+              boxShadow: '0 8px 24px rgba(249,115,22,0.5), inset 0 1px 0 rgba(255,255,255,0.25)'
+            }}
+          >
+            <span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/30 pointer-events-none" />
+            <span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-black/20 pointer-events-none" />
+            <img src={assets.inkdapper_logo} className="md:w-9 w-7 relative z-10 drop-shadow-md" alt="logo" />
           </div>
         </Link>
 
         <ul
-          className="hidden md:flex h-[56px] items-center gap-1.5 text-sm px-2.5 py-2 rounded-[18px] relative overflow-hidden"
-          style={{ background: 'linear-gradient(160deg, #0f1012 0%, #17181b 60%, #111214 100%)', border: '1px solid rgba(251,146,60,0.35)', boxShadow: '0 12px 30px rgba(0,0,0,0.4)' }}
+          className="hidden md:flex h-[56px] items-center gap-1 text-sm px-2 py-2 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(160deg, #0d0e10 0%, #15161a 60%, #0f1012 100%)',
+            border: '1px solid rgba(251,146,60,0.42)',
+            clipPath: 'polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0% 100%,0% 10px)',
+            boxShadow: '0 8px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(251,146,60,0.06)'
+          }}
         >
-          <span className="absolute inset-x-0 top-0 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(251,146,60,0.6), transparent)' }} />
-          <span className="absolute inset-0 pointer-events-none opacity-35"
-            style={{ backgroundImage: 'linear-gradient(transparent 97%, rgba(255,255,255,0.03) 100%), linear-gradient(90deg, transparent 97%, rgba(255,255,255,0.03) 100%)', backgroundSize: '22px 22px' }} />
+          <span className="absolute inset-x-0 top-0 h-[2px] pointer-events-none"
+            style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(251,146,60,0.8) 30%, rgba(245,158,11,1) 50%, rgba(251,146,60,0.8) 70%, transparent 95%)' }} />
+          <span className="absolute inset-0 pointer-events-none opacity-20"
+            style={{ backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 24px)', backgroundSize: '36px 36px' }} />
           <CustomNavLink to="/" scrollToTop={scrollToTop}>Home</CustomNavLink>
 
           <CustomNavLink to="/collection" scrollToTop={scrollToTop}>Collection</CustomNavLink>
@@ -219,113 +180,126 @@ const Navbar = () => {
         </ul>
 
         <div className="hidden md:block">
-          <div className="flex h-[56px] items-center gap-4 rounded-2xl px-3 py-2"
-            style={{ background: 'linear-gradient(160deg, rgba(15,16,18,0.95) 0%, rgba(24,25,28,0.92) 100%)', border: '1px solid rgba(251,146,60,0.22)', boxShadow: '0 10px 26px rgba(0,0,0,0.35)' }}>
-            {/* Search Icon temporarily hidden */}
+          <div className="flex h-[56px] items-center gap-3 px-3 py-2 relative"
+            style={{
+              background: 'linear-gradient(160deg, #0d0e10 0%, #15161a 100%)',
+              border: '1px solid rgba(251,146,60,0.42)',
+              borderRadius: '4px',
+              boxShadow: '0 8px 28px rgba(0,0,0,0.55)'
+            }}>
 
             {/* Cart Icon */}
             <Link to="/cart" className="relative group">
-              <div className="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-105"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(148,163,184,0.24)' }}>
-                <LocalMallOutlinedIcon
-                  alt="cart icon"
-                  className="text-slate-300 group-hover:text-orange-300 transition-all duration-300"
-                  sx={{ fontSize: 24 }}
-                />
+              <div className="w-10 h-10 flex items-center justify-center transition-all duration-200 group-hover:scale-105"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(148,163,184,0.22)',
+                  clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)'
+                }}>
+                <LocalMallOutlinedIcon className="text-slate-300 group-hover:text-orange-300 transition-colors duration-200" sx={{ fontSize: 22 }} />
                 {token && (
-                  <div className="absolute -top-1.5 -right-1.5 min-w-[1.3rem] h-5 px-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg border border-orange-200/60">
+                  <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-[3px] bg-orange-500 text-white flex items-center justify-center text-[10px] font-black shadow-lg"
+                    style={{ clipPath: 'polygon(4px 0%,100% 0%,100% calc(100% - 4px),calc(100% - 4px) 100%,0% 100%,0% 4px)' }}>
                     {getCartCount()}
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-8"></div>
             </Link>
 
             {/* Wishlist Icon */}
             <Link to="/wishlist" className="relative group">
-              <div className="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-105"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(148,163,184,0.24)' }}>
-                <FavoriteBorderOutlinedIcon
-                  alt="wishlist icon"
-                  className="text-slate-300 group-hover:text-orange-300 transition-all duration-300"
-                  sx={{ fontSize: 24 }}
-                />
+              <div className="w-10 h-10 flex items-center justify-center transition-all duration-200 group-hover:scale-105"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(148,163,184,0.22)',
+                  clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)'
+                }}>
+                <FavoriteBorderOutlinedIcon className="text-slate-300 group-hover:text-orange-300 transition-colors duration-200" sx={{ fontSize: 22 }} />
                 {token && (
-                  <div className="absolute -top-1.5 -right-1.5 min-w-[1.3rem] h-5 px-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg border border-orange-200/60">
+                  <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-[3px] bg-orange-500 text-white flex items-center justify-center text-[10px] font-black shadow-lg"
+                    style={{ clipPath: 'polygon(4px 0%,100% 0%,100% calc(100% - 4px),calc(100% - 4px) 100%,0% 100%,0% 4px)' }}>
                     {wishlistCount}
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-8"></div>
             </Link>
 
             {/* Profile Section */}
             <div className="group relative">
               <div
-                className="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 cursor-pointer group-hover:scale-105"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(148,163,184,0.24)' }}
+                className="w-10 h-10 flex items-center justify-center transition-all duration-200 cursor-pointer group-hover:scale-105"
+                style={{
+                  background: token ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: token ? '1px solid rgba(251,146,60,0.5)' : '1px solid rgba(148,163,184,0.22)',
+                  clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)'
+                }}
                 onClick={() => {
                   const currentToken = token || localStorage.getItem('token');
-                  if (!currentToken) {
-                    // Navigate to login immediately
-                    navigate("/login");
-                  }
+                  if (!currentToken) navigate("/login");
                 }}
               >
                 {token ? (
-                  <div className="relative w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full flex justify-center items-center uppercase font-bold text-sm shadow-lg border border-orange-200/70">
+                  <div className="w-7 h-7 flex items-center justify-center text-white font-black text-sm uppercase"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(251,146,60,0.95), rgba(245,158,11,0.9))',
+                      clipPath: 'polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)'
+                    }}>
                     {userNameLetter}
                   </div>
                 ) : (
-                  <AccountCircleOutlinedIcon
-                    alt="profile icon"
-                    className="text-slate-300 group-hover:text-orange-300 transition-all duration-300"
-                    sx={{ fontSize: 24 }}
-                  />
+                  <AccountCircleOutlinedIcon className="text-slate-300 group-hover:text-orange-300 transition-colors duration-200" sx={{ fontSize: 22 }} />
                 )}
               </div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-8"></div>
 
-              {/* Enhanced Dropdown Menu */}
+              {/* Dropdown */}
               {token && (
-                <div className="desktop-profile-dropdown group-hover:block hidden absolute dropdown-menu right-0 pt-6 z-20">
+                <div className="desktop-profile-dropdown group-hover:block hidden absolute dropdown-menu right-0 pt-5 z-20">
                   <div className="relative">
-                    <div className="absolute top-0 right-4 w-3 h-3 transform rotate-45 border-l border-t"
-                      style={{ background: '#151618', borderColor: 'rgba(251,146,60,0.3)' }}></div>
-                    <div className="rounded-xl shadow-2xl overflow-hidden min-w-[190px] py-2 border"
-                      style={{ background: 'linear-gradient(180deg, #121315 0%, #191a1d 100%)', borderColor: 'rgba(251,146,60,0.25)' }}>
-                      <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(148,163,184,0.18)' }}>
-                        <p className="text-sm font-semibold text-slate-100">Welcome back!</p>
-                        <p className="text-xs text-slate-400 capitalize">{fullUserName}</p>
+                    <div className="absolute top-0 right-4 w-3 h-3 transform rotate-45"
+                      style={{ background: '#111214', borderLeft: '1px solid rgba(251,146,60,0.3)', borderTop: '1px solid rgba(251,146,60,0.3)' }} />
+                    <div className="overflow-hidden min-w-[200px] shadow-2xl"
+                      style={{
+                        background: 'linear-gradient(160deg, #0f1012, #161719)',
+                        border: '1px solid rgba(251,146,60,0.3)',
+                        clipPath: 'polygon(12px 0%,100% 0%,100% calc(100% - 12px),calc(100% - 12px) 100%,0% 100%,0% 12px)',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.8)'
+                      }}>
+                      <div className="h-[3px]" style={{ background: 'linear-gradient(90deg, rgba(251,146,60,0.9), rgba(245,158,11,0.7), transparent)' }} />
+                      <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
+                        <p className="text-[10px] font-black uppercase tracking-[0.15em] text-orange-400">Welcome back</p>
+                        <p className="text-sm font-bold text-slate-100 capitalize mt-0.5">{fullUserName}</p>
                       </div>
-                      <div className="py-1">
+                      <div className="py-1.5">
                         <button
                           onClick={() => navigate("/profile")}
-                          className="w-full px-4 py-3 text-left text-sm font-medium text-slate-300 hover:text-orange-300 transition-all duration-200 flex items-center gap-3"
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(249,115,22,0.12)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                          className="w-full px-4 py-3 text-left flex items-center gap-3 transition-all duration-150"
+                          style={{ borderLeft: '3px solid transparent' }}
+                          onMouseEnter={e => { e.currentTarget.style.borderLeftColor = 'rgba(251,146,60,0.8)'; e.currentTarget.style.background = 'rgba(249,115,22,0.08)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderLeftColor = 'transparent'; e.currentTarget.style.background = 'transparent'; }}
                         >
-                          <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                          My Profile
+                          <span className="text-[10px] font-black text-orange-500 w-5">01</span>
+                          <span className="text-sm font-bold text-slate-300 uppercase tracking-wide">My Profile</span>
                         </button>
                         <button
                           onClick={() => navigate("/orders")}
-                          className="w-full px-4 py-3 text-left text-sm font-medium text-slate-300 hover:text-orange-300 transition-all duration-200 flex items-center gap-3"
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(249,115,22,0.12)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                          className="w-full px-4 py-3 text-left flex items-center gap-3 transition-all duration-150"
+                          style={{ borderLeft: '3px solid transparent' }}
+                          onMouseEnter={e => { e.currentTarget.style.borderLeftColor = 'rgba(251,146,60,0.8)'; e.currentTarget.style.background = 'rgba(249,115,22,0.08)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderLeftColor = 'transparent'; e.currentTarget.style.background = 'transparent'; }}
                         >
-                          <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                          My Orders
+                          <span className="text-[10px] font-black text-orange-500 w-5">02</span>
+                          <span className="text-sm font-bold text-slate-300 uppercase tracking-wide">My Orders</span>
                         </button>
-                        <div className="border-t my-1" style={{ borderColor: 'rgba(148,163,184,0.18)' }}></div>
+                        <div className="mx-4 my-1" style={{ height: '1px', background: 'rgba(148,163,184,0.12)' }} />
                         <button
                           onClick={logout}
-                          className="w-full px-4 py-3 text-left text-sm font-medium text-red-400 transition-all duration-200 flex items-center gap-3"
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                          className="w-full px-4 py-3 text-left flex items-center gap-3 transition-all duration-150"
+                          style={{ borderLeft: '3px solid transparent' }}
+                          onMouseEnter={e => { e.currentTarget.style.borderLeftColor = 'rgba(239,68,68,0.8)'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderLeftColor = 'transparent'; e.currentTarget.style.background = 'transparent'; }}
                         >
-                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                          Logout
+                          <span className="text-[10px] font-black text-red-500 w-5">—</span>
+                          <span className="text-sm font-bold text-red-400 uppercase tracking-wide">Logout</span>
                         </button>
                       </div>
                     </div>
