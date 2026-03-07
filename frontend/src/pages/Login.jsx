@@ -150,40 +150,62 @@ const Login = () => {
 
   const InputField = useCallback(({ icon: Icon, type = "text", placeholder, value, onChange, required = true, className = "" }) => (
     <div className={`relative group ${className}`}>
-      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-        <Icon className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
+      <div
+        className="relative w-full transition-all duration-200"
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(148,163,184,0.18)',
+          clipPath: 'polygon(8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%,0% 8px)',
+        }}
+        onFocus={e => { e.currentTarget.style.borderColor = 'rgba(251,146,60,0.6)'; e.currentTarget.style.background = 'rgba(249,115,22,0.06)'; }}
+        onBlur={e => { e.currentTarget.style.borderColor = 'rgba(148,163,184,0.18)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+      >
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+          <Icon className="h-4 w-4 text-slate-600 group-focus-within:text-orange-400 transition-colors duration-200" />
+        </div>
+        <input
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          className="w-full pl-11 pr-4 py-3.5 text-sm font-medium text-slate-700 placeholder-slate-600 outline-none bg-transparent"
+        />
       </div>
-      <input
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl bg-white/90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-700 shadow-sm"
-      />
     </div>
   ), []);
 
   const PasswordField = useCallback(({ placeholder, value, onChange, required = true, className = "" }) => (
     <div className={`relative group ${className}`}>
-      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-        <FaLock className="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
-      </div>
-      <input
-        type={showPassword ? 'text' : 'password'}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        className="w-full pl-12 pr-12 py-4 border border-gray-200 rounded-xl bg-white/90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-700 shadow-sm"
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword(!showPassword)}
-        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-500 transition-colors duration-200"
+      <div
+        className="relative w-full transition-all duration-200"
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(148,163,184,0.18)',
+          clipPath: 'polygon(8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%,0% 8px)',
+        }}
+        onFocus={e => { e.currentTarget.style.borderColor = 'rgba(251,146,60,0.6)'; e.currentTarget.style.background = 'rgba(249,115,22,0.06)'; }}
+        onBlur={e => { e.currentTarget.style.borderColor = 'rgba(148,163,184,0.18)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
       >
-        {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
-      </button>
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+          <FaLock className="h-4 w-4 text-slate-600 group-focus-within:text-orange-400 transition-colors duration-200" />
+        </div>
+        <input
+          type={showPassword ? 'text' : 'password'}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          className="w-full pl-11 pr-12 py-3.5 text-sm font-medium text-slate-700 placeholder-slate-600 outline-none bg-transparent"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-600 hover:text-orange-400 transition-colors duration-200 z-10"
+        >
+          {showPassword ? <FaEyeSlash className="h-4 w-4" /> : <FaEye className="h-4 w-4" />}
+        </button>
+      </div>
     </div>
   ), [showPassword]);
 
@@ -192,223 +214,225 @@ const Login = () => {
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`w-full py-4 px-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${className}`}
+      className={`w-full py-4 px-6 text-sm font-black uppercase tracking-[0.12em] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] ${className}`}
+      style={{
+        background: 'linear-gradient(135deg, rgba(251,146,60,0.95), rgba(245,158,11,0.88))',
+        clipPath: 'polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0% 100%,0% 10px)',
+        boxShadow: '0 8px 24px rgba(249,115,22,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+      }}
     >
       {disabled ? (
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+        <div className="flex items-center justify-center gap-2">
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
           {children}
         </div>
-      ) : (
-        children
-      )}
+      ) : children}
     </button>
   ), []);
 
   return (
-    <div className="h-full md:min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-orange-100 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full opacity-20 animate-pulse"></div>
-      <div className="absolute bottom-10 right-10 w-32 h-32 bg-gradient-to-r from-orange-300 to-orange-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
-      <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-gradient-to-r from-orange-200 to-orange-300 rounded-full opacity-30 animate-float"></div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: '#08090a' }}>
+
+      {/* Diagonal stripe texture */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.008) 0px, rgba(255,255,255,0.008) 1px, transparent 1px, transparent 30px)',
+          backgroundSize: '45px 45px'
+        }}
+      />
+      {/* Orange radial glow — top */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[280px] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at center top, rgba(249,115,22,0.11) 0%, transparent 70%)' }}
+      />
+      {/* Orange radial glow — bottom right */}
+      <div className="absolute bottom-0 right-0 w-[400px] h-[280px] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at bottom right, rgba(249,115,22,0.07) 0%, transparent 70%)' }}
+      />
+      {/* Corner bracket marks */}
+      <div className="absolute top-5 left-5 w-8 h-8 border-t-2 border-l-2 border-orange-500/30 pointer-events-none" />
+      <div className="absolute top-5 right-5 w-8 h-8 border-t-2 border-r-2 border-orange-500/30 pointer-events-none" />
+      <div className="absolute bottom-5 left-5 w-8 h-8 border-b-2 border-l-2 border-orange-500/30 pointer-events-none" />
+      <div className="absolute bottom-5 right-5 w-8 h-8 border-b-2 border-r-2 border-orange-500/30 pointer-events-none" />
 
       <div className="w-full max-w-md relative z-10">
         {/* Back Button */}
         {currentState !== 'Login' && (
           <button
             onClick={() => setCurrentState('Login')}
-            className="mb-6 flex items-center text-gray-600 hover:text-orange-600 transition-colors duration-200"
+            className="mb-5 flex items-center gap-2 text-slate-500 hover:text-orange-400 transition-colors duration-200 text-[11px] font-black uppercase tracking-[0.15em]"
           >
-            <FaArrowLeft className="mr-2" />
+            <span className="w-6 h-6 flex items-center justify-center flex-shrink-0"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(148,163,184,0.2)',
+                clipPath: 'polygon(4px 0%,100% 0%,100% calc(100% - 4px),calc(100% - 4px) 100%,0% 100%,0% 4px)'
+              }}
+            >
+              <FaArrowLeft className="h-3 w-3" />
+            </span>
             Back to Login
           </button>
         )}
 
         {/* Main Card */}
-        <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent mb-2">
-              {currentState}
-            </h1>
-            <div className="w-16 h-1 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full mx-auto"></div>
-          </div>
+        <div className="relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(160deg, #0f1012 0%, #141518 100%)',
+            border: '1px solid rgba(251,146,60,0.28)',
+            clipPath: 'polygon(16px 0%,100% 0%,100% calc(100% - 16px),calc(100% - 16px) 100%,0% 100%,0% 16px)',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.75), 0 0 0 1px rgba(251,146,60,0.06)'
+          }}
+        >
+          {/* Top orange glow bar */}
+          <div className="h-[3px] w-full"
+            style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(251,146,60,0.9) 30%, rgba(245,158,11,1) 50%, rgba(251,146,60,0.9) 70%, transparent 95%)' }}
+          />
+          {/* Left accent bar */}
+          <div className="absolute left-0 top-[3px] bottom-0 w-[3px] pointer-events-none"
+            style={{ background: 'linear-gradient(180deg, rgba(251,146,60,0.8), rgba(245,158,11,0.3), transparent)' }}
+          />
+          {/* Inner diagonal texture */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.08]"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 24px)',
+              backgroundSize: '36px 36px'
+            }}
+          />
 
-          <form onSubmit={onSubmitHandler} className="space-y-6">
-            {/* Sign Up Form */}
-            {currentState === 'Sign Up' && (
-              <div className="space-y-4">
-                <InputField
-                  icon={FaUser}
-                  placeholder="Full Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <InputField
-                  icon={FaEnvelope}
-                  type="email"
-                  placeholder="Email Address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <InputField
-                  icon={FaPhone}
-                  placeholder="Phone Number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-                <PasswordField
-                  placeholder="Password"
-                  value={password}
-                  onChange={onPasswordChange}
-                />
+          <div className="relative px-7 pt-7 pb-7">
+            {/* Header */}
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(251,146,60,0.95), rgba(245,158,11,0.88))',
+                    clipPath: 'polygon(8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%,0% 8px)',
+                    boxShadow: '0 6px 16px rgba(249,115,22,0.4)'
+                  }}
+                >
+                  <FaLock className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-orange-500 leading-none">Ink Dapper</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-600 leading-none mt-0.5">Secure Access</p>
+                </div>
+              </div>
+              <h1 className="text-2xl font-black uppercase tracking-[0.08em] text-slate-100">{currentState}</h1>
+              <div className="mt-2 flex items-center gap-2">
+                <div className="h-[2px] w-10" style={{ background: 'linear-gradient(90deg, rgba(251,146,60,0.9), rgba(245,158,11,0.6))' }} />
+                <div className="h-px flex-1 bg-slate-800" />
+              </div>
+            </div>
 
-                {/* Password Strength Indicator */}
-                {password && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Password Strength:</span>
-                      <span className={`font-medium ${passwordStrength === 'Strong' ? 'text-green-600' :
-                        passwordStrength === 'Medium' ? 'text-yellow-600' : 'text-red-600'
-                        }`}>
-                        {passwordStrength}
-                      </span>
+            <form onSubmit={onSubmitHandler} className="space-y-5">
+              {/* Sign Up */}
+              {currentState === 'Sign Up' && (
+                <div className="space-y-3">
+                  <InputField icon={FaUser} placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
+                  <InputField icon={FaEnvelope} type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <InputField icon={FaPhone} placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <PasswordField placeholder="Password" value={password} onChange={onPasswordChange} />
+                  {password && (
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-600">Strength</span>
+                        <span className={`text-[10px] font-black uppercase tracking-[0.12em] ${passwordStrength === 'Strong' ? 'text-green-400' : passwordStrength === 'Medium' ? 'text-amber-400' : 'text-red-400'}`}>
+                          {passwordStrength}
+                        </span>
+                      </div>
+                      <div className="flex gap-1">
+                        {[0, 1, 2].map((i) => (
+                          <div key={i} className="h-1 flex-1 transition-all duration-300"
+                            style={{
+                              background: (passwordStrength === 'Strong') || (passwordStrength === 'Medium' && i < 2) || (passwordStrength === 'Weak' && i === 0)
+                                ? (i === 0 ? 'rgba(239,68,68,0.85)' : i === 1 ? 'rgba(245,158,11,0.85)' : 'rgba(34,197,94,0.85)')
+                                : 'rgba(255,255,255,0.06)'
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-300 ${passwordStrength === 'Strong' ? 'bg-green-500 w-full' :
-                          passwordStrength === 'Medium' ? 'bg-yellow-500 w-2/3' : 'bg-red-500 w-1/3'
-                          }`}
-                      ></div>
-                    </div>
-                  </div>
-                )}
+                  )}
+                  {passwordError && (
+                    <p className="text-red-400 text-xs font-medium px-3 py-2.5"
+                      style={{ background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.22)', clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)' }}>
+                      {passwordError}
+                    </p>
+                  )}
+                  <Button disabled={isLoading}>{isLoading ? 'Sending...' : 'Create Account'}</Button>
+                </div>
+              )}
 
-                {passwordError && (
-                  <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
-                    {passwordError}
+              {/* Login */}
+              {currentState === 'Login' && (
+                <div className="space-y-3">
+                  <InputField icon={FaEnvelope} placeholder="Email or Phone" value={emailOrPhone} onChange={(e) => setEmailOrPhone(e.target.value)} />
+                  <PasswordField placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <Button disabled={isLoading}>{isLoading ? 'Signing In...' : 'Sign In'}</Button>
+                </div>
+              )}
+
+              {/* Verify Email */}
+              {currentState === 'Verify Email' && (
+                <div className="space-y-3">
+                  <InputField icon={FaEnvelope} placeholder="Verification Token" value={verificationToken} onChange={(e) => setVerificationToken(e.target.value)} />
+                  <p className="text-slate-400 text-xs font-medium px-3 py-2.5"
+                    style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(251,146,60,0.2)', clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)' }}>
+                    Check your email for the verification token.
                   </p>
-                )}
+                  <Button disabled={isLoading}>{isLoading ? 'Verifying...' : 'Verify Email'}</Button>
+                </div>
+              )}
 
-                <Button disabled={isLoading}>
-                  {isLoading ? 'Sending...' : 'Create Account'}
-                </Button>
-              </div>
-            )}
+              {/* Forgot Password */}
+              {currentState === 'Forgot Password' && (
+                <div className="space-y-3">
+                  <InputField icon={FaEnvelope} type="email" placeholder="Enter your registered email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} />
+                  <Button disabled={isLoading}>{isLoading ? 'Sending...' : 'Send Reset Code'}</Button>
+                </div>
+              )}
 
-            {/* Login Form */}
-            {currentState === 'Login' && (
-              <div className="space-y-4">
-                <InputField
-                  icon={FaEnvelope}
-                  placeholder="Email or Phone"
-                  value={emailOrPhone}
-                  onChange={(e) => setEmailOrPhone(e.target.value)}
-                />
-                <PasswordField
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              {/* Reset Password */}
+              {currentState === 'Reset Password' && (
+                <div className="space-y-3">
+                  <InputField icon={FaEnvelope} placeholder="Enter the reset code" value={resetCode} onChange={(e) => setResetCode(e.target.value)} />
+                  <PasswordField placeholder="New Password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                  <PasswordField placeholder="Confirm New Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                  <Button disabled={isLoading}>{isLoading ? 'Resetting...' : 'Reset Password'}</Button>
+                </div>
+              )}
 
-                <Button disabled={isLoading}>
-                  {isLoading ? 'Signing In...' : 'Sign In'}
-                </Button>
-              </div>
-            )}
-
-            {/* Verify Email Form */}
-            {currentState === 'Verify Email' && (
-              <div className="space-y-4">
-                <InputField
-                  icon={FaEnvelope}
-                  placeholder="Verification Token"
-                  value={verificationToken}
-                  onChange={(e) => setVerificationToken(e.target.value)}
-                />
-                <p className="text-gray-600 text-sm bg-orange-50 p-3 rounded-lg border border-orange-200">
-                  Check your email for the verification token.
-                </p>
-
-                <Button disabled={isLoading}>
-                  {isLoading ? 'Verifying...' : 'Verify Email'}
-                </Button>
-              </div>
-            )}
-
-            {/* Forgot Password Form */}
-            {currentState === 'Forgot Password' && (
-              <div className="space-y-4">
-                <InputField
-                  icon={FaEnvelope}
-                  type="email"
-                  placeholder="Enter your registered email"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                />
-
-                <Button disabled={isLoading}>
-                  {isLoading ? 'Sending...' : 'Send Reset Code'}
-                </Button>
-              </div>
-            )}
-
-            {/* Reset Password Form */}
-            {currentState === 'Reset Password' && (
-              <div className="space-y-4">
-                <InputField
-                  icon={FaEnvelope}
-                  placeholder="Enter the reset code"
-                  value={resetCode}
-                  onChange={(e) => setResetCode(e.target.value)}
-                />
-                <PasswordField
-                  placeholder="New Password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-                <PasswordField
-                  placeholder="Confirm New Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-
-                <Button disabled={isLoading}>
-                  {isLoading ? 'Resetting...' : 'Reset Password'}
-                </Button>
-              </div>
-            )}
-
-            {/* Navigation Links */}
-            <div className="pt-4 border-t border-gray-200">
-              <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+              {/* Navigation Links */}
+              <div className="pt-4 flex flex-col sm:flex-row justify-between items-center gap-2"
+                style={{ borderTop: '1px solid rgba(148,163,184,0.1)' }}>
                 <button
                   type="button"
                   onClick={() => setCurrentState('Forgot Password')}
-                  className="text-gray-600 hover:text-orange-600 transition-colors duration-200 text-sm"
+                  className="text-slate-600 hover:text-orange-400 transition-colors duration-200 text-[11px] font-black uppercase tracking-[0.12em]"
                 >
-                  Forgot your password?
+                  Forgot password?
                 </button>
                 {currentState === 'Login' ? (
-                  <button
-                    type="button"
-                    onClick={() => setCurrentState('Sign Up')}
-                    className="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-200 text-sm"
-                  >
-                    Create account
+                  <button type="button" onClick={() => setCurrentState('Sign Up')}
+                    className="text-orange-500 hover:text-orange-400 font-black transition-colors duration-200 text-[11px] uppercase tracking-[0.12em] flex items-center gap-1.5">
+                    <span className="text-orange-600">→</span> Create account
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => setCurrentState('Login')}
-                    className="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-200 text-sm"
-                  >
-                    Login Here
+                  <button type="button" onClick={() => setCurrentState('Login')}
+                    className="text-orange-500 hover:text-orange-400 font-black transition-colors duration-200 text-[11px] uppercase tracking-[0.12em] flex items-center gap-1.5">
+                    <span className="text-orange-600">→</span> Login Here
                   </button>
                 )}
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-5 flex items-center gap-3">
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(251,146,60,0.25))' }} />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700">Premium T-Shirt Brand</span>
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg, transparent, rgba(251,146,60,0.25))' }} />
         </div>
       </div>
     </div>
