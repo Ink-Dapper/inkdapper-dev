@@ -51,42 +51,32 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
   };
 
   return (
-    <section className='relative py-8 md:py-16 lg:py-24 overflow-hidden my-8 md:my-12 lg:my-24'>
-      {/* Section specific overlay for better content visibility */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-red-50/20 to-pink-50/30 backdrop-blur-sm"></div>
-
-      {/* Floating decorative elements */}
-      <div className='absolute top-10 left-1/4 w-16 h-16 lg:w-24 lg:h-24 bg-gradient-to-br from-orange-300/20 to-red-400/20 rounded-full blur-xl lg:blur-2xl animate-pulse'></div>
-      <div className='absolute top-20 right-1/3 w-12 h-12 lg:w-20 lg:h-20 bg-gradient-to-br from-pink-300/20 to-purple-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-1000'></div>
-      <div className='absolute bottom-10 left-1/2 w-14 h-14 lg:w-18 lg:h-18 bg-gradient-to-br from-teal-300/20 to-cyan-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-500'></div>
-      <div className='absolute top-1/2 right-1/4 w-10 h-10 lg:w-16 lg:h-16 bg-gradient-to-br from-purple-300/20 to-pink-400/20 rounded-full blur-lg lg:blur-xl animate-pulse delay-1500'></div>
+    <section className='relative py-8 md:py-16 lg:py-20 overflow-hidden' style={{ background: '#0d0d0e' }}>
+      {/* Subtle dark accent glows */}
+      <div className='absolute top-10 left-1/4 w-48 h-48 rounded-full blur-3xl opacity-10' style={{ background: 'radial-gradient(circle, #f97316, transparent)' }}></div>
+      <div className='absolute bottom-10 right-1/4 w-48 h-48 rounded-full blur-3xl opacity-8' style={{ background: 'radial-gradient(circle, #f59e0b, transparent)' }}></div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Enhanced Header Section */}
+        {/* Header */}
         <div className="text-center mb-8 md:mb-12">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-8 h-0.5 bg-gradient-to-r from-transparent via-orange-400 to-transparent"></div>
-            <span className="text-xs font-medium text-orange-600 uppercase tracking-wider bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">You Might Also Like</span>
-            <div className="w-8 h-0.5 bg-gradient-to-r from-transparent via-orange-400 to-transparent"></div>
+            <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.6))' }}></div>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">You Might Also Like</span>
+            <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.6), transparent)' }}></div>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            <span className="bg-gradient-to-r from-slate-900 via-orange-700 to-slate-900 bg-clip-text text-transparent">
-              Related Products
-            </span>
+          <h2 className="ragged-title mb-4" style={{ fontSize: 'clamp(1.8rem,5vw,3.5rem)' }}>
+            Related Products
           </h2>
 
-          <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed px-4">
-            <span className="font-semibold text-slate-800 bg-gradient-to-r from-slate-800 to-orange-600 bg-clip-text text-transparent">Perfect Matches:</span> Discover more amazing designs that complement your current selection.
+          <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-500 leading-relaxed px-4">
+            <span className="font-semibold text-orange-400">Perfect Matches:</span> Discover more amazing designs that complement your current selection.
           </p>
         </div>
 
         {/* Mobile Slider View */}
         {isMobile && related.length > 0 && (
           <div className="md:hidden relative">
-            {/* Grid background pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
-
             <Swiper
               modules={[Navigation, Pagination]}
               spaceBetween={20}
@@ -106,17 +96,10 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
             >
               {related.map((item, index) => (
                 <SwiperSlide key={index}>
-                  <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
-                    style={{ animationDelay: `${index * 150}ms` }}>
-                    {/* Bright Shadow Wrapper */}
-                    <div className="relative">
-                      {/* Bright colored shadows */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
-
-                      {/* Main card with enhanced shadows */}
-                      <div className="relative bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/60 overflow-hidden">
+                  <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-1">
+                    <div className="relative rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(249,115,22,0.15)' }}>
+                      <div className="absolute -inset-1 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500" style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.4), rgba(245,158,11,0.3))' }}></div>
+                      <div className="relative">
                         <ProductItem
                           id={item._id}
                           name={item.name}
@@ -135,19 +118,21 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
             {/* Custom Navigation Buttons */}
             <button
               onClick={handlePrevSlide}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 text-orange-500 rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 text-orange-400 hover:text-white"
+              style={{ background: 'rgba(13,13,14,0.9)', border: '1px solid rgba(249,115,22,0.35)' }}
               aria-label="Previous slide"
             >
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <button
               onClick={handleNextSlide}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 text-orange-500 rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 text-orange-400 hover:text-white"
+              style={{ background: 'rgba(13,13,14,0.9)', border: '1px solid rgba(249,115,22,0.35)' }}
               aria-label="Next slide"
             >
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -155,25 +140,14 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
         )}
 
         {/* Desktop Grid View */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 gap-y-6 relative">
-          {/* Grid background pattern */}
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 gap-y-6">
           {related.map((item, index) => (
             <div
               key={index}
-              className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
-              style={{
-                animationDelay: `${index * 150}ms`
-              }}
+              className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-1"
             >
-              {/* Bright Shadow Wrapper */}
-              <div className="relative">
-                {/* Bright colored shadows */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
-                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
-                <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
-
-                {/* Main card with enhanced shadows */}
+              <div className="relative rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(249,115,22,0.15)' }}>
+                <div className="absolute -inset-1 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500" style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.4), rgba(245,158,11,0.3))' }}></div>
                 <div className="relative">
                   <ProductItem
                     id={item._id}

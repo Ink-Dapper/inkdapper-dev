@@ -15,6 +15,7 @@ import {
   Droplets,
   HardDrive,
   Layers,
+  Activity,
   X,
 } from 'lucide-react'
 import { assets } from '../assets/assets'
@@ -67,6 +68,7 @@ const navGroups = [
     label: 'System',
     items: [
       { to: '/storage', icon: HardDrive, label: 'Storage' },
+      { to: '/performance-reports', icon: Activity, label: 'Performance Reports' },
     ],
   },
 ]

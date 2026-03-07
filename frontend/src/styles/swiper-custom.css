@@ -15,17 +15,47 @@
   width: 100%;
 }
 
-.latest-collection-section .swiper-slide {
-  width: 250px !important;
-  margin-right: 22px !important;
+/* Latest Collection mobile swiper */
+.latest-mobile-swiper .swiper-slide {
+  height: auto !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: transparent !important;
+  text-align: left !important;
+  border-radius: 0 !important;
 }
 
-.latest-collection-section .swiper-slide>div {
+.latest-mobile-swiper .swiper-slide > div {
   width: 100% !important;
+  height: 100% !important;
 }
 
-.latest-collection-section .swiper-slide img {
+.latest-swiper-prev.swiper-button-disabled,
+.latest-swiper-next.swiper-button-disabled {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Handpicked / Highlighted Products mobile swiper */
+.highlight-mobile-swiper .swiper-slide {
+  height: auto !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: transparent !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+  position: relative !important;
+}
+
+.highlight-mobile-swiper .swiper-slide > div {
   width: 100% !important;
+  height: 100% !important;
+}
+
+.highlight-swiper-prev.swiper-button-disabled,
+.highlight-swiper-next.swiper-button-disabled {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .acid-wash-tees-section .swiper-slide {

@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
-import Title from './Title'
 import ProductItem from './ProductItemWrapper'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
@@ -10,251 +9,185 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import '../styles/swiper-custom.css'
 
-// Add this hook to detect screen size
-function useIsMobile() {
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-    return isMobile;
-}
-
 const LatestCollection = () => {
+  const { products, scrollToTop } = useContext(ShopContext)
+  const [latestProducts, setLatestProducts] = useState([])
+  const [latestSwiper, setLatestSwiper] = useState(null)
 
-    const { products, scrollToTop } = useContext(ShopContext)
-    const [latestProducts, setLatestProducts] = useState([])
-    const [swiper, setSwiper] = useState(null)
-    const navigate = useNavigate()
-    const isMobile = useIsMobile()
-
-    const handleCollectionClick = () => {
-        console.log('Collection button clicked');
-        try {
-            navigate('/collection');
-            console.log('Navigation triggered');
-            if (scrollToTop) {
-                setTimeout(() => {
-                    scrollToTop();
-                    console.log('Scroll to top executed');
-                }, 100);
-            }
-        } catch (error) {
-            console.error('Navigation error:', error);
-            // Fallback to window.location
-            window.location.href = '/collection';
-        }
-    }
-
-    useEffect(() => {
-        // Sort products by date (most recent first) and take the latest 8 products
-        const sortedProducts = products
-            .slice()
-            .sort((a, b) => (b.date || 0) - (a.date || 0))
-            .slice(0, 8);
-        setLatestProducts(sortedProducts);
-    }, [products])
-
-    const handlePrevSlide = () => {
-        if (swiper) {
-            swiper.slidePrev();
-        }
-    };
-
-    const handleNextSlide = () => {
-        if (swiper) {
-            swiper.slideNext();
-        }
-    };
-
-    return (
-        <section className='relative py-6 md:py-10 overflow-hidden latest-collection-section'>
-            {/* Section specific overlay for better content visibility */}
-            <div className="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
-
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Enhanced Hero Section */}
-                <div className="text-center mb-12 md:mb-16">
-                    <div className="inline-flex items-center gap-3 mb-6">
-                        <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-orange-400 to-transparent"></div>
-                        <span className="text-sm font-medium text-orange-600 uppercase tracking-wider bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">New Arrivals</span>
-                        <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-orange-400 to-transparent"></div>
-                    </div>
-
-                    <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-4 md:mb-6">
-                        <span className="bg-gradient-to-r from-slate-900 via-orange-700 to-slate-900 bg-clip-text text-transparent">
-                            Latest Updates
-                        </span>
-                    </h2>
-
-                    <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed mb-6 md:mb-8 md:px-4 px-1 text-wrap-balance">
-                        <span className="font-semibold text-slate-800 bg-gradient-to-r from-slate-800 to-orange-600 bg-clip-text text-transparent">Fresh & Updated:</span> Discover our most recently updated products – featuring the latest designs, improved quality, and newest additions to our collection. Stay ahead with the freshest styles from Ink Dapper.
-                    </p>
-
-                    {/* Enhanced Trending badges */}
-                    <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8 px-4">
-                        <span className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-orange-200/80 to-red-200/80 text-orange-800 border border-orange-300/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
-                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mr-1.5 md:mr-2 animate-pulse"></span>
-                            Just Updated
-                        </span>
-                        <span className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-yellow-200/80 to-orange-200/80 text-yellow-800 border border-yellow-300/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
-                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mr-1.5 md:mr-2 animate-pulse"></span>
-                            Fresh Designs
-                        </span>
-                        <span className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-red-200/80 to-pink-200/80 text-red-800 border border-red-300/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
-                            <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mr-1.5 md:mr-2 animate-pulse"></span>
-                            Latest Updates
-                        </span>
-                    </div>
-                </div>
-
-                {/* Desktop Products Grid */}
-                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-10 relative">
-                    {/* Grid background pattern */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
-                    {latestProducts.map((item, index) => (
-                        <div
-                            key={index}
-                            className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
-                            style={{
-                                animationDelay: `${index * 150}ms`
-                            }}
-                        >
-                            {/* Bright Shadow Wrapper */}
-                            <div className="relative">
-                                {/* Bright colored shadows */}
-                                <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
-                                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
-                                <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
-
-                                {/* Main card with enhanced shadows */}
-                                <div className="relative">
-                                    <ProductItem
-                                        id={item._id}
-                                        image={item.image}
-                                        name={item.name}
-                                        price={item.price}
-                                        beforePrice={item.beforePrice}
-                                        soldout={item.soldout}
-                                        subCategory={item.subCategory}
-                                        slug={item.slug}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Mobile Slider View */}
-                {isMobile && latestProducts.length > 0 && (
-                    <div className="md:hidden relative mb-8">
-                        {/* Grid background pattern */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-50/20 via-transparent to-red-50/20 rounded-3xl -z-10"></div>
-
-                        <Swiper
-                            modules={[Navigation, Pagination]}
-                            spaceBetween={20}
-                            slidesPerView={1.3}
-                            centeredSlides={true}
-                            loop={latestProducts.length > 2}
-                            pagination={{
-                                clickable: true,
-                                dynamicBullets: true,
-                                renderBullet: function (index, className) {
-                                    return '<span class="' + className + ' bg-orange-500"></span>';
-                                }
-                            }}
-                            className="latest-products-swiper w-full px-2"
-                            style={{ paddingBottom: '40px' }}
-                            onSwiper={setSwiper}
-                        >
-                            {latestProducts.map((item, index) => (
-                                <SwiperSlide key={index}>
-                                    <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fadeInUp"
-                                        style={{ animationDelay: `${index * 150}ms` }}>
-                                        {/* Bright Shadow Wrapper */}
-                                        <div className="relative">
-                                            {/* Bright colored shadows */}
-                                            <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-60 transition-all duration-500 animate-pulse"></div>
-                                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-teal-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500 animate-pulse animation-delay-1000"></div>
-                                            <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-3xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 animate-pulse animation-delay-2000"></div>
-
-                                            {/* Main card with enhanced shadows */}
-                                            <div className="relative bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/60 overflow-hidden">
-                                                <ProductItem
-                                                    id={item._id}
-                                                    name={item.name}
-                                                    image={item.image}
-                                                    price={item.price}
-                                                    beforePrice={item.beforePrice}
-                                                    soldout={item.soldout}
-                                                    subCategory={item.subCategory}
-                                                    slug={item.slug}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-
-                        {/* Custom Navigation Buttons */}
-                        <div className="flex justify-center items-center gap-4 mt-4">
-                            <button
-                                onClick={handlePrevSlide}
-                                className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
-                                aria-label="Previous products"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-
-                            <span className="text-sm text-gray-600 font-medium">
-                                Swipe to see all {latestProducts.length} products
-                            </span>
-
-                            <button
-                                onClick={handleNextSlide}
-                                className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
-                                aria-label="Next products"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Enhanced Call to Action */}
-                <div className="text-center">
-                    <div className="relative inline-block">
-                        <Link
-                            to='/collection'
-                            onClick={scrollToTop}
-                        >
-                            <span className="relative z-10 flex items-center gap-3 group relative inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-semibold text-white bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/25 transform hover:scale-105 border border-orange-400/50">
-                                Explore Full Collection
-                                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </Link>
-
-                        {/* Enhanced decorative elements around button */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-400 to-yellow-400 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                    </div>
-
-                    <p className="mt-4 text-sm text-slate-500">
-                        Discover <span className="font-semibold text-orange-600 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{products.length}</span>+ unique designs
-                    </p>
-                </div>
-            </div>
-        </section>
+  useEffect(() => {
+    setLatestProducts(
+      products.slice().sort((a, b) => (b.date || 0) - (a.date || 0)).slice(0, 8)
     )
+  }, [products])
+
+  useEffect(() => {
+    if (latestSwiper) {
+      const prev = document.querySelector('.latest-swiper-prev')
+      const next = document.querySelector('.latest-swiper-next')
+      if (prev) prev.style.opacity = latestSwiper.isBeginning ? '0' : '1'
+      if (next) next.style.opacity = latestSwiper.isEnd ? '0' : '1'
+    }
+  }, [latestSwiper])
+
+  const handleSlideChange = (s) => {
+    const prev = document.querySelector('.latest-swiper-prev')
+    const next = document.querySelector('.latest-swiper-next')
+    if (prev) prev.style.opacity = s.isBeginning ? '0' : '1'
+    if (next) next.style.opacity = s.isEnd ? '0' : '1'
+  }
+
+  return (
+    <section className="py-10 md:py-14 ragged-section">
+      <div className="ragged-divider" />
+      <div className="ragged-noise" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5 md:mb-10">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="ragged-pill text-[11px] font-bold uppercase tracking-widest px-2.5 py-1">
+                <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                New Arrivals
+              </span>
+            </div>
+            <h2 className="ragged-title text-3xl sm:text-4xl md:text-5xl leading-tight">
+              Latest Updates
+            </h2>
+            <p className="ragged-subtitle text-sm mt-1">
+              Fresh drops stitched with streetwear energy
+            </p>
+          </div>
+
+          <Link
+            to="/collection"
+            onClick={scrollToTop}
+            className="hidden sm:inline-flex items-center gap-1.5 ragged-outline-btn font-semibold text-sm px-4 py-2 transition-all duration-200 flex-shrink-0"
+          >
+            View All
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+
+        <div className="md:hidden relative">
+          <Swiper
+            modules={[Navigation, Pagination]}
+            onSwiper={setLatestSwiper}
+            onSlideChange={handleSlideChange}
+            spaceBetween={12}
+            slidesPerView={1.15}
+            centeredSlides={false}
+            loop={false}
+            navigation={{
+              nextEl: '.latest-swiper-next',
+              prevEl: '.latest-swiper-prev',
+            }}
+            pagination={{
+              clickable: true,
+              dynamicBullets: true,
+              renderBullet: (_, cls) =>
+                `<span class="${cls}" style="background:#f97316;width:7px;height:7px"></span>`,
+            }}
+            breakpoints={{
+              320: { slidesPerView: 1.1, spaceBetween: 10 },
+              375: { slidesPerView: 1.15, spaceBetween: 12 },
+              425: { slidesPerView: 1.2, spaceBetween: 14 },
+            }}
+            className="latest-mobile-swiper w-full pb-10"
+          >
+            {latestProducts.map((item, index) => (
+              <SwiperSlide key={index}>
+                <div className="rounded-2xl overflow-hidden shadow-sm w-full ring-1 ring-orange-500/20">
+                  <ProductItem
+                    id={item._id}
+                    name={item.name}
+                    image={item.image}
+                    price={item.price}
+                    beforePrice={item.beforePrice}
+                    soldout={item.soldout}
+                    subCategory={item.subCategory}
+                    slug={item.slug}
+                  />
+                </div>
+              </SwiperSlide>
+            ))}
+
+            <div
+              className="latest-swiper-prev absolute left-2 z-10 w-9 h-9 bg-slate-900/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center border border-orange-400/30 cursor-pointer transition-all duration-200 hover:bg-orange-500/20 hover:border-orange-300 active:scale-95"
+              style={{ top: '33%', transform: 'translateY(-50%)', opacity: 0 }}
+            >
+              <svg className="w-4 h-4 text-orange-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+            </div>
+            <div
+              className="latest-swiper-next absolute right-2 z-10 w-9 h-9 bg-slate-900/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center border border-orange-400/30 cursor-pointer transition-all duration-200 hover:bg-orange-500/20 hover:border-orange-300 active:scale-95"
+              style={{ top: '33%', transform: 'translateY(-50%)', opacity: 1 }}
+            >
+              <svg className="w-4 h-4 text-orange-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Swiper>
+        </div>
+
+        <div className="sm:hidden text-center mt-4">
+          <Link
+            to="/collection"
+            onClick={scrollToTop}
+            className="inline-flex items-center gap-2 ragged-solid-btn font-semibold text-sm px-6 py-2.5 transition-all duration-200"
+          >
+            View All Products
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+          <p className="mt-1.5 text-xs text-slate-400">{products.length}+ designs available</p>
+        </div>
+
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+          {latestProducts.map((item, index) => (
+            <div
+              key={index}
+              className="group transition-all duration-300 hover:-translate-y-1.5"
+              style={{ animationDelay: `${index * 80}ms` }}
+            >
+              <div className="rounded-2xl overflow-hidden transition-shadow duration-300 ring-1 ring-orange-500/20 group-hover:shadow-[0_16px_40px_rgba(249,115,22,0.24)]">
+                <ProductItem
+                  id={item._id}
+                  image={item.image}
+                  name={item.name}
+                  price={item.price}
+                  beforePrice={item.beforePrice}
+                  soldout={item.soldout}
+                  subCategory={item.subCategory}
+                  slug={item.slug}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:flex items-center justify-between mt-10 pt-6 border-t border-slate-700/70">
+          <p className="text-sm text-slate-400">
+            Showing <span className="font-semibold text-slate-100">{latestProducts.length}</span> of{' '}
+            <span className="font-semibold text-orange-300">{products.length}+</span> products
+          </p>
+          <Link
+            to="/collection"
+            onClick={scrollToTop}
+            className="inline-flex items-center gap-2 text-slate-100 hover:text-orange-200 font-semibold text-sm transition-colors group"
+          >
+            Explore Full Collection
+            <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
 }
 
 export default LatestCollection

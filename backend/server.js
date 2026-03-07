@@ -28,6 +28,7 @@ import highlightedProductRouter from './routes/highlightedProductRoute.js'
 import notificationRouter from './routes/notificationRoute.js'
 import chatRouter from './routes/chatRoute.js'
 import storageRouter from './routes/storageRoute.js'
+import performanceReportRouter from './routes/performanceReportRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import adminAuth from './middleware/adminAuth.js'
@@ -202,6 +203,7 @@ app.use('/api/highlighted-products', highlightedProductRouter)
 app.use('/api/notifications', notificationRouter)
 app.use('/api/chat', chatRouter)
 app.use('/api/storage', storageRouter)
+app.use('/api/performance-report', performanceReportRouter)
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {

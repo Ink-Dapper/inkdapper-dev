@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -64,7 +65,8 @@ html {
     /* Ensure chat window doesn't overflow */
     .chat-window {
         max-width: 100vw;
-        max-height: 100vh;
+        max-height: 80vh;
+        margin-top: 21vw;
     }
 
     /* Footer mobile optimizations */
@@ -83,7 +85,7 @@ html {
     /* Improve touch targets for mobile */
     footer a,
     footer button {
-        min-height: 44px;
+        min-height: auto;
         min-width: 44px;
         display: flex;
         align-items: center;
@@ -135,9 +137,8 @@ section {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Navbar and footer enhancements */
-nav,
-footer {
+/* Navbar enhancement */
+nav {
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -230,13 +231,7 @@ a.active {
     /* slate-700 */
 }
 
-/* Footer text */
-footer p,
-footer span,
-footer a {
-    color: #475569;
-    /* slate-600 */
-}
+/* Footer text is controlled by component-level classes to avoid theme conflicts */
 
 /* Modal text */
 .modal p,
@@ -712,9 +707,12 @@ a.active hr {
         z-index: 1100;
         top: 0;
         left: 0;
-        background-color: rgba(255, 255, 255, 0.748);
+        background-color: rgba(10, 10, 11, 0.97);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(249, 115, 22, 0.22);
+        box-shadow: 0 1px 0 rgba(249, 115, 22, 0.1), 0 8px 32px rgba(0, 0, 0, 0.7);
         padding: 0.7rem;
-
     }
 }
 
@@ -989,4 +987,122 @@ a.active hr {
             color: white;
         }
     }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Home page: Ragged visual system — streetwear dark theme
+   ═══════════════════════════════════════════════════════ */
+:root {
+    --ragged-bg: #0d0d0e;
+    --ragged-bg-soft: #161618;
+    --ragged-accent: #f97316;
+    --ragged-accent-2: #f59e0b;
+    --ragged-text: #f8fafc;
+    --ragged-muted: #94a3b8;
+}
+
+/* Base dark section with subtle grain + orange radial glow */
+.ragged-section {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 10% 15%, rgba(249, 115, 22, 0.13) 0%, transparent 48%),
+        radial-gradient(ellipse at 85% 80%, rgba(245, 158, 11, 0.09) 0%, transparent 40%),
+        linear-gradient(160deg, var(--ragged-bg) 0%, var(--ragged-bg-soft) 60%, #0f0f10 100%);
+}
+
+/* Fine grid lines for an industrial feel */
+.ragged-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(transparent 97%, rgba(255, 255, 255, 0.018) 100%),
+        linear-gradient(90deg, transparent 97%, rgba(255, 255, 255, 0.018) 100%);
+    background-size: 28px 28px;
+    opacity: 0.4;
+}
+
+/* Film-grain noise dot overlay */
+.ragged-noise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.12;
+    background-image: radial-gradient(rgba(248, 250, 252, 0.65) 0.6px, transparent 0.6px);
+    background-size: 3px 3px;
+}
+
+/* Torn-edge divider at top of section */
+.ragged-divider {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 18px;
+    pointer-events: none;
+    background: linear-gradient(90deg,
+            rgba(249, 115, 22, 0.32),
+            rgba(245, 158, 11, 0.24),
+            rgba(249, 115, 22, 0.32));
+    clip-path: polygon(0 48%, 3% 61%, 7% 44%, 12% 60%, 17% 43%, 22% 58%,
+            28% 41%, 34% 59%, 40% 42%, 46% 60%, 52% 41%, 58% 59%,
+            64% 43%, 70% 60%, 76% 42%, 82% 60%, 88% 43%, 93% 58%,
+            97% 44%, 100% 57%, 100% 0, 0 0);
+}
+
+/* Bebas Neue headline style */
+.ragged-title {
+    font-family: 'Bebas Neue', 'Outfit', sans-serif;
+    letter-spacing: 0.04em;
+    color: var(--ragged-text);
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+
+.ragged-subtitle {
+    color: var(--ragged-muted);
+}
+
+/* Orange pill label badge */
+.ragged-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(249, 115, 22, 0.15);
+    color: #fdba74;
+    border: 1px solid rgba(249, 115, 22, 0.38);
+    border-radius: 9999px;
+}
+
+/* Ghost outline button */
+.ragged-outline-btn {
+    border: 1px solid rgba(249, 115, 22, 0.45);
+    background: rgba(15, 23, 42, 0.5);
+    color: #fed7aa;
+    border-radius: 9999px;
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.1) inset;
+    transition: all 0.2s ease;
+}
+
+.ragged-outline-btn:hover {
+    background: rgba(249, 115, 22, 0.16);
+    border-color: rgba(249, 115, 22, 0.65);
+    color: #fff7ed;
+    box-shadow: 0 0 16px rgba(249, 115, 22, 0.18);
+}
+
+/* Solid filled CTA button */
+.ragged-solid-btn {
+    background: linear-gradient(90deg, var(--ragged-accent) 0%, var(--ragged-accent-2) 100%);
+    color: #fff;
+    border-radius: 9999px;
+    box-shadow: 0 10px 28px rgba(249, 115, 22, 0.32), 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.ragged-solid-btn:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(249, 115, 22, 0.42), 0 4px 10px rgba(0, 0, 0, 0.3);
 }

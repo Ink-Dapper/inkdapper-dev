@@ -23,6 +23,7 @@ const PAGE_TITLES = {
   '/acid-wash-products': 'Acid Wash Products',
   '/coupons': 'Coupons',
   '/storage': 'Storage Manager',
+  '/performance-reports': 'Control & Performance Reports',
 }
 
 const Navbar = ({ setToken, onMenuClick }) => {

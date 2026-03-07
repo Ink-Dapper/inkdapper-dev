@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Slider from "./Slider";
 import { Link } from "react-router-dom";
 
@@ -6,199 +6,244 @@ const Hero = () => {
     const [currentColor, setCurrentColor] = useState("teal");
     const [hasError, setHasError] = useState(false);
 
-    // Color mapping for different T-shirt colors with actual CSS values
     const colorMap = {
-        black: {
-            primary: "linear-gradient(to right, #1f2937, #374151, #4b5563)",
-            secondary: "linear-gradient(to right, #4b5563, #6b7280, #9ca3af)",
-            accent: "#9ca3af",
-            bg: "linear-gradient(to right, #f9fafb, #f3f4f6)"
-        },
-        white: {
-            primary: "linear-gradient(to right, #4b5563, #6b7280, #9ca3af)",
-            secondary: "linear-gradient(to right, #6b7280, #9ca3af, #d1d5db)",
-            accent: "#9ca3af",
-            bg: "linear-gradient(to right, #f9fafb, #dbeafe)"
-        },
-        red: {
-            primary: "linear-gradient(to right, #dc2626, #ef4444, #ec4899)",
-            secondary: "linear-gradient(to right, #ef4444, #ec4899, #f43f5e)",
-            accent: "#f87171",
-            bg: "linear-gradient(to right, #fef2f2, #fdf2f8)"
-        },
-        green: {
-            primary: "linear-gradient(to right, #16a34a, #10b981, #14b8a6)",
-            secondary: "linear-gradient(to right, #22c55e, #10b981, #14b8a6)",
-            accent: "#4ade80",
-            bg: "linear-gradient(to right, #f0fdf4, #ecfdf5)"
-        },
-        blue: {
-            primary: "linear-gradient(to right, #2563eb, #6366f1, #8b5cf6)",
-            secondary: "linear-gradient(to right, #3b82f6, #6366f1, #8b5cf6)",
-            accent: "#60a5fa",
-            bg: "linear-gradient(to right, #eff6ff, #eef2ff)"
-        },
-        "navy-blue": {
-            primary: "linear-gradient(to right, #1e40af, #4338ca, #7c3aed)",
-            secondary: "linear-gradient(to right, #2563eb, #4338ca, #7c3aed)",
-            accent: "#3b82f6",
-            bg: "linear-gradient(to right, #eff6ff, #eef2ff)"
-        },
-        brown: {
-            primary: "linear-gradient(to right, #b45309, #ea580c, #dc2626)",
-            secondary: "linear-gradient(to right, #d97706, #f97316, #ef4444)",
-            accent: "#f59e0b",
-            bg: "linear-gradient(to right, #fffbeb, #fff7ed)"
-        },
-        coffee: {
-            primary: "linear-gradient(to right, #92400e, #c2410c, #b91c1c)",
-            secondary: "linear-gradient(to right, #b45309, #ea580c, #dc2626)",
-            accent: "#d97706",
-            bg: "linear-gradient(to right, #fffbeb, #fff7ed)"
-        },
-        beige: {
-            primary: "linear-gradient(to right, #d97706, #eab308, #f97316)",
-            secondary: "linear-gradient(to right, #f59e0b, #facc15, #fb923c)",
-            accent: "#fbbf24",
-            bg: "linear-gradient(to right, #fffbeb, #fefce8)"
-        },
-        lavender: {
-            primary: "linear-gradient(to right, #8b5cf6, #7c3aed, #6366f1)",
-            secondary: "linear-gradient(to right, #a855f7, #8b5cf6, #6366f1)",
-            accent: "#a78bfa",
-            bg: "linear-gradient(to right, #faf5ff, #f5f3ff)"
-        },
-        redwood: {
-            primary: "linear-gradient(to right, #b91c1c, #e11d48, #ec4899)",
-            secondary: "linear-gradient(to right, #dc2626, #f43f5e, #ec4899)",
-            accent: "#f87171",
-            bg: "linear-gradient(to right, #fef2f2, #fdf2f8)"
-        },
-        teal: {
-            primary: "linear-gradient(to right, #0d9488, #10b981, #06b6d4)",
-            secondary: "linear-gradient(to right, #14b8a6, #10b981, #06b6d4)",
-            accent: "#2dd4bf",
-            bg: "linear-gradient(to right, #ecfdf5, #ecfeff)"
-        }
+        black:      { primary: "linear-gradient(to right, #1f2937, #374151, #4b5563)", secondary: "linear-gradient(to right, #4b5563, #6b7280, #9ca3af)" },
+        white:      { primary: "linear-gradient(to right, #4b5563, #6b7280, #9ca3af)", secondary: "linear-gradient(to right, #6b7280, #9ca3af, #d1d5db)" },
+        red:        { primary: "linear-gradient(to right, #dc2626, #ef4444, #ec4899)", secondary: "linear-gradient(to right, #ef4444, #ec4899, #f43f5e)" },
+        green:      { primary: "linear-gradient(to right, #16a34a, #10b981, #14b8a6)", secondary: "linear-gradient(to right, #22c55e, #10b981, #14b8a6)" },
+        blue:       { primary: "linear-gradient(to right, #2563eb, #6366f1, #8b5cf6)", secondary: "linear-gradient(to right, #3b82f6, #6366f1, #8b5cf6)" },
+        "navy-blue":{ primary: "linear-gradient(to right, #1e40af, #4338ca, #7c3aed)", secondary: "linear-gradient(to right, #2563eb, #4338ca, #7c3aed)" },
+        brown:      { primary: "linear-gradient(to right, #b45309, #ea580c, #dc2626)", secondary: "linear-gradient(to right, #d97706, #f97316, #ef4444)" },
+        coffee:     { primary: "linear-gradient(to right, #92400e, #c2410c, #b91c1c)", secondary: "linear-gradient(to right, #b45309, #ea580c, #dc2626)" },
+        beige:      { primary: "linear-gradient(to right, #d97706, #eab308, #f97316)", secondary: "linear-gradient(to right, #f59e0b, #facc15, #fb923c)" },
+        lavender:   { primary: "linear-gradient(to right, #8b5cf6, #7c3aed, #6366f1)", secondary: "linear-gradient(to right, #a855f7, #8b5cf6, #6366f1)" },
+        redwood:    { primary: "linear-gradient(to right, #b91c1c, #e11d48, #ec4899)", secondary: "linear-gradient(to right, #dc2626, #f43f5e, #ec4899)" },
+        teal:       { primary: "linear-gradient(to right, #0d9488, #10b981, #06b6d4)", secondary: "linear-gradient(to right, #14b8a6, #10b981, #06b6d4)" },
     };
 
     const colors = colorMap[currentColor] || colorMap.teal;
 
     const handleColorChange = (color) => {
-        try {
-            setCurrentColor(color);
-        } catch (error) {
-            console.warn('Error changing color:', error);
-            setHasError(true);
-        }
+        try { setCurrentColor(color); }
+        catch (err) { console.warn('Error changing color:', err); setHasError(true); }
     };
 
-    // Force re-render when color changes
-    useEffect(() => {
-        // This ensures the color change is applied immediately
-        const element = document.querySelector('.hero-title');
-        if (element) {
-            element.style.background = colors.secondary;
-            element.style.webkitBackgroundClip = 'text';
-            element.style.webkitTextFillColor = 'transparent';
-            element.style.backgroundClip = 'text';
-        }
-    }, [currentColor, colors.secondary]);
-
-    // Get text color based on background color for better contrast
-    const getTextColor = (colorName) => {
-        const darkColors = ['black', 'navy-blue', 'brown', 'coffee'];
-        return darkColors.includes(colorName) ? '#ffffff' : '#1f2937';
-    };
-
-    // Error fallback
     if (hasError) {
         return (
-            <div className="relative flex flex-col-reverse md:flex-row items-center justify-between bg-gradient-to-r from-orange-100 via-white to-orange-50 rounded-xl shadow-lg overflow-hidden p-6 md:p-12 mb-8">
-                <div className="w-full md:w-1/2 flex flex-col items-start justify-center gap-2 md:gap-6 z-10">
-                    <h1 className="text-3xl md:text-6xl font-extrabold text-gray-800 leading-tight">
-                        Ink Dapper
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-600 mb-6">
-                        Redefine Your Street Style
-                    </p>
-                    <Link
-                        to="/collection"
-                        className="inline-block px-8 py-3 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-colors"
-                    >
-                        🛒 Shop Now
-                    </Link>
+            <section className="relative ragged-section flex items-center py-14 px-4">
+                <div className="ragged-noise" />
+                <div className="max-w-7xl mx-auto w-full flex flex-col gap-4">
+                    <h1 className="ragged-title text-6xl">Ink Dapper</h1>
+                    <p className="ragged-subtitle">Redefine Your Street Style</p>
+                    <Link to="/collection" className="ragged-solid-btn inline-flex w-fit px-8 py-3 font-semibold">Shop Now</Link>
                 </div>
-                <div className="w-full md:w-1/2 flex items-center justify-center">
-                    <div className="w-full h-64 bg-gray-200 rounded-2xl flex items-center justify-center">
-                        <span className="text-gray-500">Image Loading...</span>
-                    </div>
-                </div>
-            </div>
+            </section>
         );
     }
 
     return (
-        <div className="relative flex flex-col-reverse md:flex-row items-center justify-between bg-gradient-to-r from-orange-100 via-white to-orange-50 rounded-xl shadow-lg overflow-hidden p-6 md:p-12 mb-8">
-            {/* Hero left side */}
-            <div className="w-full md:w-1/2 flex flex-col items-start justify-center gap-2 md:gap-6 z-10">
-                <span
-                    className="inline-block text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg mb-0 mt-8 md:mt-1 md:mb-2 animate-pulse transform hover:scale-105 transition-all duration-300"
-                    style={{ background: colors.primary }}
-                >
-                    🌟 NEW ARRIVAL 🌟
-                </span>
-                <h1
-                    className="hero-title prata-regular text-3xl md:text-6xl font-extrabold leading-tight animate-gradient-x drop-shadow-lg"
-                    style={{
-                        color: getTextColor(currentColor),
-                        textShadow: `2px 2px 4px rgba(0,0,0,0.3)`,
-                        transition: 'color 0.5s ease-in-out'
-                    }}
-                >
-                    Discover the Latest Trends
-                </h1>
-                <p
-                    className="text-base md:text-xl font-medium max-w-md mb-4 p-4 rounded-lg shadow-sm"
-                    style={{
-                        background: colors.bg,
-                        borderLeft: `4px solid ${colors.accent}`,
-                        color: 'black',
-                        transition: 'color 0.5s ease-in-out'
-                    }}
-                >
-                    ✨ Elevate your style with our exclusive collection of premium T-shirts. Shop the freshest designs, crafted for comfort and impact.
-                </p>
-                <Link to="/collection" className="inline-block">
-                    <button
-                        className="px-8 py-3 text-white text-lg font-bold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none animate-pulse"
-                        style={{
-                            background: colors.primary,
-                            '--tw-ring-color': colors.accent
-                        }}
-                        onMouseEnter={(e) => {
-                            e.target.style.background = colors.secondary;
-                        }}
-                        onMouseLeave={(e) => {
-                            e.target.style.background = colors.primary;
-                        }}
-                    >
-                        🛒 Shop Now
-                    </button>
-                </Link>
+        <section className="relative overflow-hidden ragged-section flex items-center min-h-[88vh] md:min-h-[92vh]">
+
+            {/* ── Film-grain noise ── */}
+            <div className="ragged-noise" />
+
+            {/* ── Diagonal scratch marks ── */}
+            <div
+                className="absolute inset-0 pointer-events-none opacity-[0.04]"
+                style={{
+                    backgroundImage: 'repeating-linear-gradient(118deg, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1px, transparent 1px, transparent 80px)',
+                }}
+            />
+
+            {/* ── Color-reactive glow orb behind slider ── */}
+            <div
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-[65vw] h-[65vw] max-w-[860px] max-h-[860px] rounded-full blur-[130px] opacity-18 pointer-events-none transition-all duration-700"
+                style={{ background: colors.primary }}
+            />
+            {/* Secondary glow — bottom left */}
+            <div className="absolute -bottom-40 -left-40 w-[45vw] h-[45vw] max-w-[580px] max-h-[580px] bg-orange-500/12 rounded-full blur-3xl pointer-events-none" />
+
+            {/* ── Jagged top accent line ── */}
+            <div className="ragged-divider" />
+
+            {/* ── Large watermark text ── */}
+            <div
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0 whitespace-nowrap"
+                style={{
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    fontSize: 'clamp(80px, 18vw, 260px)',
+                    letterSpacing: '0.06em',
+                    color: 'transparent',
+                    WebkitTextStroke: '1px rgba(249,115,22,0.06)',
+                    opacity: 1,
+                    transform: 'translate(-50%, -50%) rotate(-8deg)',
+                }}
+            >
+                INK DAPPER
             </div>
-            {/* Hero right side */}
-            <div className="w-full md:w-1/2 flex items-center justify-center relative z-0">
-                <div className="relative w-full max-w-2xl md:max-w-3xl drop-shadow-2xl md:animate-float">
-                    <Slider onColorChange={handleColorChange} />
-                    {/* Decorative shape */}
-                    <div className="absolute -top-8 -right-8 w-32 h-32 bg-orange-100 rounded-full opacity-60 blur-2xl z-[-1]" />
+
+            {/* ── Vertical left accent bar ── */}
+            <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-transparent via-orange-500/60 to-transparent pointer-events-none" />
+            {/* Tick marks on the bar */}
+            {[15, 30, 50, 70, 85].map((pct) => (
+                <div
+                    key={pct}
+                    className="hidden lg:block absolute left-1.5 w-3 h-px bg-orange-400/40 pointer-events-none"
+                    style={{ top: `${pct}%` }}
+                />
+            ))}
+
+            <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10 py-10 sm:py-14 md:py-16 lg:py-18">
+                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 lg:gap-10">
+
+                    {/* ═══════════════════════════════════════════════
+                        SLIDER — bigger, order-1 on mobile, order-2 on md
+                    ═══════════════════════════════════════════════ */}
+                    <div className="w-full md:w-[55%] lg:w-[58%] md:order-2 flex items-center justify-center">
+                        <div className="relative w-full pb-3 md:pb-5 md:animate-float">
+
+                            {/* Color glow halo */}
+                            <div
+                                className="absolute inset-4 bottom-10 rounded-3xl blur-2xl opacity-45 -z-30 transition-all duration-700"
+                                style={{ background: colors.primary }}
+                            />
+
+                            {/* Rugged corner accent — top-right */}
+                            <div className="absolute -top-2 -right-2 w-14 h-14 pointer-events-none z-20"
+                                style={{
+                                    background: 'linear-gradient(225deg, rgba(249,115,22,0.55) 0%, transparent 55%)',
+                                    borderRadius: '0 16px 0 0',
+                                }}
+                            />
+                            {/* Rugged corner accent — bottom-left */}
+                            <div className="absolute -bottom-1 -left-2 w-12 h-12 pointer-events-none z-20"
+                                style={{
+                                    background: 'linear-gradient(45deg, rgba(245,158,11,0.4) 0%, transparent 55%)',
+                                    borderRadius: '0 0 0 16px',
+                                }}
+                            />
+
+                            <Slider onColorChange={handleColorChange} />
+                        </div>
+                    </div>
+
+                    {/* ═══════════════════════════════════════════════
+                        TEXT CONTENT — order-2 on mobile, order-1 on md
+                    ═══════════════════════════════════════════════ */}
+                    <div className="w-full md:w-[45%] lg:w-[42%] md:order-1 flex flex-col gap-4 md:gap-5">
+
+                        {/* Badge + rating row */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="ragged-pill text-[11px] font-bold uppercase tracking-widest px-3 py-1.5">
+                                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse" />
+                                New Arrival
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 bg-white/5 backdrop-blur-sm border border-white/12 px-2.5 py-1 rounded-full text-xs">
+                                <span className="text-yellow-400 leading-none">★★★★★</span>
+                                <span className="font-bold text-white text-xs">4.9</span>
+                                <span className="text-slate-500 text-[11px] hidden sm:inline">(2,000+ reviews)</span>
+                            </span>
+                        </div>
+
+                        {/* Giant rugged headline */}
+                        <div>
+                            <h1
+                                className="ragged-title leading-[0.88] tracking-tight"
+                                style={{ fontSize: 'clamp(3.2rem, 7vw, 6.5rem)' }}
+                            >
+                                Discover
+                                <br />
+                                <span
+                                    className="bg-clip-text text-transparent"
+                                    style={{ backgroundImage: colors.secondary, transition: 'background-image 0.5s ease' }}
+                                >
+                                    Latest
+                                </span>
+                                <br />
+                                Trends
+                            </h1>
+
+                            {/* Underline scratch accent */}
+                            <div className="flex items-center gap-2 mt-3">
+                                <div className="h-0.5 w-10 bg-orange-500 rounded-full" />
+                                <div className="h-px w-4 bg-orange-400/40 rounded-full" />
+                                <div className="h-px w-2 bg-orange-400/20 rounded-full" />
+                            </div>
+
+                            <p className="mt-3 text-sm md:text-[15px] ragged-subtitle leading-relaxed max-w-xs">
+                                Premium T-shirts crafted for comfort and designed for impact. Drop-worthy fits, delivered fast.
+                            </p>
+                        </div>
+
+                        {/* CTA buttons */}
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <Link to="/collection">
+                                <button className="ragged-solid-btn inline-flex items-center gap-2 px-7 py-3.5 text-white text-sm font-extrabold tracking-wide uppercase transition-all duration-300 hover:scale-105">
+                                    Shop Now
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </button>
+                            </Link>
+                            <Link
+                                to="/collection"
+                                className="ragged-outline-btn inline-flex items-center gap-1.5 font-semibold text-sm px-5 py-3.5 uppercase tracking-wide transition-all duration-200"
+                            >
+                                Explore
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </Link>
+                        </div>
+
+                        {/* Stats row */}
+                        <div className="flex items-center gap-5 sm:gap-7 pt-1">
+                            {[
+                                { value: '10K+', label: 'Customers' },
+                                { value: '50+',  label: 'Designs'   },
+                                { value: '4.9★', label: 'Rating'    },
+                            ].map((stat, i) => (
+                                <React.Fragment key={stat.label}>
+                                    <div className="text-center">
+                                        <div
+                                            className="font-extrabold text-white leading-none"
+                                            style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.4rem, 2.5vw, 2rem)', letterSpacing: '0.03em' }}
+                                        >
+                                            {stat.value}
+                                        </div>
+                                        <div className="text-[9px] sm:text-[11px] text-slate-500 font-semibold mt-1 uppercase tracking-widest">{stat.label}</div>
+                                    </div>
+                                    {i < 2 && <div className="w-px h-9 bg-slate-700/80 rounded-full" />}
+                                </React.Fragment>
+                            ))}
+                        </div>
+
+                        {/* Trust chips */}
+                        <div className="hidden sm:flex flex-wrap gap-2 pt-1">
+                            {['Free Shipping', '7-Day Returns', 'Premium Cotton', 'COD Available'].map((label) => (
+                                <span
+                                    key={label}
+                                    className="inline-flex items-center gap-1.5 bg-white/4 border border-white/10 px-3 py-1 rounded-full text-[11px] font-medium text-slate-400"
+                                >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                                    {label}
+                                </span>
+                            ))}
+                        </div>
+
+                    </div>
                 </div>
             </div>
-            {/* Optional: Decorative background shapes */}
-            <div className="absolute left-0 top-0 w-40 h-40 bg-orange-200 rounded-full opacity-30 blur-2xl z-0" />
-            <div className="absolute right-0 bottom-0 w-56 h-56 bg-yellow-100 rounded-full opacity-20 blur-2xl z-0" />
-        </div>
+
+            {/* ── Bottom torn edge ── */}
+            <div
+                className="absolute bottom-0 left-0 right-0 h-6 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(90deg, rgba(249,115,22,0.28), rgba(245,158,11,0.2), rgba(249,115,22,0.28))',
+                    clipPath: 'polygon(0 52%, 3% 38%, 7% 55%, 12% 37%, 17% 54%, 22% 38%, 28% 56%, 34% 39%, 40% 55%, 46% 37%, 52% 55%, 58% 38%, 64% 54%, 70% 36%, 76% 55%, 82% 37%, 88% 54%, 93% 39%, 97% 55%, 100% 40%, 100% 100%, 0 100%)',
+                }}
+            />
+        </section>
     );
 };
 

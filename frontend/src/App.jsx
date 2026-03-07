@@ -1,20 +1,20 @@
-import React, { Suspense, lazy, useEffect } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Suspense, lazy, useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
-import SearchBar from './components/SearchBar';
 import SkeletonLoader from './components/SkeletonLoader';
 import ScrollToTop from './components/ScrollToTop';
-import Chatbot from './components/Chatbot';
 import NotFound from './pages/NotFound';
 import { setupGlobalErrorHandling } from './utils/errorHandler';
 import ErrorBoundary from './components/ErrorBoundary';
+import PerformanceTracker from './components/PerformanceTracker';
 
 // Lazy load modals
 const NewsletterModal = lazy(() => import('./components/NewsletterModal'));
 const PriceOfferModal = lazy(() => import('./components/PriceOfferModal'));
+const Chatbot = lazy(() => import('./components/Chatbot'));
 
 // Lazy load pages with dynamic imports and prefetching
 const Collection = lazy(() => import(/* webpackChunkName: "collection" */ './pages/Collection'));
@@ -38,14 +38,6 @@ const ShippingAndDelivery = lazy(() => import(/* webpackChunkName: "shipping" */
 const ChatbotPage = lazy(() => import(/* webpackChunkName: "chatbot" */ './pages/ChatbotPage'));
 const JobExplore = lazy(() => import(/* webpackChunkName: "job-explore" */ './pages/JobExplore'));
 
-// Prefetch routes on hover
-const prefetchRoute = (importFn) => {
-  const prefetch = () => {
-    importFn();
-  };
-  return prefetch;
-};
-
 const App = () => {
   // Initialize global error handling
   useEffect(() => {
@@ -65,8 +57,9 @@ const App = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 px-3 pt-20 md:pt-0 pb-5 md:pb-0 sm:px-[4vw] md:px-[5vw] lg:px-[7vw]">
+      <div className="relative z-10 px-0 pt-20 md:pt-0 pb-5 md:pb-0 ">
         <ToastContainer />
+        <PerformanceTracker />
         <Navbar />
         <ErrorBoundary>
           <Suspense fallback={<SkeletonLoader />}>
@@ -97,8 +90,8 @@ const App = () => {
           </Suspense>
           <Footer />
           <ScrollToTop />
-          <Chatbot />
           <Suspense fallback={null}>
+            <Chatbot />
             <NewsletterModal />
             <PriceOfferModal />
           </Suspense>

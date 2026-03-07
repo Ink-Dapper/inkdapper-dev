@@ -41,7 +41,6 @@ const ShopContextProvider = (props) => {
   const [appliedCoupon, setAppliedCoupon] = useState(null)
   const [couponDiscount, setCouponDiscount] = useState(0)
   const [recentlyViewed, setRecentlyViewed] = useState([])
-  const [recentlyViewedTimeout, setRecentlyViewedTimeout] = useState(null)
   const [highlightedProducts, setHighlightedProducts] = useState([])
 
   const fetchUsersDetails = async () => {
@@ -499,11 +498,6 @@ const ShopContextProvider = (props) => {
   const addToRecentlyViewed = (product) => {
     if (!product || !product._id) return;
 
-    // Clear any existing timeout
-    if (recentlyViewedTimeout) {
-      clearTimeout(recentlyViewedTimeout);
-    }
-
     // Immediate update without debouncing to avoid navigation conflicts
     setRecentlyViewed(prev => {
       // Remove if already exists to avoid duplicates
@@ -573,44 +567,77 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  const scheduleLowPriority = (task, timeout = 1200) => {
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(() => {
+        task();
+      }, { timeout });
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = setTimeout(task, Math.min(timeout, 1500));
+    return () => clearTimeout(timeoutId);
+  };
+
   useEffect(() => {
-    if (token) {
+    const cleanupFns = [];
+    const path = window.location.pathname;
+    const routeNeedsReviews = path.startsWith('/product/') || path === '/review-page';
+
+    getProductsData();
+    getRecentlyViewed();
+
+    cleanupFns.push(scheduleLowPriority(() => {
+      fetchHighlightedProducts();
+    }, 1500));
+
+    if (routeNeedsReviews) {
+      cleanupFns.push(scheduleLowPriority(() => {
+        fetchReviewList();
+      }, 900));
+    }
+
+    const storedToken = localStorage.getItem('token');
+    if (!token && storedToken) {
+      setToken(storedToken);
+    }
+
+    setIsContextReady(true);
+
+    return () => {
+      cleanupFns.forEach((cleanup) => cleanup && cleanup());
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const cleanup = scheduleLowPriority(() => {
       fetchOrderDetails();
       getUserCustomData();
       fetchUsersDetails();
       getUserWishlist(token);
       getUserCart(token);
-    }
-    getProductsData();
-    fetchReviewList();
-    getRecentlyViewed();
-    fetchHighlightedProducts();
+    }, 700);
+
+    return () => cleanup && cleanup();
   }, [token]);
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    const routeNeedsReviews = path.startsWith('/product/') || path === '/review-page';
+    if (!routeNeedsReviews || reviewList.length > 0) return;
+
+    const cleanup = scheduleLowPriority(() => {
+      fetchReviewList();
+    }, 800);
+
+    return () => cleanup && cleanup();
+  }, [reviewList.length]);
 
   useEffect(() => {
     detailsOrderCount();
   }, [orderData]);
-
-  // useEffect(() => {
-  // }, []);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (!token && storedToken) {
-      setToken(storedToken);
-      getUserCart(storedToken);
-      getUserWishlist(storedToken);
-    }
-    // Set context as ready after initialization
-    setIsContextReady(true);
-
-    // Cleanup timeout on unmount
-    return () => {
-      if (recentlyViewedTimeout) {
-        clearTimeout(recentlyViewedTimeout);
-      }
-    };
-  }, []);
 
 
 

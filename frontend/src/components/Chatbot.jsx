@@ -359,10 +359,10 @@ const Chatbot = () => {
         <div className="fixed bottom-16 left-2 md:bottom-16 md:right-5 md:left-auto z-50">
           <button
             onClick={toggleChat}
-            className="w-14 h-14 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 relative group"
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 relative group"
           >
             {/* Animated Bot Icon */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 animate-pulse opacity-75"></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 animate-pulse opacity-20"></div>
             <div className="relative z-10 flex items-center justify-center">
               <svg className="w-6 h-6 text-white animate-bounce group-hover:animate-none" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
