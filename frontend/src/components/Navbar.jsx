@@ -174,6 +174,8 @@ const Navbar = () => {
 
           <CustomNavLink to="/collection" scrollToTop={scrollToTop}>Collection</CustomNavLink>
 
+          <CustomNavLink to="/ai-designer" scrollToTop={scrollToTop}>AI Design</CustomNavLink>
+
           <CustomNavLink to="/about" scrollToTop={scrollToTop}>About</CustomNavLink>
 
           <CustomNavLink to="/contact" scrollToTop={scrollToTop}>Contact</CustomNavLink>
@@ -340,7 +342,7 @@ const Navbar = () => {
 
         {/* Navigation bar */}
         <div className="relative flex items-center justify-around px-3 pb-safe"
-          style={{ background: '#0a0b0c', borderTop: '1px solid rgba(251,146,60,0.3)', paddingTop: '10px', paddingBottom: '12px' }}
+          style={{ background: 'linear-gradient(180deg, #0d0d0e 0%, #0f0f11 100%)', borderTop: '1px solid rgba(251,146,60,0.28)', paddingTop: '10px', paddingBottom: '12px' }}
         >
           {/* Home/Logo */}
           <Link to="/" onClick={(e) => { e.preventDefault(); scrollToTop(); setTimeout(() => window.location.href = '/', 100); }} className="group relative flex flex-col items-center gap-[5px]">
@@ -504,7 +506,7 @@ const Navbar = () => {
       </div>
       {/* Slide-in side drawer */}
       <div className={`fixed top-0 z-[1105] left-0 bottom-0 overflow-hidden transition-all duration-300 ease-in-out ${visible ? "w-full" : "w-0"}`}>
-        <div className="relative flex flex-col h-full" style={{ background: '#08090a', borderRight: '2px solid rgba(251,146,60,0.5)' }}>
+        <div className="relative flex flex-col h-full" style={{ background: 'linear-gradient(180deg, #0d0d0e 0%, #0f0f11 100%)', borderRight: '2px solid rgba(251,146,60,0.45)' }}>
 
           {/* Diagonal stripe texture */}
           <div className="absolute inset-0 pointer-events-none"
@@ -562,8 +564,9 @@ const Navbar = () => {
               {[
                 { to: '/', label: 'Home', num: '01' },
                 { to: '/collection', label: 'Collection', num: '02' },
-                { to: '/about', label: 'About', num: '03' },
-                { to: '/contact', label: 'Contact', num: '04' },
+                { to: '/ai-designer', label: 'AI Design', num: '03' },
+                { to: '/about', label: 'About', num: '04' },
+                { to: '/contact', label: 'Contact', num: '05' },
               ].map(({ to, label, num }) => (
                 <NavLink
                   key={to}

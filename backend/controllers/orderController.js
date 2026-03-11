@@ -48,8 +48,7 @@ const placeOrder = async (req, res) => {
 
     const newOrder = await new orderModel(orderData).save();
 
-    await userModel.findByIdAndUpdate(userId, { cartData: {} });
-    console.log(items);
+    await userModel.findByIdAndUpdate(userId, { cartData: {}, customData: {} });
     // Add credit points logic
     const creditPointsToAdd = items.length * 5;
     await userModel.findByIdAndUpdate(userId, {
@@ -69,7 +68,7 @@ const placeOrder = async (req, res) => {
             .map(
               (item) => `
             <div style="margin-bottom: 20px;">
-              <img src="${item.image[0]}" alt="${item.name}" style="width: 100px; height: 100px; object-fit: cover; margin-left: 15px;" /> <br>
+              <img src="${item.isCustom ? (Array.isArray(item.reviewImageCustom) ? item.reviewImageCustom[0] : (item.reviewImageCustom || '')) : (Array.isArray(item.image) ? item.image[0] : (item.image || ''))}" alt="${item.name || 'Custom Design'}" style="width: 100px; height: 100px; object-fit: cover; margin-left: 15px;" /> <br>
               <ul style="list-style-type: none; padding: 0;">
                 <li><strong>Product Name:</strong> ${item.name} </li>
                 <li><strong>Size:</strong> ${item.size} </li>
@@ -176,7 +175,7 @@ const verifyRazorpay = async (req, res) => {
 
       const newOrder = await new orderModel(orderData).save();
 
-      await userModel.findByIdAndUpdate(userId, { cartData: {} });
+      await userModel.findByIdAndUpdate(userId, { cartData: {}, customData: {} });
 
       const creditPointsToAdd = items.length * 5;
       await userModel.findByIdAndUpdate(userId, {
@@ -196,7 +195,7 @@ const verifyRazorpay = async (req, res) => {
               .map(
                 (item) => `
               <div style="margin-bottom: 20px;">
-                <img src="${item.image}" alt="${item.name}" style="width: 100px; height: 100px; object-fit: cover; margin-left: 15px;" /> <br>
+                <img src="${item.isCustom ? (Array.isArray(item.reviewImageCustom) ? item.reviewImageCustom[0] : (item.reviewImageCustom || '')) : (Array.isArray(item.image) ? item.image[0] : (item.image || ''))}" alt="${item.name || 'Custom Design'}" style="width: 100px; height: 100px; object-fit: cover; margin-left: 15px;" /> <br>
                 <ul style="list-style-type: none; padding: 0;">
                   <li><strong>Product Name:</strong> ${item.name} </li>
                   <li><strong>Size:</strong> ${item.size} </li>

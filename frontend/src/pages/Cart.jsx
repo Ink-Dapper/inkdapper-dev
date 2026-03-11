@@ -10,9 +10,14 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, navigate, setCartItems, customDataArray, updateCustomQuantity, getCustomData, updateCartAndSave, hasMultipleProducts } = useContext(ShopContext)
+  const { products, currency, cartItems, updateQuantity, navigate, setCartItems, customDataArray, updateCustomQuantity, getCustomData, updateCartAndSave, hasMultipleProducts, getUserCustomData, token } = useContext(ShopContext)
   const [cartData, SetCartData] = useState([])
   const [showCartTotal, setShowCartTotal] = useState([])
+
+  // Refresh custom cart data whenever Cart page mounts
+  useEffect(() => {
+    if (token) getUserCustomData();
+  }, [])
 
   const updateSize = (productId, newSize, quantity) => {
     const updatedCart = { ...cartItems };
@@ -34,9 +39,7 @@ const Cart = () => {
     if (products.length > 0 || customDataArray.length > 0) {
       const tempData = []
       for (const items in cartItems) {
-        console.log(cartItems[items])
         for (const item in cartItems[items]) {
-          console.log(cartItems[items][item])
           if (cartItems[items][item] > 0) {
             tempData.push({
               _id: items,
@@ -46,29 +49,10 @@ const Cart = () => {
           }
         }
       }
-      // // Add custom data to the cart display
-      if (customDataArray.length > 0) {
-        customDataArray.forEach(customItem => {
-          tempData.push({
-            _id: customItem._id,
-            size: customItem.size,
-            quantity: customItem.quantity
-          });
-        });
-      }
-
-      // Remove duplicates based on _id and size
-      tempData.filter((item, index, self) =>
-        index === self.findIndex((t) => (
-          t._id === item._id && t.size === item.size
-        ))
-      );
-
       SetCartData(tempData)
       setShowCartTotal(tempData);
-      console.log(tempData)
     }
-  }, [cartItems, products, getCustomData])
+  }, [cartItems, products])
 
   return (
     <div className='ragged-section min-h-screen' style={{ background: '#0d0d0e' }}>
@@ -122,7 +106,7 @@ const Cart = () => {
         )}
 
         {/* ── Main Content ── */}
-        {showCartTotal.length === 0 ? (
+        {showCartTotal.length === 0 && customDataArray.length === 0 ? (
           /* Empty Cart */
           <div className='text-center py-24'>
             <div className='relative inline-flex items-center justify-center mb-8'>
@@ -341,9 +325,9 @@ const Cart = () => {
                         {/* Image */}
                         <div className='flex-shrink-0 flex justify-center sm:justify-start'>
                           <img
-                            className='w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover rounded-xl transition-all duration-300'
-                            style={{ border: '1px solid rgba(168,85,247,0.25)' }}
-                            src={data.reviewImageCustom}
+                            className='w-20 sm:w-24 md:w-28 object-contain rounded-xl transition-all duration-300'
+                            style={{ border: '1px solid rgba(168,85,247,0.25)', aspectRatio: '5/6' }}
+                            src={(Array.isArray(data.reviewImageCustom) ? data.reviewImageCustom[0] : data.reviewImageCustom) || data.aiDesignUrl}
                             alt={data.name}
                           />
                         </div>

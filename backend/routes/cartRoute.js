@@ -10,6 +10,6 @@ cartRouter.post('/add',authUser, addToCart)
 cartRouter.post('/update',authUser, updateCart)
 cartRouter.post('/update-custom',authUser, updateCustom)
 cartRouter.post('/get-custom',authUser, getUserCustomData)
-cartRouter.post('/custom', authUser , upload.fields([{ name: "reviewImageCustom"}]), addToCartCustom);
+cartRouter.post('/custom', authUser , upload.fields([{ name: "reviewImageCustom"}, { name: "rawDesignImage" }]), addToCartCustom);
 
 export default cartRouter

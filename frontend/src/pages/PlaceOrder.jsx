@@ -26,7 +26,8 @@ const PlaceOrder = () => {
     getFinalAmount,
     paymentMethod,
     setPaymentMethod,
-    getShippingCharges
+    getShippingCharges,
+    customDataArray
   } = useContext(ShopContext)
 
   const [creditPtsVisible, setCreditPtsVisible] = useState(false)
@@ -234,6 +235,19 @@ const PlaceOrder = () => {
           }
         }
       }
+      // Include custom design items in the order
+      customDataArray.forEach(customItem => {
+        orderItems.push({
+          name: customItem.name,
+          size: customItem.size,
+          quantity: Number(customItem.quantity),
+          price: customItem.price,
+          reviewImageCustom: customItem.reviewImageCustom,
+          aiDesignUrl: customItem.aiDesignUrl || null,
+          rawDesignUrl: customItem.rawDesignUrl || null,
+          isCustom: true,
+        })
+      })
 
       const orderData = {
         address: formData,
@@ -455,7 +469,7 @@ const PlaceOrder = () => {
                       name='firstName'
                       value={formData.firstName}
                       type="text"
-                      className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                      className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                       style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                       placeholder='Enter first name'
                     />
@@ -468,7 +482,7 @@ const PlaceOrder = () => {
                       name='lastName'
                       value={formData.lastName}
                       type="text"
-                      className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                      className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                       style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                       placeholder='Enter last name'
                     />
@@ -483,7 +497,7 @@ const PlaceOrder = () => {
                     name='email'
                     value={formData.email}
                     type="email"
-                    className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                    className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                     style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                     placeholder='Enter email address'
                   />
@@ -497,7 +511,7 @@ const PlaceOrder = () => {
                     name='street'
                     value={formData.street}
                     type="text"
-                    className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                    className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                     style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                     placeholder='Enter street address'
                   />
@@ -512,7 +526,7 @@ const PlaceOrder = () => {
                       name='city'
                       value={formData.city}
                       type="text"
-                      className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                      className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                       style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                       placeholder='Enter city'
                     />
@@ -525,7 +539,7 @@ const PlaceOrder = () => {
                       name='state'
                       value={formData.state}
                       type="text"
-                      className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                      className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                       style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                       placeholder='Enter state'
                     />
@@ -541,7 +555,7 @@ const PlaceOrder = () => {
                       name='zipcode'
                       value={formData.zipcode}
                       type="text"
-                      className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                      className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                       style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                       placeholder='Enter zipcode'
                     />
@@ -554,7 +568,7 @@ const PlaceOrder = () => {
                       name='country'
                       value={formData.country}
                       type="text"
-                      className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                      className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                       style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                       placeholder='Enter country'
                     />
@@ -569,7 +583,7 @@ const PlaceOrder = () => {
                     name='phone'
                     value={formData.phone}
                     type="text"
-                    className='w-full px-4 py-3 text-slate-100 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                    className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
                     style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
                     placeholder='Enter phone number'
                   />

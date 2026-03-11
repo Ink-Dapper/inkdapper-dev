@@ -416,22 +416,20 @@ const ShopContextProvider = (props) => {
   }
 
   const updateCustomQuantity = async (itemId, size, quantity) => {
-    let cartData = structuredClone(cartItems)
-    console.log(cartData[itemId])
-    if (!cartData[itemId]) {
-      cartData[itemId] = {}; // Ensure the item exists
+    if (!token) {
+      toast.error('Please login to update cart');
+      return;
     }
-    cartData[itemId][size] = quantity
-
-    updateCartAndSave(cartData)
-
-    if (token) {
-      try {
-        await apiInstance.post('/cart/update-custom', { itemId, size, quantity })
-      } catch (error) {
-        console.log(error)
-        toast.error(error.message)
+    try {
+      const response = await apiInstance.post('/cart/update-custom', { itemId, size, quantity });
+      if (response.data.success) {
+        await getUserCustomData(); // Refresh custom items from backend
+      } else {
+        toast.error(response.data.message);
       }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
     }
   };
 
@@ -651,7 +649,7 @@ const ShopContextProvider = (props) => {
     setWishlist, updateWishlistAndSave, reviewList, fetchReviewList, usersDetails,
     scrollToTop, productSearch, clearSearchBar, orderData,
     orderCount, creditPoints, setCreditPoints, getCustomData,
-    updateCustomQuantity, customDataArray, getCreditScore,
+    updateCustomQuantity, customDataArray, getUserCustomData, getCreditScore,
     fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
     couponDiscount, getFinalAmount, hasMultipleProducts, getMultiProductDiscount,
     recentlyViewed, addToRecentlyViewed, getRecentlyViewed,

@@ -16,26 +16,42 @@ const Custom = () => {
   const [gender, setGender] = useState('Men')
   const [userId, setUserId] = useState(null)
   const [customQuantity, setCustomQuantity] = useState(0);
+  const [aiDesignUrl, setAiDesignUrl] = useState(null);
 
   useEffect(() => {
     const fetchUserId = async () => {
       try {
-        if (!token) {
-          return;
-        }
-        const response = await axios.post(backendUrl + "/api/user/profile", {}, {
-          headers: { token }
-        });
-        if (response.data.success) {
-          setUserId(response.data.users._id);
-        }
+        if (!token) return;
+        const response = await axios.post(backendUrl + "/api/user/profile", {}, { headers: { token } });
+        if (response.data.success) setUserId(response.data.users._id);
       } catch (error) {
         console.error("Error fetching user details:", error);
       }
     };
-
     fetchUserId();
   }, [token, backendUrl]);
+
+  // Load AI design from sessionStorage when coming from AI Designer page
+  useEffect(() => {
+    const stored = sessionStorage.getItem("aiDesignPreview");
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (data.aiDesignUrl) {
+          setAiDesignUrl(data.aiDesignUrl);
+          if (data.shirtId) {
+            const shirt = teesCollection.find(t => t._id === data.shirtId);
+            if (shirt) {
+              setImageId(shirt._id);
+              setImage(Array.isArray(shirt.image) ? shirt.image[0] : shirt.image);
+              setImageValue(shirt.color);
+            }
+          }
+        }
+        sessionStorage.removeItem("aiDesignPreview");
+      } catch {}
+    }
+  }, []);
 
   const getCustomImage = () => {
     teesCollection.map((items) => (
@@ -50,7 +66,8 @@ const Custom = () => {
       return;
     }
 
-    if (!reviewImageCustom) {
+    if (!reviewImageCustom && !aiDesignUrl) {
+      toast.error("Please upload a design or use AI Designer.");
       return;
     }
 
@@ -77,6 +94,7 @@ const Custom = () => {
       formDataOne.append("views", views);
       formDataOne.append("gender", gender);
       formDataOne.append("imageValue", imageValue);
+      if (aiDesignUrl) formDataOne.append("aiDesignUrl", aiDesignUrl);
 
       // Send the custom data to the backend
       const response = await axios.post(backendUrl + "/api/cart/custom", formDataOne, { headers: { token } });
@@ -85,6 +103,7 @@ const Custom = () => {
         toast.success(response.data.message);
 
         setReviewImageCustom(false);
+        setAiDesignUrl(null);
         setImageValue('white');
         setViews('Front');
         setGender('Men');
@@ -106,8 +125,8 @@ const Custom = () => {
       toast.error("Size is required.");
       return;
     }
-    if (!reviewImageCustom) {
-      toast.error("Review image is required.");
+    if (!reviewImageCustom && !aiDesignUrl) {
+      toast.error("Please upload a design or use AI Designer.");
       return;
     }
     if (!customQuantity || customQuantity <= 0) {
@@ -215,16 +234,24 @@ const Custom = () => {
               <img src={image} className='h-[100%]' alt="product-image" />
               <div className='absolute top-[25%] z-10'>
                 <p className='text-base font-medium mb-2'>Front</p>
-                <img className='w-64 h-72 object-contain' src={!reviewImageCustom ? assets.upload_here : URL.createObjectURL(reviewImageCustom)} alt="" />
-                <input onChange={(e) => setReviewImageCustom(e.target.files[0])} type="file" id='reviewImageCustom' className='opacity-0 absolute w-64 h-72 top-0 z-20 cursor-pointer' />
+                {aiDesignUrl
+                  ? <img className='w-64 h-72 object-contain' src={aiDesignUrl} alt="AI Design" />
+                  : <img className='w-64 h-72 object-contain' src={!reviewImageCustom ? assets.upload_here : URL.createObjectURL(reviewImageCustom)} alt="" />
+                }
+                {!aiDesignUrl && <input onChange={(e) => setReviewImageCustom(e.target.files[0])} type="file" id='reviewImageCustom' className='opacity-0 absolute w-64 h-72 top-0 z-20 cursor-pointer' />}
+                {aiDesignUrl && <button type="button" onClick={() => setAiDesignUrl(null)} className='absolute top-0 right-0 z-20 bg-red-500 text-white text-xs px-2 py-1 rounded'>✕ Clear AI</button>}
               </div>
             </div>
             <div className={`w-[80%] h-[100%] ml-24 flex justify-center relative ${views === "Back" ? 'block' : 'hidden'}`}>
               <img src={image} className='h-[100%]' alt="product-image" />
               <div className='absolute top-[25%] z-10'>
                 <p className='text-base font-medium mb-2'>Back</p>
-                <img className='w-64 h-72 object-contain' src={!reviewImageCustom ? assets.upload_here : URL.createObjectURL(reviewImageCustom)} alt="" />
-                <input onChange={(e) => setReviewImageCustom(e.target.files[0])} type="file" id='reviewImageCustom' className='opacity-0 absolute w-64 h-72 top-0 z-20 cursor-pointer' />
+                {aiDesignUrl
+                  ? <img className='w-64 h-72 object-contain' src={aiDesignUrl} alt="AI Design" />
+                  : <img className='w-64 h-72 object-contain' src={!reviewImageCustom ? assets.upload_here : URL.createObjectURL(reviewImageCustom)} alt="" />
+                }
+                {!aiDesignUrl && <input onChange={(e) => setReviewImageCustom(e.target.files[0])} type="file" id='reviewImageCustom' className='opacity-0 absolute w-64 h-72 top-0 z-20 cursor-pointer' />}
+                {aiDesignUrl && <button type="button" onClick={() => setAiDesignUrl(null)} className='absolute top-0 right-0 z-20 bg-red-500 text-white text-xs px-2 py-1 rounded'>✕ Clear AI</button>}
               </div>
             </div>
           </div>

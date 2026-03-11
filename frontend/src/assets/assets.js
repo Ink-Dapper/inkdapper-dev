@@ -32,15 +32,12 @@ import logo_white_only from './logo_white_only.png'
 import logo_only from './logo_only.png'
 import upload_here from './upload_here.png'
 import pic_01 from './t-shirts-collection/black.png'
-import pic_02 from './t-shirts-collection/beige.png'
-import pic_03 from './t-shirts-collection/brown.png'
-import pic_04 from './t-shirts-collection/coffee.png'
-import pic_05 from './t-shirts-collection/green.png'
-import pic_06 from './t-shirts-collection/lavender.png'
-import pic_07 from './t-shirts-collection/navy-blue.png'
-import pic_08 from './t-shirts-collection/red.png'
-import pic_09 from './t-shirts-collection/redwood.png'
-import pic_010 from './t-shirts-collection/white.png'
+import pic_02 from './t-shirts-collection/white.png'
+import pic_03 from './t-shirts-collection/maroon.png'
+import pic_04 from './t-shirts-collection/mustard2.png'
+import pic_05 from './t-shirts-collection/beige.png'
+import pic_06 from './t-shirts-collection/caramel.png'
+
 import product_size from './product-sizes.jpg'
 
 export const assets = {
@@ -89,56 +86,32 @@ export const teesCollection = [
     },
     {
         _id: '0002',
-        color: 'beige',
+        color: 'white',
         gender: 'men',
         image: [pic_02]
     },
     {
         _id: '0003',
-        color: 'brown',
+        color: 'maroon',
         gender: 'men',
         image: [pic_03]
     },
     {
         _id: '0004',
-        color: 'coffee',
+        color: 'mustard',
         gender: 'men',
         image: [pic_04]
     },
     {
         _id: '0005',
-        color: 'green',
+        color: 'beige',
         gender: 'men',
         image: [pic_05]
     },
     {
         _id: '0006',
-        color: 'lavender',
+        color: 'caramel',
         gender: 'men',
         image: [pic_06]
-    },
-    {
-        _id: '0007',
-        color: 'navy-blue',
-        gender: 'men',
-        image: [pic_07]
-    },
-    {
-        _id: '0008',
-        color: 'red',
-        gender: 'men',
-        image: [pic_08]
-    },
-    {
-        _id: '0009',
-        color: 'redwood',
-        gender: 'men',
-        image: [pic_09]
-    },
-    {
-        _id: '00010',
-        color: 'white',
-        gender: 'men',
-        image: [pic_010]
     }
 ]

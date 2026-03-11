@@ -37,6 +37,7 @@ const CancellationAndRefund = lazy(() => import(/* webpackChunkName: "cancellati
 const ShippingAndDelivery = lazy(() => import(/* webpackChunkName: "shipping" */ './pages/ShippingAndDelivery'));
 const ChatbotPage = lazy(() => import(/* webpackChunkName: "chatbot" */ './pages/ChatbotPage'));
 const JobExplore = lazy(() => import(/* webpackChunkName: "job-explore" */ './pages/JobExplore'));
+const AIDesigner = lazy(() => import(/* webpackChunkName: "ai-designer" */ './pages/AIDesigner'));
 
 const App = () => {
   const location = useLocation();
@@ -64,7 +65,7 @@ const App = () => {
         <ToastContainer />
         <PerformanceTracker />
         <Navbar />
-        <ErrorBoundary>
+        <ErrorBoundary key={location.pathname}>
           <Suspense fallback={<SkeletonLoader />}>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -88,6 +89,7 @@ const App = () => {
               <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
               <Route path="/chatbot" element={<ChatbotPage />} />
               <Route path="/jobs" element={<JobExplore />} />
+              <Route path="/ai-designer" element={<AIDesigner />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
