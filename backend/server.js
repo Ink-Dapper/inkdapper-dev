@@ -29,6 +29,7 @@ import notificationRouter from './routes/notificationRoute.js'
 import chatRouter from './routes/chatRoute.js'
 import storageRouter from './routes/storageRoute.js'
 import performanceReportRouter from './routes/performanceReportRoute.js'
+import aiRouter from './routes/aiRoute.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import adminAuth from './middleware/adminAuth.js'
@@ -204,6 +205,7 @@ app.use('/api/notifications', notificationRouter)
 app.use('/api/chat', chatRouter)
 app.use('/api/storage', storageRouter)
 app.use('/api/performance-report', performanceReportRouter)
+app.use('/api/ai', aiRouter)
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {

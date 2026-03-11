@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 // Initialize OpenAI client using API key from environment or fallback
-const apiKey = process.env.OPENAI_API_KEY || "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";
+const apiKey = process.env.OPENAI_API_KEY || "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";
 
 console.log("OpenAI API Key Status:", {
   hasKey: !!apiKey,
@@ -28,7 +28,7 @@ const chatHealth = async (req, res) => {
     console.log("Health check: Testing OpenAI connection...");
     // Test OpenAI connection with a simple request
     const testCompletion = await openai.chat.completions.create({
-      model: "gpt-5-nano",
+      model: "gpt-4o-mini",
       messages: [{ role: "user", content: "Say 'OK' if you can hear me." }],
       max_tokens: 10,
     });
@@ -121,7 +121,7 @@ const aiChat = async (req, res) => {
     let completion;
     try {
       completion = await openai.chat.completions.create({
-        model: "gpt-5-nano",
+        model: "gpt-4o-mini",
         messages,
         temperature: 0.6,
         max_tokens: 350,

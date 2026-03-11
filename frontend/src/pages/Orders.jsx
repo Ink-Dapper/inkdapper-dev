@@ -370,7 +370,7 @@ const Orders = () => {
                             <div className='w-32 h-40 rounded-xl overflow-hidden border' style={{ background: 'rgba(15,23,42,0.4)', borderColor: 'rgba(148,163,184,0.22)' }}>
                               <img
                                 className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
-                                src={item.image[0]}
+                                src={item.isCustom ? (Array.isArray(item.reviewImageCustom) ? item.reviewImageCustom[0] : (item.reviewImageCustom || '')) : (Array.isArray(item.image) ? item.image[0] : (item.image || ''))}
                                 alt={item.name}
                               />
                             </div>

@@ -136,6 +136,20 @@ const Chatbot = () => {
     }
   };
 
+  const searchProductByName = (message) => {
+    if (!products || !products.length) return null;
+    const lower = message.toLowerCase();
+    return products.find((p) =>
+      p.name && lower.includes(p.name.toLowerCase())
+    ) || null;
+  };
+
+  const generateProductLink = (product) => {
+    if (!product) return '/collection';
+    const slug = product.slug || product._id;
+    return `/product/${slug}`;
+  };
+
   const handleQuickReply = (reply) => {
     const userMessage = {
       id: Date.now(),

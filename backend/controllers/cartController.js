@@ -47,19 +47,43 @@ const addToCart = async (req, res) => {
 // add custom products to user cart
 const addToCartCustom = async (req, res) => {
   try {
-    const { imageId, size, views, gender, imageValue, customQuantity } = req.body;
+    const { imageId, size, views, gender, imageValue, customQuantity, aiDesignUrl, designFolder } = req.body;
     const userId = req.userId; // Get userId from authenticated user
 
-    const reviewImageCustom =
-      req.files.reviewImageCustom && req.files.reviewImageCustom[0];
+    const reviewImageCustomFile =
+      req.files && req.files.reviewImageCustom && req.files.reviewImageCustom[0];
+    const rawDesignFile =
+      req.files && req.files.rawDesignImage && req.files.rawDesignImage[0];
 
-    const images = [reviewImageCustom].filter(Boolean);
+    // Use the folder sent from frontend (e.g. "cart"), default to "cart"
+    const storageFolder = designFolder || 'cart';
 
-    const imagesUrl = await Promise.all(
-      images.map((item) =>
-        uploadFile(item.buffer, item.originalname, item.mimetype, 'custom')
-      )
-    );
+    let finalImageUrls = [];
+
+    // Upload original design file if provided (user-uploaded image in upload mode)
+    let rawDesignUrl = null;
+    if (rawDesignFile) {
+      rawDesignUrl = await uploadFile(rawDesignFile.buffer, rawDesignFile.originalname, rawDesignFile.mimetype, 'ai-designs');
+    }
+
+    if (reviewImageCustomFile) {
+      // Store in cart/ folder so all cart design images are grouped together
+      const url = await uploadFile(reviewImageCustomFile.buffer, reviewImageCustomFile.originalname, reviewImageCustomFile.mimetype, storageFolder);
+      finalImageUrls = [url];
+    } else if (aiDesignUrl) {
+      // Fallback: download AI URL server-side, store in cart/ folder
+      try {
+        const response = await fetch(aiDesignUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const filename = `cart-ai-${imageId || uuidv4()}.png`;
+        const url = await uploadFile(buffer, filename, 'image/png', storageFolder);
+        finalImageUrls = [url];
+      } catch (err) {
+        console.error('Failed to save AI image to MinIO, using original URL:', err.message);
+        finalImageUrls = [aiDesignUrl];
+      }
+    }
 
     const customItem = {
       _id: imageId,
@@ -68,23 +92,27 @@ const addToCartCustom = async (req, res) => {
       views,
       gender,
       imageValue,
-      reviewImageCustom: imagesUrl,
+      reviewImageCustom: finalImageUrls,
+      aiDesignUrl: aiDesignUrl || null,
+      rawDesignUrl: rawDesignUrl || null,
       quantity: customQuantity,
       price: 699
     };
 
-    const userData = await userModel.findById(userId);
+    const userData = await userModel.findById(userId).lean();
     if (!userData) {
       return res
         .status(404)
-        .json({ success: false, message: "User  not found" });
+        .json({ success: false, message: "User not found" });
     }
 
-    const customData = userData.customData || {};
+    // Use plain object copy to avoid Mongoose wrapper stripping fields
+    const customData = userData.customData ? { ...userData.customData } : {};
     const index = Object.keys(customData).length;
     customData[index] = customItem;
 
-    await userModel.findByIdAndUpdate(userId, { customData }, { new: true });
+    console.log('[addToCartCustom] saving customItem:', JSON.stringify(customItem));
+    await userModel.findByIdAndUpdate(userId, { $set: { customData } }, { new: true });
 
     res.json({
       success: true,
@@ -101,12 +129,12 @@ const addToCartCustom = async (req, res) => {
 const getUserCustomData = async (req, res) => {
   try {
     const userId = req.userId;
-    const userData = await userModel.findById(userId);
-    
+    const userData = await userModel.findById(userId).lean();
+
     if (!userData) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-    
+
     const customData = userData.customData || {};
 
     res.json({ success: true, customData });
@@ -162,23 +190,43 @@ const updateCart = async (req, res) => {
   }
 };
 
-// update custom quantity in the cart
+// update or delete custom item in the cart
 const updateCustom = async (req, res) => {
   try {
     const { itemId, size, quantity } = req.body;
-    const userId = req.userId; // Get userId from authenticated user
-    const userData = await userModel.findById(userId);
-    const customData = userData.customData || {}; // Initialize customData if it's undefined
+    const userId = req.userId;
+    const userData = await userModel.findById(userId).lean();
+    const customData = userData.customData || {};
 
-    // Check if the item exists
-    if (customData[itemId] && customData[itemId][size]) {
-      customData[itemId][size] = quantity;
-      await userModel.findByIdAndUpdate(userId, { customData });
-      res.json({ success: true, message: "Custom quantity updated" });
-    } else {
-      res.json({ success: false, message: "Custom item not found" });
+    console.log('[updateCustom] received itemId:', itemId, '| size:', size, '| quantity:', quantity);
+    console.log('[updateCustom] customData keys:', Object.keys(customData));
+    Object.keys(customData).forEach(k => {
+      console.log(`  [${k}] _id=${customData[k]._id} (${typeof customData[k]._id}) size=${customData[k].size}`);
+    });
+
+    // Find the numeric index where _id and size match
+    const indexKey = Object.keys(customData).find(
+      (k) => String(customData[k]._id) === String(itemId) && customData[k].size === size
+    );
+
+    console.log('[updateCustom] indexKey found:', indexKey);
+
+    if (indexKey === undefined) {
+      return res.json({ success: false, message: "Custom item not found" });
     }
 
+    if (Number(quantity) <= 0) {
+      // Remove the item and re-index sequentially
+      delete customData[indexKey];
+      const reIndexed = {};
+      Object.values(customData).forEach((item, i) => { reIndexed[i] = item; });
+      await userModel.findByIdAndUpdate(userId, { $set: { customData: reIndexed } });
+      res.json({ success: true, message: "Custom item removed" });
+    } else {
+      customData[indexKey].quantity = Number(quantity);
+      await userModel.findByIdAndUpdate(userId, { $set: { customData } });
+      res.json({ success: true, message: "Custom quantity updated" });
+    }
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
