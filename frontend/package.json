@@ -29,7 +29,7 @@
     "react-router-dom": "^6.26.1",
     "react-toastify": "^10.0.5",
     "styled-components": "^6.1.13",
-    "swiper": "^11.2.6",
+    "swiper": "^12.1.2",
     "workbox-core": "^7.3.0",
     "workbox-precaching": "^7.3.0",
     "workbox-routing": "^7.3.0",
