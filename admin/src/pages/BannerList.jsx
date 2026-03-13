@@ -23,6 +23,7 @@ const BannerList = ({ token }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState(null);
   const [imageBanner, setImageBanner] = useState(null);
+  const [colorLabel, setColorLabel] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,6 +78,7 @@ const BannerList = ({ token }) => {
   const editBanner = (banner) => {
     setSelectedBanner(banner);
     setImageBanner(banner.imageBanner[0]);
+    setColorLabel(banner.colorLabel || '');
     setIsEditModalOpen(true);
   };
 
@@ -84,6 +86,7 @@ const BannerList = ({ token }) => {
     setIsEditModalOpen(false);
     setSelectedBanner(null);
     setImageBanner(null);
+    setColorLabel('');
     setDragOver(false);
   };
 
@@ -137,6 +140,7 @@ const BannerList = ({ token }) => {
       if (fileInput.files[0]) {
         formData.append('imageBanner', fileInput.files[0]);
       }
+      formData.append('colorLabel', colorLabel);
 
       const response = await axios.put(
         `${backendUrl}/api/product/update-banner/${selectedBanner._id}`,
@@ -276,6 +280,12 @@ const BannerList = ({ token }) => {
                   <span className="text-sm font-medium text-gray-900">Banner {index + 1}</span>
                   <span className="text-xs text-gray-500">ID: {banner._id?.slice(-6)}</span>
                 </div>
+                {banner.colorLabel && (
+                  <div className="mt-1.5 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
+                    <span className="text-xs text-orange-600 font-medium truncate">{banner.colorLabel}</span>
+                  </div>
+                )}
                 <div className="mt-2 flex gap-2">
                   <button
                     onClick={() => editBanner(banner)}
@@ -365,6 +375,24 @@ const BannerList = ({ token }) => {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Color Label */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Slider Color Label
+                </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Shown in the slider control bar (e.g. "Classic Black"). Leave blank to auto-detect.
+                </p>
+                <input
+                  type="text"
+                  value={colorLabel}
+                  onChange={(e) => setColorLabel(e.target.value)}
+                  placeholder="e.g. Classic Black, Ocean Blue..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  maxLength={40}
+                />
               </div>
 
               <div className="flex gap-3 pt-4">

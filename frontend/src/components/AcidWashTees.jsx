@@ -211,7 +211,7 @@ const AcidWashTees = () => {
         </div>
 
         <div className="hidden md:flex items-center justify-between mt-6 md:mt-8 pt-5 md:pt-6 border-t border-slate-700/60 gap-3">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-700">
             <span className="font-semibold text-orange-300">{acidWashProducts.length}</span> unique acid wash designs
           </p>
           <a

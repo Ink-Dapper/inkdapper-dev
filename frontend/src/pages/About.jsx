@@ -19,7 +19,7 @@ const About = () => {
           <h1 className="ragged-title mb-4" style={{ fontSize: 'clamp(2.2rem, 6vw, 4rem)' }}>
             Our Story
           </h1>
-          <p className="max-w-xl mx-auto text-sm sm:text-base text-slate-500 leading-relaxed">
+          <p className="max-w-xl mx-auto text-sm sm:text-base text-slate-400 leading-relaxed">
             Fashion is more than just clothing — it's a form of{' '}
             <span className="text-orange-400 font-semibold">self-expression.</span>
           </p>
@@ -56,7 +56,7 @@ const About = () => {
                 Wear Your Story
               </h2>
 
-              <p className="text-base text-slate-400 leading-relaxed">
+              <p className="text-base text-slate-500 leading-relaxed">
                 At <span className="text-orange-400 font-semibold">Ink Dapper</span>, we believe that fashion is more than just clothing — it's a form of self-expression.
                 Founded with creativity at its core, we specialize in custom t-shirts, oversized tees, hoodies,
                 and sweatshirts that empower you to wear your story.
@@ -75,7 +75,7 @@ const About = () => {
                   </div>
                   <div>
                     <h3 className="mb-1 text-slate-200" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.08em', fontSize: '1.1rem' }}>Our Mission</h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">
+                    <p className="text-sm text-slate-400 leading-relaxed">
                       We're here to blur the lines between comfort and creativity. With a focus on premium quality
                       and individuality, we aim to provide clothing that's not only stylish but also feels great to wear, every day.
                     </p>
@@ -93,7 +93,7 @@ const About = () => {
                   </div>
                   <div>
                     <h3 className="mb-1 text-slate-200" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.08em', fontSize: '1.1rem' }}>Our Promise</h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">
+                    <p className="text-sm text-slate-400 leading-relaxed">
                       Each piece is crafted with care, using high-quality fabrics and thoughtful designs.
                       We value creativity, inclusivity, and sustainability — products that look great, last long, and feel good.
                     </p>
@@ -121,7 +121,7 @@ const About = () => {
           <h2 className="ragged-title mb-3" style={{ fontSize: 'clamp(1.8rem, 5vw, 3.2rem)' }}>
             Experience the Difference
           </h2>
-          <p className="text-sm sm:text-base text-slate-500 max-w-2xl mx-auto px-4">
+          <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto px-4">
             We don't just sell clothes — we help you express your vibe. From casual streetwear to fully customized creations.
           </p>
         </div>
@@ -197,7 +197,7 @@ const About = () => {
                   <h3 className="text-slate-200" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', fontSize: '1.15rem' }}>{card.title}</h3>
                 </div>
 
-                <p className="text-sm text-slate-500 mb-5 leading-relaxed">{card.desc}</p>
+                <p className="text-sm text-slate-400 mb-5 leading-relaxed">{card.desc}</p>
 
                 {/* Divider */}
                 <div className="mb-4 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.2), transparent)' }} />
@@ -205,7 +205,7 @@ const About = () => {
                 {/* Feature list */}
                 <ul className="space-y-2.5 mt-auto">
                   {card.items.map(item => (
-                    <li key={item} className="flex items-center gap-2.5 text-xs text-slate-500">
+                    <li key={item} className="flex items-center gap-2.5 text-xs text-slate-400">
                       <div className="w-1 h-3.5 rounded-full flex-shrink-0" style={{ background: 'linear-gradient(180deg, #f97316, #f59e0b)' }} />
                       {item}
                     </li>
@@ -237,7 +237,7 @@ const About = () => {
             <h2 className="ragged-title mb-4" style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}>
               Join the Ink Dapper Movement
             </h2>
-            <p className="text-sm sm:text-base text-slate-500 mb-7 max-w-2xl mx-auto leading-relaxed px-4">
+            <p className="text-sm sm:text-base text-slate-400 mb-7 max-w-2xl mx-auto leading-relaxed px-4">
               Whether you want to rock personalized designs, make a bold statement, or keep it cool with timeless essentials,
               Ink Dapper offers something for every personality and style.
             </p>

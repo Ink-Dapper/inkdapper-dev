@@ -424,27 +424,43 @@ const Product = () => {
               {showShareMenu && (
                 <div
                   ref={shareMenuRef}
-                  className="absolute top-32 right-4 rounded-xl p-3 z-30"
-                  style={{ background: '#0f0f11', border: '1px solid rgba(249,115,22,0.25)', boxShadow: '0 16px 40px rgba(0,0,0,0.7)', maxWidth: '180px' }}
+                  className="absolute top-28 right-4 rounded-2xl p-3 z-30"
+                  style={{ background: 'rgba(13,13,14,0.97)', border: '1px solid rgba(249,115,22,0.2)', boxShadow: '0 0 24px rgba(249,115,22,0.12), 0 16px 40px rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)' }}
                 >
-                  <div className="flex flex-col gap-1">
-                    <button onClick={shareOnWhatsApp} className="flex items-center gap-3 p-2.5 hover:bg-orange-500/10 rounded-lg transition-colors">
-                      <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="absolute top-0 left-0 w-full h-px rounded-t-2xl" style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.5), transparent)' }} />
+                  <div className="flex flex-col gap-2">
+                    {/* WhatsApp */}
+                    <button
+                      onClick={shareOnWhatsApp}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110"
+                      style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }}
+                      title="WhatsApp"
+                    >
+                      <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                       </svg>
-                      <span className="text-sm font-medium text-slate-300">WhatsApp</span>
                     </button>
-                    <button onClick={shareOnInstagram} className="flex items-center gap-3 p-2.5 hover:bg-orange-500/10 rounded-lg transition-colors">
-                      <svg className="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
+                    {/* Instagram */}
+                    <button
+                      onClick={shareOnInstagram}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110"
+                      style={{ background: 'rgba(236,72,153,0.12)', border: '1px solid rgba(236,72,153,0.25)' }}
+                      title="Instagram"
+                    >
+                      <svg className="w-4 h-4 text-pink-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                       </svg>
-                      <span className="text-sm font-medium text-slate-300">Instagram</span>
                     </button>
-                    <button onClick={shareViaMessage} className="flex items-center gap-3 p-2.5 hover:bg-orange-500/10 rounded-lg transition-colors">
-                      <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                    {/* Share / Copy */}
+                    <button
+                      onClick={shareViaMessage}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110"
+                      style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)' }}
+                      title="Share"
+                    >
+                      <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
                       </svg>
-                      <span className="text-sm font-medium text-slate-300">Share</span>
                     </button>
                   </div>
                 </div>
@@ -622,12 +638,12 @@ const Product = () => {
             </div>
 
             {/* Description */}
-            <p className='text-slate-400 leading-relaxed text-sm'>{productData.description}</p>
+            <p className='text-slate-700 leading-relaxed text-sm'>{productData.description}</p>
 
             {/* Size Selection */}
             <div className='space-y-3'>
               <div className='flex items-center justify-between'>
-                <h3 className='text-xs font-extrabold text-slate-400 uppercase tracking-[0.18em]'>Select Size</h3>
+                <h3 className='text-xs font-extrabold text-slate-700 uppercase tracking-[0.18em]'>Select Size</h3>
                 <button onClick={() => setIsModalOpen(true)} className='text-orange-400 hover:text-orange-300 text-xs font-bold underline transition-colors duration-200'>
                   Size Guide
                 </button>
@@ -637,7 +653,7 @@ const Product = () => {
                   <button
                     key={index}
                     onClick={() => setSize(item)}
-                    className={`relative h-12 rounded-xl border-2 font-bold text-sm transition-all duration-300 hover:scale-105 ${item === size ? 'border-orange-500 text-white shadow-[0_0_16px_rgba(249,115,22,0.35)]' : 'border-slate-700 text-slate-400 hover:border-orange-500/50 hover:text-orange-300'}`}
+                    className={`relative h-12 rounded-xl border-2 font-bold text-sm transition-all duration-300 hover:scale-105 ${item === size ? 'border-orange-500 text-white shadow-[0_0_16px_rgba(249,115,22,0.35)]' : 'border-slate-700 text-slate-700 hover:border-orange-500/50 hover:text-orange-300'}`}
                     style={{ background: item === size ? 'linear-gradient(135deg, rgba(249,115,22,0.25), rgba(245,158,11,0.15))' : 'rgba(255,255,255,0.03)' }}
                   >
                     <span className='absolute inset-0 flex items-center justify-center text-slate-100'>{item}</span>
@@ -655,7 +671,7 @@ const Product = () => {
 
             {/* Quantity */}
             <div className='space-y-3'>
-              <h3 className='text-xs font-extrabold text-slate-400 uppercase tracking-[0.18em]'>Quantity</h3>
+              <h3 className='text-xs font-extrabold text-slate-700 uppercase tracking-[0.18em]'>Quantity</h3>
               <div className='flex items-center gap-4'>
                 <div className='flex items-center rounded-xl overflow-hidden' style={{ border: '1px solid rgba(249,115,22,0.3)', background: 'rgba(255,255,255,0.03)' }}>
                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className='w-12 h-12 flex items-center justify-center text-orange-400 hover:bg-orange-500/15 transition-all duration-200 border-r border-orange-500/20'>
@@ -672,48 +688,66 @@ const Product = () => {
 
             {/* Action Buttons */}
             <div className='space-y-3'>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-                <button onClick={addCartPageDetails} className='w-full ragged-solid-btn py-4 px-6 font-extrabold text-sm uppercase tracking-widest'>
-                  Add to Cart
-                </button>
-                <Link to='/cart' className={buyNow}>
-                  <button onClick={scrollToTop} className='w-full py-4 px-6 font-extrabold text-sm uppercase tracking-widest rounded-xl transition-all duration-300 hover:scale-105 text-white border border-white/15 hover:bg-white/10'>
-                    Buy Now
-                  </button>
-                </Link>
-              </div>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+              {/* Primary CTA — Add to Cart */}
+              <button
+                onClick={addCartPageDetails}
+                className='w-full py-4 px-6 rounded-2xl font-extrabold text-base uppercase tracking-widest text-white flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]'
+                style={{ background: 'linear-gradient(135deg, #f97316 0%, #f59e0b 100%)', boxShadow: '0 0 28px rgba(249,115,22,0.45), 0 4px 16px rgba(0,0,0,0.3)' }}
+              >
+                <svg className='w-5 h-5 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M3 3h2l.4 2M7 13h10l4-4H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' />
+                </svg>
+                Add to Cart
+              </button>
+
+              {/* Buy Now — appears after add to cart */}
+              <Link to='/cart' className={buyNow}>
                 <button
-                  onClick={addToWishlistPage}
-                  className={`w-full py-4 px-6 font-bold text-sm uppercase tracking-wide rounded-xl transition-all duration-300 border-2 ${isWishlisted ? 'border-red-500/60 text-red-400 hover:bg-red-500/10' : 'border-slate-700 text-slate-400 hover:border-orange-500/50 hover:text-orange-300'}`}
-                  style={{ background: isWishlisted ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)' }}
+                  onClick={scrollToTop}
+                  className='w-full py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-widest text-slate-200 border border-white/12 hover:border-white/25 hover:text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2'
+                  style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)' }}
                 >
-                  <div className='flex items-center justify-center gap-2 text-inherit'>
-                    <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
-                    {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
-                  </div>
+                  <svg className='w-4 h-4 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 7l5 5m0 0l-5 5m5-5H6' /></svg>
+                  Buy Now
                 </button>
-                <Link to='/wishlist' className={wishlistCta}>
-                  <button className='w-full ragged-outline-btn py-4 px-6 font-bold text-sm uppercase tracking-wide'>View Wishlist</button>
-                </Link>
-              </div>
+              </Link>
+
+              {/* Wishlist button — full width, always visible */}
+              <button
+                onClick={addToWishlistPage}
+                className={`w-full py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border-2 ${isWishlisted ? 'border-red-400/40 text-red-300 hover:border-red-400/60' : 'border-slate-700/60 text-slate-700 hover:border-orange-500/40 hover:text-orange-300'}`}
+                style={{ background: isWishlisted ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)', boxShadow: isWishlisted ? '0 0 18px rgba(239,68,68,0.18)' : 'none' }}
+              >
+                <Heart className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${isWishlisted ? 'fill-red-400 text-red-400' : ''}`} />
+                {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
+              </button>
+
+              {/* View Wishlist CTA */}
+              <Link to='/wishlist' className={wishlistCta} onClick={scrollToTop}>
+                <div className='flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold text-red-400 hover:text-red-300 transition-colors cursor-pointer border border-red-500/20 hover:border-red-500/35'
+                  style={{ background: 'rgba(239,68,68,0.05)' }}>
+                  <Heart className='w-3.5 h-3.5 fill-current flex-shrink-0' />
+                  View Wishlist
+                  <svg className='w-3.5 h-3.5 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 7l5 5m0 0l-5 5m5-5H6' /></svg>
+                </div>
+              </Link>
 
               {/* Trust mini bar */}
               <div className='rounded-xl p-3' style={{ background: 'rgba(249,115,22,0.07)', border: '1px solid rgba(249,115,22,0.18)' }}>
                 <div className='flex items-center justify-between gap-2'>
                   <div className='flex items-center gap-2'>
                     <div className='w-6 h-6 rounded-md flex items-center justify-center bg-orange-500/80'><Truck className='w-3 h-3 text-white' /></div>
-                    <span className='text-xs font-semibold text-slate-400'>Free Shipping</span>
+                    <span className='text-xs font-semibold text-slate-700'>Free Shipping</span>
                   </div>
                   <div className='w-px h-4 bg-orange-500/20' />
                   <div className='flex items-center gap-2'>
                     <div className='w-6 h-6 rounded-md flex items-center justify-center bg-blue-500/80'><Shield className='w-3 h-3 text-white' /></div>
-                    <span className='text-xs font-semibold text-slate-400'>Secure Pay</span>
+                    <span className='text-xs font-semibold text-slate-700'>Secure Pay</span>
                   </div>
                   <div className='w-px h-4 bg-orange-500/20' />
                   <div className='flex items-center gap-2'>
                     <div className='w-6 h-6 rounded-md flex items-center justify-center bg-emerald-500/80'><RotateCcw className='w-3 h-3 text-white' /></div>
-                    <span className='text-xs font-semibold text-slate-400'>Easy Returns</span>
+                    <span className='text-xs font-semibold text-slate-700'>Easy Returns</span>
                   </div>
                 </div>
               </div>
@@ -859,20 +893,20 @@ const Product = () => {
             <div className='flex-1 h-px' style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.4), transparent)' }} />
           </div>
           <div className='max-w-none'>
-            <p className='text-slate-400 leading-relaxed mb-4'>
+            <p className='text-slate-700 leading-relaxed mb-4'>
               Unleash your inner trendsetter with the <span className='font-semibold text-slate-200'>Inkdapper {productData.name} T-shirt</span>! Crafted for those who love to stand out, this oversized tee combines comfort with bold, custom style. Featuring unique DTF sticker prints and a striking bleach design, it's the perfect choice for anyone who wants to express their individuality.
             </p>
             {(!isMobile || isExpanded) && (
-              <p className='text-slate-400 leading-relaxed mb-4'>
+              <p className='text-slate-700 leading-relaxed mb-4'>
                 Made from 100% soft, breathable cotton jersey, this oversized t-shirt offers a relaxed fit for all-day comfort. The custom DTF prints and bleach effects ensure every piece is one-of-a-kind, making your look as unique as you are. Easy to care for: simply toss it in the wash with the rest of your laundry.
               </p>
             )}
             {isExpanded && (
               <>
-                <p className='text-slate-400 leading-relaxed mb-4'>
+                <p className='text-slate-700 leading-relaxed mb-4'>
                   The oversized silhouette makes it a versatile addition to your wardrobe—pair it with jeans for a streetwear vibe or layer it for a more creative, layered look. Whether you're lounging at home, heading out with friends, or making a statement on the go, this tee brings effortless cool to any setting.
                 </p>
-                <p className='text-slate-400 leading-relaxed mb-4'>
+                <p className='text-slate-700 leading-relaxed mb-4'>
                   For those who believe fashion is about self-expression, this t-shirt is your invitation to break the mold. Ready to upgrade your style? Make your mark with Inkdapper's custom oversized tees!
                 </p>
               </>
@@ -910,7 +944,7 @@ const Product = () => {
                 {['Machine wash cold', 'Tumble dry low', 'Do not bleach', 'Iron on low heat if needed'].map((item) => (
                   <div key={item} className='flex items-start gap-3 py-2'>
                     <span className='text-orange-500 font-bold mt-0.5'>•</span>
-                    <span className='text-sm text-slate-400'>{item}</span>
+                    <span className='text-sm text-slate-700'>{item}</span>
                   </div>
                 ))}
               </div>
@@ -955,7 +989,7 @@ const Product = () => {
               <h3 className='ragged-title text-xl' style={{ fontSize: '1.3rem' }}>Size Guide</h3>
               <button
                 onClick={closeModal}
-                className='p-2 rounded-lg transition-colors text-slate-400 hover:text-orange-400'
+                className='p-2 rounded-lg transition-colors text-slate-700 hover:text-orange-400'
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
                 <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -978,7 +1012,7 @@ const Product = () => {
               <h3 className='ragged-title text-lg' style={{ fontSize: '1.1rem' }}>Customer Reviews</h3>
               <button
                 onClick={closeModalOne}
-                className='p-2 rounded-lg transition-colors text-slate-400 hover:text-orange-400'
+                className='p-2 rounded-lg transition-colors text-slate-700 hover:text-orange-400'
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
                 <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

@@ -182,7 +182,7 @@ h6 {
 p,
 span,
 div {
-    color: #334155;
+    color: #afb4bc;
     /* slate-700 */
 }
 
@@ -227,7 +227,7 @@ a.active {
 /* Card text */
 .card p,
 .card span {
-    color: #334155;
+    color: #afb4bc;
     /* slate-700 */
 }
 
@@ -236,7 +236,7 @@ a.active {
 /* Modal text */
 .modal p,
 .modal span {
-    color: #334155;
+    color: #afb4bc;
     /* slate-700 */
 }
 
@@ -296,7 +296,7 @@ select:focus {
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #334155;
+    color: #afb4bc;
 }
 
 /* Loading states */

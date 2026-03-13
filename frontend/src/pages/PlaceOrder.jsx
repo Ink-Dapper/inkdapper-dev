@@ -602,15 +602,15 @@ const PlaceOrder = () => {
                   <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
                     <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
                       <p className='text-[11px] font-semibold text-slate-200'>Secure Address</p>
-                      <p className='text-[11px] text-slate-400 mt-0.5'>Your details stay encrypted.</p>
+                      <p className='text-[11px] text-slate-700 mt-0.5'>Your details stay encrypted.</p>
                     </div>
                     <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
                       <p className='text-[11px] font-semibold text-slate-200'>Quick Dispatch</p>
-                      <p className='text-[11px] text-slate-400 mt-0.5'>Orders move fast after payment.</p>
+                      <p className='text-[11px] text-slate-700 mt-0.5'>Orders move fast after payment.</p>
                     </div>
                     <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
                       <p className='text-[11px] font-semibold text-slate-200'>Easy Support</p>
-                      <p className='text-[11px] text-slate-400 mt-0.5'>Help available for address issues.</p>
+                      <p className='text-[11px] text-slate-700 mt-0.5'>Help available for address issues.</p>
                     </div>
                   </div>
                 </div>
@@ -713,7 +713,7 @@ const PlaceOrder = () => {
                       </div>
                       <div className='flex-1'>
                         <div className='flex items-center gap-3'>
-                          <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                           </svg>
                           <span className={`font-medium ${paymentMethod === 'cod' ? 'text-orange-300' : 'text-slate-300'}`}>

@@ -156,7 +156,7 @@ const RecentlyViewed = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between mt-5 md:mt-7 pt-4 md:pt-5 border-t border-slate-700/70 gap-3">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-700">
             Showing your <span className="font-semibold text-orange-300">{recentProducts.length}</span> most recent items
           </p>
           <button

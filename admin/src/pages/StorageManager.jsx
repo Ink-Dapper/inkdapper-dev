@@ -93,7 +93,7 @@ const SetupGuide = ({ endpoint, onRetry, retrying }) => (
           { label: 'Password', value: 'minioadmin' },
         ].map(({ label, value }) => (
           <div key={label} className="bg-slate-50 rounded-xl p-3">
-            <p className="text-xs text-slate-400 mb-0.5">{label}</p>
+            <p className="text-xs text-slate-700 mb-0.5">{label}</p>
             <p className="font-mono text-sm text-slate-700 font-medium">{value}</p>
           </div>
         ))}
@@ -132,23 +132,23 @@ const FileDetail = ({ file, onClose, onDelete, deleting }) => (
     {/* Meta */}
     <div className="p-4 space-y-3 flex-1 overflow-y-auto">
       <div>
-        <p className="text-xs text-slate-400 mb-0.5">Object key</p>
+        <p className="text-xs text-slate-700 mb-0.5">Object key</p>
         <p className="font-mono text-xs text-slate-600 break-all">{file.name}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <p className="text-xs text-slate-400 mb-0.5">Size</p>
+          <p className="text-xs text-slate-700 mb-0.5">Size</p>
           <p className="text-sm font-medium text-slate-700">{fmt(file.size)}</p>
         </div>
         <div>
-          <p className="text-xs text-slate-400 mb-0.5">Modified</p>
+          <p className="text-xs text-slate-700 mb-0.5">Modified</p>
           <p className="text-sm font-medium text-slate-700">
             {new Date(file.lastModified).toLocaleDateString()}
           </p>
         </div>
       </div>
       <div>
-        <p className="text-xs text-slate-400 mb-1">Public URL</p>
+        <p className="text-xs text-slate-700 mb-1">Public URL</p>
         <div className="flex items-start gap-2">
           <p className="font-mono text-xs text-slate-600 break-all flex-1 bg-slate-50 rounded-lg p-2 border border-slate-200">{file.url}</p>
         </div>
@@ -358,7 +358,7 @@ const StorageManager = ({ token }) => {
 
         <div className="flex items-center gap-2">
           {isConnected && stats && (
-            <span className="hidden sm:block text-xs text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg">
+            <span className="hidden sm:block text-xs text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg">
               {stats.totalObjects} files · {fmt(stats.totalSize)}
             </span>
           )}
@@ -399,7 +399,7 @@ const StorageManager = ({ token }) => {
 
       {/* ── Loading ── */}
       {loadingHealth && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 flex items-center justify-center gap-3 text-slate-400">
+        <div className="bg-white rounded-2xl border border-slate-200 p-12 flex items-center justify-center gap-3 text-slate-700">
           <Loader2 className="w-5 h-5 animate-spin" />
           Checking MinIO connection…
         </div>
@@ -428,12 +428,11 @@ const StorageManager = ({ token }) => {
 
               {breadcrumbs.map((crumb, i) => (
                 <React.Fragment key={i}>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-700 flex-shrink-0" />
                   <button
                     onClick={() => navigateToBreadcrumb(i)}
-                    className={`px-2 py-1 rounded-lg hover:bg-slate-200 transition-colors font-medium flex-shrink-0 ${
-                      i === breadcrumbs.length - 1 ? 'text-blue-600' : 'text-slate-600'
-                    }`}
+                    className={`px-2 py-1 rounded-lg hover:bg-slate-200 transition-colors font-medium flex-shrink-0 ${i === breadcrumbs.length - 1 ? 'text-blue-600' : 'text-slate-600'
+                      }`}
                   >
                     {crumb}
                   </button>
@@ -458,17 +457,15 @@ const StorageManager = ({ token }) => {
             <div className="flex items-center gap-1 bg-slate-200 rounded-lg p-0.5 flex-shrink-0 ml-3">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                  viewMode === 'grid' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                }`}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${viewMode === 'grid' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                  }`}
               >
                 Grid
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                  viewMode === 'list' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                }`}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${viewMode === 'list' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                  }`}
               >
                 List
               </button>
@@ -503,7 +500,7 @@ const StorageManager = ({ token }) => {
           {/* Content area */}
           <div className="p-4">
             {loadingBrowse ? (
-              <div className="py-16 flex items-center justify-center gap-2 text-slate-400">
+              <div className="py-16 flex items-center justify-center gap-2 text-slate-700">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 Loading…
               </div>
@@ -538,8 +535,8 @@ const StorageManager = ({ token }) => {
                         >
                           <span className="text-2xl">{icon}</span>
                           <span className="text-sm font-semibold text-slate-700">{label}</span>
-                          <span className="text-xs text-slate-400">{sub}</span>
-                          <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-500 transition-colors" />
+                          <span className="text-xs text-slate-700">{sub}</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-slate-700 group-hover:text-cyan-500 transition-colors" />
                         </a>
                       ) : (
                         <a
@@ -549,7 +546,7 @@ const StorageManager = ({ token }) => {
                         >
                           <span className="text-2xl">{icon}</span>
                           <span className="text-sm font-semibold text-slate-700">{label}</span>
-                          <span className="text-xs text-slate-400">{sub}</span>
+                          <span className="text-xs text-slate-700">{sub}</span>
                         </a>
                       )
                     ))}
@@ -565,7 +562,7 @@ const StorageManager = ({ token }) => {
                 </div>
               ) : (
                 /* Sub-folder empty */
-                <div className="py-16 text-center text-slate-400">
+                <div className="py-16 text-center text-slate-700">
                   <FolderOpen className="w-10 h-10 mx-auto mb-3 text-slate-300" />
                   <p className="text-sm">This folder is empty</p>
                 </div>
@@ -596,7 +593,7 @@ const StorageManager = ({ token }) => {
                     >
                       <Folder className="w-5 h-5 text-amber-400 fill-amber-100 flex-shrink-0" />
                       <span className="text-sm font-medium text-slate-700 flex-1 truncate">{f.name}</span>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-500 flex-shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-blue-500 flex-shrink-0" />
                     </button>
                   )
                 ))}
@@ -607,13 +604,12 @@ const StorageManager = ({ token }) => {
                     <div
                       key={file.name}
                       onClick={() => setSelectedFile(file)}
-                      className={`group relative flex flex-col items-center gap-2 p-2 rounded-xl border transition-all text-center cursor-pointer ${
-                        selectedFiles.has(file.name)
+                      className={`group relative flex flex-col items-center gap-2 p-2 rounded-xl border transition-all text-center cursor-pointer ${selectedFiles.has(file.name)
                           ? 'border-blue-400 bg-blue-50 ring-2 ring-blue-300'
                           : selectedFile?.name === file.name
-                          ? 'border-blue-400 bg-blue-50 shadow-sm'
-                          : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
-                      }`}
+                            ? 'border-blue-400 bg-blue-50 shadow-sm'
+                            : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                        }`}
                     >
                       {/* Select checkbox */}
                       <input
@@ -644,7 +640,7 @@ const StorageManager = ({ token }) => {
                         </div>
                       </div>
                       <span className="text-xs text-slate-600 truncate w-full px-1">{file.displayName}</span>
-                      <span className="text-xs text-slate-400">{fmt(file.size)}</span>
+                      <span className="text-xs text-slate-700">{fmt(file.size)}</span>
 
                       {/* Quick delete on hover */}
                       <button
@@ -663,13 +659,12 @@ const StorageManager = ({ token }) => {
                     <div
                       key={file.name}
                       onClick={() => setSelectedFile(file)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left group cursor-pointer ${
-                        selectedFiles.has(file.name)
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left group cursor-pointer ${selectedFiles.has(file.name)
                           ? 'border-blue-300 bg-blue-50 ring-1 ring-blue-200'
                           : selectedFile?.name === file.name
-                          ? 'border-blue-300 bg-blue-50'
-                          : 'border-transparent hover:bg-slate-50 hover:border-slate-200'
-                      }`}
+                            ? 'border-blue-300 bg-blue-50'
+                            : 'border-transparent hover:bg-slate-50 hover:border-slate-200'
+                        }`}
                     >
                       {/* Select checkbox */}
                       <input
@@ -694,7 +689,7 @@ const StorageManager = ({ token }) => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-700 truncate">{file.displayName}</p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-700">
                           {fmt(file.size)} · {new Date(file.lastModified).toLocaleDateString()}
                         </p>
                       </div>
@@ -721,7 +716,7 @@ const StorageManager = ({ token }) => {
           </div>
 
           {/* Footer status bar */}
-          <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-400">
+          <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-700">
             <span>{folders.length} folder{folders.length !== 1 ? 's' : ''}, {files.length} file{files.length !== 1 ? 's' : ''}</span>
             <span className="flex items-center gap-1.5">
               <CheckCircle className="w-3 h-3 text-green-500" />
@@ -743,7 +738,7 @@ const StorageManager = ({ token }) => {
             </div>
             <p className="text-slate-600 mb-1 text-sm">Are you sure you want to delete:</p>
             <p className="font-mono text-xs text-slate-700 bg-slate-50 rounded-lg px-3 py-2 mb-5 break-all border border-slate-200">{deleteConfirm.displayName}</p>
-            <p className="text-xs text-slate-400 mb-5">This action cannot be undone.</p>
+            <p className="text-xs text-slate-700 mb-5">This action cannot be undone.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}

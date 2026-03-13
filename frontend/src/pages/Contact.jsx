@@ -20,7 +20,7 @@ const Contact = () => {
           <h1 className="ragged-title mb-4" style={{ fontSize: 'clamp(2.2rem, 6vw, 4rem)' }}>
             Contact Us
           </h1>
-          <p className="max-w-xl mx-auto text-sm sm:text-base text-slate-500 leading-relaxed">
+          <p className="max-w-xl mx-auto text-sm sm:text-base text-slate-400 leading-relaxed">
             Have a question, idea, or just want to say hi?{' '}
             <span className="text-orange-400 font-semibold">We'd love to hear from you.</span>
           </p>
@@ -54,61 +54,113 @@ const Contact = () => {
           <div className="space-y-4">
 
             {/* ── Store Info ── */}
-            <div className="relative rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(249,115,22,0.15)' }}>
-              <div className="absolute top-0 left-0 w-full h-0.5" style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b, transparent)' }} />
-              <div className="absolute -top-12 -right-10 w-36 h-36 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.18), transparent 70%)' }} />
-              <div className="absolute -bottom-10 -left-8 w-32 h-32 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.12), transparent 70%)' }} />
-              <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top left, rgba(249,115,22,0.07), transparent 70%)' }} />
+            <div className="relative rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(249,115,22,0.18)' }}>
+              {/* Top accent bar */}
+              <div className="absolute top-0 left-0 w-full h-px" style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b, transparent)' }} />
+              {/* Corner glow */}
+              <div className="absolute -top-10 -right-10 w-48 h-48 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.1), transparent 65%)' }} />
+
               <div className="relative p-6">
-                {/* Card heading */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #f97316, #f59e0b)', boxShadow: '0 0 14px rgba(249,115,22,0.3)' }}>
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+
+                {/* ── Header row ── */}
+                <div className="flex items-start justify-between gap-4 mb-5">
+                  <div className="flex items-center gap-3">
+                    {/* Icon */}
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'linear-gradient(135deg, #f97316, #f59e0b)', boxShadow: '0 0 20px rgba(249,115,22,0.35)' }}>
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400 mb-0.5">Physical Store</p>
+                      <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em', fontSize: '1.35rem', color: '#f1f5f9', lineHeight: 1 }}>
+                        Visit Our Store
+                      </h3>
+                    </div>
                   </div>
+                  {/* Live open badge */}
+                  <div className="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg"
+                    style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.22)' }}>
+                    <span className="relative w-1.5 h-1.5 flex-shrink-0">
+                      <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60" />
+                      <span className="relative block w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-400 whitespace-nowrap">Open</span>
+                  </div>
+                </div>
+
+                {/* ── Divider ── */}
+                <div className="mb-5 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.2), rgba(249,115,22,0.05), transparent)' }} />
+
+                {/* ── Address block ── */}
+                <div className="mb-5 p-4 rounded-xl flex items-start gap-4"
+                  style={{ background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.1)' }}>
+                  {/* Pin column */}
+                  <div className="flex-shrink-0 flex flex-col items-center pt-0.5 gap-1">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+                      style={{ background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)' }}>
+                      <svg className="w-3.5 h-3.5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <div className="w-px flex-1 min-h-[24px] rounded-full" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.3), transparent)' }} />
+                  </div>
+                  {/* Text */}
                   <div>
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full mb-2" style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)' }}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-orange-300">Visit The Store</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-0.5 h-4 rounded-full" style={{ background: 'linear-gradient(180deg, #f97316, #f59e0b)' }} />
-                      <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', fontSize: '1.1rem', color: '#f1f5f9' }}>Our Store</h3>
-                    </div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mt-0.5">Visit us in person</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 mb-1">Address</p>
+                    <p className="text-sm font-semibold text-slate-200 leading-relaxed">
+                      1D, Bazaar Street
+                    </p>
+                    <p className="text-sm text-slate-400 leading-relaxed">
+                      Vettuvanam, Vellore — 635809
+                    </p>
                   </div>
                 </div>
-                {/* Divider */}
-                <div className="mb-4 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.15), transparent)' }} />
-                {/* Address */}
-                <div className="flex items-start gap-3 mb-5">
-                  <div className="w-0.5 h-10 rounded-full flex-shrink-0 mt-1" style={{ background: 'linear-gradient(180deg, rgba(249,115,22,0.5), transparent)' }} />
-                  <p className="text-slate-400 text-sm leading-relaxed">
-                    1D, Bazaar Street<br />
-                    Vettuvanam, Vellore - 635809
-                  </p>
+
+                {/* ── Info chips row ── */}
+                <div className="flex flex-wrap gap-2 mb-5">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <svg className="w-3 h-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-[11px] text-slate-400 font-medium">All week</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <svg className="w-3 h-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-[11px] text-slate-400 font-medium">9 AM – 8 PM</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <svg className="w-3 h-3 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="text-[11px] text-slate-400 font-medium">Walk-ins welcome</span>
+                  </div>
                 </div>
-                <div className="mb-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: 'rgba(15,23,42,0.4)', border: '1px solid rgba(148,163,184,0.2)' }}>
-                  <svg className="w-3.5 h-3.5 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="text-[11px] text-slate-300 font-medium">Open all week for walk-ins</span>
-                </div>
-                {/* Button */}
+
+                {/* ── Get Directions CTA ── */}
                 <a
                   href="https://maps.app.goo.gl/dpffYpGRsczWxq1r8"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 font-bold text-xs uppercase tracking-[0.12em] rounded-xl transition-all duration-300 hover:-translate-y-0.5"
-                  style={{ background: 'linear-gradient(135deg, #f97316, #f59e0b)', color: '#0d0d0e', boxShadow: '0 0 20px rgba(249,115,22,0.35)' }}
+                  className="w-full flex items-center justify-center gap-2.5 py-3 px-5 rounded-xl font-extrabold text-xs uppercase tracking-[0.14em] transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98]"
+                  style={{ background: 'linear-gradient(135deg, #f97316, #f59e0b)', color: '#0d0d0e', boxShadow: '0 0 24px rgba(249,115,22,0.35), 0 4px 12px rgba(0,0,0,0.3)' }}
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m-6 3l6-3" />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m-6 3l6-3" />
                   </svg>
                   Get Directions
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
                 </a>
+
               </div>
             </div>
 
@@ -124,7 +176,7 @@ const Contact = () => {
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 mb-0.5">Phone</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-0.5">Phone</p>
                     <a href="tel:+919994005696" className="text-sm font-semibold text-slate-300 hover:text-orange-400 transition-colors duration-200">
                       +91 99940 05696
                     </a>
@@ -143,7 +195,7 @@ const Contact = () => {
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 mb-0.5">Email</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-0.5">Email</p>
                     <a href="mailto:support@inkdapper.com" className="text-sm font-semibold text-slate-300 hover:text-orange-400 transition-colors duration-200 truncate block">
                       support@inkdapper.com
                     </a>
@@ -171,12 +223,12 @@ const Contact = () => {
                       <div className="w-0.5 h-4 rounded-full" style={{ background: 'linear-gradient(180deg, #f97316, #f59e0b)' }} />
                       <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', fontSize: '1.1rem', color: '#f1f5f9' }}>Careers at Ink Dapper</h3>
                     </div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 mt-0.5">Join our amazing team</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mt-0.5">Join our amazing team</p>
                   </div>
                 </div>
                 {/* Divider */}
                 <div className="mb-4 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.15), transparent)' }} />
-                <p className="text-sm text-slate-500 mb-5 leading-relaxed">
+                <p className="text-sm text-slate-400 mb-5 leading-relaxed">
                   Learn more about our teams and job openings. We're always looking for talented individuals to join our mission.
                 </p>
                 <Link

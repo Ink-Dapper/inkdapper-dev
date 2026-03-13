@@ -139,12 +139,12 @@ const Footer = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-white/5 rounded-xl p-3 text-center">
-                      <div className="text-orange-400 text-xs font-bold uppercase tracking-wide mb-1">Mon â€“ Sat</div>
-                      <div className="text-slate-200 text-sm font-medium">10 AM â€“ 8 PM</div>
+                      <div className="text-orange-400 text-xs font-bold uppercase tracking-wide mb-1">Mon <span className='text-slate-200'>&</span> Sat</div>
+                      <div className="text-slate-200 text-sm font-medium">10 AM <span className='text-orange-500'>&</span> 8 PM</div>
                     </div>
                     <div className="bg-white/5 rounded-xl p-3 text-center">
                       <div className="text-orange-400 text-xs font-bold uppercase tracking-wide mb-1">Sunday</div>
-                      <div className="text-slate-200 text-sm font-medium">11 AM â€“ 6 PM</div>
+                      <div className="text-slate-200 text-sm font-medium">11 AM <span className='text-orange-500'>&</span> 6 PM</div>
                     </div>
                   </div>
                 </div>

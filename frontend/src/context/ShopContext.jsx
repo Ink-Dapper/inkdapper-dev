@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { apiConfig } from "../config/api";
 import apiInstance from "../utils/axios";
 import { toast } from "react-toastify";
+import SkeletonLoader from "../components/SkeletonLoader";
 import { Flip } from 'react-toastify';
 
 export const ShopContext = createContext(null)
@@ -281,14 +282,8 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  const getWishlistCount = async () => {
-    let totalCount = 0
-    for (let items in wishlist) {
-      if (wishlist[items] > 0) {
-        totalCount += wishlist[items]
-      }
-    }
-    return totalCount
+  const getWishlistCount = () => {
+    return Object.values(wishlist).filter(qty => qty > 0).length
   }
 
   const updateWishlistQuantity = async (itemId, quantity = -1) => {
@@ -658,7 +653,7 @@ const ShopContextProvider = (props) => {
   }
 
   if (!isContextReady) {
-    return <div>Loading...</div>;
+    return <SkeletonLoader />;
   }
 
   return (
