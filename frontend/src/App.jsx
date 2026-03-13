@@ -43,6 +43,13 @@ const App = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
 
+  // Scroll to top on every route change (fixes mobile scroll position)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location.pathname]);
+
   // Initialize global error handling
   useEffect(() => {
     setupGlobalErrorHandling();

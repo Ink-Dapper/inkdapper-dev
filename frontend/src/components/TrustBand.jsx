@@ -50,25 +50,61 @@ const items = [
 
 const TrustBand = () => {
     return (
-        <div className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 text-white py-3 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center gap-5 md:gap-0 md:justify-between overflow-x-auto scrollbar-none pb-0.5 md:pb-0">
+        <div className="bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500 text-white py-3 overflow-hidden">
+
+            {/* ── Desktop: static justified row ── */}
+            <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between">
                     {items.map((item, i) => (
                         <React.Fragment key={i}>
-                            <div className="flex items-center gap-2 flex-shrink-0 py-0.5">
-                                <span className="opacity-90 w-4 h-4 sm:w-5 sm:h-5">{item.icon}</span>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                                <span className="opacity-90 text-slate-800">{item.icon}</span>
                                 <div className="leading-tight">
-                                    <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wide whitespace-nowrap">{item.label}</div>
-                                    <div className="text-[10px] sm:text-xs opacity-80 whitespace-nowrap hidden sm:block">{item.sub}</div>
+                                    <div className="text-xs font-bold uppercase tracking-wide text-slate-800 whitespace-nowrap">{item.label}</div>
+                                    <div className="text-[10px] opacity-80 whitespace-nowrap">{item.sub}</div>
                                 </div>
                             </div>
                             {i < items.length - 1 && (
-                                <div className="hidden md:block w-px h-7 bg-white/30 flex-shrink-0" />
+                                <div className="w-px h-7 bg-white/30 flex-shrink-0" />
                             )}
                         </React.Fragment>
                     ))}
                 </div>
             </div>
+
+            {/* ── Mobile: infinite marquee ── */}
+            <div className="md:hidden relative">
+                {/* Left fade */}
+                <div className="absolute left-0 top-0 h-full w-8 z-10 pointer-events-none"
+                    style={{ background: 'linear-gradient(to right, #f97316, transparent)' }} />
+                {/* Right fade */}
+                <div className="absolute right-0 top-0 h-full w-8 z-10 pointer-events-none"
+                    style={{ background: 'linear-gradient(to left, #f59e0b, transparent)' }} />
+
+                <div className="flex" style={{ animation: 'trust-marquee 18s linear infinite' }}>
+                    {/* Render items twice for seamless loop */}
+                    {[...items, ...items].map((item, i) => (
+                        <div key={i} className="flex items-center flex-shrink-0" style={{ paddingRight: 28 }}>
+                            <span className="opacity-90 text-slate-800 flex-shrink-0" style={{ marginRight: 7 }}>
+                                {item.icon}
+                            </span>
+                            <div className="leading-tight flex-shrink-0">
+                                <div className="text-[11px] font-bold uppercase tracking-wide text-slate-800 whitespace-nowrap">{item.label}</div>
+                                <div className="text-[10px] opacity-75 whitespace-nowrap text-slate-700">{item.sub}</div>
+                            </div>
+                            {/* Dot separator */}
+                            <div className="flex-shrink-0 w-1 h-1 rounded-full bg-white/50 ml-7" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <style>{`
+                @keyframes trust-marquee {
+                    0%   { transform: translateX(0); }
+                    100% { transform: translateX(-50%); }
+                }
+            `}</style>
         </div>
     )
 }
