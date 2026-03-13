@@ -12,7 +12,7 @@ const Section = ({ icon, title, accentColor = '#f97316', children }) => (
         {title}
       </h2>
     </div>
-    <div className="space-y-4 text-slate-700 text-sm sm:text-base leading-relaxed">
+    <div className="space-y-4 text-slate-400 text-sm sm:text-base leading-relaxed">
       {children}
     </div>
   </div>
@@ -119,7 +119,7 @@ const ShippingAndDelivery = () => {
           >
             <p>We currently ship to <span className="text-orange-400 font-semibold">India only</span>. If your location is not listed, please contact us before placing an order.</p>
             <InfoBox>
-              <p className="text-slate-700 text-sm">We do not ship to <span className="text-red-400 font-semibold">P.O. Boxes, APO/FPO addresses</span>, or restricted areas.</p>
+              <p className="text-slate-400 text-sm">We do not ship to <span className="text-red-400 font-semibold">P.O. Boxes, APO/FPO addresses</span>, or restricted areas.</p>
             </InfoBox>
           </Section>
 

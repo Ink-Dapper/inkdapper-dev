@@ -93,8 +93,8 @@ const SetupGuide = ({ endpoint, onRetry, retrying }) => (
           { label: 'Password', value: 'minioadmin' },
         ].map(({ label, value }) => (
           <div key={label} className="bg-slate-50 rounded-xl p-3">
-            <p className="text-xs text-slate-700 mb-0.5">{label}</p>
-            <p className="font-mono text-sm text-slate-700 font-medium">{value}</p>
+            <p className="text-xs text-slate-500 mb-0.5">{label}</p>
+            <p className="font-mono text-sm text-slate-500 font-medium">{value}</p>
           </div>
         ))}
       </div>
@@ -107,7 +107,7 @@ const SetupGuide = ({ endpoint, onRetry, retrying }) => (
 const FileDetail = ({ file, onClose, onDelete, deleting }) => (
   <div className="fixed inset-y-0 right-0 w-80 bg-white border-l border-slate-200 shadow-2xl z-50 flex flex-col">
     <div className="flex items-center justify-between p-4 border-b border-slate-100">
-      <span className="font-semibold text-slate-700 text-sm truncate flex-1">{file.displayName}</span>
+      <span className="font-semibold text-slate-500 text-sm truncate flex-1">{file.displayName}</span>
       <button onClick={onClose} className="ml-2 p-1 hover:bg-slate-100 rounded-lg transition-colors">
         <X className="w-4 h-4 text-slate-500" />
       </button>

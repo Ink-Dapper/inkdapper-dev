@@ -170,7 +170,7 @@ const LatestCollection = () => {
         </div>
 
         <div className="hidden md:flex items-center justify-between mt-10 pt-6 border-t border-slate-700/70">
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-slate-400">
             Showing <span className="font-semibold text-slate-100">{latestProducts.length}</span> of{' '}
             <span className="font-semibold text-orange-300">{products.length}+</span> products
           </p>

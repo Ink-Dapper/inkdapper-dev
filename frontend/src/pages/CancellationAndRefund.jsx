@@ -12,7 +12,7 @@ const Section = ({ icon, title, accentColor = '#f97316', children }) => (
         {title}
       </h2>
     </div>
-    <div className="space-y-4 text-slate-700 text-sm sm:text-base leading-relaxed">
+    <div className="space-y-4 text-slate-400 text-sm sm:text-base leading-relaxed">
       {children}
     </div>
   </div>
@@ -93,14 +93,14 @@ const CancellationAndRefund = () => {
 
             <InfoBox variant="danger">
               <p className="text-slate-300 font-semibold text-sm mb-2">a) Customized Products</p>
-              <p className="text-slate-700 text-sm">Due to the nature of personalized items, customized t-shirts and embroidered products are <span className="text-red-400 font-semibold">non-refundable</span> unless they are defective or incorrect.</p>
+              <p className="text-slate-400 text-sm">Due to the nature of personalized items, customized t-shirts and embroidered products are <span className="text-red-400 font-semibold">non-refundable</span> unless they are defective or incorrect.</p>
             </InfoBox>
 
             <InfoBox variant="success">
               <p className="text-slate-300 font-semibold text-sm mb-2">b) Non-Customized Products</p>
-              <p className="text-slate-700 text-sm mb-2">You may request a return or refund for defective or incorrect items.</p>
-              <p className="text-slate-700 text-sm mb-2">Contact us within <span className="text-green-400 font-semibold">2 to 3 days</span> of receiving your order with proof (photos/videos) of the issue.</p>
-              <p className="text-slate-700 text-sm">Once approved, we will process your refund or send a replacement.</p>
+              <p className="text-slate-400 text-sm mb-2">You may request a return or refund for defective or incorrect items.</p>
+              <p className="text-slate-400 text-sm mb-2">Contact us within <span className="text-green-400 font-semibold">2 to 3 days</span> of receiving your order with proof (photos/videos) of the issue.</p>
+              <p className="text-slate-400 text-sm">Once approved, we will process your refund or send a replacement.</p>
             </InfoBox>
           </Section>
 

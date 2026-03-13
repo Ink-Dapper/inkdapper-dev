@@ -326,7 +326,7 @@ const NewsLetterBox = () => {
                     style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.18)' }}>
                     {perk.icon}
                   </div>
-                  <span className="text-slate-700 text-sm">{perk.text}</span>
+                  <span className="text-slate-500 text-sm">{perk.text}</span>
                 </li>
               ))}
             </ul>

@@ -194,7 +194,7 @@ const OrderDetails = () => {
                       <p className="text-xs font-bold uppercase tracking-widest text-orange-400 mb-1">Product</p>
                       <h2 className="text-slate-200 font-semibold text-lg leading-snug">{order.items?.[0]?.name}</h2>
                       {order.items?.[0]?.size && (
-                        <span className="inline-block mt-2 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-700"
+                        <span className="inline-block mt-2 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-500"
                           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
                           Size: {order.items[0].size}
                         </span>

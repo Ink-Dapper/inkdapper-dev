@@ -223,7 +223,7 @@ const Hero = () => {
                             {['Free Shipping', '7-Day Returns', 'Premium Cotton', 'COD Available'].map((label) => (
                                 <span
                                     key={label}
-                                    className="inline-flex items-center gap-1.5 bg-white/4 border border-white/10 px-3 py-1 rounded-full text-[11px] font-medium text-slate-700"
+                                    className="inline-flex items-center gap-1.5 bg-white/4 border border-white/10 px-3 py-1 rounded-full text-[11px] font-medium text-slate-400"
                                 >
                                     <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
                                     {label}
