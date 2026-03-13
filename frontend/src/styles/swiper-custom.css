@@ -68,8 +68,16 @@
 }
 
 .recently-viewed-section .swiper-slide {
-  width: auto !important;
-  margin: 0 12px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: transparent !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+}
+
+.recently-viewed-section .swiper-slide > div {
+  width: 100% !important;
 }
 
 /* .acid-wash-tees-section .swiper-slide > div {
