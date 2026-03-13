@@ -12,7 +12,7 @@ const Section = ({ icon, title, accentColor = '#f97316', children }) => (
         {title}
       </h2>
     </div>
-    <div className="space-y-4 text-slate-700 text-sm sm:text-base leading-relaxed">
+    <div className="space-y-4 text-slate-400 text-sm sm:text-base leading-relaxed">
       {children}
     </div>
   </div>

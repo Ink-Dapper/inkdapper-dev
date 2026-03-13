@@ -104,7 +104,7 @@ const BestSeller = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between mt-6 md:mt-8 pt-5 md:pt-6 border-t border-slate-700/70 gap-3">
-          <p className="text-sm text-slate-700 text-center sm:text-left">
+          <p className="text-sm text-slate-500 text-center sm:text-left">
             Join <span className="font-semibold text-orange-300">10,000+</span> satisfied customers
           </p>
           <Link

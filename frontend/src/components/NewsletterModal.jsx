@@ -171,7 +171,7 @@ const NewsletterModal = () => {
               <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', letterSpacing: '0.1em', color: '#f1f5f9' }}>
                 You're In!
               </h3>
-              <p className="text-slate-700 text-sm mt-2 max-w-xs">
+              <p className="text-slate-500 text-sm mt-2 max-w-xs">
                 Welcome to the Ink Dapper community. Exclusive drops coming your way.
               </p>
             </div>

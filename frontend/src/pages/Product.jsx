@@ -638,12 +638,12 @@ const Product = () => {
             </div>
 
             {/* Description */}
-            <p className='text-slate-700 leading-relaxed text-sm'>{productData.description}</p>
+            <p className='text-slate-400 leading-relaxed text-sm'>{productData.description}</p>
 
             {/* Size Selection */}
             <div className='space-y-3'>
               <div className='flex items-center justify-between'>
-                <h3 className='text-xs font-extrabold text-slate-700 uppercase tracking-[0.18em]'>Select Size</h3>
+                <h3 className='text-xs font-extrabold text-slate-500 uppercase tracking-[0.18em]'>Select Size</h3>
                 <button onClick={() => setIsModalOpen(true)} className='text-orange-400 hover:text-orange-300 text-xs font-bold underline transition-colors duration-200'>
                   Size Guide
                 </button>
@@ -671,7 +671,7 @@ const Product = () => {
 
             {/* Quantity */}
             <div className='space-y-3'>
-              <h3 className='text-xs font-extrabold text-slate-700 uppercase tracking-[0.18em]'>Quantity</h3>
+              <h3 className='text-xs font-extrabold text-slate-500 uppercase tracking-[0.18em]'>Quantity</h3>
               <div className='flex items-center gap-4'>
                 <div className='flex items-center rounded-xl overflow-hidden' style={{ border: '1px solid rgba(249,115,22,0.3)', background: 'rgba(255,255,255,0.03)' }}>
                   <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className='w-12 h-12 flex items-center justify-center text-orange-400 hover:bg-orange-500/15 transition-all duration-200 border-r border-orange-500/20'>
@@ -715,7 +715,7 @@ const Product = () => {
               {/* Wishlist button — full width, always visible */}
               <button
                 onClick={addToWishlistPage}
-                className={`w-full py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border-2 ${isWishlisted ? 'border-red-400/40 text-red-300 hover:border-red-400/60' : 'border-slate-700/60 text-slate-700 hover:border-orange-500/40 hover:text-orange-300'}`}
+                className={`w-full py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border-2 ${isWishlisted ? 'border-red-400/40 text-red-300 hover:border-red-400/60' : 'border-slate-700/60 text-slate-500 hover:border-orange-500/40 hover:text-orange-300'}`}
                 style={{ background: isWishlisted ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)', boxShadow: isWishlisted ? '0 0 18px rgba(239,68,68,0.18)' : 'none' }}
               >
                 <Heart className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${isWishlisted ? 'fill-red-400 text-red-400' : ''}`} />
@@ -737,17 +737,17 @@ const Product = () => {
                 <div className='flex items-center justify-between gap-2'>
                   <div className='flex items-center gap-2'>
                     <div className='w-6 h-6 rounded-md flex items-center justify-center bg-orange-500/80'><Truck className='w-3 h-3 text-white' /></div>
-                    <span className='text-xs font-semibold text-slate-700'>Free Shipping</span>
+                    <span className='text-xs font-semibold text-slate-400'>Free Shipping</span>
                   </div>
                   <div className='w-px h-4 bg-orange-500/20' />
                   <div className='flex items-center gap-2'>
                     <div className='w-6 h-6 rounded-md flex items-center justify-center bg-blue-500/80'><Shield className='w-3 h-3 text-white' /></div>
-                    <span className='text-xs font-semibold text-slate-700'>Secure Pay</span>
+                    <span className='text-xs font-semibold text-slate-400'>Secure Pay</span>
                   </div>
                   <div className='w-px h-4 bg-orange-500/20' />
                   <div className='flex items-center gap-2'>
                     <div className='w-6 h-6 rounded-md flex items-center justify-center bg-emerald-500/80'><RotateCcw className='w-3 h-3 text-white' /></div>
-                    <span className='text-xs font-semibold text-slate-700'>Easy Returns</span>
+                    <span className='text-xs font-semibold text-slate-400'>Easy Returns</span>
                   </div>
                 </div>
               </div>
@@ -893,20 +893,20 @@ const Product = () => {
             <div className='flex-1 h-px' style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.4), transparent)' }} />
           </div>
           <div className='max-w-none'>
-            <p className='text-slate-700 leading-relaxed mb-4'>
-              Unleash your inner trendsetter with the <span className='font-semibold text-slate-200'>Inkdapper {productData.name} T-shirt</span>! Crafted for those who love to stand out, this oversized tee combines comfort with bold, custom style. Featuring unique DTF sticker prints and a striking bleach design, it's the perfect choice for anyone who wants to express their individuality.
+            <p className='text-slate-400 leading-relaxed mb-4'>
+              Unleash your inner trendsetter with the <span className='font-semibold text-orange-500 underline'>Inkdapper {productData.name} T-shirt !</span> Crafted for those who love to stand out, this oversized tee combines comfort with bold, custom style. Featuring unique DTF sticker prints and a striking bleach design, it's the perfect choice for anyone who wants to express their individuality.
             </p>
             {(!isMobile || isExpanded) && (
-              <p className='text-slate-700 leading-relaxed mb-4'>
+              <p className='text-slate-400 leading-relaxed mb-4'>
                 Made from 100% soft, breathable cotton jersey, this oversized t-shirt offers a relaxed fit for all-day comfort. The custom DTF prints and bleach effects ensure every piece is one-of-a-kind, making your look as unique as you are. Easy to care for: simply toss it in the wash with the rest of your laundry.
               </p>
             )}
             {isExpanded && (
               <>
-                <p className='text-slate-700 leading-relaxed mb-4'>
+                <p className='text-slate-400 leading-relaxed mb-4'>
                   The oversized silhouette makes it a versatile addition to your wardrobe—pair it with jeans for a streetwear vibe or layer it for a more creative, layered look. Whether you're lounging at home, heading out with friends, or making a statement on the go, this tee brings effortless cool to any setting.
                 </p>
-                <p className='text-slate-700 leading-relaxed mb-4'>
+                <p className='text-slate-400 leading-relaxed mb-4'>
                   For those who believe fashion is about self-expression, this t-shirt is your invitation to break the mold. Ready to upgrade your style? Make your mark with Inkdapper's custom oversized tees!
                 </p>
               </>
@@ -944,7 +944,7 @@ const Product = () => {
                 {['Machine wash cold', 'Tumble dry low', 'Do not bleach', 'Iron on low heat if needed'].map((item) => (
                   <div key={item} className='flex items-start gap-3 py-2'>
                     <span className='text-orange-500 font-bold mt-0.5'>•</span>
-                    <span className='text-sm text-slate-700'>{item}</span>
+                    <span className='text-sm text-slate-500'>{item}</span>
                   </div>
                 ))}
               </div>
