@@ -65,7 +65,7 @@ const BestSeller = () => {
             <React.Fragment key={i}>
               <div className="text-center rounded-xl py-2.5 px-2 bg-[rgba(15,16,18,0.58)] border border-orange-500/20 sm:bg-transparent sm:border-0">
                 <div className="text-sm sm:text-base md:text-xl font-extrabold text-orange-300">{stat.value}</div>
-                <div className="text-[11px] sm:text-xs text-slate-400 mt-0.5 leading-tight">{stat.label}</div>
+                <div className="text-[11px] sm:text-xs text-slate-700 mt-0.5 leading-tight">{stat.label}</div>
               </div>
               {i < 2 && <div className="hidden sm:block flex-shrink-0 w-px h-8 bg-slate-700" />}
             </React.Fragment>
@@ -104,7 +104,7 @@ const BestSeller = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between mt-6 md:mt-8 pt-5 md:pt-6 border-t border-slate-700/70 gap-3">
-          <p className="text-sm text-slate-400 text-center sm:text-left">
+          <p className="text-sm text-slate-700 text-center sm:text-left">
             Join <span className="font-semibold text-orange-300">10,000+</span> satisfied customers
           </p>
           <Link

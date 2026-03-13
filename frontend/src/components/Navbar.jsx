@@ -86,11 +86,7 @@ const Navbar = () => {
 
   useEffect(() => {
     if (!getWishlistCount) return;
-    const fetchCounts = async () => {
-      const count = await getWishlistCount();
-      setWishlistCount(count);
-    };
-    fetchCounts();
+    setWishlistCount(getWishlistCount());
   }, [getWishlistCount, wishlist]);
 
   useEffect(() => {

@@ -143,7 +143,7 @@ const LatestCollection = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
             </svg>
           </Link>
-          <p className="mt-1.5 text-xs text-slate-400">{products.length}+ designs available</p>
+          <p className="mt-1.5 text-xs text-slate-700">{products.length}+ designs available</p>
         </div>
 
         <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
@@ -170,7 +170,7 @@ const LatestCollection = () => {
         </div>
 
         <div className="hidden md:flex items-center justify-between mt-10 pt-6 border-t border-slate-700/70">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-700">
             Showing <span className="font-semibold text-slate-100">{latestProducts.length}</span> of{' '}
             <span className="font-semibold text-orange-300">{products.length}+</span> products
           </p>

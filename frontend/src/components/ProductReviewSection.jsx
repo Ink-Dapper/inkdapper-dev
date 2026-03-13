@@ -88,7 +88,7 @@ const ProductReviewSection = ({ productId }) => {
                   onClick={() => setRating(star)}
                   className={`transition-all duration-200 transform hover:scale-110 ${rating >= star
                       ? 'text-amber-400 drop-shadow-lg'
-                      : 'text-gray-300 hover:text-amber-300'
+                      : 'text-gray-500 hover:text-amber-300'
                     }`}
                 >
                   <FaStar size={28} />

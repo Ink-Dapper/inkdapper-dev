@@ -18,7 +18,7 @@ const HighlightedProducts = () => {
   useEffect(() => {
     const load = async () => {
       if (highlightedProducts.length === 0) {
-        try { await fetchHighlightedProducts() } catch (_) {}
+        try { await fetchHighlightedProducts() } catch (_) { }
       }
       setLoading(false)
     }
@@ -223,7 +223,7 @@ const HighlightedProducts = () => {
 
         {/* ── Desktop bottom bar ─────────────────────────────── */}
         <div className="hidden md:flex flex-row items-center justify-between mt-6 md:mt-8 pt-5 md:pt-6 border-t border-slate-700/70 gap-3">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-700">
             <span className="font-semibold text-orange-300">{highlightedProducts.length}</span> handpicked designs
           </p>
           <Link

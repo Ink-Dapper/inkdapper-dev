@@ -106,7 +106,7 @@ const ShirtMockup = ({
             <div className="absolute inset-0 rounded-full border-2 border-orange-400/20 animate-ping" />
             <div className="w-12 h-12 rounded-full border-2 border-transparent border-t-orange-400 border-r-orange-400/40 animate-spin" />
           </div>
-          <span className="text-[10px] text-slate-400 font-semibold tracking-widest uppercase">Creating…</span>
+          <span className="text-[10px] text-slate-700 font-semibold tracking-widest uppercase">Creating…</span>
         </div>
       ) : generatedImage ? (
         <img
@@ -724,7 +724,7 @@ const AIDesigner = () => {
                 rows={4} value={prompt} onChange={(e) => setPrompt(e.target.value)}
                 placeholder="e.g. Cyberpunk tiger with neon glowing eyes, bold graphic style..."
                 className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed placeholder-slate-700 px-4 py-3"
-                style={{ color: "var(--ragged-text)", caretColor: "var(--ragged-accent)" }}
+                style={{ color: "#000", caretColor: "var(--ragged-accent)" }}
                 onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) handleGenerate(); }}
               />
               <div className="flex items-center justify-between px-4 py-2.5"
@@ -875,7 +875,7 @@ const AIDesigner = () => {
           {/* Mobile generate button */}
           {designMode === "ai" && (
             <button onClick={handleGenerate} disabled={loading || !prompt.trim()}
-              className="ragged-solid-btn lg:hidden w-full py-3.5 sm:py-4 font-black text-xs sm:text-sm uppercase tracking-[0.16em] sm:tracking-[0.18em] transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center gap-2" style={{color: 'white'}}>
+              className="ragged-solid-btn lg:hidden w-full py-3.5 sm:py-4 font-black text-xs sm:text-sm uppercase tracking-[0.16em] sm:tracking-[0.18em] transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center gap-2" style={{ color: 'white' }}>
               {loading
                 ? <><span className="w-4 h-4 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" /> Generating…</>
                 : <><SparkleIcon /> Generate Design</>}

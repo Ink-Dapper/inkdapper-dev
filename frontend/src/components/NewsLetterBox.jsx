@@ -12,21 +12,27 @@ const PERKS = [
 ]
 
 const TRUST = [
-  { icon: (
-    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ), label: 'No spam, ever' },
-  { icon: (
-    <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-    </svg>
-  ), label: 'Secure & private' },
-  { icon: (
-    <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-    </svg>
-  ), label: 'Unsubscribe anytime' },
+  {
+    icon: (
+      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ), label: 'No spam, ever'
+  },
+  {
+    icon: (
+      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+    ), label: 'Secure & private'
+  },
+  {
+    icon: (
+      <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    ), label: 'Unsubscribe anytime'
+  },
 ]
 
 const NewsLetterBox = () => {
@@ -56,7 +62,7 @@ const NewsLetterBox = () => {
               setIsSubscribed(true);
               localStorage.setItem('newsletter_subscribed_email', userEmail);
             }
-          } catch (_) {}
+          } catch (_) { }
         }
       } catch (error) {
         console.error('Error checking subscription status:', error);
@@ -210,7 +216,7 @@ const NewsLetterBox = () => {
               <div className="mx-auto mb-4 h-px max-w-xs"
                 style={{ background: 'linear-gradient(90deg, transparent, rgba(34,197,94,0.3), transparent)' }} />
 
-              <p className="text-slate-500 text-sm leading-relaxed mb-7">
+              <p className="text-slate-400 text-sm leading-relaxed mb-7">
                 You're already part of the{' '}
                 <span className="text-green-400 font-semibold">Ink Dapper</span>{' '}
                 community. Keep an eye on your inbox for exclusive deals and style updates.
@@ -231,7 +237,7 @@ const NewsLetterBox = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={b.icon} />
                       </svg>
                     </div>
-                    <span className="text-[10px] text-slate-500 font-medium text-center leading-tight">{b.label}</span>
+                    <span className="text-[10px] text-slate-400 font-medium text-center leading-tight">{b.label}</span>
                   </div>
                 ))}
               </div>
@@ -243,7 +249,7 @@ const NewsLetterBox = () => {
               {/* Trust row */}
               <div className="flex flex-wrap justify-center items-center gap-4">
                 {TRUST.map((t, i) => (
-                  <div key={i} className="flex items-center gap-1.5 text-slate-600 text-xs">
+                  <div key={i} className="flex items-center gap-1.5 text-slate-400 text-xs">
                     {t.icon}
                     {t.label}
                   </div>
@@ -320,7 +326,7 @@ const NewsLetterBox = () => {
                     style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.18)' }}>
                     {perk.icon}
                   </div>
-                  <span className="text-slate-400 text-sm">{perk.text}</span>
+                  <span className="text-slate-700 text-sm">{perk.text}</span>
                 </li>
               ))}
             </ul>
@@ -419,7 +425,7 @@ const NewsLetterBox = () => {
               {/* Trust indicators */}
               <div className="flex flex-wrap gap-4 justify-center">
                 {TRUST.map((t, i) => (
-                  <div key={i} className="flex items-center gap-1.5 text-slate-600 text-xs">
+                  <div key={i} className="flex items-center gap-1.5 text-slate-400 text-xs">
                     {t.icon}
                     {t.label}
                   </div>

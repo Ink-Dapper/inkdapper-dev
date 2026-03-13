@@ -8,7 +8,8 @@
       "Bash(xargs grep -l \"upload\\\\|Upload\")",
       "Bash(xargs grep -l \"product\\\\|upload\")",
       "Bash(xargs grep -l \"image\\\\|file\\\\|upload\")",
-      "Bash(xargs cat)"
+      "Bash(xargs cat)",
+      "Bash(grep -rn \"Loading\\\\|loader\\\\|Loader\\\\|loading\" 'd:/T-shirt branding/Latest-Updated-Dev/inkdapper-dev/frontend/src' --include=*.jsx --include=*.js -l)"
     ]
   }
 }

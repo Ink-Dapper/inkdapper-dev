@@ -376,7 +376,7 @@ const Login = () => {
               {currentState === 'Verify Email' && (
                 <div className="space-y-3">
                   <InputField icon={FaEnvelope} placeholder="Verification Token" value={verificationToken} onChange={(e) => setVerificationToken(e.target.value)} />
-                  <p className="text-slate-400 text-xs font-medium px-3 py-2.5"
+                  <p className="text-slate-700 text-xs font-medium px-3 py-2.5"
                     style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(251,146,60,0.2)', clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)' }}>
                     Check your email for the verification token.
                   </p>

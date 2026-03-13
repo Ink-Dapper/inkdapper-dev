@@ -59,14 +59,14 @@ const Slider = ({ onColorChange }) => {
     if (imageUrl) {
       const url = imageUrl.toLowerCase();
       const filename = url.split('/').pop();
-      for (const key of ['black','white','red','green','teal','lavender','beige','redwood','coffee','brown','navy','blue']) {
+      for (const key of ['black', 'white', 'red', 'green', 'teal', 'lavender', 'beige', 'redwood', 'coffee', 'brown', 'navy', 'blue']) {
         if (url.includes(key) || filename.includes(key))
           return key === 'navy' ? 'navy-blue' : key;
       }
     }
     try {
       if (imageUrl) return await detectDominantColor(imageUrl);
-    } catch (_) {}
+    } catch (_) { }
     return getColorByIndex(imageIndex);
   };
 
@@ -205,7 +205,8 @@ const Slider = ({ onColorChange }) => {
   }
 
   const total = sliderImagesList.length;
-  const colorLabel = COLOR_LABELS[currentColorName] || currentColorName;
+  const currentSlide = sliderImagesList[currentIndex];
+  const colorLabel = currentSlide?.colorLabel || COLOR_LABELS[currentColorName] || currentColorName;
 
   return (
     <div
@@ -358,7 +359,7 @@ const Slider = ({ onColorChange }) => {
 
           {/* Color label — Bebas Neue */}
           <span
-            className="text-xs text-slate-400 capitalize truncate flex-1 text-center tracking-widest uppercase"
+            className="text-xs text-slate-700 capitalize truncate flex-1 text-center tracking-widest uppercase"
             style={{ fontFamily: "'Bebas Neue', 'Outfit', sans-serif", letterSpacing: '0.14em' }}
           >
             {colorLabel}

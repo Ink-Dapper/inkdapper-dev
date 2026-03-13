@@ -17,6 +17,7 @@ import {
 
 const BannerImages = ({ token }) => {
   const [imageBanner, setImageBanner] = useState(null);
+  const [colorLabel, setColorLabel] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -86,6 +87,7 @@ const BannerImages = ({ token }) => {
     try {
       const formData = new FormData();
       formData.append("imageBanner", imageBanner);
+      formData.append("colorLabel", colorLabel);
 
       const response = await axios.post(backendUrl + "/api/product/add-banner", formData, {
         headers: { token }
@@ -93,6 +95,7 @@ const BannerImages = ({ token }) => {
 
       if (response.data.success) {
         toast.success(response.data.message);
+        setColorLabel('');
         clearImage();
       } else {
         toast.error(response.data.message);
@@ -211,6 +214,24 @@ const BannerImages = ({ token }) => {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Color Label */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Slider Color Label
+            </label>
+            <p className="text-xs text-gray-500 mb-2">
+              This label appears in the slider control bar below the banner (e.g. "Classic Black", "Ocean Blue"). Leave blank to auto-detect from the image.
+            </p>
+            <input
+              type="text"
+              value={colorLabel}
+              onChange={(e) => setColorLabel(e.target.value)}
+              placeholder="e.g. Classic Black, Ocean Blue, Bold Red..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              maxLength={40}
+            />
           </div>
 
           {/* Image Requirements */}

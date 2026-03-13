@@ -20,7 +20,7 @@ const CreditPoints = () => {
           </svg>
         </div>
         <div className='text-right'>
-          <p className='text-slate-700 text-sm font-semibold'>Credit Score</p>
+          <p className='text-slate-300 text-sm font-semibold'>Credit Score</p>
           <p className='text-slate-500 text-xs mt-1'>Available balance</p>
         </div>
       </div>
@@ -29,7 +29,7 @@ const CreditPoints = () => {
           {creditPoints}
           <span className='text-3xl md:text-4xl ml-2'>{currency}</span>
         </div>
-        <p className='text-slate-700 text-sm font-medium'>Available for your next purchase</p>
+        <p className='text-slate-400 text-sm font-medium'>Available for your next purchase</p>
       </div>
     </div>
   )

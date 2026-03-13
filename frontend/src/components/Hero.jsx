@@ -7,18 +7,18 @@ const Hero = () => {
     const [hasError, setHasError] = useState(false);
 
     const colorMap = {
-        black:      { primary: "linear-gradient(to right, #1f2937, #374151, #4b5563)", secondary: "linear-gradient(to right, #4b5563, #6b7280, #9ca3af)" },
-        white:      { primary: "linear-gradient(to right, #4b5563, #6b7280, #9ca3af)", secondary: "linear-gradient(to right, #6b7280, #9ca3af, #d1d5db)" },
-        red:        { primary: "linear-gradient(to right, #dc2626, #ef4444, #ec4899)", secondary: "linear-gradient(to right, #ef4444, #ec4899, #f43f5e)" },
-        green:      { primary: "linear-gradient(to right, #16a34a, #10b981, #14b8a6)", secondary: "linear-gradient(to right, #22c55e, #10b981, #14b8a6)" },
-        blue:       { primary: "linear-gradient(to right, #2563eb, #6366f1, #8b5cf6)", secondary: "linear-gradient(to right, #3b82f6, #6366f1, #8b5cf6)" },
-        "navy-blue":{ primary: "linear-gradient(to right, #1e40af, #4338ca, #7c3aed)", secondary: "linear-gradient(to right, #2563eb, #4338ca, #7c3aed)" },
-        brown:      { primary: "linear-gradient(to right, #b45309, #ea580c, #dc2626)", secondary: "linear-gradient(to right, #d97706, #f97316, #ef4444)" },
-        coffee:     { primary: "linear-gradient(to right, #92400e, #c2410c, #b91c1c)", secondary: "linear-gradient(to right, #b45309, #ea580c, #dc2626)" },
-        beige:      { primary: "linear-gradient(to right, #d97706, #eab308, #f97316)", secondary: "linear-gradient(to right, #f59e0b, #facc15, #fb923c)" },
-        lavender:   { primary: "linear-gradient(to right, #8b5cf6, #7c3aed, #6366f1)", secondary: "linear-gradient(to right, #a855f7, #8b5cf6, #6366f1)" },
-        redwood:    { primary: "linear-gradient(to right, #b91c1c, #e11d48, #ec4899)", secondary: "linear-gradient(to right, #dc2626, #f43f5e, #ec4899)" },
-        teal:       { primary: "linear-gradient(to right, #0d9488, #10b981, #06b6d4)", secondary: "linear-gradient(to right, #14b8a6, #10b981, #06b6d4)" },
+        black: { primary: "linear-gradient(to right, #1f2937, #374151, #4b5563)", secondary: "linear-gradient(to right, #4b5563, #6b7280, #9ca3af)" },
+        white: { primary: "linear-gradient(to right, #4b5563, #6b7280, #9ca3af)", secondary: "linear-gradient(to right, #6b7280, #9ca3af, #d1d5db)" },
+        red: { primary: "linear-gradient(to right, #dc2626, #ef4444, #ec4899)", secondary: "linear-gradient(to right, #ef4444, #ec4899, #f43f5e)" },
+        green: { primary: "linear-gradient(to right, #16a34a, #10b981, #14b8a6)", secondary: "linear-gradient(to right, #22c55e, #10b981, #14b8a6)" },
+        blue: { primary: "linear-gradient(to right, #2563eb, #6366f1, #8b5cf6)", secondary: "linear-gradient(to right, #3b82f6, #6366f1, #8b5cf6)" },
+        "navy-blue": { primary: "linear-gradient(to right, #1e40af, #4338ca, #7c3aed)", secondary: "linear-gradient(to right, #2563eb, #4338ca, #7c3aed)" },
+        brown: { primary: "linear-gradient(to right, #b45309, #ea580c, #dc2626)", secondary: "linear-gradient(to right, #d97706, #f97316, #ef4444)" },
+        coffee: { primary: "linear-gradient(to right, #92400e, #c2410c, #b91c1c)", secondary: "linear-gradient(to right, #b45309, #ea580c, #dc2626)" },
+        beige: { primary: "linear-gradient(to right, #d97706, #eab308, #f97316)", secondary: "linear-gradient(to right, #f59e0b, #facc15, #fb923c)" },
+        lavender: { primary: "linear-gradient(to right, #8b5cf6, #7c3aed, #6366f1)", secondary: "linear-gradient(to right, #a855f7, #8b5cf6, #6366f1)" },
+        redwood: { primary: "linear-gradient(to right, #b91c1c, #e11d48, #ec4899)", secondary: "linear-gradient(to right, #dc2626, #f43f5e, #ec4899)" },
+        teal: { primary: "linear-gradient(to right, #0d9488, #10b981, #06b6d4)", secondary: "linear-gradient(to right, #14b8a6, #10b981, #06b6d4)" },
     };
 
     const colors = colorMap[currentColor] || colorMap.teal;
@@ -200,8 +200,8 @@ const Hero = () => {
                         <div className="flex items-center gap-5 sm:gap-7 pt-1">
                             {[
                                 { value: '10K+', label: 'Customers' },
-                                { value: '50+',  label: 'Designs'   },
-                                { value: '4.9★', label: 'Rating'    },
+                                { value: '50+', label: 'Designs' },
+                                { value: '4.9★', label: 'Rating' },
                             ].map((stat, i) => (
                                 <React.Fragment key={stat.label}>
                                     <div className="text-center">
@@ -223,7 +223,7 @@ const Hero = () => {
                             {['Free Shipping', '7-Day Returns', 'Premium Cotton', 'COD Available'].map((label) => (
                                 <span
                                     key={label}
-                                    className="inline-flex items-center gap-1.5 bg-white/4 border border-white/10 px-3 py-1 rounded-full text-[11px] font-medium text-slate-400"
+                                    className="inline-flex items-center gap-1.5 bg-white/4 border border-white/10 px-3 py-1 rounded-full text-[11px] font-medium text-slate-700"
                                 >
                                     <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
                                     {label}

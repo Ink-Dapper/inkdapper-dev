@@ -109,8 +109,7 @@ const addBanner = async (req, res) => {
       'banners'
     );
 
-    const bannerData = { imageBanner: [imageUrl] };
-    console.log(bannerData);
+    const bannerData = { imageBanner: [imageUrl], colorLabel: req.body.colorLabel || '' };
 
     const banner = new AddBannerModel(bannerData);
     await banner.save();
@@ -144,6 +143,10 @@ const updateBanner = async (req, res) => {
         'banners'
       );
       banner.imageBanner = [imageUrl];
+    }
+
+    if (req.body.colorLabel !== undefined) {
+      banner.colorLabel = req.body.colorLabel;
     }
 
     await banner.save();

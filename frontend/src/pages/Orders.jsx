@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import apiInstance from '../utils/axios';
 import { assets } from '../assets/assets';
-import OrderProgress from '../components/OrderProgress';
 import OrderStatus from '../components/OrderStatus';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -313,18 +312,18 @@ const Orders = () => {
                 <div className='animate-spin rounded-full h-16 w-16 border-b-2 border-orange-400'></div>
               </div>
               <h3 className='text-2xl font-bold text-slate-100 mb-3'>Loading Orders...</h3>
-              <p className='text-slate-400 text-lg'>Please wait while we fetch your order details</p>
+              <p className='text-slate-700 text-lg'>Please wait while we fetch your order details</p>
             </div>
           ) : orderData.length === 0 ? (
             <div className='text-center py-16'>
               <div className='w-32 h-32 mx-auto mb-6 rounded-full flex items-center justify-center border shadow-lg'
                 style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(249,115,22,0.2)' }}>
-                <svg className='w-16 h-16 text-slate-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <svg className='w-16 h-16 text-slate-700' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
                 </svg>
               </div>
               <h3 className='text-2xl font-bold text-slate-100 mb-3'>No Orders Yet</h3>
-              <p className='text-slate-400 text-lg'>Start your shopping journey to see your orders here</p>
+              <p className='text-slate-700 text-lg'>Start your shopping journey to see your orders here</p>
               <div className='mt-6'>
                 <div className='inline-flex items-center gap-2 text-orange-300 hover:text-orange-200 transition-colors cursor-pointer'>
                   <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -386,19 +385,19 @@ const Orders = () => {
                                 <h3 className='text-xl font-bold text-slate-100 mb-4 group-hover:text-orange-300 transition-colors line-clamp-2'>{item.name}</h3>
                                 <div className='flex flex-col sm:flex-row sm:items-center gap-4 text-sm'>
                                   <div className='flex items-center gap-2'>
-                                    <span className='text-slate-400 font-medium'>Price:</span>
+                                    <span className='text-slate-300 font-medium'>Price:</span>
                                     <span className='text-2xl font-bold text-orange-300'>{currency} {item.price}</span>
                                   </div>
                                   <div className='flex items-center gap-2'>
-                                    <span className='text-slate-400 font-medium'>Size:</span>
+                                    <span className='text-slate-300 font-medium'>Size:</span>
                                     <span className='px-3 py-1 rounded-lg font-medium border text-slate-200' style={{ background: 'rgba(15,23,42,0.5)', borderColor: 'rgba(148,163,184,0.22)' }}>{item.size}</span>
                                   </div>
                                 </div>
                               </div>
 
                               {/* Order Info Row */}
-                              <div className='rounded-lg p-3 md:p-4 border' 
-                              style={{ background: 'rgba(15,23,42,0.25)', borderColor: 'transparent' }}>
+                              <div className='rounded-lg p-3 md:p-4 border'
+                                style={{ background: 'rgba(15,23,42,0.25)', borderColor: 'transparent' }}>
                                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                                   {/* Order Date */}
                                   <div className='flex items-center gap-3'>
@@ -408,7 +407,7 @@ const Orders = () => {
                                       </svg>
                                     </div>
                                     <div className='flex-1 min-w-0'>
-                                      <span className='text-xs font-medium text-slate-400 block mb-1'>Order Date</span>
+                                      <span className='text-xs font-medium text-slate-500 block mb-1'>Order Date</span>
                                       <p className='text-sm font-semibold text-slate-100'>{new Date(item.date).toLocaleDateString('en-US', {
                                         year: 'numeric',
                                         month: 'short',
@@ -426,7 +425,7 @@ const Orders = () => {
                                         </svg>
                                       </div>
                                       <div className='flex-1 min-w-0'>
-                                        <span className='text-xs font-medium text-slate-400 block mb-1'>Expected Delivery</span>
+                                        <span className='text-xs font-medium text-slate-500 block mb-1'>Expected Delivery</span>
                                         <p className='text-sm font-semibold text-slate-100'>{new Date(item.expectedDeliveryDate).toLocaleDateString('en-US', {
                                           year: 'numeric',
                                           month: 'short',
@@ -444,7 +443,7 @@ const Orders = () => {
                                       </svg>
                                     </div>
                                     <div className='flex-1 min-w-0'>
-                                      <span className='text-xs font-medium text-slate-400 block mb-1'>Payment</span>
+                                      <span className='text-xs font-medium text-slate-500 block mb-1'>Payment</span>
                                       <p className='text-sm font-semibold text-slate-100'>{item.paymentMethod}</p>
                                     </div>
                                   </div>
@@ -460,7 +459,7 @@ const Orders = () => {
                                         </svg>
                                       </div>
                                       <div className='flex-1 min-w-0'>
-                                        <span className='text-xs font-medium text-slate-400 block mb-1'>Return By</span>
+                                        <span className='text-xs font-medium text-slate-500 block mb-1'>Return By</span>
                                         <p className='text-sm font-semibold text-slate-100'>{new Date(item.returnDate).toLocaleDateString('en-US', {
                                           year: 'numeric',
                                           month: 'short',
@@ -486,62 +485,48 @@ const Orders = () => {
                                     </div>
                                   </div>
 
-                                  {item.returnOrderStatus === 'Order Returned' || item.returnOrderStatus === "Return Confirmed" || item.returnOrderStatus === "Order Cancelled" || item.returnOrderStatus === "Cancel Confirmed" ? (
-                                    <div className={`${selectedOrderId === item.orderId ? orderStatusLoading[item.orderId] : 'block'}`}>
-                                      <div className='space-y-4'>
-                                        <div className='h-2 rounded-full overflow-hidden' style={{ background: 'rgba(148,163,184,0.25)' }}>
-                                          <div className='h-full bg-gradient-to-r from-slate-400 to-slate-500 rounded-full transition-all duration-500'></div>
-                                        </div>
-                                        <div className='flex justify-between items-center mt-3'>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.shopping_icon} alt="" className='w-3 h-3' />
+                                  {(() => {
+                                    const isCancelledOrReturned = item.returnOrderStatus === 'Order Returned' || item.returnOrderStatus === 'Return Confirmed' || item.returnOrderStatus === 'Order Cancelled' || item.returnOrderStatus === 'Cancel Confirmed';
+                                    const statusSteps = ['order placed', 'packing', 'shipped', 'out for delivery', 'delivered'];
+                                    const stepIdx = statusSteps.indexOf((item.status || '').toLowerCase());
+                                    // step is active if not cancelled and the order has reached that step
+                                    const isActive = (threshold) => !isCancelledOrReturned && stepIdx >= threshold;
+                                    const activeStyle = { background: 'linear-gradient(135deg, rgba(249,115,22,0.95), rgba(245,158,11,0.9))', boxShadow: '0 0 8px rgba(249,115,22,0.55)' };
+                                    const inactiveStyle = { background: 'rgba(148,163,184,0.2)', border: '1px solid rgba(148,163,184,0.15)' };
+                                    // stepIdx maps: 0=Order placed, 1=Packing, 2=Shipped, 3=Out for delivery, 4=Delivered
+                                    // barWidth: each step = 25% of the inner track (padded px-3.5 to align with icon centers)
+                                    const barWidth = isCancelledOrReturned ? '100%' : (stepIdx <= 0 ? '0%' : stepIdx === 1 ? '26.5%' : stepIdx === 2 ? '49%' : stepIdx === 3 ? '74%' : stepIdx >= 4 ? '100%' : '0%');
+                                    const barClass = isCancelledOrReturned ? 'h-full bg-gradient-to-r from-slate-500 to-slate-600 rounded-full transition-all duration-700' : 'h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-700';
+                                    return (
+                                      <div className={`${selectedOrderId === item.orderId ? orderStatusLoading[item.orderId] : 'block'}`}>
+                                        <div className='space-y-3'>
+                                          {/* px-3.5 = half of w-7 icon width, so bar aligns with icon centers */}
+                                          <div className='px-3.5'>
+                                            <div className='h-2 rounded-full overflow-hidden' style={{ background: 'rgba(148,163,184,0.2)' }}>
+                                              <div className={barClass} style={{ width: barWidth }}></div>
+                                            </div>
                                           </div>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.order_placed} alt="Order placed icon" className='w-3 h-3' />
-                                          </div>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.packing_icon} alt="Packing icon" className='w-3 h-3' />
-                                          </div>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.shipped_icon} alt="Shipped icon" className='w-3 h-3' />
-                                          </div>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.delivered_icon} alt="Delivered icon" className='w-3 h-3' />
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <OrderProgress item={item} />
-                                    </div>
-                                  ) : (
-                                    <div className={`${selectedOrderId === item.orderId ? orderStatusLoading[item.orderId] : 'block'}`}>
-                                      <div className='space-y-4'>
-                                        <div className='h-2 rounded-full overflow-hidden' style={{ background: 'rgba(148,163,184,0.25)' }}>
-                                          <div
-                                            className='h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-500'
-                                            style={{ width: `${item.status === 'Packing' ? '25%' : item.status === 'Shipped' ? '50%' : item.status === 'Out for delivery' ? '75%' : item.status === 'Delivered' ? '100%' : '0%'}` }}
-                                          ></div>
-                                        </div>
-                                        <div className='flex justify-between items-center mt-3'>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.shopping_icon} alt="" className='w-3 h-3' />
-                                          </div>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.order_placed} alt="Order placed icon" className='w-3 h-3' />
-                                          </div>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.packing_icon} alt="Packing icon" className='w-3 h-3' />
-                                          </div>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.shipped_icon} alt="Shipped icon" className='w-3 h-3' />
-                                          </div>
-                                          <div className='w-6 h-6 rounded-full flex items-center justify-center' style={{ background: 'rgba(148,163,184,0.3)' }}>
-                                            <img src={assets.delivered_icon} alt="Delivered icon" className='w-3 h-3' />
+                                          <div className='flex justify-between items-center'>
+                                            {[
+                                              { src: assets.shopping_icon, alt: 'Order placed', step: 0 },
+                                              { src: assets.order_placed, alt: 'Packing', step: 1 },
+                                              { src: assets.packing_icon, alt: 'Shipped', step: 2 },
+                                              { src: assets.shipped_icon, alt: 'Out for delivery', step: 3 },
+                                              { src: assets.delivered_icon, alt: 'Delivered', step: 4 },
+                                            ].map(({ src, alt, step }) => (
+                                              <div key={step} className='flex flex-col items-center gap-1'>
+                                                <div className='w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300'
+                                                  style={isActive(step) ? activeStyle : inactiveStyle}>
+                                                  <img src={src} alt={alt} className='w-3.5 h-3.5' style={{ opacity: isActive(step) ? 1 : 0.4 }} />
+                                                </div>
+                                                <span className='text-[9px] font-medium hidden sm:block' style={{ color: isActive(step) ? '#fb923c' : '#475569' }}>{alt}</span>
+                                              </div>
+                                            ))}
                                           </div>
                                         </div>
                                       </div>
-                                      <OrderProgress item={item} />
-                                    </div>
-                                  )}
+                                    );
+                                  })()}
                                 </div>
                               </div>
                             </div>
@@ -738,19 +723,19 @@ const Orders = () => {
             <div className='p-6 overflow-y-auto'>
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 text-sm'>
                 <div className='rounded-lg p-3' style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(148,163,184,0.2)' }}>
-                  <p className='text-slate-400 text-xs'>Order ID</p>
+                  <p className='text-slate-700 text-xs'>Order ID</p>
                   <p className='text-slate-100 font-semibold'>#{billData.orderId.slice(-8)}</p>
                 </div>
                 <div className='rounded-lg p-3' style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(148,163,184,0.2)' }}>
-                  <p className='text-slate-400 text-xs'>Order Date</p>
+                  <p className='text-slate-700 text-xs'>Order Date</p>
                   <p className='text-slate-100 font-semibold'>{new Date(billData.date).toLocaleString()}</p>
                 </div>
                 <div className='rounded-lg p-3' style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(148,163,184,0.2)' }}>
-                  <p className='text-slate-400 text-xs'>Payment Method</p>
+                  <p className='text-slate-700 text-xs'>Payment Method</p>
                   <p className='text-slate-100 font-semibold'>{billData.paymentMethod}</p>
                 </div>
                 <div className='rounded-lg p-3' style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(148,163,184,0.2)' }}>
-                  <p className='text-slate-400 text-xs'>Status</p>
+                  <p className='text-slate-700 text-xs'>Status</p>
                   <p className='text-slate-100 font-semibold'>{billData.status}</p>
                 </div>
               </div>
@@ -765,7 +750,7 @@ const Orders = () => {
                     <div key={`${item._id}-${item.size}-${idx}`} className='px-4 py-3 flex items-center justify-between gap-3'>
                       <div>
                         <p className='text-slate-100 font-medium'>{item.name}</p>
-                        <p className='text-slate-400 text-xs'>Size: {item.size} | Qty: {item.quantity}</p>
+                        <p className='text-slate-700 text-xs'>Size: {item.size} | Qty: {item.quantity}</p>
                       </div>
                       <p className='text-orange-300 font-semibold'>{currency} {(Number(item.price) || 0) * (Number(item.quantity) || 0)}</p>
                     </div>

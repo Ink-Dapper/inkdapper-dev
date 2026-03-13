@@ -60,9 +60,9 @@ const SearchBar = () => {
                                     onChange={(e) => setSearch(e.target.value)}
                                     onFocus={() => setIsFocused(true)}
                                     onBlur={() => setIsFocused(false)}
-                                    className={`relative z-10 w-full pl-14 pr-14 py-3.5 text-base bg-transparent border-none outline-none transition-all duration-300 placeholder:text-slate-400 font-medium text-slate-800 ${isFocused
+                                    className={`relative z-10 w-full pl-14 pr-14 py-3.5 text-base bg-transparent border-none outline-none transition-all duration-300 placeholder:text-slate-700 font-medium text-slate-800 ${isFocused
                                         ? 'placeholder:text-orange-300'
-                                        : 'placeholder:text-slate-400'
+                                        : 'placeholder:text-slate-700'
                                         }`}
                                     type="text"
                                     placeholder='Find your perfect t-shirt...'

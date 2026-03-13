@@ -30,8 +30,11 @@ const ProfileListItems = () => {
       }
       const response = await axios.post(backendUrl + '/api/order/user-details', {}, { headers: { token } })
       if (response.data.success) {
-        setOrderData(response.data.orders.reverse().slice(0, 6))
-        setOrderDataOne(shuffleArray(response.data.orders).slice(0, 5))
+        const validOrders = response.data.orders.filter(
+          o => o.items && o.items.length > 0 && o.items[0].image && o.items[0].image.length > 0
+        )
+        setOrderData([...validOrders].reverse().slice(0, 6))
+        setOrderDataOne(shuffleArray([...validOrders]).slice(0, 5))
       }
 
     } catch (error) {
@@ -76,7 +79,7 @@ const ProfileListItems = () => {
                     }`}>
                   <div className='relative w-full h-full'>
                     <img
-                      src={item.items[0].image[0]}
+                      src={item.items?.[0]?.image?.[0]}
                       alt=""
                       className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
                     />
@@ -126,7 +129,7 @@ const ProfileListItems = () => {
                   className='group relative overflow-hidden rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl block h-80'>
                   <div className='relative w-full h-full'>
                     <img
-                      src={item.items[0].image[0]}
+                      src={item.items?.[0]?.image?.[0]}
                       alt=""
                       className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
                     />
@@ -163,7 +166,7 @@ const ProfileListItems = () => {
           <div className='flex gap-6 pb-4 min-w-max'>
             {
               orderDataOne.map((item, index) => (
-                <Link key={index} to={`/product/${item.items[0].slug}`}
+                <Link key={index} to={`/product/${item.items?.[0]?.slug}`}
                   className={`group relative overflow-hidden rounded-3xl transition-all duration-500 hover:-translate-y-0 hover:shadow-xl ${index === 2 ? 'w-64 h-80 md:w-80 md:h-96' :
                     index === 1 ? 'w-56 h-72 md:w-72 md:h-88' :
                       index === 0 ? 'w-52 h-68 md:w-64 md:h-80' :
@@ -172,7 +175,7 @@ const ProfileListItems = () => {
                     }`} onClick={scrollToTop()}>
                   <div className='relative w-full h-full'>
                     <img
-                      src={item.items[0].image[0]}
+                      src={item.items?.[0]?.image?.[0]}
                       alt=""
                       className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
                     />
@@ -218,12 +221,12 @@ const ProfileListItems = () => {
           >
             {orderDataOne.map((item, index) => (
               <SwiperSlide key={index}>
-                <Link to={`/product/${item.items[0].slug}`}
+                <Link to={`/product/${item.items?.[0]?.slug}`}
                   className='group relative overflow-hidden rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl block h-80'
                   onClick={scrollToTop()}>
                   <div className='relative w-full h-full'>
                     <img
-                      src={item.items[0].image[0]}
+                      src={item.items?.[0]?.image?.[0]}
                       alt=""
                       className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
                     />

@@ -311,7 +311,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
               <div className="flex items-center justify-between">
                 <div className="flex flex-row items-center gap-2">
                   {beforePrice && (
-                    <p className='text-sm text-slate-400 font-semibold line-through original-price'>
+                    <p className='text-sm text-slate-700 font-semibold line-through original-price'>
                       {currency} {beforePrice}
                     </p>
                   )}
