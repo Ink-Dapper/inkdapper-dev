@@ -43,13 +43,6 @@ const App = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
 
-  // Scroll to top on every route change (fixes mobile scroll position)
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  }, [location.pathname]);
-
   // Initialize global error handling
   useEffect(() => {
     setupGlobalErrorHandling();
@@ -68,7 +61,7 @@ const App = () => {
       </div>
 
       {/* Main Content */}
-      <div className={`relative z-10 px-0 ${isLoginPage ? 'pt-0 pb-0' : 'pt-20 pb-5'} md:pt-0 md:pb-0`}>
+      <div className="relative z-10 px-0 pt-20 md:pt-0 pb-5 md:pb-0 ">
         <ToastContainer />
         <PerformanceTracker />
         <Navbar />
@@ -102,7 +95,7 @@ const App = () => {
           {!isLoginPage && <Footer />}
           <ScrollToTop />
           <Suspense fallback={null}>
-            {!isLoginPage && <Chatbot />}
+            <Chatbot />
             <NewsletterModal />
             <PriceOfferModal />
           </Suspense>

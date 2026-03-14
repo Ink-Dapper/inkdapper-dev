@@ -373,67 +373,21 @@ const Chatbot = () => {
         <div className="fixed bottom-16 left-2 md:bottom-16 md:right-5 md:left-auto z-50">
           <button
             onClick={toggleChat}
-            className="w-12 h-12 md:w-16 md:h-16 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 relative group overflow-visible"
-            style={{ background: 'linear-gradient(135deg, #ff6b35 0%, #f97316 50%, #ea580c 100%)' }}
+            className="w-10 h-10 md:w-14 md:h-14 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 relative group"
           >
-            {/* Outer glow ring */}
-            <div className="absolute inset-0 rounded-full opacity-40" style={{ animation: 'robot-ring 2.5s ease-in-out infinite', background: 'radial-gradient(circle, #fb923c 0%, transparent 70%)', transform: 'scale(1.3)' }} />
-            {/* Robot SVG */}
-            <div className="relative z-10 flex items-center justify-center w-full h-full" style={{ animation: 'robot-float 3s ease-in-out infinite' }}>
-              <svg viewBox="0 0 40 40" className="w-7 h-7 md:w-9 md:h-9" fill="none">
-                {/* Antenna */}
-                <line x1="20" y1="5.5" x2="20" y2="11" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-                <circle cx="20" cy="4" r="2.4" fill="white" style={{ animation: 'robot-antenna 1.8s ease-in-out infinite' }}/>
-                {/* Head body */}
-                <rect x="9" y="11" width="22" height="17" rx="5" fill="white" opacity="0.97"/>
-                {/* Ear left */}
-                <rect x="5.5" y="15" width="3.5" height="8" rx="1.8" fill="white" opacity="0.75"/>
-                {/* Ear right */}
-                <rect x="31" y="15" width="3.5" height="8" rx="1.8" fill="white" opacity="0.75"/>
-                {/* Eye left */}
-                <circle cx="15" cy="18.5" r="3" fill="#f97316" style={{ animation: 'robot-blink 3s ease-in-out infinite' }}/>
-                {/* Eye right */}
-                <circle cx="25" cy="18.5" r="3" fill="#f97316" style={{ animation: 'robot-blink 3s ease-in-out infinite 0.4s' }}/>
-                {/* Eye shine left */}
-                <circle cx="16.1" cy="17.3" r="1" fill="white" opacity="0.8"/>
-                {/* Eye shine right */}
-                <circle cx="26.1" cy="17.3" r="1" fill="white" opacity="0.8"/>
-                {/* Smile */}
-                <path d="M14.5 24 Q20 27.5 25.5 24" stroke="#f97316" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-                {/* Chin dots */}
-                <circle cx="17" cy="26.5" r="0.7" fill="#fdba74" opacity="0.6"/>
-                <circle cx="23" cy="26.5" r="0.7" fill="#fdba74" opacity="0.6"/>
-              </svg>
+            {/* Animated Bot Icon */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 animate-pulse opacity-20"></div>
+            <div className="relative z-10 flex items-center justify-center">
+              <svg className="w-6 h-6 text-white animate-bounce group-hover:animate-none" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
             </div>
-            {/* Online indicator */}
-            <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-green-400 rounded-full border-2 border-white" style={{ animation: 'robot-online 2s ease-in-out infinite' }}/>
-            <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-ping opacity-60"/>
+            {/* Pulsing notification ring */}
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-ping"></div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
           </button>
         </div>
       )}
-
-      <style>{`
-        @keyframes robot-float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-4px); }
-        }
-        @keyframes robot-antenna {
-          0%, 100% { opacity: 1; r: 2.4; }
-          50% { opacity: 0.35; r: 1.5; }
-        }
-        @keyframes robot-blink {
-          0%, 90%, 100% { transform: scaleY(1); }
-          95% { transform: scaleY(0.1); }
-        }
-        @keyframes robot-ring {
-          0%, 100% { opacity: 0.3; transform: scale(1.25); }
-          50% { opacity: 0.55; transform: scale(1.45); }
-        }
-        @keyframes robot-online {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
-          50% { box-shadow: 0 0 0 4px rgba(74,222,128,0); }
-        }
-      `}</style>
 
       {/* Chat Window */}
       {isOpen && (
@@ -442,24 +396,16 @@ const Chatbot = () => {
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 md:p-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 md:space-x-3">
-                <div className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center flex-shrink-0 relative" style={{ background: 'linear-gradient(135deg, #ff6b35, #ea580c)' }}>
-                  {/* Robot Avatar in header */}
-                  <div style={{ animation: 'robot-float 3s ease-in-out infinite' }}>
-                    <svg viewBox="0 0 40 40" className="w-6 h-6 md:w-7 md:h-7" fill="none">
-                      <line x1="20" y1="5.5" x2="20" y2="11" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-                      <circle cx="20" cy="4" r="2.4" fill="white" style={{ animation: 'robot-antenna 1.8s ease-in-out infinite' }}/>
-                      <rect x="9" y="11" width="22" height="17" rx="5" fill="white" opacity="0.97"/>
-                      <rect x="5.5" y="15" width="3.5" height="8" rx="1.8" fill="white" opacity="0.75"/>
-                      <rect x="31" y="15" width="3.5" height="8" rx="1.8" fill="white" opacity="0.75"/>
-                      <circle cx="15" cy="18.5" r="3" fill="#f97316" style={{ animation: 'robot-blink 3s ease-in-out infinite' }}/>
-                      <circle cx="25" cy="18.5" r="3" fill="#f97316" style={{ animation: 'robot-blink 3s ease-in-out infinite 0.4s' }}/>
-                      <circle cx="16.1" cy="17.3" r="1" fill="white" opacity="0.8"/>
-                      <circle cx="26.1" cy="17.3" r="1" fill="white" opacity="0.8"/>
-                      <path d="M14.5 24 Q20 27.5 25.5 24" stroke="#f97316" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-                    </svg>
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                  {/* Animated Bot Avatar */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 animate-pulse"></div>
+                  <div className="relative z-10 flex items-center justify-center">
+                    <svg className="w-5 h-5 md:w-6 md:h-6 text-white animate-bounce" style={{ animationDuration: '2s' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
                   </div>
-                  {/* Online dot */}
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-orange-600"/>
+                  {/* Pulsing ring animation */}
+                  <div className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping"></div>
                 </div>
                 <div className="min-w-0 flex-1 overflow-hidden">
                   <h3 className="font-semibold text-sm truncate">iD Bot</h3>

@@ -32,7 +32,7 @@ const SIZES = ["S", "M", "L", "XL", "XXL"];
 // ── Section card wrapper ─────────────────────────────────────────────
 const Panel = ({ children, className = "" }) => (
   <div
-    className={`rounded-2xl overflow-hidden my-3 ${className}`}
+    className={`rounded-2xl overflow-hidden ${className}`}
     style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(249,115,22,0.13)" }}
   >
     {children}
@@ -195,7 +195,6 @@ const AIDesigner = () => {
   // Upload mode
   const [designMode, setDesignMode] = useState("ai");
   const [uploadedImage, setUploadedImage] = useState(null);
-  const [mobileStep, setMobileStep] = useState(0); // 0 = Design, 1 = Customize
 
   const navigate = useNavigate();
   const selectedShirt = teesCollection.find((t) => t._id === selectedShirtId) || teesCollection[0];
@@ -553,180 +552,10 @@ const AIDesigner = () => {
       </div>
 
       {/* ══ MAIN LAYOUT ══════════════════════════════════════════════ */}
-      <div className="relative z-10 flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 md:px-6 pb-14 md:pb-16 flex flex-col md:grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-4 sm:gap-5 items-start">
+      <div className="relative z-10 flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 md:px-6 pb-12 md:pb-16 flex flex-col-reverse md:grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-4 sm:gap-5 items-start">
 
         {/* ═══ LEFT — CONTROLS ════════════════════════════════════════ */}
-        <div className="space-y-2.5 sm:space-y-3 order-2 md:order-1">
-
-          {/* ── Mobile step tabs ── */}
-          <div className="md:hidden flex rounded-2xl overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', padding: 4, gap: 4 }}>
-            {[
-              { id: 0, icon: '✦', label: 'Design' },
-              { id: 1, icon: '◎', label: 'Customize' },
-            ].map(({ id, icon, label }) => (
-              <button key={id} onClick={() => setMobileStep(id)}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-black text-xs uppercase tracking-wider"
-                style={mobileStep === id
-                  ? { background: 'rgba(249,115,22,0.14)', border: '1px solid rgba(249,115,22,0.38)', color: 'var(--ragged-accent)' }
-                  : { border: '1px solid transparent', color: '#64748b' }}>
-                <span>{icon}</span> {label}
-              </button>
-            ))}
-          </div>
-
-          {/* ── Step 0: Design (mode, prompt, style, upload) ── */}
-          <div className={mobileStep !== 0 ? 'hidden md:block' : ''}>
-
-          {/* Mode Toggle */}
-          <div className="flex p-1 gap-1 rounded-2xl"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-            {[
-              { id: "ai", label: "✦ AI Generate", sub: "DALL·E 3 powered" },
-              { id: "upload", label: "↑ Upload Image", sub: "PNG · JPG · SVG" },
-            ].map(({ id, label, sub }) => (
-              <button key={id} onClick={() => setDesignMode(id)}
-                className="flex-1 flex flex-col items-center py-3 sm:py-3.5 px-2 sm:px-4 rounded-xl text-center transition-all duration-200"
-                style={designMode === id
-                  ? { background: "rgba(249,115,22,0.14)", border: "1px solid rgba(249,115,22,0.38)", color: "var(--ragged-accent)" }
-                  : { border: "1px solid transparent", color: "#64748b" }}>
-                <span className="text-[11px] sm:text-xs font-black text-white uppercase tracking-wider">{label}</span>
-                <span className="text-[8px] sm:text-[9px] mt-0.5 opacity-60 font-semibold tracking-wider hidden xs:block sm:block">{sub}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* ── AI: Prompt ─────────────────────────────────────────── */}
-          {designMode === "ai" && (
-            <Panel>
-              <div className="flex items-center justify-between px-4 pt-4 pb-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] ragged-subtitle">Your Prompt</span>
-                <span className="text-[10px] ragged-subtitle">
-                  <span style={{ color: prompt.length > 400 ? "var(--ragged-accent)" : undefined }}>{prompt.length}</span>/500
-                </span>
-              </div>
-              <textarea
-                rows={4} value={prompt} onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g. Cyberpunk tiger with neon glowing eyes, bold graphic style..."
-                className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed placeholder-slate-700 px-4 py-3"
-                style={{ color: "#e2e8f0", caretColor: "var(--ragged-accent)" }}
-                onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) handleGenerate(); }}
-              />
-              <div className="flex items-center justify-between px-4 py-2.5"
-                style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setShowNegativePrompt(v => !v)}
-                    className="text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5"
-                    style={{ color: showNegativePrompt ? "var(--ragged-accent)" : "#64748b" }}>
-                    <span className="text-sm leading-none font-black">{showNegativePrompt ? "−" : "+"}</span>
-                    Avoid
-                  </button>
-                  <span className="text-[10px] opacity-30 hidden sm:block">Ctrl+Enter to generate</span>
-                </div>
-                <button onClick={() => { setPrompt(""); setNegativePrompt(""); }}
-                  className="text-[10px] font-bold uppercase tracking-wider ragged-subtitle hover:text-red-400 transition-colors">
-                  Clear ✕
-                </button>
-              </div>
-              {showNegativePrompt && (
-                <div style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
-                  <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-                    <span className="w-1 h-3 rounded-full" style={{ background: "rgba(249,115,22,0.5)" }} />
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: "rgba(249,115,22,0.7)" }}>
-                      Negative Prompt — avoid these in the design
-                    </span>
-                  </div>
-                  <textarea
-                    rows={2} value={negativePrompt} onChange={(e) => setNegativePrompt(e.target.value)}
-                    placeholder="e.g. blurry, text, watermark, low quality, distorted..."
-                    className="w-full bg-transparent text-xs resize-none outline-none leading-relaxed placeholder-slate-700 px-4 py-2 pb-3"
-                    style={{ color: "rgba(249,115,22,0.75)", caretColor: "var(--ragged-accent)" }}
-                  />
-                </div>
-              )}
-            </Panel>
-          )}
-
-          {/* ── AI: Style Grid ─────────────────────────────────────── */}
-          {designMode === "ai" && (
-            <Panel>
-              <div className="px-3 pt-2 pb-2 grid grid-cols-3 gap-1.5">
-                {STYLES.map((s) => (
-                  <button key={s.id} onClick={() => setStyle(s.id)}
-                    className="flex items-center gap-2 px-2.5 py-2 rounded-xl transition-all duration-200 hover:scale-[1.02]"
-                    style={style === s.id
-                      ? { background: "rgba(249,115,22,0.13)", border: "1.5px solid rgba(249,115,22,0.5)", color: "var(--ragged-accent)" }
-                      : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "#64748b" }}>
-                    <span className="text-base text-white shrink-0">{s.icon}</span>
-                    <span className="text-[10px] font-black text-white uppercase tracking-wide leading-tight">{s.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Inspiration chips */}
-              <div style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
-                <div className="px-4 pt-3 pb-2">
-                  <span className="text-[9px] text-white font-black uppercase tracking-[0.22em] ragged-subtitle">Inspiration</span>
-                </div>
-                <div className="px-3 pb-3 flex flex-wrap gap-1.5">
-                  {EXAMPLE_PROMPTS.map((ex) => (
-                    <button key={ex} onClick={() => setPrompt(ex)}
-                      className="text-[10px] font-medium px-2.5 py-1.5 rounded-full transition-all hover:border-orange-400/40 hover:text-orange-300"
-                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", color: "#94a3b8" }}>
-                      {ex}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </Panel>
-          )}
-
-          {/* ── Upload Mode ─────────────────────────────────────────── */}
-          {designMode === "upload" && (
-            <Panel>
-              <PanelHeader>Upload Your Design</PanelHeader>
-              <div className="p-3">
-                {uploadedImage ? (
-                  <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(249,115,22,0.22)" }}>
-                    <img src={uploadedImage} alt="Uploaded design"
-                      className="w-full max-h-56 object-contain"
-                      style={{ background: "rgba(255,255,255,0.02)" }} />
-                    <div className="flex items-center justify-between px-3 py-2.5"
-                      style={{ borderTop: "1px solid rgba(249,115,22,0.1)", background: "rgba(0,0,0,0.45)" }}>
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                        <span className="text-[10px] font-bold text-emerald-400">Image ready</span>
-                      </div>
-                      <button onClick={() => setUploadedImage(null)}
-                        className="text-[10px] font-bold ragged-subtitle hover:text-red-400 transition-colors flex items-center gap-1">
-                        <CloseIcon /> Remove
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center gap-3 sm:gap-4 cursor-pointer py-8 sm:py-12 rounded-xl transition-all group hover:border-orange-400/35"
-                    style={{ border: "2px dashed rgba(249,115,22,0.2)", minHeight: 170, background: "rgba(249,115,22,0.01)" }}>
-                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105"
-                      style={{ background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", color: "var(--ragged-accent)" }}>
-                      <UploadCloudIcon />
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm font-black uppercase tracking-wider" style={{ color: "var(--ragged-muted)" }}>Drop image here</p>
-                      <p className="text-xs mt-1 ragged-subtitle">PNG · JPG · SVG · WebP · Max 10MB</p>
-                    </div>
-                    <div className="ragged-pill text-[10px] font-black uppercase tracking-widest px-4 py-1.5">Browse Files</div>
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                  </label>
-                )}
-              </div>
-            </Panel>
-          )}
-
-          </div>{/* end step 0: Design */}
-
-          {/* ── Step 1: Customize (transform, shirt color) ── */}
-          <div className={mobileStep !== 1 ? 'hidden md:block' : ''}>
+        <div className="space-y-2.5 sm:space-y-3">
 
           {/* ── Transform Panel (tabbed) ────────────────────────────── */}
           <Panel>
@@ -864,6 +693,151 @@ const AIDesigner = () => {
             </div>
           </Panel>
 
+          {/* Mode Toggle */}
+          <div className="flex p-1 gap-1 rounded-2xl"
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            {[
+              { id: "ai", label: "✦ AI Generate", sub: "DALL·E 3 powered" },
+              { id: "upload", label: "↑ Upload Image", sub: "PNG · JPG · SVG" },
+            ].map(({ id, label, sub }) => (
+              <button key={id} onClick={() => setDesignMode(id)}
+                className="flex-1 flex flex-col items-center py-3 sm:py-3.5 px-2 sm:px-4 rounded-xl text-center transition-all duration-200"
+                style={designMode === id
+                  ? { background: "rgba(249,115,22,0.14)", border: "1px solid rgba(249,115,22,0.38)", color: "var(--ragged-accent)" }
+                  : { border: "1px solid transparent", color: "#64748b" }}>
+                <span className="text-[11px] sm:text-xs font-black text-white uppercase tracking-wider">{label}</span>
+                <span className="text-[8px] sm:text-[9px] mt-0.5 opacity-60 font-semibold tracking-wider hidden xs:block sm:block">{sub}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* ── AI: Prompt ─────────────────────────────────────────── */}
+          {designMode === "ai" && (
+            <Panel>
+              <div className="flex items-center justify-between px-4 pt-4 pb-0">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] ragged-subtitle">Your Prompt</span>
+                <span className="text-[10px] ragged-subtitle">
+                  <span style={{ color: prompt.length > 400 ? "var(--ragged-accent)" : undefined }}>{prompt.length}</span>/500
+                </span>
+              </div>
+              <textarea
+                rows={4} value={prompt} onChange={(e) => setPrompt(e.target.value)}
+                placeholder="e.g. Cyberpunk tiger with neon glowing eyes, bold graphic style..."
+                className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed placeholder-slate-700 px-4 py-3"
+                style={{ color: "#000", caretColor: "var(--ragged-accent)" }}
+                onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) handleGenerate(); }}
+              />
+              <div className="flex items-center justify-between px-4 py-2.5"
+                style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowNegativePrompt(v => !v)}
+                    className="text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5"
+                    style={{ color: showNegativePrompt ? "var(--ragged-accent)" : "#64748b" }}>
+                    <span className="text-sm leading-none font-black">{showNegativePrompt ? "−" : "+"}</span>
+                    Avoid
+                  </button>
+                  <span className="text-[10px] opacity-30 hidden sm:block">Ctrl+Enter to generate</span>
+                </div>
+                <button onClick={() => { setPrompt(""); setNegativePrompt(""); }}
+                  className="text-[10px] font-bold uppercase tracking-wider ragged-subtitle hover:text-red-400 transition-colors">
+                  Clear ✕
+                </button>
+              </div>
+              {showNegativePrompt && (
+                <div style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
+                  <div className="px-4 pt-3 pb-1 flex items-center gap-2">
+                    <span className="w-1 h-3 rounded-full" style={{ background: "rgba(249,115,22,0.5)" }} />
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: "rgba(249,115,22,0.7)" }}>
+                      Negative Prompt — avoid these in the design
+                    </span>
+                  </div>
+                  <textarea
+                    rows={2} value={negativePrompt} onChange={(e) => setNegativePrompt(e.target.value)}
+                    placeholder="e.g. blurry, text, watermark, low quality, distorted..."
+                    className="w-full bg-transparent text-xs resize-none outline-none leading-relaxed placeholder-slate-700 px-4 py-2 pb-3"
+                    style={{ color: "rgba(249,115,22,0.75)", caretColor: "var(--ragged-accent)" }}
+                  />
+                </div>
+              )}
+            </Panel>
+          )}
+
+          {/* ── AI: Style Grid ─────────────────────────────────────── */}
+          {designMode === "ai" && (
+            <Panel>
+              <div className="px-3 pt-2 pb-2 grid grid-cols-3 gap-1.5">
+                {STYLES.map((s) => (
+                  <button key={s.id} onClick={() => setStyle(s.id)}
+                    className="flex items-center gap-2 px-2.5 py-2 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+                    style={style === s.id
+                      ? { background: "rgba(249,115,22,0.13)", border: "1.5px solid rgba(249,115,22,0.5)", color: "var(--ragged-accent)" }
+                      : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "#64748b" }}>
+                    <span className="text-base text-white shrink-0">{s.icon}</span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-wide leading-tight">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Inspiration chips */}
+              <div style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
+                <div className="px-4 pt-3 pb-2">
+                  <span className="text-[9px] text-white font-black uppercase tracking-[0.22em] ragged-subtitle">Inspiration</span>
+                </div>
+                <div className="px-3 pb-3 flex flex-wrap gap-1.5">
+                  {EXAMPLE_PROMPTS.map((ex) => (
+                    <button key={ex} onClick={() => setPrompt(ex)}
+                      className="text-[10px] font-medium px-2.5 py-1.5 rounded-full transition-all hover:border-orange-400/40 hover:text-orange-300"
+                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", color: "#94a3b8" }}>
+                      {ex}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Panel>
+          )}
+
+          {/* ── Upload Mode ─────────────────────────────────────────── */}
+          {designMode === "upload" && (
+            <Panel>
+              <PanelHeader>Upload Your Design</PanelHeader>
+              <div className="p-3">
+                {uploadedImage ? (
+                  <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(249,115,22,0.22)" }}>
+                    <img src={uploadedImage} alt="Uploaded design"
+                      className="w-full max-h-56 object-contain"
+                      style={{ background: "rgba(255,255,255,0.02)" }} />
+                    <div className="flex items-center justify-between px-3 py-2.5"
+                      style={{ borderTop: "1px solid rgba(249,115,22,0.1)", background: "rgba(0,0,0,0.45)" }}>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="text-[10px] font-bold text-emerald-400">Image ready</span>
+                      </div>
+                      <button onClick={() => setUploadedImage(null)}
+                        className="text-[10px] font-bold ragged-subtitle hover:text-red-400 transition-colors flex items-center gap-1">
+                        <CloseIcon /> Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center gap-3 sm:gap-4 cursor-pointer py-8 sm:py-12 rounded-xl transition-all group hover:border-orange-400/35"
+                    style={{ border: "2px dashed rgba(249,115,22,0.2)", minHeight: 170, background: "rgba(249,115,22,0.01)" }}>
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105"
+                      style={{ background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", color: "var(--ragged-accent)" }}>
+                      <UploadCloudIcon />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-black uppercase tracking-wider" style={{ color: "var(--ragged-muted)" }}>Drop image here</p>
+                      <p className="text-xs mt-1 ragged-subtitle">PNG · JPG · SVG · WebP · Max 10MB</p>
+                    </div>
+                    <div className="ragged-pill text-[10px] font-black uppercase tracking-widest px-4 py-1.5">Browse Files</div>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+                )}
+              </div>
+            </Panel>
+          )}
+
           {/* ── Shirt Color ─────────────────────────────────────────── */}
           <Panel>
             <div className="flex items-center justify-between px-4 pt-4 pb-3"
@@ -898,11 +872,19 @@ const AIDesigner = () => {
             </div>
           </Panel>
 
-          </div>{/* end step 1: Customize */}
+          {/* Mobile generate button */}
+          {designMode === "ai" && (
+            <button onClick={handleGenerate} disabled={loading || !prompt.trim()}
+              className="ragged-solid-btn lg:hidden w-full py-3.5 sm:py-4 font-black text-xs sm:text-sm uppercase tracking-[0.16em] sm:tracking-[0.18em] transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center gap-2" style={{ color: 'white' }}>
+              {loading
+                ? <><span className="w-4 h-4 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" /> Generating…</>
+                : <><SparkleIcon /> Generate Design</>}
+            </button>
+          )}
         </div>
 
         {/* ═══ RIGHT — LIVE PREVIEW ════════════════════════════════════ */}
-        <div className="order-1 md:order-2 lg:sticky lg:top-[62px] self-start rounded-2xl overflow-hidden"
+        <div className="lg:sticky lg:top-[62px] self-start rounded-2xl overflow-hidden"
           style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(249,115,22,0.16)" }}>
 
           {/* Top accent line */}
@@ -1049,36 +1031,6 @@ const AIDesigner = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* ── Mobile sticky bottom generate bar ── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40"
-        style={{ background: 'linear-gradient(to top, #0a0a0c 65%, rgba(10,10,12,0))', paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
-        <div className="px-4 pt-4 pb-2">
-          {designMode === "ai" ? (
-            <button onClick={handleGenerate} disabled={loading || !prompt.trim()}
-              className="ragged-solid-btn w-full py-4 font-black text-sm uppercase tracking-[0.18em] transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center gap-2"
-              style={{ color: 'white' }}>
-              {loading
-                ? <><span className="w-5 h-5 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" /> Generating…</>
-                : activeDesign
-                  ? <><RefreshIcon /> Regenerate Design</>
-                  : <><SparkleIcon /> Generate Design</>}
-            </button>
-          ) : activeDesign ? (
-            <button onClick={handleOrderCustomShirt}
-              className="ragged-solid-btn w-full py-4 font-black text-sm uppercase tracking-[0.18em] transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-              style={{ color: 'white' }}>
-              <CartIcon /> Order Custom Shirt · ₹699
-            </button>
-          ) : (
-            <label className="flex items-center justify-center gap-2 w-full py-4 font-black text-sm uppercase tracking-[0.18em] rounded-2xl cursor-pointer"
-              style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)', color: 'var(--ragged-accent)' }}>
-              <UploadCloudIcon /> Upload Your Design
-              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-            </label>
-          )}
         </div>
       </div>
     </div>

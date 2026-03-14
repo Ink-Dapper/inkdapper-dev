@@ -169,7 +169,7 @@ const Login = () => {
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className="w-full pl-11 pr-4 py-3 sm:py-3.5 text-sm font-medium text-slate-700 placeholder-slate-600 outline-none bg-transparent"
+          className="w-full pl-11 pr-4 py-3.5 text-sm font-medium text-slate-700 placeholder-slate-600 outline-none bg-transparent"
         />
       </div>
     </div>
@@ -196,7 +196,7 @@ const Login = () => {
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className="w-full pl-11 pr-12 py-3 sm:py-3.5 text-sm font-medium text-slate-700 placeholder-slate-600 outline-none bg-transparent"
+          className="w-full pl-11 pr-12 py-3.5 text-sm font-medium text-slate-700 placeholder-slate-600 outline-none bg-transparent"
         />
         <button
           type="button"
@@ -214,7 +214,7 @@ const Login = () => {
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`w-full py-3.5 sm:py-4 px-6 text-sm font-black uppercase tracking-[0.12em] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] ${className}`}
+      className={`w-full py-4 px-6 text-sm font-black uppercase tracking-[0.12em] text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] ${className}`}
       style={{
         background: 'linear-gradient(135deg, rgba(251,146,60,0.95), rgba(245,158,11,0.88))',
         clipPath: 'polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0% 100%,0% 10px)',
@@ -231,7 +231,7 @@ const Login = () => {
   ), []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start sm:justify-center px-4 py-8 sm:py-4 relative overflow-x-hidden overflow-y-auto" style={{ background: '#08090a' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: '#08090a' }}>
 
       {/* Diagonal stripe texture */}
       <div className="absolute inset-0 pointer-events-none"
@@ -241,20 +241,20 @@ const Login = () => {
         }}
       />
       {/* Orange radial glow — top */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[700px] h-[280px] pointer-events-none"
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[280px] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse at center top, rgba(249,115,22,0.11) 0%, transparent 70%)' }}
       />
       {/* Orange radial glow — bottom right */}
-      <div className="absolute bottom-0 right-0 w-[min(400px,100vw)] h-[280px] pointer-events-none"
+      <div className="absolute bottom-0 right-0 w-[400px] h-[280px] pointer-events-none"
         style={{ background: 'radial-gradient(ellipse at bottom right, rgba(249,115,22,0.07) 0%, transparent 70%)' }}
       />
-      {/* Corner bracket marks — hidden on very small screens */}
-      <div className="hidden xs:block absolute top-5 left-5 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-l-2 border-orange-500/30 pointer-events-none" />
-      <div className="hidden xs:block absolute top-5 right-5 w-6 h-6 sm:w-8 sm:h-8 border-t-2 border-r-2 border-orange-500/30 pointer-events-none" />
-      <div className="hidden xs:block absolute bottom-5 left-5 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-l-2 border-orange-500/30 pointer-events-none" />
-      <div className="hidden xs:block absolute bottom-5 right-5 w-6 h-6 sm:w-8 sm:h-8 border-b-2 border-r-2 border-orange-500/30 pointer-events-none" />
+      {/* Corner bracket marks */}
+      <div className="absolute top-5 left-5 w-8 h-8 border-t-2 border-l-2 border-orange-500/30 pointer-events-none" />
+      <div className="absolute top-5 right-5 w-8 h-8 border-t-2 border-r-2 border-orange-500/30 pointer-events-none" />
+      <div className="absolute bottom-5 left-5 w-8 h-8 border-b-2 border-l-2 border-orange-500/30 pointer-events-none" />
+      <div className="absolute bottom-5 right-5 w-8 h-8 border-b-2 border-r-2 border-orange-500/30 pointer-events-none" />
 
-      <div className="w-full max-w-md relative z-10 my-auto">
+      <div className="w-full max-w-md relative z-10">
         {/* Back Button */}
         {currentState !== 'Login' && (
           <button
@@ -299,11 +299,11 @@ const Login = () => {
             }}
           />
 
-          <div className="relative px-4 sm:px-7 pt-5 sm:pt-7 pb-5 sm:pb-7">
+          <div className="relative px-7 pt-7 pb-7">
             {/* Header */}
-            <div className="mb-5 sm:mb-6">
-              <div className="flex items-center gap-3 mb-3 sm:mb-4">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center flex-shrink-0"
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 flex items-center justify-center flex-shrink-0"
                   style={{
                     background: 'linear-gradient(135deg, rgba(251,146,60,0.95), rgba(245,158,11,0.88))',
                     clipPath: 'polygon(8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%,0% 8px)',
@@ -317,14 +317,14 @@ const Login = () => {
                   <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-600 leading-none mt-0.5">Secure Access</p>
                 </div>
               </div>
-              <h1 className="text-xl sm:text-2xl font-black uppercase tracking-[0.06em] sm:tracking-[0.08em] text-slate-100">{currentState}</h1>
+              <h1 className="text-2xl font-black uppercase tracking-[0.08em] text-slate-100">{currentState}</h1>
               <div className="mt-2 flex items-center gap-2">
                 <div className="h-[2px] w-10" style={{ background: 'linear-gradient(90deg, rgba(251,146,60,0.9), rgba(245,158,11,0.6))' }} />
                 <div className="h-px flex-1 bg-slate-800" />
               </div>
             </div>
 
-            <form onSubmit={onSubmitHandler} className="space-y-4 sm:space-y-5">
+            <form onSubmit={onSubmitHandler} className="space-y-5">
               {/* Sign Up */}
               {currentState === 'Sign Up' && (
                 <div className="space-y-3">
@@ -403,7 +403,7 @@ const Login = () => {
               )}
 
               {/* Navigation Links */}
-              <div className="pt-3 sm:pt-4 flex flex-row justify-between items-center gap-2 flex-wrap"
+              <div className="pt-4 flex flex-col sm:flex-row justify-between items-center gap-2"
                 style={{ borderTop: '1px solid rgba(148,163,184,0.1)' }}>
                 <button
                   type="button"
@@ -429,9 +429,9 @@ const Login = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-4 sm:mt-5 flex items-center gap-2 sm:gap-3">
+        <div className="mt-5 flex items-center gap-3">
           <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(251,146,60,0.25))' }} />
-          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-700 whitespace-nowrap">Premium T-Shirt Brand</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700">Premium T-Shirt Brand</span>
           <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg, transparent, rgba(251,146,60,0.25))' }} />
         </div>
       </div>

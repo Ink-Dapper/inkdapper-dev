@@ -18,7 +18,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   }, [beforePrice, price]);
 
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
   const shareMenuRef = useRef(null);
   const favWishlist = useMemo(() => Object.keys(wishlist || {}), [wishlist]);
 
@@ -135,16 +134,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
   return (
     <div className="relative group" style={{ fontFamily: 'system-ui, sans-serif' }}>
-      <style>{`
-        @keyframes shimmer-sweep {
-          0%   { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
-        @keyframes shimmer-pulse {
-          0%, 100% { opacity: 0.5; }
-          50%       { opacity: 1; }
-        }
-      `}</style>
 
       {/* ── Wishlist button ── */}
       <button
@@ -239,50 +228,6 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
 
           {/* ── Image area ── */}
           <div style={{ position: 'relative', height: 288, background: '#070709', overflow: 'hidden' }}>
-
-            {/* Shimmer skeleton — visible until image loads */}
-            {!imgLoaded && (
-              <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-                {/* Base dark bg */}
-                <div style={{ position: 'absolute', inset: 0, background: '#0d0d10' }} />
-                {/* Sweeping shimmer */}
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: 'linear-gradient(105deg, transparent 40%, rgba(249,115,22,0.07) 50%, transparent 60%)',
-                  animation: 'shimmer-sweep 1.6s ease-in-out infinite',
-                }} />
-                {/* Subtle grid lines */}
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  backgroundImage: 'repeating-linear-gradient(0deg, rgba(249,115,22,0.03) 0px, rgba(249,115,22,0.03) 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, rgba(249,115,22,0.03) 0px, rgba(249,115,22,0.03) 1px, transparent 1px, transparent 40px)',
-                }} />
-                {/* Center icon placeholder */}
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 10,
-                }}>
-                  <div style={{
-                    width: 48, height: 48, borderRadius: 12,
-                    background: 'rgba(249,115,22,0.1)',
-                    border: '1px solid rgba(249,115,22,0.2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    animation: 'shimmer-pulse 1.6s ease-in-out infinite',
-                  }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(249,115,22,0.4)" strokeWidth="1.5">
-                      <rect x="3" y="3" width="18" height="18" rx="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                  </div>
-                  <div style={{
-                    width: 64, height: 4, borderRadius: 9999,
-                    background: 'rgba(249,115,22,0.1)',
-                    animation: 'shimmer-pulse 1.6s ease-in-out infinite 0.2s',
-                  }} />
-                </div>
-              </div>
-            )}
-
             <img
               src={image[0]}
               alt={name}
@@ -290,13 +235,11 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
               decoding="async"
               width="300"
               height="400"
-              onLoad={() => setImgLoaded(true)}
               className="transition-transform duration-700 group-hover:scale-105"
               style={{
                 width: '100%', height: '100%',
                 objectFit: 'cover', objectPosition: 'center',
-                opacity: imgLoaded ? (soldout ? 0.45 : 1) : 0,
-                transition: 'opacity 0.4s ease, transform 0.7s ease',
+                opacity: soldout ? 0.45 : 1,
               }}
             />
 
