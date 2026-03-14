@@ -599,10 +599,22 @@ const Collection = () => {
           {showMobileFilter && (
             <div className="lg:hidden fixed inset-0 z-50">
               <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setShowMobileFilter(false)} />
-              <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl max-h-[82vh] overflow-y-auto scrollbar-hide"
-                style={{ background: '#0f0f11', border: '1px solid rgba(249,115,22,0.25)', borderBottom: 'none' }}>
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-5">
+
+              {/* Sheet: flex column so header + button stay fixed, content scrolls */}
+              <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl flex flex-col"
+                style={{
+                  maxHeight: '82vh',
+                  background: '#0f0f11',
+                  border: '1px solid rgba(249,115,22,0.25)',
+                  borderBottom: 'none',
+                }}>
+
+                {/* ── Fixed header ── */}
+                <div className="flex-shrink-0 px-4 pt-4 pb-0">
+                  {/* Drag pill */}
+                  <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: 'rgba(249,115,22,0.3)' }} />
+
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center"
                         style={{ background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.3)' }}>
@@ -611,20 +623,58 @@ const Collection = () => {
                         </svg>
                       </div>
                       <h2 className="ragged-title text-2xl">Filters</h2>
+                      {(category || subCategory.length > 0 || colors.length > 0) && (
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full"
+                          style={{ background: 'rgba(249,115,22,0.18)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.35)' }}>
+                          {[category ? 1 : 0, subCategory.length, colors.length].reduce((a, b) => a + b, 0)} active
+                        </span>
+                      )}
                     </div>
-                    <button onClick={() => setShowMobileFilter(false)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-orange-300 border border-orange-500/40"
-                      style={{ background: 'rgba(249,115,22,0.12)' }}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {(category || subCategory.length > 0 || colors.length > 0) && (
+                        <button
+                          onClick={() => { setCategory(''); setSubCategory([]); setColors([]) }}
+                          className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1.5 rounded-lg"
+                          style={{ color: '#fb923c', background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.25)' }}>
+                          Clear
+                        </button>
+                      )}
+                      <button onClick={() => setShowMobileFilter(false)}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-orange-300 border border-orange-500/40"
+                        style={{ background: 'rgba(249,115,22,0.12)' }}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <div className="h-px mb-5" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.5), transparent)' }} />
+                  <div className="h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.5), transparent)' }} />
+                </div>
+
+                {/* ── Scrollable filter content ── */}
+                <div className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4">
                   <FilterContents />
-                  <button onClick={() => setShowMobileFilter(false)}
-                    className="w-full ragged-solid-btn py-3.5 font-extrabold text-sm uppercase tracking-widest mt-2">
+                </div>
+
+                {/* ── Fixed Apply button ── */}
+                <div className="flex-shrink-0 px-4 pt-3 pb-5"
+                  style={{
+                    borderTop: '1px solid rgba(249,115,22,0.15)',
+                    background: 'linear-gradient(to top, #0f0f11 80%, rgba(15,15,17,0))',
+                    paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
+                  }}>
+                  <button
+                    onClick={() => setShowMobileFilter(false)}
+                    className="w-full ragged-solid-btn py-4 font-extrabold text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                     Apply Filters
+                    {filterProducts.length > 0 && (
+                      <span className="bg-white/20 rounded-full px-2 py-0.5 text-xs font-extrabold">
+                        {filterProducts.length}
+                      </span>
+                    )}
                   </button>
                 </div>
               </div>
