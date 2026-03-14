@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
 
-  // Show button when page is scrolled up to given distance
   const toggleVisibility = () => {
     if (window.pageYOffset > 300) {
       setIsVisible(true);
@@ -12,20 +11,13 @@ const ScrollToTop = () => {
     }
   };
 
-  // Set the top cordinate to 0
-  // make scrolling smooth
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", toggleVisibility);
-    return () => {
-      window.removeEventListener("scroll", toggleVisibility);
-    };
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
   return (
@@ -33,54 +25,51 @@ const ScrollToTop = () => {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="fixed md:bottom-6 bottom-16 md:right-6 right-3 z-50 group transition-all duration-500 ease-out transform hover:scale-110 hover:-translate-y-1"
           aria-label="Scroll to top"
+          className="fixed md:bottom-6 bottom-16 md:right-6 right-3 z-50 group"
+          style={{ animation: 'stt-fadein 0.3s ease-out' }}
         >
-          {/* Modern floating button container */}
-          <div className="relative">
-            {/* Subtle glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-xl opacity-0 group-hover:opacity-15 transition-all duration-500 blur-md scale-95 group-hover:scale-110"></div>
-
-            {/* Main button with glass morphism */}
-            <div className="relative bg-white/80 backdrop-blur-xl border border-white/30 rounded-xl p-3 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:bg-white/90 group-hover:border-white/50">
-
-              {/* Icon with modern styling */}
-              <div className="w-5 h-5 relative">
-                {/* Clean arrow icon with gradient */}
-                <svg
-                  className="relative z-10 w-5 h-5 transition-all duration-300 transform group-hover:-translate-y-0.5"
-                  fill="none"
-                  stroke="url(#gradient)"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#3B82F6" />
-                      <stop offset="50%" stopColor="#8B5CF6" />
-                      <stop offset="100%" stopColor="#EC4899" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M5 10l7-7m0 0l7 7m-7-7v18"
-                  />
-                </svg>
-              </div>
+          <div className="relative flex flex-col items-center">
+            {/* Tooltip */}
+            <div className="absolute bottom-full mb-2 px-2 py-1 text-[10px] font-semibold text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap"
+              style={{ background: 'rgba(15,15,20,0.85)', backdropFilter: 'blur(6px)' }}>
+              Back to top
             </div>
 
-            {/* Micro-interaction dots */}
-            <div className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping"></div>
-            <div className="absolute -bottom-1 -left-1 w-1 h-1 bg-purple-400 rounded-full opacity-0 group-hover:opacity-100 animate-ping animation-delay-200"></div>
+            {/* Button */}
+            <div
+              className="w-10 h-10 md:w-11 md:h-11 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 relative overflow-hidden"
+              style={{ background: 'linear-gradient(145deg, #1e1e2e 0%, #2d2d44 100%)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              {/* Shimmer on hover */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.15) 0%, transparent 60%)' }} />
+
+              {/* Arrow */}
+              <div className="relative z-10 flex flex-col items-center gap-0.5" style={{ animation: 'stt-arrow 1.8s ease-in-out infinite' }}>
+                <svg viewBox="0 0 20 20" className="w-4 h-4 md:w-5 md:h-5" fill="none">
+                  <path d="M10 15V5M10 5L5.5 9.5M10 5L14.5 9.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {/* Trailing line that fades */}
+                <div className="w-px h-2 rounded-full" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.5), transparent)' }} />
+              </div>
+
+              {/* Bottom orange accent bar */}
+              <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full"
+                style={{ background: 'linear-gradient(to right, #f97316, #fb923c)' }} />
+            </div>
           </div>
 
-          {/* Minimal tooltip */}
-          <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-900/90 backdrop-blur-sm text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
-            Top
-            <div className="absolute top-full right-2 w-0 h-0 border-l-3 border-r-3 border-t-3 border-transparent border-t-gray-900/90"></div>
-          </div>
+          <style>{`
+            @keyframes stt-fadein {
+              from { opacity: 0; transform: translateY(12px); }
+              to   { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes stt-arrow {
+              0%, 100% { transform: translateY(0); }
+              50%       { transform: translateY(-3px); }
+            }
+          `}</style>
         </button>
       )}
     </>

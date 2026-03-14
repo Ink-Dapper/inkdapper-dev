@@ -61,7 +61,7 @@ const TrustBand = () => {
                                 <span className="opacity-90 text-slate-800">{item.icon}</span>
                                 <div className="leading-tight">
                                     <div className="text-xs font-bold uppercase tracking-wide text-slate-800 whitespace-nowrap">{item.label}</div>
-                                    <div className="text-[10px] opacity-80 whitespace-nowrap">{item.sub}</div>
+                                    <div className="text-[10px] opacity-80 whitespace-nowrap text-slate-700">{item.sub}</div>
                                 </div>
                             </div>
                             {i < items.length - 1 && (
