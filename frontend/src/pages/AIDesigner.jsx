@@ -81,49 +81,78 @@ const SparkleIcon = () => (
 const ShirtMockup = ({
   shirt, generatedImage, loading,
   designWidth, designHeight, designX, designY,
-  blendMode, designOpacity = 1, designRotation = 0, size = 220,
+  blendMode, designOpacity = 1, designRotation = 0, blendStrength = 100, size = 220,
 }) => (
-  <div className="relative w-full" style={{ maxWidth: size }}>
+  // isolation:isolate confines blend modes to within this wrapper (not the page bg).
+  // No filter on the wrapper or shirt image — CSS filter creates its own stacking
+  // context which prevents mix-blend-mode from reaching the shirt pixels.
+  <div className="relative w-full" style={{ maxWidth: size, isolation: "isolate" }}>
     <img
       src={Array.isArray(shirt.image) ? shirt.image[0] : shirt.image}
       alt={`${shirt.color} shirt`}
       className="w-full h-auto drop-shadow-2xl"
     />
-    <div
-      className="absolute flex items-center justify-center"
-      style={{
-        top: `${designY}%`,
-        left: `${designX}%`,
-        transform: `translateX(-50%) rotate(${designRotation}deg)`,
-        width: `${designWidth}%`,
-        height: `${designHeight}%`,
-        opacity: designOpacity,
-      }}
-    >
-      {loading ? (
-        <div className="flex flex-col items-center gap-3">
-          <div className="relative w-12 h-12">
-            <div className="absolute inset-0 rounded-full border-2 border-orange-400/20 animate-ping" />
-            <div className="w-12 h-12 rounded-full border-2 border-transparent border-t-orange-400 border-r-orange-400/40 animate-spin" />
-          </div>
-          <span className="text-[10px] text-slate-700 font-semibold tracking-widest uppercase">Creating…</span>
+    {loading ? (
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 rounded-full border-2 border-orange-400/20 animate-ping" />
+          <div className="w-12 h-12 rounded-full border-2 border-transparent border-t-orange-400 border-r-orange-400/40 animate-spin" />
         </div>
-      ) : generatedImage ? (
+        <span className="text-[10px] text-slate-700 font-semibold tracking-widest uppercase">Creating…</span>
+      </div>
+    ) : generatedImage ? (
+      // Two-layer approach for blend strength:
+      // Layer 1 (normal) fades out as strength increases.
+      // Layer 2 (blended) fades in as strength increases.
+      // At 100% strength only the blended layer shows; at 0% only the normal layer.
+      // mix-blend-mode MUST be on the same element as transform — transform
+      // creates a stacking context that breaks blend mode on children.
+      <>
+        {blendMode !== "normal" && blendStrength < 100 && (
+          <img
+            src={generatedImage}
+            alt=""
+            aria-hidden="true"
+            className="absolute object-fill"
+            style={{
+              top: `${designY}%`,
+              left: `${designX}%`,
+              transform: `translateX(-50%) rotate(${designRotation}deg)`,
+              width: `${designWidth}%`,
+              height: `${designHeight}%`,
+              mixBlendMode: "normal",
+              opacity: designOpacity * ((100 - blendStrength) / 100),
+            }}
+          />
+        )}
         <img
           src={generatedImage}
           alt="AI Generated Design"
-          className="w-full h-full object-fill"
-          style={{ mixBlendMode: blendMode }}
+          className="absolute object-fill"
+          style={{
+            top: `${designY}%`,
+            left: `${designX}%`,
+            transform: `translateX(-50%) rotate(${designRotation}deg)`,
+            width: `${designWidth}%`,
+            height: `${designHeight}%`,
+            mixBlendMode: blendMode,
+            opacity: blendMode !== "normal"
+              ? designOpacity * (blendStrength / 100)
+              : designOpacity,
+          }}
         />
-      ) : (
-        <div className="flex flex-col items-center gap-2 opacity-20 pointer-events-none select-none">
-          <div className="w-14 h-14 rounded-full border-2 border-dashed border-slate-500 flex items-center justify-center">
-            <span className="text-2xl">✦</span>
-          </div>
-          <span className="text-[9px] tracking-widest uppercase text-slate-500">Design area</span>
+      </>
+    ) : (
+      <div
+        className="absolute flex flex-col items-center justify-center gap-2 opacity-20 pointer-events-none select-none"
+        style={{ top: `${designY}%`, left: `${designX}%`, transform: "translateX(-50%)", width: `${designWidth}%`, height: `${designHeight}%` }}
+      >
+        <div className="w-14 h-14 rounded-full border-2 border-dashed border-slate-500 flex items-center justify-center">
+          <span className="text-2xl">✦</span>
         </div>
-      )}
-    </div>
+        <span className="text-[9px] tracking-widest uppercase text-slate-500">Design area</span>
+      </div>
+    )}
   </div>
 );
 
@@ -181,6 +210,7 @@ const AIDesigner = () => {
   const [designOpacity, setDesignOpacity] = useState(1);
   const [designRotation, setDesignRotation] = useState(0);
   const [manualBlendMode, setManualBlendMode] = useState("auto");
+  const [blendStrength, setBlendStrength] = useState(100);
 
   // UI
   const [showPreview, setShowPreview] = useState(false);
@@ -256,16 +286,28 @@ const AIDesigner = () => {
       const dh = H * (designHeight / 100);
       const dx = W * (designX / 100) - dw / 2;
       const dy = H * (designY / 100);
-      ctx.save();
-      ctx.globalAlpha = designOpacity;
-      if (designRotation !== 0) {
-        ctx.translate(dx + dw / 2, dy + dh / 2);
-        ctx.rotate((designRotation * Math.PI) / 180);
-        ctx.translate(-(dx + dw / 2), -(dy + dh / 2));
+
+      const drawLayer = (compositeOp, alpha) => {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        if (designRotation !== 0) {
+          ctx.translate(dx + dw / 2, dy + dh / 2);
+          ctx.rotate((designRotation * Math.PI) / 180);
+          ctx.translate(-(dx + dw / 2), -(dy + dh / 2));
+        }
+        ctx.globalCompositeOperation = compositeOp;
+        ctx.drawImage(designImg, dx, dy, dw, dh);
+        ctx.restore();
+      };
+
+      if (blendMode !== "normal" && blendStrength < 100) {
+        // Layer 1: normal (fades out as strength increases)
+        drawLayer("source-over", designOpacity * ((100 - blendStrength) / 100));
+        // Layer 2: blended (fades in as strength increases)
+        drawLayer(blendMode, designOpacity * (blendStrength / 100));
+      } else {
+        drawLayer(blendMode === "normal" ? "source-over" : blendMode, designOpacity);
       }
-      ctx.globalCompositeOperation = blendMode === "normal" ? "source-over" : blendMode;
-      ctx.drawImage(designImg, dx, dy, dw, dh);
-      ctx.restore();
     }
 
     return new Promise((resolve, reject) =>
@@ -339,10 +381,9 @@ const AIDesigner = () => {
     setGeneratedImage(null);
     setRevisedPrompt("");
     try {
-      const fullPrompt = negativePrompt.trim()
-        ? `${prompt.trim()}. Avoid: ${negativePrompt.trim()}`
-        : prompt.trim();
-      const { data } = await axios.post(`/ai/generate`, { prompt: fullPrompt, style }, { timeout: 90000 });
+      // DALL-E 3 does not support negative prompts — appending "Avoid: X"
+      // frequently triggers the safety filter. Send only the user's prompt.
+      const { data } = await axios.post(`/ai/generate`, { prompt: prompt.trim(), style }, { timeout: 90000 });
       if (data.success) {
         setGeneratedImage(data.imageUrl);
         setRevisedPrompt(data.revisedPrompt || "");
@@ -420,7 +461,7 @@ const AIDesigner = () => {
               style={{ background: "radial-gradient(ellipse at center, rgba(249,115,22,0.06) 0%, transparent 70%)" }}>
               <ShirtMockup shirt={selectedShirt} generatedImage={activeDesign} loading={false}
                 designWidth={designWidth} designHeight={designHeight} designX={designX} designY={designY}
-                blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} size={160} />
+                blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} blendStrength={blendStrength} size={160} />
             </div>
 
             <div style={{ height: 1, background: "rgba(249,115,22,0.1)" }} />
@@ -496,7 +537,7 @@ const AIDesigner = () => {
               style={{ background: "radial-gradient(ellipse at center, rgba(249,115,22,0.05) 0%, transparent 70%)" }}>
               <ShirtMockup shirt={selectedShirt} generatedImage={activeDesign} loading={loading}
                 designWidth={designWidth} designHeight={designHeight} designX={designX} designY={designY}
-                blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} size={320} />
+                blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} blendStrength={blendStrength} size={320} />
             </div>
             <div style={{ height: 1, background: "rgba(249,115,22,0.1)" }} />
             <div className="px-5 py-4 flex gap-3">
@@ -609,7 +650,7 @@ const AIDesigner = () => {
                 rows={4} value={prompt} onChange={(e) => setPrompt(e.target.value)}
                 placeholder="e.g. Cyberpunk tiger with neon glowing eyes, bold graphic style..."
                 className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed placeholder-slate-700 px-4 py-3"
-                style={{ color: "#e2e8f0", caretColor: "var(--ragged-accent)" }}
+                style={{ color: "#444", caretColor: "var(--ragged-accent)" }}
                 onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) handleGenerate(); }}
               />
               <div className="flex items-center justify-between px-4 py-2.5"
@@ -842,7 +883,7 @@ const AIDesigner = () => {
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {BLEND_MODES.map((m) => (
-                        <button key={m} onClick={() => setManualBlendMode(m)}
+                        <button key={m} onClick={() => { setManualBlendMode(m); setBlendStrength(100); }}
                           className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all"
                           style={manualBlendMode === m
                             ? { background: "rgba(249,115,22,0.16)", border: "1px solid rgba(249,115,22,0.42)", color: "var(--ragged-accent)" }
@@ -851,10 +892,17 @@ const AIDesigner = () => {
                         </button>
                       ))}
                     </div>
+
+                    {/* Blend Strength slider — only visible when a real blend mode is active */}
+                    {manualBlendMode !== "auto" && manualBlendMode !== "normal" && (
+                      <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
+                        <Slider label="Blend Strength" value={blendStrength} set={setBlendStrength} min={0} max={100} />
+                      </div>
+                    )}
                   </div>
 
                   <button
-                    onClick={() => { setDesignOpacity(1); setDesignRotation(0); setManualBlendMode("auto"); }}
+                    onClick={() => { setDesignOpacity(1); setDesignRotation(0); setManualBlendMode("auto"); setBlendStrength(100); }}
                     className="w-full py-2 text-[10px] font-bold uppercase tracking-wider ragged-subtitle hover:text-orange-400 transition-colors rounded-xl"
                     style={{ border: "1px solid rgba(249,115,22,0.14)", background: "rgba(249,115,22,0.02)" }}>
                     Reset Advanced Settings
@@ -967,7 +1015,7 @@ const AIDesigner = () => {
             <ShirtMockup
               shirt={selectedShirt} generatedImage={activeDesign} loading={loading}
               designWidth={designWidth} designHeight={designHeight} designX={designX} designY={designY}
-              blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation}
+              blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} blendStrength={blendStrength}
               size={480}
             />
           </div>
