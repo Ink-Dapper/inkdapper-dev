@@ -1,0 +1,313 @@
+/* Modern Swiper Custom Styles */
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 14px;
+  width: 100%;
+}
+
+/* Latest Collection mobile swiper */
+.latest-mobile-swiper .swiper-slide {
+  height: auto !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: transparent !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+}
+
+.latest-mobile-swiper .swiper-slide > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.latest-swiper-prev.swiper-button-disabled,
+.latest-swiper-next.swiper-button-disabled {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Handpicked / Highlighted Products mobile swiper */
+.highlight-mobile-swiper .swiper-slide {
+  height: auto !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: transparent !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+  position: relative !important;
+}
+
+.highlight-mobile-swiper .swiper-slide > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.highlight-swiper-prev.swiper-button-disabled,
+.highlight-swiper-next.swiper-button-disabled {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.acid-wash-tees-section .swiper-slide {
+  width: auto !important;
+  margin-right: 10px !important;
+}
+
+.acid-wash-tees-section .acid-wash-tees-shadow {
+  width: 265px !important;
+}
+
+.recently-viewed-section .swiper-slide {
+  height: auto !important;
+  display: flex !important;
+  align-items: stretch !important;
+  background: transparent !important;
+  text-align: left !important;
+  border-radius: 0 !important;
+}
+
+.recently-viewed-section .swiper-slide > div {
+  width: 100% !important;
+}
+
+/* .acid-wash-tees-section .swiper-slide > div {
+  width: 100% !important;
+} */
+
+/* .acid-wash-tees-section .swiper-slide img {
+  width: 100% !important;
+} */
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(1.15);
+}
+
+/* Custom pagination bullets */
+.swiper-pagination-bullet {
+  width: 8px !important;
+  height: 8px !important;
+  background: #d1d5db !important;
+  opacity: 1 !important;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  background: #ea580c !important;
+  transform: scale(1.2);
+}
+
+/* Custom navigation arrows */
+.swiper-button-next,
+.swiper-button-prev {
+  width: 40px !important;
+  height: 40px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 50% !important;
+  color: #374151 !important;
+  transition: all 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  color: #ea580c !important;
+  transform: scale(1.1);
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 16px !important;
+  font-weight: bold;
+}
+
+/* Thumbnail gallery styles */
+.swiper-thumbs {
+  margin-top: 16px;
+}
+
+.swiper-thumbs .swiper-slide {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.swiper-thumbs .swiper-slide-thumb-active {
+  opacity: 1;
+  border: 2px solid #ea580c;
+  border-radius: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .swiper-button-next::after,
+  .swiper-button-prev::after {
+    font-size: 14px !important;
+  }
+
+  .swiper-pagination-bullet {
+    width: 6px !important;
+    height: 6px !important;
+  }
+}
+
+/* Modal swiper styles */
+.modal-swiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+
+.modal-swiper .swiper-pagination-bullet-active {
+  background: #fff !important;
+}
+
+.modal-swiper .swiper-button-next,
+.modal-swiper .swiper-button-prev {
+  background: rgba(0, 0, 0, 0.3) !important;
+  color: #fff !important;
+}
+
+.modal-swiper .swiper-button-next:hover,
+.modal-swiper .swiper-button-prev:hover {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Related Products Slider Styles */
+.related-products-swiper {
+  overflow: visible !important;
+}
+
+.related-products-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+  align-items: stretch;
+}
+
+.related-products-swiper .swiper-slide>div {
+  width: 100%;
+  height: 100%;
+}
+
+.related-products-swiper .swiper-pagination {
+  bottom: 0 !important;
+}
+
+.related-products-swiper .swiper-pagination-bullet {
+  width: 10px !important;
+  height: 10px !important;
+  background: #d1d5db !important;
+  opacity: 1 !important;
+  transition: all 0.3s ease;
+}
+
+.related-products-swiper .swiper-pagination-bullet-active {
+  background: #ea580c !important;
+  transform: scale(1.3);
+}
+
+/* Custom navigation buttons for related products */
+.related-swiper-button-next,
+.related-swiper-button-prev {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.related-swiper-button-next:hover,
+.related-swiper-button-prev:hover {
+  transform: translateY(-50%) scale(1.1) !important;
+}
+
+/* Profile List Items Slider Styles */
+.recent-orders-swiper,
+.buy-again-swiper {
+  overflow: visible !important;
+  padding-bottom: 40px !important;
+}
+
+.recent-orders-swiper .swiper-slide,
+.buy-again-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+  align-items: stretch;
+}
+
+.recent-orders-swiper .swiper-slide>a,
+.buy-again-swiper .swiper-slide>a {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.recent-orders-swiper .swiper-pagination,
+.buy-again-swiper .swiper-pagination {
+  bottom: 0 !important;
+}
+
+.recent-orders-swiper .swiper-pagination-bullet,
+.buy-again-swiper .swiper-pagination-bullet {
+  width: 8px !important;
+  height: 8px !important;
+  background: #d1d5db !important;
+  opacity: 1 !important;
+  transition: all 0.3s ease;
+}
+
+.recent-orders-swiper .swiper-pagination-bullet-active,
+.buy-again-swiper .swiper-pagination-bullet-active {
+  background: #ea580c !important;
+  transform: scale(1.2);
+}
+
+.recent-orders-swiper .swiper-button-next,
+.recent-orders-swiper .swiper-button-prev,
+.buy-again-swiper .swiper-button-next,
+.buy-again-swiper .swiper-button-prev {
+  width: 36px !important;
+  height: 36px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 50% !important;
+  color: #374151 !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.recent-orders-swiper .swiper-button-next:hover,
+.recent-orders-swiper .swiper-button-prev:hover,
+.buy-again-swiper .swiper-button-next:hover,
+.buy-again-swiper .swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  color: #ea580c !important;
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.recent-orders-swiper .swiper-button-next::after,
+.recent-orders-swiper .swiper-button-prev::after,
+.buy-again-swiper .swiper-button-next::after,
+.buy-again-swiper .swiper-button-prev::after {
+  font-size: 14px !important;
+  font-weight: bold;
+}

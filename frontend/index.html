@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <!-- Favicon for different devices -->
+    <link rel="icon" type="image/svg+xml" href="/ink_dapper_logo.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/ink_dapper_logo.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="/ink_dapper_logo.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/ink_dapper_logo.svg">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
+    <title>Ink Dapper | Oversized Tees & Custom T-Shirts</title>
+    <meta
+      name="description"
+      content="Ink Dapper specializes in oversized t-shirts, acid wash tees, custom oversized clothing, and solid color tees. Redefine your street style today!"
+    >
+    
+    <!-- Performance Meta Tags -->
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.inkdapper.com/" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.inkdapper.com/">
+    <meta property="og:title" content="Ink Dapper | Oversized Tees, Acid Wash T-Shirts & Custom Clothing">
+    <meta property="og:description" content="Explore Ink Dapper's exclusive collection of oversized t-shirts, acid wash tees, customized oversized tees, and solid color tees. Perfect comfort and style for every vibe.">
+    <meta property="og:image" content="https://www.inkdapper.com/path-to-your-logo-or-banner.jpg">
+    <meta property="og:site_name" content="Ink Dapper">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.inkdapper.com/">
+    <meta property="twitter:title" content="Ink Dapper | Oversized Tees & Custom T-Shirts">
+    <meta property="twitter:description" content="Explore Ink Dapper's exclusive collection of oversized t-shirts, acid wash tees, customized oversized tees, and solid color tees. Perfect comfort and style for every vibe.">
+    <meta property="twitter:image" content="https://www.inkdapper.com/path-to-your-logo-or-banner.jpg">
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow">
+    <meta name="author" content="Ink Dapper">
+    <meta name="application-name" content="Ink Dapper">
+    <meta name="apple-mobile-web-app-title" content="Ink Dapper">
+    <meta name="msapplication-TileColor" content="#f97316">
+    <meta name="msapplication-TileImage" content="/ink_dapper_logo.svg">
+    <meta name="keywords" content="oversized t-shirts, acid wash tees, custom t-shirts, street style, fashion, clothing, custom oversized clothing, solid color tees, Inkdapper">
+    <meta name="geo.region" content="IN">
+    <meta name="geo.placename" content="India">
+    <meta name="geo.position" content="20.5937;78.9629">
+    <meta name="ICBM" content="20.5937, 78.9629">
+    
+    <!-- Structured Data for Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Ink Dapper",
+      "url": "https://www.inkdapper.com",
+      "logo": "https://www.inkdapper.com/ink_dapper_logo.svg",
+      "description": "Ink Dapper specializes in oversized t-shirts, acid wash tees, custom oversized clothing, and solid color tees. Redefine your street style today!",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "IN",
+        "addressRegion": "Tamil Nadu"
+      },
+      "sameAs": [
+        "https://www.inkdapper.com"
+      ]
+    }
+    </script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/assets/logo_only.png" as="image" type="image/png" fetchpriority="high">
+    <!-- Removed banner-01 preload as it's not used immediately -->
+    <link rel="modulepreload" href="/src/main.jsx" crossorigin="anonymous">
+    <link rel="preconnect" href="https://checkout.razorpay.com">
+    
+    <!-- Preload fonts with display swap -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Prata&display=swap" as="style">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prata&display=swap" media="print" onload="this.media='all'">
+    
+    <!-- Resource hints -->
+    <link rel="dns-prefetch" href="https://checkout.razorpay.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Inline critical CSS -->
+    <style>
+      /* Critical CSS for initial render */
+      .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      
+      .loader {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .logo-container {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .loader-spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #414141;
+        border-radius: 50%;
+        width: 140px;
+        height: 140px;
+        animation: spin 1.5s linear infinite;
+        position: absolute;
+      }
+      
+      .logo-container img {
+        width: 90px;
+        height: auto;
+        animation: pulse 2s infinite;
+      }
+      
+      .brand-name {
+        font-family: 'Prata', serif;
+        font-size: 32px;
+        color: #414141;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .brand-name::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #414141;
+        transform: translateX(-100%);
+        animation: line-reveal 2s infinite;
+      }
+      
+      .loading-text {
+        font-size: 14px;
+        color: #666;
+        margin-top: 10px;
+        letter-spacing: 2px;
+        animation: blink 1.5s infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.8; }
+        50% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.8; }
+      }
+      
+      @keyframes blink {
+        0% { opacity: 0.3; }
+        50% { opacity: 1; }
+        100% { opacity: 0.3; }
+      }
+      
+      .loader-container .hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      /* Prevent layout shifts */
+      img {
+        aspect-ratio: attr(width) / attr(height);
+      }
+    </style>
+    
+    <!-- Defer non-critical CSS -->
+    <link rel="stylesheet" href="/src/styles/swiper-custom.css" media="print" onload="this.media='all'">
+  </head>
+  <body>
+    <!-- Page Loader -->
+    <div class="loader-container" id="pageLoader">
+      <div class="loader">
+        <div class="logo-container">
+          <div class="loader-spinner"></div>
+          <img
+            src="./src/assets/logo_only.png"
+            alt="Ink Dapper Logo"
+            width="90"
+            height="90"
+            fetchpriority="high"
+            decoding="sync"
+          >
+        </div>
+        <div class="brand-name">
+          <p className="text-xl md:text-3xl font-medium">
+            <span className="font-light">Ink</span>
+            <span className="!font-[700]">Dapper</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="root"></div>
+    
+    <!-- Defer non-critical JavaScript -->
+    <script type="module" src="/src/main.jsx" defer></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+    
+    <!-- Loader Script -->
+    <script>
+      // Optimize initial load
+      document.addEventListener('DOMContentLoaded', function() {
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+          // Reduce initial load time by removing loader faster
+          setTimeout(() => {
+            loader.style.opacity = '0';
+            loader.style.transition = 'opacity 0.3s ease-out';
+            setTimeout(() => {
+              loader.style.display = 'none';
+            }, 300);
+          }, 500);
+        }
+      });
+
+      // Preload critical images
+      const preloadImages = () => {
+        const images = document.querySelectorAll('img[data-src]');
+        images.forEach(img => {
+          if (img.dataset.src) {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+          }
+        });
+      };
+
+      // Intersection Observer for lazy loading
+      if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              if (img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+              }
+              observer.unobserve(img);
+            }
+          });
+        });
+
+        document.querySelectorAll('img[data-src]').forEach(img => {
+          imageObserver.observe(img);
+        });
+      }
+    </script>
+  </body>
+</html>

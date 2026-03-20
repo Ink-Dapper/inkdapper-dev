@@ -1,0 +1,808 @@
+import React, { useState, useEffect } from 'react';
+import axios from '../utils/axios';
+import { toast } from 'react-toastify';
+import {
+  Mail,
+  Users,
+  CheckCircle,
+  Clock,
+  Trash2,
+  Edit3,
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Phone,
+  MapPin,
+  Calendar,
+  MoreVertical,
+  Send,
+  Archive,
+  RefreshCw,
+  Settings,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
+
+const NewsletterSubscribers = ({ token }) => {
+  const [subscribers, setSubscribers] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedSubscriber, setSelectedSubscriber] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showActionDropdown, setShowActionDropdown] = useState({});
+  const [editForm, setEditForm] = useState({
+    isActive: true,
+    notes: '',
+    emailCount: 0,
+    source: 'website'
+  });
+
+
+
+  useEffect(() => {
+    fetchSubscribers();
+    fetchStats();
+  }, []);
+
+  const fetchSubscribers = async () => {
+    try {
+      const response = await axios.get('/newsletter/subscribers', {
+        headers: { token: token }
+      });
+      if (response.data.success) {
+        setSubscribers(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching subscribers:', error);
+      toast.error('Failed to fetch subscribers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get('/newsletter/stats', {
+        headers: { token: token }
+      });
+      if (response.data.success) {
+        setStats(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const handleStatusUpdate = async (id, isActive) => {
+    try {
+      const response = await axios.put(`/newsletter/subscribers/${id}`, {
+        isActive,
+        notes: editForm.notes,
+        emailCount: editForm.emailCount,
+        source: editForm.source
+      }, {
+        headers: { token: token }
+      });
+
+      if (response.data.success) {
+        setSubscribers(prev =>
+          prev.map(sub =>
+            sub._id === id ? {
+              ...sub,
+              isActive,
+              notes: editForm.notes,
+              emailCount: editForm.emailCount,
+              source: editForm.source
+            } : sub
+          )
+        );
+        toast.success('Subscriber updated successfully');
+        setShowEditModal(false);
+        setSelectedSubscriber(null);
+      }
+    } catch (error) {
+      console.error('Error updating subscriber:', error);
+      toast.error('Failed to update subscriber');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this subscriber?')) return;
+
+    try {
+      const response = await axios.delete(`/newsletter/subscribers/${id}`, {
+        headers: { token: token }
+      });
+
+      if (response.data.success) {
+        setSubscribers(prev => prev.filter(sub => sub._id !== id));
+        toast.success('Subscriber deleted successfully');
+        fetchStats(); // Refresh stats
+      }
+    } catch (error) {
+      console.error('Error deleting subscriber:', error);
+      toast.error('Failed to delete subscriber');
+    }
+  };
+
+  const openEditModal = (subscriber) => {
+    setSelectedSubscriber(subscriber);
+    setEditForm({
+      isActive: subscriber.isActive,
+      notes: subscriber.notes || '',
+      emailCount: subscriber.emailCount || 0,
+      source: subscriber.source || 'website'
+    });
+    setShowEditModal(true);
+  };
+
+  const openDetailsModal = (subscriber) => {
+    setSelectedSubscriber(subscriber);
+    setShowDetailsModal(true);
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Name', 'Email', 'Phone', 'Interests', 'Status', 'Verified', 'Subscription Date', 'Email Count', 'Last Email Sent', 'Source', 'Notes'];
+    const csvData = filteredSubscribers.map(sub => [
+      sub.name || 'N/A',
+      sub.email,
+      sub.phone || 'N/A',
+      sub.interests && sub.interests.length > 0 ? sub.interests.join('; ') : 'No interests',
+      sub.isActive ? 'Active' : 'Inactive',
+      sub.isVerified ? 'Yes' : 'No',
+      formatDate(sub.subscriptionDate),
+      sub.emailCount || 0,
+      sub.lastEmailSent ? formatDate(sub.lastEmailSent) : 'Never',
+      sub.source === 'logged-in-user' ? 'Logged-in User' :
+        sub.source === 'website' ? 'Website' :
+          sub.source || 'Website',
+      sub.notes || ''
+    ]);
+
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `newsletter-subscribers-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Subscribers exported successfully');
+  };
+
+  const filteredSubscribers = subscribers.filter(subscriber => {
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch =
+      subscriber.email.toLowerCase().includes(searchLower) ||
+      (subscriber.name && subscriber.name.toLowerCase().includes(searchLower)) ||
+      (subscriber.phone && subscriber.phone.toLowerCase().includes(searchLower)) ||
+      (subscriber.interests && subscriber.interests.some(interest =>
+        interest.toLowerCase().includes(searchLower)
+      ));
+
+    const matchesFilter = filterStatus === 'all' ||
+      (filterStatus === 'active' && subscriber.isActive) ||
+      (filterStatus === 'inactive' && !subscriber.isActive);
+
+    return matchesSearch && matchesFilter;
+  });
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const toggleActionDropdown = (subscriberId) => {
+    setShowActionDropdown(prev => ({
+      ...prev,
+      [subscriberId]: !prev[subscriberId]
+    }));
+  };
+
+  const closeAllDropdowns = () => {
+    setShowActionDropdown({});
+    setShowFilterDropdown(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Newsletter Subscribers</h1>
+        <p className="text-gray-600">Manage your newsletter subscribers and track engagement</p>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Total Subscribers</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.total || 0}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Active Subscribers</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.active || 0}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+          <div className="flex items-center">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Mail className="w-6 h-6 text-purple-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Verified</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.verified || 0}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+          <div className="flex items-center">
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <Clock className="w-6 h-6 text-orange-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Recent (30 days)</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.recent || 0}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Enhanced Filters and Search */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search by email..."
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Modern Filter Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 min-w-[200px]"
+            >
+              <Filter className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-700">
+                {filterStatus === 'all' && 'All Subscribers'}
+                {filterStatus === 'active' && 'Active Only'}
+                {filterStatus === 'inactive' && 'Inactive Only'}
+              </span>
+              {showFilterDropdown ? (
+                <ChevronUp className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              )}
+            </button>
+
+            {showFilterDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setFilterStatus('all');
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'all' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                    <Users className="w-4 h-4" />
+                    <span className="font-medium">All Subscribers</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFilterStatus('active');
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'active' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="font-medium">Active Only</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFilterStatus('inactive');
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-all duration-200 flex items-center gap-3 ${filterStatus === 'inactive' ? 'bg-orange-50 text-orange-700 border-r-2 border-orange-500' : 'text-gray-700'
+                      }`}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <Clock className="w-4 h-4" />
+                    <span className="font-medium">Inactive Only</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={exportToCSV}
+            className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200 flex items-center gap-2 font-medium shadow-md hover:shadow-lg"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* Subscribers Table */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Subscriber
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Contact Info
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Interests
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Subscription Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email Count
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Email Sent
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Source
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredSubscribers.map((subscriber) => (
+                <tr key={subscriber._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
+                          <Mail className="w-5 h-5 text-orange-600" />
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">{subscriber.name || 'N/A'}</div>
+                        <div className="text-sm text-gray-500">{subscriber.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      <div className="font-medium">{subscriber.email}</div>
+                      {subscriber.phone && (
+                        <div className="text-gray-500">{subscriber.phone}</div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex flex-wrap gap-1">
+                      {subscriber.interests && subscriber.interests.length > 0 ? (
+                        subscriber.interests.map((interest, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full"
+                          >
+                            {interest}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 text-sm">No interests</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${subscriber.isActive
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
+                      {subscriber.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                    {subscriber.isVerified && (
+                      <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        Verified
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {formatDate(subscriber.subscriptionDate)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                      {subscriber.emailCount || 0}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {subscriber.lastEmailSent ? (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        {formatDate(subscriber.lastEmailSent)}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">Never</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${subscriber.source === 'logged-in-user'
+                      ? 'bg-blue-100 text-blue-800'
+                      : subscriber.source === 'website'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                      }`}>
+                      {subscriber.source === 'logged-in-user' ? 'Logged-in User' :
+                        subscriber.source === 'website' ? 'Website' :
+                          subscriber.source || 'Website'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="relative">
+                      <button
+                        onClick={() => toggleActionDropdown(subscriber._id)}
+                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+
+                      {showActionDropdown[subscriber._id] && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+                          <div className="py-1">
+                            <button
+                              onClick={() => {
+                                openDetailsModal(subscriber);
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Details
+                            </button>
+                            <button
+                              onClick={() => {
+                                openEditModal(subscriber);
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                              Edit Subscriber
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Handle send email action
+                                toast.info('Send email feature coming soon');
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Send className="w-4 h-4" />
+                              Send Email
+                            </button>
+                            <button
+                              onClick={() => {
+                                // Handle archive action
+                                toast.info('Archive feature coming soon');
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Archive className="w-4 h-4" />
+                              Archive
+                            </button>
+                            <hr className="my-1" />
+                            <button
+                              onClick={() => {
+                                handleDelete(subscriber._id);
+                                closeAllDropdowns();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {filteredSubscribers.length === 0 && (
+          <div className="text-center py-8">
+            <Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No subscribers found</p>
+          </div>
+        )}
+      </div>
+
+      {/* Click outside to close dropdowns */}
+      {(showFilterDropdown || Object.values(showActionDropdown).some(Boolean)) && (
+        <div
+          className="fixed inset-0 z-10"
+          onClick={closeAllDropdowns}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && selectedSubscriber && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Edit Subscriber</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={selectedSubscriber.email}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select
+                  value={editForm.isActive}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, isActive: e.target.value === 'true' }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value={true}>Active</option>
+                  <option value={false}>Inactive</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Count
+                </label>
+                <input
+                  type="number"
+                  value={editForm.emailCount}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, emailCount: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Source
+                </label>
+                <select
+                  value={editForm.source}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, source: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="website">Website</option>
+                  <option value="modal">Modal</option>
+                  <option value="footer">Footer</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notes
+                </label>
+                <textarea
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                  rows="3"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Add notes about this subscriber..."
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => handleStatusUpdate(selectedSubscriber._id, editForm.isActive)}
+                className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
+              >
+                Update
+              </button>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedSubscriber(null);
+                }}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Details Modal */}
+      {showDetailsModal && selectedSubscriber && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Subscriber Details</h3>
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  setSelectedSubscriber(null);
+                }}
+                className="text-gray-500 hover:text-gray-700 text-2xl font-bold leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <p className="text-gray-900 font-medium">{selectedSubscriber.name || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                  <p className="text-gray-900 font-medium">{selectedSubscriber.email}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <p className="text-gray-900">{selectedSubscriber.phone || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedSubscriber.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                    {selectedSubscriber.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Verified</label>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedSubscriber.isVerified ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                    {selectedSubscriber.isVerified ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedSubscriber.source === 'logged-in-user'
+                    ? 'bg-blue-100 text-blue-800'
+                    : selectedSubscriber.source === 'website'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 text-gray-800'
+                    }`}>
+                    {selectedSubscriber.source === 'logged-in-user' ? 'Logged-in User' :
+                      selectedSubscriber.source === 'website' ? 'Website' :
+                        selectedSubscriber.source || 'Website'}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Count</label>
+                  <p className="text-gray-900">{selectedSubscriber.emailCount || 0}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subscription Date</label>
+                  <p className="text-gray-900">{formatDate(selectedSubscriber.subscriptionDate)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Email Sent</label>
+                  <p className="text-gray-900">
+                    {selectedSubscriber.lastEmailSent ? formatDate(selectedSubscriber.lastEmailSent) : 'Never'}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+                  <p className="text-gray-900">{formatDate(selectedSubscriber.createdAt)}</p>
+                </div>
+              </div>
+
+              {selectedSubscriber.interests && selectedSubscriber.interests.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Interests</label>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSubscriber.interests.map((interest, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex px-3 py-1 text-sm font-medium bg-orange-100 text-orange-800 rounded-full"
+                      >
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedSubscriber.notes && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                  <p className="text-gray-900 bg-gray-50 p-3 rounded-md">{selectedSubscriber.notes}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  openEditModal(selectedSubscriber);
+                }}
+                className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
+              >
+                Edit Subscriber
+              </button>
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  setSelectedSubscriber(null);
+                }}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NewsletterSubscribers;

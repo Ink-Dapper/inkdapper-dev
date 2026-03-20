@@ -1,0 +1,31 @@
+{
+  "name": "Ink Dapper",
+  "short_name": "Ink Dapper",
+  "description": "Ink Dapper specializes in oversized t-shirts, acid wash tees, custom oversized clothing, and solid color tees. Redefine your street style today!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "icons": [
+    {
+      "src": "/ink_dapper_logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ink_dapper_logo_white.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": [
+    "shopping",
+    "fashion",
+    "lifestyle"
+  ],
+  "lang": "en",
+  "scope": "/",
+  "orientation": "portrait-primary"
+}

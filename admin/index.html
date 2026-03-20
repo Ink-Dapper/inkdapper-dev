@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/ink_dapper_logo_white.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ink Dapper Admin Panel</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      #admin-loader {
+        position: fixed;
+        inset: 0;
+        background: #0d0d0e;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.35s ease, visibility 0.35s ease;
+      }
+      #admin-loader.hide {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      /* Ambient glow */
+      .al-glow {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(60px);
+      }
+      .al-glow-1 {
+        width: 320px; height: 320px;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -70%);
+        background: radial-gradient(circle, rgba(249,115,22,0.12), transparent 70%);
+      }
+      .al-glow-2 {
+        width: 200px; height: 200px;
+        bottom: 20%; left: 30%;
+        background: radial-gradient(circle, rgba(245,158,11,0.07), transparent 70%);
+      }
+
+      /* Icon box */
+      .al-icon {
+        position: relative;
+        width: 72px; height: 72px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #f97316, #f59e0b);
+        box-shadow: 0 0 40px rgba(249,115,22,0.45), 0 0 80px rgba(249,115,22,0.12);
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 22px;
+        animation: al-pulse 2s ease-in-out infinite;
+      }
+      .al-icon svg { width: 36px; height: 36px; color: #fff; }
+
+      /* Ping ring */
+      .al-ring {
+        position: absolute;
+        inset: -6px;
+        border-radius: 28px;
+        border: 1.5px solid rgba(249,115,22,0.35);
+        animation: al-ring 1.8s ease-out infinite;
+      }
+
+      /* Brand text */
+      .al-brand {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        background: linear-gradient(135deg, #f97316, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 4px;
+      }
+      .al-sub {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #475569;
+        margin-bottom: 28px;
+      }
+
+      /* Bar track */
+      .al-bar-track {
+        width: 160px; height: 2px;
+        border-radius: 99px;
+        background: rgba(255,255,255,0.06);
+        overflow: hidden;
+        margin-bottom: 14px;
+      }
+      .al-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #f97316, #f59e0b);
+        box-shadow: 0 0 8px rgba(249,115,22,0.6);
+        animation: al-sweep 1.6s ease-in-out infinite;
+      }
+
+      /* Dots */
+      .al-dots {
+        display: flex; gap: 6px;
+      }
+      .al-dot {
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        animation: al-dot 1.2s ease-in-out infinite;
+      }
+      .al-dot:nth-child(1) { animation-delay: 0s; }
+      .al-dot:nth-child(2) { animation-delay: 0.18s; }
+      .al-dot:nth-child(3) { animation-delay: 0.36s; }
+
+      /* Admin badge */
+      .al-badge {
+        position: absolute;
+        bottom: 32px;
+        display: flex; align-items: center; gap: 6px;
+        padding: 6px 14px;
+        border-radius: 99px;
+        border: 1px solid rgba(249,115,22,0.2);
+        background: rgba(249,115,22,0.06);
+      }
+      .al-badge-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #f97316;
+        animation: al-blink 1.4s ease-in-out infinite;
+      }
+      .al-badge-text {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #fb923c;
+      }
+
+      @keyframes al-pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(249,115,22,0.45), 0 0 80px rgba(249,115,22,0.12); }
+        50%       { transform: scale(1.04); box-shadow: 0 0 55px rgba(249,115,22,0.6), 0 0 100px rgba(249,115,22,0.18); }
+      }
+      @keyframes al-ring {
+        0%   { transform: scale(1);   opacity: 0.7; }
+        100% { transform: scale(1.5); opacity: 0; }
+      }
+      @keyframes al-sweep {
+        0%   { width: 0%;   margin-left: 0%; }
+        50%  { width: 70%;  margin-left: 15%; }
+        100% { width: 0%;   margin-left: 100%; }
+      }
+      @keyframes al-dot {
+        0%, 100% { opacity: 0.15; transform: scale(1); }
+        50%       { opacity: 1;   transform: scale(1.5); background: #f97316; }
+      }
+      @keyframes al-blink {
+        0%, 100% { opacity: 0.4; }
+        50%       { opacity: 1; }
+      }
+    </style>
+  </head>
+  <body style="background:#0d0d0e;">
+
+    <!-- ── Admin Loader ── -->
+    <div id="admin-loader">
+      <div class="al-glow al-glow-1"></div>
+      <div class="al-glow al-glow-2"></div>
+
+      <!-- Icon -->
+      <div class="al-icon">
+        <div class="al-ring"></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+
+      <!-- Brand -->
+      <div class="al-brand">Ink Dapper</div>
+      <div class="al-sub">Admin Panel</div>
+
+      <!-- Loading bar -->
+      <div class="al-bar-track">
+        <div class="al-bar-fill"></div>
+      </div>
+
+      <!-- Dots -->
+      <div class="al-dots">
+        <div class="al-dot"></div>
+        <div class="al-dot"></div>
+        <div class="al-dot"></div>
+      </div>
+
+      <!-- Bottom badge -->
+      <div class="al-badge">
+        <div class="al-badge-dot"></div>
+        <span class="al-badge-text">Initializing Dashboard</span>
+      </div>
+    </div>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+
+    <script>
+      // Hide loader once React mounts
+      document.addEventListener('DOMContentLoaded', function () {
+        var loader = document.getElementById('admin-loader');
+        var observer = new MutationObserver(function () {
+          if (document.getElementById('root').childElementCount > 0) {
+            setTimeout(function () {
+              loader.classList.add('hide');
+              setTimeout(function () { loader.remove(); }, 400);
+            }, 200);
+            observer.disconnect();
+          }
+        });
+        observer.observe(document.getElementById('root'), { childList: true });
+
+        // Fallback — remove after 6s no matter what
+        setTimeout(function () {
+          loader.classList.add('hide');
+          setTimeout(function () { loader.remove(); }, 400);
+        }, 6000);
+      });
+    </script>
+  </body>
+</html>

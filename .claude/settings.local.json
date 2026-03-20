@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:4000/api/storage/browse?prefix=\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:4000/api/storage/health\")",
+      "Bash(curl -s \"http://localhost:4000/api/test\")",
+      "Bash(xargs grep -l \"upload\\\\|Upload\")",
+      "Bash(xargs grep -l \"product\\\\|upload\")",
+      "Bash(xargs grep -l \"image\\\\|file\\\\|upload\")",
+      "Bash(xargs cat)",
+      "Bash(grep -rn \"Loading\\\\|loader\\\\|Loader\\\\|loading\" 'd:/T-shirt branding/Latest-Updated-Dev/inkdapper-dev/frontend/src' --include=*.jsx --include=*.js -l)",
+      "Bash(find 'd:/T-shirt branding/Latest-Updated-Dev/inkdapper-dev/frontend/src' -name *AI* -o -name *ai*design* -o -name *Designer* -o -name *Custom*)"
+    ]
+  }
+}

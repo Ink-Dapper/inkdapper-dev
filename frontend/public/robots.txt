@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://www.inkdapper.com/sitemap.xml
+Sitemap: https://www.inkdapper.com/sitemap-main.xml
+
+# Crawl-delay for better server performance
+Crawl-delay: 1 
