@@ -499,7 +499,11 @@ const Chatbot = () => {
                     : 'bg-gray-100 text-gray-800'
                     }`}
                 >
+<<<<<<< HEAD
                   <div className="whitespace-pre-line text-sm leading-relaxed break-words overflow-hidden">
+=======
+                  <div className="whitespace-pre-line text-sm leading-relaxed break-words overflow-hidden text-slate-700">
+>>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                     {message.content}
                     {message.productLink && (
                       <div className="mt-3">

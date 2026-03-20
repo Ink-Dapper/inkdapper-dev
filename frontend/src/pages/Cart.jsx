@@ -325,8 +325,13 @@ const Cart = () => {
                         {/* Image */}
                         <div className='flex-shrink-0 flex justify-center sm:justify-start'>
                           <img
+<<<<<<< HEAD
                             className='w-20 sm:w-24 md:w-28 object-contain rounded-xl transition-all duration-300'
                             style={{ border: '1px solid rgba(168,85,247,0.25)', aspectRatio: '5/6' }}
+=======
+                            className='w-24 h-[115px] sm:w-28 sm:h-[134px] md:w-32 md:h-[154px] object-contain rounded-xl transition-all duration-300'
+                            style={{ border: '1px solid rgba(168,85,247,0.25)' }}
+>>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                             src={(Array.isArray(data.reviewImageCustom) ? data.reviewImageCustom[0] : data.reviewImageCustom) || data.aiDesignUrl}
                             alt={data.name}
                           />
