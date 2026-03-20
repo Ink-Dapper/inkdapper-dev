@@ -318,32 +318,18 @@ const PlaceOrder = () => {
                   <div className="my-3 border-t-2 border-slate-500" />
                   <div className="text-xs sm:text-sm space-y-1">
                     <div className="flex justify-between gap-3">
-<<<<<<< HEAD
-                      <span>Receipt No</span>
-                      <span className="font-semibold">{receiptData?.receiptNo}</span>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                      <span>Date</span>
-                      <span className="font-semibold">
-=======
                       <span className='text-slate-600'>Receipt No</span>
                       <span className="font-semibold text-slate-600">{receiptData?.receiptNo}</span>
                     </div>
                     <div className="flex justify-between gap-3">
                       <span className='text-slate-600'>Date</span>
                       <span className="font-semibold text-slate-600">
->>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                         {receiptData?.date ? new Date(receiptData.date).toLocaleString() : ''}
                       </span>
                     </div>
                     <div className="flex justify-between gap-3">
-<<<<<<< HEAD
-                      <span>Payment</span>
-                      <span className="font-semibold">{receiptData?.paymentMethod}</span>
-=======
                       <span className='text-slate-600'>Payment</span>
                       <span className="font-semibold text-slate-600">{receiptData?.paymentMethod}</span>
->>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                     </div>
                   </div>
 
@@ -353,17 +339,10 @@ const PlaceOrder = () => {
                     {(receiptData?.items || []).map((item, index) => (
                       <div key={`${item._id}-${item.size}-${index}`} className="text-xs sm:text-sm">
                         <div className="flex justify-between gap-3">
-<<<<<<< HEAD
-                          <span className="truncate">
-                            {item.name} ({item.size}) x {item.quantity}
-                          </span>
-                          <span className="font-semibold whitespace-nowrap">
-=======
                           <span className="truncate text-slate-600">
                             {item.name} ({item.size}) x {item.quantity}
                           </span>
                           <span className="font-semibold whitespace-nowrap text-slate-600">
->>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                             {formatCurrency((item.price || 0) * (item.quantity || 0))}
                           </span>
                         </div>
@@ -375,19 +354,6 @@ const PlaceOrder = () => {
 
                   <div className="space-y-1 text-xs sm:text-sm">
                     <div className="flex justify-between">
-<<<<<<< HEAD
-                      <span>Subtotal</span>
-                      <span>{formatCurrency(receiptData?.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Shipping</span>
-                      <span>{formatCurrency(receiptData?.shipping)}</span>
-                    </div>
-                    {Number(receiptData?.discount) > 0 && (
-                      <div className="flex justify-between text-emerald-700">
-                        <span>Discount</span>
-                        <span>- {formatCurrency(receiptData?.discount)}</span>
-=======
                       <span className='text-slate-600'>Subtotal</span>
                       <span className='text-slate-600'>{formatCurrency(receiptData?.subtotal)}</span>
                     </div>
@@ -399,20 +365,10 @@ const PlaceOrder = () => {
                       <div className="flex justify-between text-emerald-700">
                         <span className='text-slate-600'>Discount</span>
                         <span className='text-slate-600'>- {formatCurrency(receiptData?.discount)}</span>
->>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                       </div>
                     )}
                     {Number(receiptData?.creditUsed) > 0 && (
                       <div className="flex justify-between text-emerald-700">
-<<<<<<< HEAD
-                        <span>Credit Used</span>
-                        <span>- {formatCurrency(receiptData?.creditUsed)}</span>
-                      </div>
-                    )}
-                    <div className="pt-1 mt-1 border-t border-slate-400 flex justify-between text-base sm:text-lg font-extrabold">
-                      <span>Total</span>
-                      <span>{formatCurrency(receiptData?.total)}</span>
-=======
                         <span className='text-slate-600'>Credit Used</span>
                         <span className='text-slate-600'>- {formatCurrency(receiptData?.creditUsed)}</span>
                       </div>
@@ -420,7 +376,6 @@ const PlaceOrder = () => {
                     <div className="pt-1 mt-1 border-t border-slate-400 flex justify-between text-base sm:text-lg font-extrabold">
                       <span className='text-slate-600'>Total</span>
                       <span className='text-slate-600'>{formatCurrency(receiptData?.total)}</span>
->>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                     </div>
                   </div>
 
@@ -428,22 +383,13 @@ const PlaceOrder = () => {
 
                   <div className="text-[11px] sm:text-xs leading-relaxed">
                     <p className="font-semibold text-slate-800">Billing Address</p>
-<<<<<<< HEAD
-                    <p>
-=======
                     <p className='text-slate-600'>
->>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                       {receiptData?.address?.firstName} {receiptData?.address?.lastName}, {receiptData?.address?.street},{' '}
                       {receiptData?.address?.city}, {receiptData?.address?.state} - {receiptData?.address?.zipcode},{' '}
                       {receiptData?.address?.country}
                     </p>
-<<<<<<< HEAD
-                    <p>Phone: {receiptData?.address?.phone}</p>
-                    <p>Email: {receiptData?.address?.email}</p>
-=======
                     <p className='text-slate-600'>Phone: {receiptData?.address?.phone}</p>
                     <p className='text-slate-600'>Email: {receiptData?.address?.email}</p>
->>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                   </div>
 
                   <div className="mt-4 h-12 rounded" style={{ background: 'repeating-linear-gradient(90deg, #1f2937 0, #1f2937 2px, transparent 2px, transparent 6px)' }} />
@@ -656,17 +602,6 @@ const PlaceOrder = () => {
                   <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
                     <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
                       <p className='text-[11px] font-semibold text-slate-200'>Secure Address</p>
-<<<<<<< HEAD
-                      <p className='text-[11px] text-slate-700 mt-0.5'>Your details stay encrypted.</p>
-                    </div>
-                    <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
-                      <p className='text-[11px] font-semibold text-slate-200'>Quick Dispatch</p>
-                      <p className='text-[11px] text-slate-700 mt-0.5'>Orders move fast after payment.</p>
-                    </div>
-                    <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
-                      <p className='text-[11px] font-semibold text-slate-200'>Easy Support</p>
-                      <p className='text-[11px] text-slate-700 mt-0.5'>Help available for address issues.</p>
-=======
                       <p className='text-[11px] text-slate-500 mt-0.5'>Your details stay encrypted.</p>
                     </div>
                     <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
@@ -676,7 +611,6 @@ const PlaceOrder = () => {
                     <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
                       <p className='text-[11px] font-semibold text-slate-200'>Easy Support</p>
                       <p className='text-[11px] text-slate-500 mt-0.5'>Help available for address issues.</p>
->>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
                     </div>
                   </div>
                 </div>

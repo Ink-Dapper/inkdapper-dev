@@ -11,12 +11,12 @@ const getOpenAI = () => {
 };
 
 const STYLE_PROMPTS = {
-  vector: "flat vector art style, bold clean lines, high contrast, limited color palette",
-  vintage: "vintage retro t-shirt graphic, distressed texture, worn look, retro color palette",
-  streetwear: "streetwear graphic, urban bold design, graffiti influence, modern typography feel",
-  anime: "anime illustration style, vibrant colors, dynamic lines, manga-inspired",
-  minimalist: "minimalist design, simple clean shapes, monochromatic, elegant",
-  realistic: "detailed realistic illustration, painterly style, rich colors and shading",
+  vector: "flat vector art style, bold clean lines, high contrast, limited color palette, graphic illustration",
+  vintage: "vintage retro t-shirt graphic, distressed texture, worn look, retro color palette, classic poster art",
+  streetwear: "streetwear graphic, urban bold design, graffiti-inspired, modern graphic art",
+  anime: "anime illustration style, vibrant colors, dynamic lines, manga-inspired graphic art",
+  minimalist: "minimalist design, simple clean shapes, monochromatic, elegant graphic art",
+  realistic: "detailed realistic illustration, painterly style, rich colors and shading, concept art",
 };
 
 // Download image from URL and return as Buffer
@@ -43,9 +43,12 @@ const generateDesign = async (req, res) => {
 
     const styleGuide = STYLE_PROMPTS[style] || STYLE_PROMPTS.vector;
 
-    const enhancedPrompt = `${prompt.trim()}, t-shirt graphic design, ${styleGuide}, transparent background, centered composition, no background, suitable for screen printing, no text, no words`;
+    // DALL-E 3 works best with positive, descriptive language.
+    // Negative phrasing ("no text", "no background", "avoid X") frequently
+    // triggers the safety filter even for innocent prompts.
+    const enhancedPrompt = `A t-shirt graphic design of ${prompt.trim()}. Style: ${styleGuide}. White background, centered composition, print-ready artwork, graphic illustration only.`;
 
-    console.log(`AI Design: generating image for prompt: "${enhancedPrompt.substring(0, 80)}..."`);
+    console.log(`AI Design: generating for style="${style}" prompt="${enhancedPrompt.substring(0, 100)}..."`);
 
     const openai = getOpenAI();
     const response = await openai.images.generate({
@@ -84,10 +87,17 @@ const generateDesign = async (req, res) => {
       });
     }
 
-    if (error?.status === 400 && error?.message?.includes("safety")) {
+    // OpenAI safety filter — catches both status-based and message-based errors
+    const isSafetyError =
+      (error?.status === 400 || error?.code === 400) &&
+      (error?.message?.toLowerCase().includes("safety") ||
+        error?.message?.toLowerCase().includes("rejected") ||
+        error?.message?.toLowerCase().includes("content_policy"));
+
+    if (isSafetyError) {
       return res.status(400).json({
         success: false,
-        message: "Your prompt was flagged by content filters. Please try a different description.",
+        message: "Your prompt was flagged by content filters. Please rephrase your description and try again.",
       });
     }
 
