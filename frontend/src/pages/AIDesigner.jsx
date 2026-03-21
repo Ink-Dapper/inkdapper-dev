@@ -1102,7 +1102,7 @@ const AIDesigner = () => {
 
       {/* ── Mobile sticky bottom generate bar ── */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40"
-        style={{ background: 'linear-gradient(to top, #0a0a0c 65%, rgba(10,10,12,0))', paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
+        style={{ background: 'linear-gradient(to top, #0a0a0c 65%, rgba(10,10,12,0))', paddingBottom: 'calc(70px + max(16px, env(safe-area-inset-bottom)))' }}>
         <div className="px-4 pt-4 pb-2">
           {designMode === "ai" ? (
             <button onClick={handleGenerate} disabled={loading || !prompt.trim()}

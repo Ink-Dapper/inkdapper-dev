@@ -326,7 +326,7 @@ const Navbar = () => {
           </button>
         </div>
       </div>
-      <div className="fixed bottom-0 left-0 w-full z-30 md:hidden">
+      <div className="fixed bottom-0 left-0 w-full z-50 md:hidden">
         {/* Top glow line */}
         <div className="absolute top-0 left-0 w-full h-[2px]"
           style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(251,146,60,0.95) 30%, rgba(245,158,11,1) 50%, rgba(251,146,60,0.95) 70%, transparent 95%)', boxShadow: '0 0 12px rgba(249,115,22,0.6)' }}
