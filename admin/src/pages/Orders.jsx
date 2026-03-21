@@ -174,9 +174,30 @@ const Orders = () => {
                       <div className="space-y-2">
                         {order.items.map((item, index) => (
                           <div key={index} className="py-2 px-3 bg-gray-50 rounded-lg">
+<<<<<<< HEAD
                             <div className="flex justify-between items-center">
                               <span className="font-medium text-gray-900">{item.name}</span>
                               <div className="flex items-center gap-2 text-sm text-gray-600">
+=======
+<<<<<<< HEAD
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-gray-900">{item.name}</span>
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+=======
+                            <div className="flex justify-between items-center gap-3">
+                              <div className="flex items-center gap-3 min-w-0">
+                                {item.image && item.image[0] && (
+                                  <img
+                                    src={item.image[0]}
+                                    alt={item.name}
+                                    className="w-12 h-12 object-cover rounded-lg border border-gray-200 bg-white flex-shrink-0"
+                                  />
+                                )}
+                                <span className="font-medium text-gray-900 truncate">{item.name}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-600 flex-shrink-0">
+>>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
+>>>>>>> f1b0681836c65fca14a6113ec6a711bd766ece86
                                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
                                   Qty: {item.quantity}
                                 </span>
@@ -194,8 +215,21 @@ const Orders = () => {
                                     alt="Custom Design"
                                     className="w-16 h-16 object-contain rounded-lg border border-purple-200 bg-white"
                                   />
+<<<<<<< HEAD
                                   <div>
                                     <p className="text-xs font-semibold text-purple-700 mb-1">Custom Design</p>
+=======
+<<<<<<< HEAD
+                                  <div>
+                                    <p className="text-xs font-semibold text-purple-700 mb-1">Custom Design</p>
+=======
+                                  <div className='flex flex-col'>
+                                    <div>
+                                    <p className="text-xs font-semibold text-purple-700 mb-1">Custom Design</p>
+                                    </div>
+                                    <div className='flex gap-3'>
+>>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
+>>>>>>> f1b0681836c65fca14a6113ec6a711bd766ece86
                                     <button
                                       onClick={() => handleDownloadAiDesign(imgSrc, item.name)}
                                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors"
@@ -216,6 +250,13 @@ const Orders = () => {
                                         Download Original
                                       </button>
                                     )}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+                                    </div>
+>>>>>>> aa57bc266bf4c9c05d27c80eef28e1705b24958a
+>>>>>>> f1b0681836c65fca14a6113ec6a711bd766ece86
                                   </div>
                                 </div>
                               ) : null;

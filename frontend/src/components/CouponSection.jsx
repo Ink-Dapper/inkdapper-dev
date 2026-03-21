@@ -50,6 +50,7 @@ const CouponSection = () => {
         </h3>
         {!appliedCoupon && (
           <button
+            type="button"
             onClick={() => setShowCouponInput(!showCouponInput)}
             className="text-orange-600 hover:text-orange-700 text-sm font-medium transition-colors"
           >
@@ -83,6 +84,7 @@ const CouponSection = () => {
                 -{currency}{appliedCoupon.discountAmount}
               </p>
               <button
+                type="button"
                 onClick={handleRemoveCoupon}
                 className="text-green-600 hover:text-green-700 text-sm font-medium transition-colors"
               >
@@ -100,10 +102,11 @@ const CouponSection = () => {
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
               placeholder="Enter coupon code"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+              className="flex-1 text-slate-400 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
               maxLength={20}
             />
             <button
+              type="button"
               onClick={handleApplyCoupon}
               disabled={isLoading || !couponCode.trim()}
               className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
@@ -122,6 +125,7 @@ const CouponSection = () => {
             Save more with coupon codes
           </p>
           <button
+            type="button"
             onClick={() => setShowCouponInput(true)}
             className="text-orange-600 hover:text-orange-700 text-sm font-medium transition-colors"
           >
@@ -138,6 +142,7 @@ const CouponSection = () => {
             {['SAVE10', 'WELCOME20', 'FIRST50'].map((code) => (
               <button
                 key={code}
+                type="button"
                 onClick={() => {
                   setCouponCode(code);
                   setShowCouponInput(true);
@@ -155,4 +160,3 @@ const CouponSection = () => {
 };
 
 export default CouponSection;
-

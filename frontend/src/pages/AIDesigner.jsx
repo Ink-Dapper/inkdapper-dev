@@ -81,49 +81,78 @@ const SparkleIcon = () => (
 const ShirtMockup = ({
   shirt, generatedImage, loading,
   designWidth, designHeight, designX, designY,
-  blendMode, designOpacity = 1, designRotation = 0, size = 220,
+  blendMode, designOpacity = 1, designRotation = 0, blendStrength = 100, size = 220,
 }) => (
-  <div className="relative w-full" style={{ maxWidth: size }}>
+  // isolation:isolate confines blend modes to within this wrapper (not the page bg).
+  // No filter on the wrapper or shirt image — CSS filter creates its own stacking
+  // context which prevents mix-blend-mode from reaching the shirt pixels.
+  <div className="relative w-full" style={{ maxWidth: size, isolation: "isolate" }}>
     <img
       src={Array.isArray(shirt.image) ? shirt.image[0] : shirt.image}
       alt={`${shirt.color} shirt`}
       className="w-full h-auto drop-shadow-2xl"
     />
-    <div
-      className="absolute flex items-center justify-center"
-      style={{
-        top: `${designY}%`,
-        left: `${designX}%`,
-        transform: `translateX(-50%) rotate(${designRotation}deg)`,
-        width: `${designWidth}%`,
-        height: `${designHeight}%`,
-        opacity: designOpacity,
-      }}
-    >
-      {loading ? (
-        <div className="flex flex-col items-center gap-3">
-          <div className="relative w-12 h-12">
-            <div className="absolute inset-0 rounded-full border-2 border-orange-400/20 animate-ping" />
-            <div className="w-12 h-12 rounded-full border-2 border-transparent border-t-orange-400 border-r-orange-400/40 animate-spin" />
-          </div>
-          <span className="text-[10px] text-slate-700 font-semibold tracking-widest uppercase">Creating…</span>
+    {loading ? (
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 rounded-full border-2 border-orange-400/20 animate-ping" />
+          <div className="w-12 h-12 rounded-full border-2 border-transparent border-t-orange-400 border-r-orange-400/40 animate-spin" />
         </div>
-      ) : generatedImage ? (
+        <span className="text-[10px] text-slate-700 font-semibold tracking-widest uppercase">Creating…</span>
+      </div>
+    ) : generatedImage ? (
+      // Two-layer approach for blend strength:
+      // Layer 1 (normal) fades out as strength increases.
+      // Layer 2 (blended) fades in as strength increases.
+      // At 100% strength only the blended layer shows; at 0% only the normal layer.
+      // mix-blend-mode MUST be on the same element as transform — transform
+      // creates a stacking context that breaks blend mode on children.
+      <>
+        {blendMode !== "normal" && blendStrength < 100 && (
+          <img
+            src={generatedImage}
+            alt=""
+            aria-hidden="true"
+            className="absolute object-fill"
+            style={{
+              top: `${designY}%`,
+              left: `${designX}%`,
+              transform: `translateX(-50%) rotate(${designRotation}deg)`,
+              width: `${designWidth}%`,
+              height: `${designHeight}%`,
+              mixBlendMode: "normal",
+              opacity: designOpacity * ((100 - blendStrength) / 100),
+            }}
+          />
+        )}
         <img
           src={generatedImage}
           alt="AI Generated Design"
-          className="w-full h-full object-fill"
-          style={{ mixBlendMode: blendMode }}
+          className="absolute object-fill"
+          style={{
+            top: `${designY}%`,
+            left: `${designX}%`,
+            transform: `translateX(-50%) rotate(${designRotation}deg)`,
+            width: `${designWidth}%`,
+            height: `${designHeight}%`,
+            mixBlendMode: blendMode,
+            opacity: blendMode !== "normal"
+              ? designOpacity * (blendStrength / 100)
+              : designOpacity,
+          }}
         />
-      ) : (
-        <div className="flex flex-col items-center gap-2 opacity-20 pointer-events-none select-none">
-          <div className="w-14 h-14 rounded-full border-2 border-dashed border-slate-500 flex items-center justify-center">
-            <span className="text-2xl">✦</span>
-          </div>
-          <span className="text-[9px] tracking-widest uppercase text-slate-500">Design area</span>
+      </>
+    ) : (
+      <div
+        className="absolute flex flex-col items-center justify-center gap-2 opacity-20 pointer-events-none select-none"
+        style={{ top: `${designY}%`, left: `${designX}%`, transform: "translateX(-50%)", width: `${designWidth}%`, height: `${designHeight}%` }}
+      >
+        <div className="w-14 h-14 rounded-full border-2 border-dashed border-slate-500 flex items-center justify-center">
+          <span className="text-2xl">✦</span>
         </div>
-      )}
-    </div>
+        <span className="text-[9px] tracking-widest uppercase text-slate-500">Design area</span>
+      </div>
+    )}
   </div>
 );
 
@@ -181,6 +210,7 @@ const AIDesigner = () => {
   const [designOpacity, setDesignOpacity] = useState(1);
   const [designRotation, setDesignRotation] = useState(0);
   const [manualBlendMode, setManualBlendMode] = useState("auto");
+  const [blendStrength, setBlendStrength] = useState(100);
 
   // UI
   const [showPreview, setShowPreview] = useState(false);
@@ -255,16 +285,28 @@ const AIDesigner = () => {
       const dh = H * (designHeight / 100);
       const dx = W * (designX / 100) - dw / 2;
       const dy = H * (designY / 100);
-      ctx.save();
-      ctx.globalAlpha = designOpacity;
-      if (designRotation !== 0) {
-        ctx.translate(dx + dw / 2, dy + dh / 2);
-        ctx.rotate((designRotation * Math.PI) / 180);
-        ctx.translate(-(dx + dw / 2), -(dy + dh / 2));
+
+      const drawLayer = (compositeOp, alpha) => {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        if (designRotation !== 0) {
+          ctx.translate(dx + dw / 2, dy + dh / 2);
+          ctx.rotate((designRotation * Math.PI) / 180);
+          ctx.translate(-(dx + dw / 2), -(dy + dh / 2));
+        }
+        ctx.globalCompositeOperation = compositeOp;
+        ctx.drawImage(designImg, dx, dy, dw, dh);
+        ctx.restore();
+      };
+
+      if (blendMode !== "normal" && blendStrength < 100) {
+        // Layer 1: normal (fades out as strength increases)
+        drawLayer("source-over", designOpacity * ((100 - blendStrength) / 100));
+        // Layer 2: blended (fades in as strength increases)
+        drawLayer(blendMode, designOpacity * (blendStrength / 100));
+      } else {
+        drawLayer(blendMode === "normal" ? "source-over" : blendMode, designOpacity);
       }
-      ctx.globalCompositeOperation = blendMode === "normal" ? "source-over" : blendMode;
-      ctx.drawImage(designImg, dx, dy, dw, dh);
-      ctx.restore();
     }
 
     return new Promise((resolve, reject) =>
@@ -338,10 +380,9 @@ const AIDesigner = () => {
     setGeneratedImage(null);
     setRevisedPrompt("");
     try {
-      const fullPrompt = negativePrompt.trim()
-        ? `${prompt.trim()}. Avoid: ${negativePrompt.trim()}`
-        : prompt.trim();
-      const { data } = await axios.post(`/ai/generate`, { prompt: fullPrompt, style }, { timeout: 90000 });
+      // DALL-E 3 does not support negative prompts — appending "Avoid: X"
+      // frequently triggers the safety filter. Send only the user's prompt.
+      const { data } = await axios.post(`/ai/generate`, { prompt: prompt.trim(), style }, { timeout: 90000 });
       if (data.success) {
         setGeneratedImage(data.imageUrl);
         setRevisedPrompt(data.revisedPrompt || "");
@@ -419,7 +460,7 @@ const AIDesigner = () => {
               style={{ background: "radial-gradient(ellipse at center, rgba(249,115,22,0.06) 0%, transparent 70%)" }}>
               <ShirtMockup shirt={selectedShirt} generatedImage={activeDesign} loading={false}
                 designWidth={designWidth} designHeight={designHeight} designX={designX} designY={designY}
-                blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} size={160} />
+                blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} blendStrength={blendStrength} size={160} />
             </div>
 
             <div style={{ height: 1, background: "rgba(249,115,22,0.1)" }} />
@@ -495,7 +536,7 @@ const AIDesigner = () => {
               style={{ background: "radial-gradient(ellipse at center, rgba(249,115,22,0.05) 0%, transparent 70%)" }}>
               <ShirtMockup shirt={selectedShirt} generatedImage={activeDesign} loading={loading}
                 designWidth={designWidth} designHeight={designHeight} designX={designX} designY={designY}
-                blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} size={320} />
+                blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} blendStrength={blendStrength} size={320} />
             </div>
             <div style={{ height: 1, background: "rgba(249,115,22,0.1)" }} />
             <div className="px-5 py-4 flex gap-3">
@@ -555,7 +596,181 @@ const AIDesigner = () => {
       <div className="relative z-10 flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 md:px-6 pb-12 md:pb-16 flex flex-col-reverse md:grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-4 sm:gap-5 items-start">
 
         {/* ═══ LEFT — CONTROLS ════════════════════════════════════════ */}
+<<<<<<< HEAD
         <div className="space-y-2.5 sm:space-y-3">
+=======
+        <div className="space-y-2.5 sm:space-y-3 order-2 md:order-1">
+
+          {/* ── Mobile step tabs ── */}
+          <div className="md:hidden flex rounded-2xl overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', padding: 4, gap: 4 }}>
+            {[
+              { id: 0, icon: '✦', label: 'Design' },
+              { id: 1, icon: '◎', label: 'Customize' },
+            ].map(({ id, icon, label }) => (
+              <button key={id} onClick={() => setMobileStep(id)}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-black text-xs uppercase tracking-wider"
+                style={mobileStep === id
+                  ? { background: 'rgba(249,115,22,0.14)', border: '1px solid rgba(249,115,22,0.38)', color: 'var(--ragged-accent)' }
+                  : { border: '1px solid transparent', color: '#64748b' }}>
+                <span>{icon}</span> {label}
+              </button>
+            ))}
+          </div>
+
+          {/* ── Step 0: Design (mode, prompt, style, upload) ── */}
+          <div className={mobileStep !== 0 ? 'hidden md:block' : ''}>
+
+          {/* Mode Toggle */}
+          <div className="flex p-1 gap-1 rounded-2xl"
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            {[
+              { id: "ai", label: "✦ AI Generate", sub: "DALL·E 3 powered" },
+              { id: "upload", label: "↑ Upload Image", sub: "PNG · JPG · SVG" },
+            ].map(({ id, label, sub }) => (
+              <button key={id} onClick={() => setDesignMode(id)}
+                className="flex-1 flex flex-col items-center py-3 sm:py-3.5 px-2 sm:px-4 rounded-xl text-center transition-all duration-200"
+                style={designMode === id
+                  ? { background: "rgba(249,115,22,0.14)", border: "1px solid rgba(249,115,22,0.38)", color: "var(--ragged-accent)" }
+                  : { border: "1px solid transparent", color: "#64748b" }}>
+                <span className="text-[11px] sm:text-xs font-black text-white uppercase tracking-wider">{label}</span>
+                <span className="text-[8px] sm:text-[9px] mt-0.5 opacity-60 font-semibold tracking-wider hidden xs:block sm:block">{sub}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* ── AI: Prompt ─────────────────────────────────────────── */}
+          {designMode === "ai" && (
+            <Panel>
+              <div className="flex items-center justify-between px-4 pt-4 pb-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] ragged-subtitle">Your Prompt</span>
+                <span className="text-[10px] ragged-subtitle">
+                  <span style={{ color: prompt.length > 400 ? "var(--ragged-accent)" : undefined }}>{prompt.length}</span>/500
+                </span>
+              </div>
+              <textarea
+                rows={4} value={prompt} onChange={(e) => setPrompt(e.target.value)}
+                placeholder="e.g. Cyberpunk tiger with neon glowing eyes, bold graphic style..."
+                className="w-full bg-transparent text-sm resize-none outline-none leading-relaxed placeholder-slate-700 px-4 py-3"
+                style={{ color: "#444", caretColor: "var(--ragged-accent)" }}
+                onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) handleGenerate(); }}
+              />
+              <div className="flex items-center justify-between px-4 py-2.5"
+                style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowNegativePrompt(v => !v)}
+                    className="text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5"
+                    style={{ color: showNegativePrompt ? "var(--ragged-accent)" : "#64748b" }}>
+                    <span className="text-sm leading-none font-black">{showNegativePrompt ? "−" : "+"}</span>
+                    Avoid
+                  </button>
+                  <span className="text-[10px] opacity-30 hidden sm:block">Ctrl+Enter to generate</span>
+                </div>
+                <button onClick={() => { setPrompt(""); setNegativePrompt(""); }}
+                  className="text-[10px] font-bold uppercase tracking-wider ragged-subtitle hover:text-red-400 transition-colors">
+                  Clear ✕
+                </button>
+              </div>
+              {showNegativePrompt && (
+                <div style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
+                  <div className="px-4 pt-3 pb-1 flex items-center gap-2">
+                    <span className="w-1 h-3 rounded-full" style={{ background: "rgba(249,115,22,0.5)" }} />
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: "rgba(249,115,22,0.7)" }}>
+                      Negative Prompt — avoid these in the design
+                    </span>
+                  </div>
+                  <textarea
+                    rows={2} value={negativePrompt} onChange={(e) => setNegativePrompt(e.target.value)}
+                    placeholder="e.g. blurry, text, watermark, low quality, distorted..."
+                    className="w-full bg-transparent text-xs resize-none outline-none leading-relaxed placeholder-slate-700 px-4 py-2 pb-3"
+                    style={{ color: "rgba(249,115,22,0.75)", caretColor: "var(--ragged-accent)" }}
+                  />
+                </div>
+              )}
+            </Panel>
+          )}
+
+          {/* ── AI: Style Grid ─────────────────────────────────────── */}
+          {designMode === "ai" && (
+            <Panel>
+              <div className="px-3 pt-2 pb-2 grid grid-cols-3 gap-1.5">
+                {STYLES.map((s) => (
+                  <button key={s.id} onClick={() => setStyle(s.id)}
+                    className="flex items-center gap-2 px-2.5 py-2 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+                    style={style === s.id
+                      ? { background: "rgba(249,115,22,0.13)", border: "1.5px solid rgba(249,115,22,0.5)", color: "var(--ragged-accent)" }
+                      : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "#64748b" }}>
+                    <span className="text-base text-white shrink-0">{s.icon}</span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-wide leading-tight">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Inspiration chips */}
+              <div style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
+                <div className="px-4 pt-3 pb-2">
+                  <span className="text-[9px] text-white font-black uppercase tracking-[0.22em] ragged-subtitle">Inspiration</span>
+                </div>
+                <div className="px-3 pb-3 flex flex-wrap gap-1.5">
+                  {EXAMPLE_PROMPTS.map((ex) => (
+                    <button key={ex} onClick={() => setPrompt(ex)}
+                      className="text-[10px] font-medium px-2.5 py-1.5 rounded-full transition-all hover:border-orange-400/40 hover:text-orange-300"
+                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", color: "#94a3b8" }}>
+                      {ex}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Panel>
+          )}
+
+          {/* ── Upload Mode ─────────────────────────────────────────── */}
+          {designMode === "upload" && (
+            <Panel>
+              <PanelHeader>Upload Your Design</PanelHeader>
+              <div className="p-3">
+                {uploadedImage ? (
+                  <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(249,115,22,0.22)" }}>
+                    <img src={uploadedImage} alt="Uploaded design"
+                      className="w-full max-h-56 object-contain"
+                      style={{ background: "rgba(255,255,255,0.02)" }} />
+                    <div className="flex items-center justify-between px-3 py-2.5"
+                      style={{ borderTop: "1px solid rgba(249,115,22,0.1)", background: "rgba(0,0,0,0.45)" }}>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="text-[10px] font-bold text-emerald-400">Image ready</span>
+                      </div>
+                      <button onClick={() => setUploadedImage(null)}
+                        className="text-[10px] font-bold ragged-subtitle hover:text-red-400 transition-colors flex items-center gap-1">
+                        <CloseIcon /> Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center gap-3 sm:gap-4 cursor-pointer py-8 sm:py-12 rounded-xl transition-all group hover:border-orange-400/35"
+                    style={{ border: "2px dashed rgba(249,115,22,0.2)", minHeight: 170, background: "rgba(249,115,22,0.01)" }}>
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105"
+                      style={{ background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", color: "var(--ragged-accent)" }}>
+                      <UploadCloudIcon />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-black uppercase tracking-wider" style={{ color: "var(--ragged-muted)" }}>Drop image here</p>
+                      <p className="text-xs mt-1 ragged-subtitle">PNG · JPG · SVG · WebP · Max 10MB</p>
+                    </div>
+                    <div className="ragged-pill text-[10px] font-black uppercase tracking-widest px-4 py-1.5">Browse Files</div>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+                )}
+              </div>
+            </Panel>
+          )}
+
+          </div>{/* end step 0: Design */}
+
+          {/* ── Step 1: Customize (transform, shirt color) ── */}
+          <div className={mobileStep !== 1 ? 'hidden md:block' : ''}>
+>>>>>>> f1b0681836c65fca14a6113ec6a711bd766ece86
 
           {/* ── Transform Panel (tabbed) ────────────────────────────── */}
           <Panel>
@@ -671,7 +886,7 @@ const AIDesigner = () => {
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {BLEND_MODES.map((m) => (
-                        <button key={m} onClick={() => setManualBlendMode(m)}
+                        <button key={m} onClick={() => { setManualBlendMode(m); setBlendStrength(100); }}
                           className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all"
                           style={manualBlendMode === m
                             ? { background: "rgba(249,115,22,0.16)", border: "1px solid rgba(249,115,22,0.42)", color: "var(--ragged-accent)" }
@@ -680,10 +895,17 @@ const AIDesigner = () => {
                         </button>
                       ))}
                     </div>
+
+                    {/* Blend Strength slider — only visible when a real blend mode is active */}
+                    {manualBlendMode !== "auto" && manualBlendMode !== "normal" && (
+                      <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(249,115,22,0.08)" }}>
+                        <Slider label="Blend Strength" value={blendStrength} set={setBlendStrength} min={0} max={100} />
+                      </div>
+                    )}
                   </div>
 
                   <button
-                    onClick={() => { setDesignOpacity(1); setDesignRotation(0); setManualBlendMode("auto"); }}
+                    onClick={() => { setDesignOpacity(1); setDesignRotation(0); setManualBlendMode("auto"); setBlendStrength(100); }}
                     className="w-full py-2 text-[10px] font-bold uppercase tracking-wider ragged-subtitle hover:text-orange-400 transition-colors rounded-xl"
                     style={{ border: "1px solid rgba(249,115,22,0.14)", background: "rgba(249,115,22,0.02)" }}>
                     Reset Advanced Settings
@@ -949,7 +1171,7 @@ const AIDesigner = () => {
             <ShirtMockup
               shirt={selectedShirt} generatedImage={activeDesign} loading={loading}
               designWidth={designWidth} designHeight={designHeight} designX={designX} designY={designY}
-              blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation}
+              blendMode={blendMode} designOpacity={designOpacity} designRotation={designRotation} blendStrength={blendStrength}
               size={480}
             />
           </div>
