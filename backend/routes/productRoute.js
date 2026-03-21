@@ -41,7 +41,7 @@ productRouter.post("/single", singleProduct);
 productRouter.get("/list", listProducts);
 productRouter.get("/banner-list", listBanner);
 productRouter.delete("/delete-banner/:id", adminAuth, deleteBanner);
-productRouter.put('/update-banner/:id', upload.single('imageBanner'), updateBanner);
+productRouter.put('/update-banner/:id', adminAuth, upload.single('imageBanner'), updateBanner);
 productRouter.put("/edit/:id",adminAuth,
   upload.fields([
     { name: "image1", maxCount: 1 },

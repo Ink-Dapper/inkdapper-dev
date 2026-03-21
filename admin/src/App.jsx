@@ -23,6 +23,8 @@ import HighlightedProducts from './pages/HighlightedProducts'
 import AcidWashProducts from './pages/AcidWashProducts'
 import StorageManager from './pages/StorageManager'
 import PerformanceReports from './pages/PerformanceReports'
+import Profile from './pages/Profile'
+import Settings from './pages/Settings'
 import { NotificationProvider } from './context/NotificationContext';
 
 export const backendUrl = import.meta.env.DEV ? '' : (import.meta.env.VITE_BACKEND_URL || 'https://api.inkdapper.com')
@@ -89,6 +91,8 @@ const App = () => {
                   <Route path="/coupons"                 element={<Coupons token={token} />} />
                   <Route path="/storage"                 element={<StorageManager token={token} />} />
                   <Route path="/performance-reports"     element={<PerformanceReports token={token} />} />
+                  <Route path="/profile"                 element={<Profile />} />
+                  <Route path="/settings"                element={<Settings />} />
                 </Routes>
               </div>
             </main>
