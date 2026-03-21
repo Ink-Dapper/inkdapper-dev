@@ -17,6 +17,8 @@ import {
   Layers,
   Activity,
   X,
+  UserCircle,
+  Settings,
 } from 'lucide-react'
 import { assets } from '../assets/assets'
 
@@ -69,6 +71,13 @@ const navGroups = [
     items: [
       { to: '/storage', icon: HardDrive, label: 'Storage' },
       { to: '/performance-reports', icon: Activity, label: 'Performance Reports' },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [
+      { to: '/profile', icon: UserCircle, label: 'My Profile' },
+      { to: '/settings', icon: Settings, label: 'Settings' },
     ],
   },
 ]

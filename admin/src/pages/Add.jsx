@@ -8,6 +8,36 @@ import { useNavigate } from 'react-router-dom';
 import { backendUrl } from '../App';
 import { assets } from '../assets/assets';
 
+// Compress an image file using canvas before upload
+const compressImage = (file, maxWidth = 1200, quality = 0.82) => {
+  return new Promise((resolve) => {
+    // Skip compression for small files (< 300 KB)
+    if (file.size < 300 * 1024) return resolve(file);
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' })),
+        'image/jpeg',
+        quality
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+};
+
 const Add = ({ token }) => {
   const navigate = useNavigate();
   const [image1, setImage1] = useState(false);
@@ -29,6 +59,7 @@ const Add = ({ token }) => {
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [comboPrices, setComboPrices] = useState([]);
   const [colors, setColors] = useState([]);
 
@@ -66,9 +97,27 @@ const Add = ({ token }) => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
+    if (!image1) {
+      toast.error('Please select at least one product image.');
+      return;
+    }
+
     setIsLoading(true);
+    setUploadProgress(0);
 
     try {
+      // Compress all images in parallel before building FormData
+      const [c1, c2, c3, c4, cr1, cr2, cr3] = await Promise.all([
+        image1 ? compressImage(image1) : Promise.resolve(null),
+        image2 ? compressImage(image2) : Promise.resolve(null),
+        image3 ? compressImage(image3) : Promise.resolve(null),
+        image4 ? compressImage(image4) : Promise.resolve(null),
+        reviewImage1 ? compressImage(reviewImage1) : Promise.resolve(null),
+        reviewImage2 ? compressImage(reviewImage2) : Promise.resolve(null),
+        reviewImage3 ? compressImage(reviewImage3) : Promise.resolve(null),
+      ]);
+
       const formData = new FormData();
 
       formData.append('name', name);
@@ -83,16 +132,24 @@ const Add = ({ token }) => {
       formData.append('comboPrices', JSON.stringify(comboPrices));
       formData.append('colors', JSON.stringify(colors));
 
-      image1 && formData.append('image1', image1);
-      image2 && formData.append('image2', image2);
-      image3 && formData.append('image3', image3);
-      image4 && formData.append('image4', image4);
+      c1 && formData.append('image1', c1);
+      c2 && formData.append('image2', c2);
+      c3 && formData.append('image3', c3);
+      c4 && formData.append('image4', c4);
 
-      reviewImage1 && formData.append('reviewImage1', reviewImage1);
-      reviewImage2 && formData.append('reviewImage2', reviewImage2);
-      reviewImage3 && formData.append('reviewImage3', reviewImage3);
+      cr1 && formData.append('reviewImage1', cr1);
+      cr2 && formData.append('reviewImage2', cr2);
+      cr3 && formData.append('reviewImage3', cr3);
 
-      const response = await axios.post(`${backendUrl}/api/product/add`, formData, { headers: { token } });
+      const response = await axios.post(`${backendUrl}/api/product/add`, formData, {
+        headers: { token },
+        timeout: 120000, // 2 minute timeout
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
+          }
+        },
+      });
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -108,7 +165,7 @@ const Add = ({ token }) => {
         setPrice('');
         setBeforePrice('');
         setCode('');
-        setSizes('');
+        setSizes([]);
         setBestseller(false);
         setComboPrices([]);
         setColors([]);
@@ -116,15 +173,20 @@ const Add = ({ token }) => {
         // Navigate to the list page after successful product creation
         setTimeout(() => {
           navigate('/list');
-        }, 1500); // Small delay to show the success message
+        }, 1500);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.message);
+      if (error.code === 'ECONNABORTED') {
+        toast.error('Upload timed out. Please check your connection and try again.');
+      } else {
+        toast.error(error.response?.data?.message || error.message);
+      }
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -656,6 +718,22 @@ const Add = ({ token }) => {
             )}
           </div>
 
+          {/* Upload Progress Bar */}
+          {isLoading && uploadProgress > 0 && (
+            <div className="mb-4">
+              <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Uploading images...</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Submit Button */}
           <div className="flex justify-end">
             <button
@@ -669,7 +747,7 @@ const Add = ({ token }) => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Adding Product...
+                  {uploadProgress > 0 ? `Uploading ${uploadProgress}%` : 'Compressing images...'}
                 </>
               ) : (
                 <>

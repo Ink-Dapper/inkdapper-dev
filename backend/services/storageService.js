@@ -51,10 +51,27 @@ const deleteFile = async (fileUrl) => {
  */
 const getPublicUrl = (objectName) => {
   if (process.env.MINIO_PUBLIC_URL) {
-    return `${process.env.MINIO_PUBLIC_URL}/${BUCKET_NAME}/${objectName}`;
+    // Strip trailing slash to avoid double slashes in URL
+    const base = process.env.MINIO_PUBLIC_URL.replace(/\/$/, '');
+    return `${base}/${BUCKET_NAME}/${objectName}`;
   }
-  const protocol = process.env.MINIO_USE_SSL === 'true' ? 'https' : 'http';
+
   const endpoint = process.env.MINIO_ENDPOINT || 'localhost';
+
+  // Warn once in production if MINIO_PUBLIC_URL is not set and endpoint is localhost.
+  // This means image URLs will contain "localhost" and won't be accessible from browsers.
+  if (process.env.NODE_ENV === 'production' && (endpoint === 'localhost' || endpoint === '127.0.0.1')) {
+    if (!getPublicUrl._warnedOnce) {
+      getPublicUrl._warnedOnce = true;
+      console.error(
+        '[MinIO] CRITICAL: MINIO_PUBLIC_URL is not set and MINIO_ENDPOINT is localhost. ' +
+        'Product images will be saved with a localhost URL and will NOT be visible to users. ' +
+        'Set MINIO_PUBLIC_URL=https://storage.inkdapper.com in backend/.env on the VPS.'
+      );
+    }
+  }
+
+  const protocol = process.env.MINIO_USE_SSL === 'true' ? 'https' : 'http';
   const port = process.env.MINIO_PORT || '9000';
   return `${protocol}://${endpoint}:${port}/${BUCKET_NAME}/${objectName}`;
 };

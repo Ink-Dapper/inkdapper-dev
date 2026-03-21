@@ -1,71 +1,84 @@
 @echo off
-echo 🚀 Quick VPS Deployment for CORS Fixes
-echo.
+REM =============================================================================
+REM InkDapper -- Quick VPS Deploy (Windows)
+REM Pulls latest git code, rebuilds frontend + admin, restarts backend via PM2.
+REM
+REM Usage: double-click or run from CMD in the project root.
+REM =============================================================================
 
-REM Configuration - UPDATE THESE VALUES
 set VPS_HOST=srv693737
 set VPS_USER=root
 set PROJECT_PATH=/var/www/inkdapper-dev
-
-echo ⚠️  Deploying to: %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%
-echo.
-
-REM Step 1: Backup current server.js
-echo 📦 Creating backup...
-ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH% && cp backend/server.js backend/server.js.backup.$(date +%%Y%%m%%d_%%H%%M%%S)"
-
-REM Step 2: Upload updated backend files
-echo 🔧 Uploading backend changes...
-scp backend/server.js %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/backend/
-
-REM Step 3: Upload updated frontend files
-echo 🎨 Uploading frontend changes...
-scp frontend/src/utils/axios.js %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/frontend/src/utils/
-scp frontend/src/config/api.js %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/frontend/src/config/
-scp frontend/src/context/ShopContext.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/frontend/src/context/
-scp frontend/src/components/NewsLetterBox.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/frontend/src/components/
-
-REM Step 4: Upload updated admin files
-echo 🔧 Uploading admin changes...
-scp admin/src/utils/axios.js %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/utils/
-scp admin/src/App.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/
-scp admin/src/pages/Coupons.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/pages/
-scp admin/src/pages/NewsletterSubscribers.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/pages/
-scp admin/src/context/ShopContext.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/context/
-scp admin/src/context/NotificationContext.jsx %VPS_USER%@%VPS_HOST%:%PROJECT_PATH%/admin/src/context/
-
-REM Step 5: Rebuild frontend
-echo 🔨 Rebuilding frontend...
-ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH%/frontend && pnpm run build"
-
-REM Step 6: Rebuild admin
-echo 🔨 Rebuilding admin...
-ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH%/admin && pnpm run build"
-
-REM Step 7: Restart backend server
-echo 🔄 Restarting backend server...
-ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH%/backend && pm2 restart server.js"
-
-REM Step 8: Test the deployment
-echo 🧪 Testing deployment...
-echo Testing CORS configuration for main site...
-curl -H "Origin: https://www.inkdapper.com" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Content-Type" -X OPTIONS https://api.inkdapper.com/api/test
+set PM2_APP=inkdapper-api
 
 echo.
-echo Testing CORS configuration for admin panel...
-curl -H "Origin: https://admin.inkdapper.com" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: Content-Type" -X OPTIONS https://api.inkdapper.com/api/test
+echo ==== InkDapper Quick Deploy ====
+echo   VPS : %VPS_USER%@%VPS_HOST%
+echo   Dir : %PROJECT_PATH%
+echo.
+
+REM Check SSH
+echo [1/6] Checking SSH connection...
+ssh -o ConnectTimeout=10 -o BatchMode=yes %VPS_USER%@%VPS_HOST% "echo SSH OK"
+if errorlevel 1 (
+    echo ERROR: Cannot connect via SSH. Check your key / VPS host.
+    pause
+    exit /b 1
+)
+
+REM Pull latest code from git (no more manual SCP of individual files)
+echo.
+echo [2/6] Pulling latest code from git...
+ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH% && git fetch --all && git pull origin main && echo GIT OK"
+if errorlevel 1 (
+    echo ERROR: git pull failed on VPS.
+    pause
+    exit /b 1
+)
+
+REM Install backend dependencies
+echo.
+echo [3/6] Installing backend dependencies...
+ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH%/backend && npm install --omit=dev && echo BACKEND DEPS OK"
+
+REM Build admin panel
+echo.
+echo [4/6] Building admin panel...
+ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH%/admin && npm install && npm run build && echo ADMIN BUILD OK"
+if errorlevel 1 (
+    echo ERROR: Admin build failed.
+    pause
+    exit /b 1
+)
+
+REM Build frontend
+echo.
+echo [5/6] Building frontend...
+ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH%/frontend && npm install && npm run build && echo FRONTEND BUILD OK"
+if errorlevel 1 (
+    echo ERROR: Frontend build failed.
+    pause
+    exit /b 1
+)
+
+REM Restart backend with PM2
+echo.
+echo [6/6] Restarting backend (PM2)...
+ssh %VPS_USER%@%VPS_HOST% "cd %PROJECT_PATH% && (pm2 describe %PM2_APP% > /dev/null 2>&1 && pm2 reload %PM2_APP% --update-env || (pm2 start ecosystem.config.cjs --env production && pm2 save)) && echo PM2 OK"
+
+REM Health check
+echo.
+echo Checking API health...
+timeout /t 4 /nobreak > nul
+curl -s -o nul -w "API HTTP status: %%{http_code}" https://api.inkdapper.com/api/test
+echo.
 
 echo.
-echo Testing actual API call...
-curl -H "Origin: https://www.inkdapper.com" -H "Content-Type: application/json" https://api.inkdapper.com/api/test
-
+echo ==== Deployment complete! ====
+echo   Site  : https://www.inkdapper.com
+echo   Admin : https://admin.inkdapper.com
+echo   API   : https://api.inkdapper.com
 echo.
-echo 🎉 Deployment completed!
-echo.
-echo 📋 Next steps:
-echo    1. Test your main website at https://www.inkdapper.com
-echo    2. Test your admin panel at https://admin.inkdapper.com
-echo    3. Check browser console for any remaining errors
-echo    4. Monitor server logs: ssh %VPS_USER%@%VPS_HOST% "pm2 logs server.js"
+echo   Logs  : ssh %VPS_USER%@%VPS_HOST% "pm2 logs %PM2_APP% --lines 50"
 echo.
 pause

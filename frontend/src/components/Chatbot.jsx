@@ -370,10 +370,10 @@ const Chatbot = () => {
     <>
       {/* Floating Chat Button - Only show when chat is closed */}
       {!isOpen && (
-        <div className="fixed bottom-16 left-2 md:bottom-16 md:right-5 md:left-auto z-50">
+        <div className="fixed bottom-16 left-2 md:bottom-20 md:right-5 md:left-auto z-50">
           <button
             onClick={toggleChat}
-            className="w-12 h-12 md:w-16 md:h-16 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 relative group overflow-visible"
+            className="w-12 h-12 md:w-12 md:h-12 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 relative group overflow-visible"
             style={{ background: 'linear-gradient(135deg, #ff6b35 0%, #f97316 50%, #ea580c 100%)' }}
           >
             {/* Outer glow ring */}
