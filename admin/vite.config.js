@@ -15,14 +15,16 @@ export default defineConfig({
     }
   },
   build: {
-    chunkSizeWarningLimit: 1000, // Increase warning limit to 1000kb
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'mui': ['@mui/material', '@emotion/react', '@emotion/styled'],
-          'ui-utils': ['react-icons', 'react-toastify'],
-          'http': ['axios']
+        // Use a function-based manualChunks to avoid circular dependency TDZ
+        // errors that occur when splitting MUI + React into separate chunks.
+        // All node_modules go into a single "vendor" chunk so init order is safe.
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         }
       }
     }
