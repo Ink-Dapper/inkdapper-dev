@@ -68,7 +68,7 @@ const App = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 px-0 pt-20 md:pt-0 pb-5 md:pb-0 ">
+      <div className={`relative z-10 px-0 md:pb-0 ${isLoginPage ? 'pt-0 pb-0' : 'pt-20 md:pt-0 pb-5'}`}>
         <ToastContainer />
         <PerformanceTracker />
         <Navbar />
