@@ -1,6 +1,6 @@
 ﻿import React, { useContext, useState, useEffect } from "react";
 import { assets } from "../assets/assets";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import axios from "../utils/axios";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
@@ -9,23 +9,19 @@ import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined
 import LocalMallOutlinedIcon from "@mui/icons-material/LocalMallOutlined";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 
+const load = (key) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : {}; } catch { return {}; } }
+const persist = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+
 // Custom NavLink component with active state handling
 const CustomNavLink = ({ to, children, scrollToTop }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isActive = location.pathname === to;
 
   const handleClick = (e) => {
     e.preventDefault();
-    e.stopPropagation();
-
-    if (scrollToTop) {
-      scrollToTop();
-    }
-
-    // Force navigation using window.location to bypass any React Router issues
-    setTimeout(() => {
-      window.location.href = to;
-    }, 100);
+    scrollToTop?.();
+    navigate(to);
   };
 
   return (
@@ -69,6 +65,12 @@ const Navbar = () => {
   const [mobMenu, setMobMenu] = useState("hidden");
   const [userNameLetter, setUserNameLetter] = useState("");
   const [fullUserName, setFullUserName] = useState("");
+  const [profileAvatar, setProfileAvatar] = useState(() => {
+    try {
+      const saved = localStorage.getItem('inkdapper_profile_local');
+      return saved ? JSON.parse(saved).avatar || null : null;
+    } catch { return null; }
+  });
 
   const location = useLocation();
   const context = useContext(ShopContext);
@@ -94,8 +96,26 @@ const Navbar = () => {
     usersDetails.forEach((user) => {
       setUserNameLetter(user.users.name[0]);
       setFullUserName(user.users.name);
+      if (user.users.avatar) {
+        setProfileAvatar(user.users.avatar);
+        persist('inkdapper_profile_local', { ...load('inkdapper_profile_local'), avatar: user.users.avatar });
+      }
     });
   }, [usersDetails]);
+
+  // Sync profile avatar from localStorage when updated in Profile page
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === 'inkdapper_profile_local') {
+        try {
+          const val = e.newValue ? JSON.parse(e.newValue) : {};
+          setProfileAvatar(val.avatar || null);
+        } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   // Reset mobile menu when token changes (login/logout)
   useEffect(() => {
@@ -237,13 +257,22 @@ const Navbar = () => {
                 }}
               >
                 {token ? (
-                  <div className="w-7 h-7 flex items-center justify-center text-white font-black text-sm uppercase"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(251,146,60,0.95), rgba(245,158,11,0.9))',
-                      clipPath: 'polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)'
-                    }}>
-                    {userNameLetter}
-                  </div>
+                  profileAvatar ? (
+                    <img
+                      src={profileAvatar}
+                      alt="profile"
+                      className="w-7 h-7 object-cover"
+                      style={{ clipPath: 'polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)' }}
+                    />
+                  ) : (
+                    <div className="w-7 h-7 flex items-center justify-center text-white font-black text-sm uppercase"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(251,146,60,0.95), rgba(245,158,11,0.9))',
+                        clipPath: 'polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)'
+                      }}>
+                      {userNameLetter}
+                    </div>
+                  )
                 ) : (
                   <AccountCircleOutlinedIcon className="text-slate-300 group-hover:text-orange-300 transition-colors duration-200" sx={{ fontSize: 22 }} />
                 )}
@@ -341,7 +370,7 @@ const Navbar = () => {
           style={{ background: 'linear-gradient(180deg, #0d0d0e 0%, #0f0f11 100%)', borderTop: '1px solid rgba(251,146,60,0.28)', paddingTop: '10px', paddingBottom: '12px' }}
         >
           {/* Home/Logo */}
-          <Link to="/" onClick={(e) => { e.preventDefault(); scrollToTop(); setTimeout(() => window.location.href = '/', 100); }} className="group relative flex flex-col items-center gap-[5px]">
+          <Link to="/" onClick={() => scrollToTop()} className="group relative flex flex-col items-center gap-[5px]">
             <div className="w-11 h-11 flex items-center justify-center transition-all duration-200 group-active:scale-95"
               style={{
                 background: 'rgba(255,255,255,0.04)',
@@ -356,7 +385,7 @@ const Navbar = () => {
           </Link>
 
           {/* Cart */}
-          <Link to="/cart" onClick={(e) => { e.preventDefault(); scrollToTop(); setTimeout(() => window.location.href = '/cart', 100); }} className="group relative flex flex-col items-center gap-[5px]">
+          <Link to="/cart" onClick={() => scrollToTop()} className="group relative flex flex-col items-center gap-[5px]">
             <div className="relative w-11 h-11 flex items-center justify-center transition-all duration-200 group-active:scale-95"
               style={{
                 background: 'rgba(255,255,255,0.04)',
@@ -378,7 +407,7 @@ const Navbar = () => {
           </Link>
 
           {/* Wishlist */}
-          <Link to="/wishlist" onClick={(e) => { e.preventDefault(); scrollToTop(); setTimeout(() => window.location.href = '/wishlist', 100); }} className="group relative flex flex-col items-center gap-[5px]">
+          <Link to="/wishlist" onClick={() => scrollToTop()} className="group relative flex flex-col items-center gap-[5px]">
             <div className="relative w-11 h-11 flex items-center justify-center transition-all duration-200 group-active:scale-95"
               style={{
                 background: 'rgba(255,255,255,0.04)',
@@ -421,14 +450,23 @@ const Navbar = () => {
               }}
             >
               {token ? (
-                <div className="w-7 h-7 flex items-center justify-center text-white font-black text-sm uppercase"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(251,146,60,0.9), rgba(245,158,11,0.9))',
-                    clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)'
-                  }}
-                >
-                  {userNameLetter}
-                </div>
+                profileAvatar ? (
+                  <img
+                    src={profileAvatar}
+                    alt="profile"
+                    className="w-7 h-7 object-cover"
+                    style={{ clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)' }}
+                  />
+                ) : (
+                  <div className="w-7 h-7 flex items-center justify-center text-white font-black text-sm uppercase"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(251,146,60,0.9), rgba(245,158,11,0.9))',
+                      clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)'
+                    }}
+                  >
+                    {userNameLetter}
+                  </div>
+                )
               ) : (
                 <AccountCircleOutlinedIcon className="text-slate-300 group-hover:text-orange-300 transition-colors duration-200" sx={{ fontSize: 24 }} />
               )}
@@ -566,11 +604,9 @@ const Navbar = () => {
               ].map(({ to, label, num }) => (
                 <NavLink
                   key={to}
-                  onClick={(e) => {
-                    e.preventDefault();
+                  onClick={() => {
                     setVisible(false);
                     scrollToTop();
-                    setTimeout(() => window.location.href = to, 100);
                   }}
                   to={to}
                   className={({ isActive }) =>

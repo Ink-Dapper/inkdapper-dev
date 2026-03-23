@@ -88,12 +88,32 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'react-router': ['react-router-dom'],
-          'ui-components': ['@mui/material', '@mui/icons-material', '@headlessui/react', '@heroicons/react'],
-          'utils': ['axios', 'lodash'],
-          'toastify': ['react-toastify'],
+        // Function-based splitting gives Rollup full path context and avoids
+        // circular-reference errors that object-based splitting can produce.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          // React core — always first (other chunks depend on it)
+          if (id.includes('/react-dom/') || id.match(/\/react\/(?!.*node_modules)/)) return 'react-vendor';
+          // Router
+          if (id.includes('react-router')) return 'react-router';
+          // MUI icons are ~2 MB on their own — keep separate so they tree-shake better
+          if (id.includes('@mui/icons-material')) return 'mui-icons';
+          // MUI core + system
+          if (id.includes('@mui/material') || id.includes('@mui/system') || id.includes('@mui/base') || id.includes('@mui/utils')) return 'mui-core';
+          // CSS-in-JS runtime (emotion + styled-components)
+          if (id.includes('@emotion') || id.includes('styled-components')) return 'css-in-js';
+          // Swiper (carousel) — heavy, rarely changes
+          if (id.includes('swiper')) return 'swiper';
+          // Icon libraries
+          if (id.includes('lucide-react') || id.includes('react-icons') || id.includes('@heroicons')) return 'icons';
+          // Notifications
+          if (id.includes('react-toastify')) return 'toastify';
+          // Data / HTTP utils
+          if (id.includes('axios') || id.includes('lodash')) return 'utils';
+          // Headless UI primitives
+          if (id.includes('@headlessui')) return 'headlessui';
+          // Everything else from node_modules → a single shared vendor chunk
+          return 'vendor';
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'style.css') return 'assets/css/[name]-[hash][extname]';
