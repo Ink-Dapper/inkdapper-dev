@@ -98,7 +98,7 @@ const NewsletterModal = () => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
     >
       <div
@@ -108,7 +108,7 @@ const NewsletterModal = () => {
           background: '#0d0d0e',
           border: '1px solid rgba(249,115,22,0.2)',
           boxShadow: '0 0 60px rgba(249,115,22,0.12), 0 24px 64px rgba(0,0,0,0.6)',
-          maxHeight: '90vh',
+          maxHeight: '94vh',
         }}
       >
         {/* Top accent line */}

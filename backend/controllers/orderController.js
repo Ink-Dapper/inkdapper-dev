@@ -20,6 +20,69 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// ─── AiSensy WhatsApp Integration ────────────────────────────────────────────
+
+// Send WhatsApp message via AiSensy API
+const sendWhatsAppMessage = async (phone, templateParams, campaignName) => {
+  try {
+    const countryCode = process.env.PHONE_COUNTRY_CODE || "91";
+    const destination = `${countryCode}${phone}`;
+
+    const payload = {
+      apiKey: process.env.AISENSY_API_KEY,
+      campaignName: campaignName || process.env.AISENSY_CAMPAIGN_NAME,
+      destination,
+      userName: templateParams[0] || "Customer",
+      templateParams,
+      source: "order-confirmation",
+      media: {},
+      buttons: [],
+      carouselCards: [],
+      location: {},
+    };
+
+    const response = await fetch("https://backend.aisensy.com/campaign/t1/api/v2", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      console.log(`WhatsApp message sent to ${destination}:`, result);
+    } else {
+      console.error("AiSensy error:", result);
+    }
+  } catch (err) {
+    console.error("WhatsApp send error:", err.message);
+    // Don't fail the order if WhatsApp fails
+  }
+};
+
+// Build AiSensy template params for order confirmation
+// templateParams maps to your AiSensy template variables {{1}}, {{2}}, etc.
+const buildWhatsAppTemplateParams = (user, orderData, paymentMethod) => {
+  const itemLines = orderData.items
+    .map(
+      (item, i) =>
+        `${i + 1}. ${item.name || "Custom Design"} | Size: ${item.size} | Qty: ${item.quantity} | ₹${item.price * item.quantity}`
+    )
+    .join("\n");
+
+  const deliveryAddress = orderData.address
+    ? `${orderData.address.street || ""}, ${orderData.address.city || ""}, ${orderData.address.state || ""} - ${orderData.address.zipcode || ""}`.replace(/^,\s*/, "").trim()
+    : "As per registered address";
+
+  return [
+    user.name,                                                                        // {{1}} Customer name
+    itemLines,                                                                        // {{2}} Order items
+    paymentMethod,                                                                    // {{3}} Payment method
+    `₹${orderData.amount}`,                                                          // {{4}} Total amount
+    new Date(orderData.expectedDeliveryDate).toLocaleDateString("en-IN"),            // {{5}} Delivery date
+    deliveryAddress,                                                                  // {{6}} Delivery address
+  ];
+};
+
 //Gateway initialization
 const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -93,6 +156,12 @@ const placeOrder = async (req, res) => {
         console.log("Email sent: " + info.response);
       }
     });
+
+    // Send WhatsApp confirmation message via AiSensy
+    if (user.phone) {
+      const templateParams = buildWhatsAppTemplateParams(user, orderData, "Cash on Delivery");
+      await sendWhatsAppMessage(user.phone, templateParams);
+    }
 
     // Create admin notification for new COD order
     try {
@@ -221,6 +290,12 @@ const verifyRazorpay = async (req, res) => {
           console.log("Email sent: " + info.response);
         }
       });
+
+      // Send WhatsApp confirmation message via AiSensy
+      if (user.phone) {
+        const templateParams = buildWhatsAppTemplateParams(user, orderData, "Razorpay (Prepaid)");
+        await sendWhatsAppMessage(user.phone, templateParams);
+      }
 
       // Create admin notification for successful Razorpay order
       try {

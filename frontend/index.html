@@ -92,6 +92,9 @@
     <link rel="dns-prefetch" href="https://checkout.razorpay.com">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preconnect to backend API so first XHR has no TCP/TLS overhead -->
+    <link rel="preconnect" href="https://api.inkdapper.com">
+    <link rel="dns-prefetch" href="https://api.inkdapper.com">
     
     <!-- Inline critical CSS -->
     <style>
@@ -246,6 +249,13 @@
           }, 500);
         }
       });
+
+      // Register service worker for asset caching & offline support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js', { scope: '/' }).catch(() => {});
+        });
+      }
 
       // Preload critical images
       const preloadImages = () => {

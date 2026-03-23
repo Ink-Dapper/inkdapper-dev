@@ -126,7 +126,7 @@ const Toggle = ({ checked, onChange, label, description }) => (
 const Overview = ({ user, orderCount, creditPoints, wishlistCount, cartCount }) => {
   const initials = (user?.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
   const localData = load(PROF_KEY, {})
-  const avatar = localData.avatar || null
+  const avatar = user?.avatar || localData.avatar || null
 
   return (
     <div className="space-y-6">
@@ -213,20 +213,18 @@ const Overview = ({ user, orderCount, creditPoints, wishlistCount, cartCount }) 
 const EditProfile = ({ user, backendUrl, token, onRefresh }) => {
   const fileRef = useRef()
   const localData = load(PROF_KEY, {})
-  const [form, setForm]     = useState({ name: user?.name || '', phone: user?.phone || '', email: user?.email || '' })
-  const [avatar, setAvatar] = useState(localData.avatar || null)
-  const [saving, setSaving] = useState(false)
+  const [form, setForm]       = useState({ name: user?.name || '', phone: user?.phone || '', email: user?.email || '' })
+  const [avatar, setAvatar]   = useState(user?.avatar || localData.avatar || null)
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [saving, setSaving]   = useState(false)
 
   const handleAvatar = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 2 * 1024 * 1024) { toast.error('Image must be under 2 MB'); return }
+    setAvatarFile(file)
     const reader = new FileReader()
-    reader.onload = ev => {
-      setAvatar(ev.target.result)
-      persist(PROF_KEY, { ...load(PROF_KEY, {}), avatar: ev.target.result })
-      toast.success('Avatar updated!')
-    }
+    reader.onload = ev => setAvatar(ev.target.result)
     reader.readAsDataURL(file)
   }
 
@@ -235,22 +233,33 @@ const EditProfile = ({ user, backendUrl, token, onRefresh }) => {
     if (!form.name.trim()) { toast.error('Name is required'); return }
     setSaving(true)
     try {
+      const formData = new FormData()
+      formData.append('name', form.name)
+      if (form.phone) formData.append('phone', form.phone)
+      if (avatarFile) formData.append('avatar', avatarFile)
+
       const res = await axios.put(
         `${backendUrl}/api/user/update-profile`,
-        { name: form.name, phone: form.phone },
-        { headers: { token } }
+        formData,
+        { headers: { token, 'Content-Type': 'multipart/form-data' } }
       )
       if (res.data?.success) {
+        const avatarUrl = res.data.user?.avatar || null
+        // Sync avatar URL to localStorage so Navbar picks it up immediately
+        persist(PROF_KEY, { ...load(PROF_KEY, {}), avatar: avatarUrl })
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'inkdapper_profile_local',
+          newValue: JSON.stringify({ ...load(PROF_KEY, {}), avatar: avatarUrl })
+        }))
+        setAvatarFile(null)
         toast.success('Profile updated!')
         onRefresh?.()
       } else {
-        // store locally if no update API
-        persist(PROF_KEY, { ...load(PROF_KEY, {}), name: form.name, phone: form.phone })
-        toast.success('Profile saved locally!')
+        toast.error(res.data?.message || 'Update failed')
       }
-    } catch {
-      persist(PROF_KEY, { ...load(PROF_KEY, {}), name: form.name, phone: form.phone })
-      toast.success('Profile saved!')
+    } catch (err) {
+      toast.error('Failed to save profile')
+      console.error(err)
     } finally {
       setSaving(false)
     }
@@ -258,7 +267,12 @@ const EditProfile = ({ user, backendUrl, token, onRefresh }) => {
 
   const removeAvatar = () => {
     setAvatar(null)
+    setAvatarFile(null)
     persist(PROF_KEY, { ...load(PROF_KEY, {}), avatar: null })
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'inkdapper_profile_local',
+      newValue: JSON.stringify({ ...load(PROF_KEY, {}), avatar: null })
+    }))
     toast.info('Avatar removed')
   }
 

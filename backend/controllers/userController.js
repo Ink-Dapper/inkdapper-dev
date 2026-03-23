@@ -4,6 +4,7 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from 'nodemailer';
+import { uploadFile, deleteFile } from "../services/storageService.js";
 
 const createToken = (id) => {
   const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret_for_development';
@@ -98,24 +99,23 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
 
-    // Checking user already exists or not
-    const exists = await userModel.findOne({ email, phone });
-    if (exists) {
-      return res.json({ success: false, message: "User already exists" });
-    }
-
-    // Validating email format & strong password
+    // Validating email format & strong password first (fast checks before DB)
     if (!validator.isEmail(email)) {
-      return res.json({
-        success: false,
-        message: "Please enter a valid email",
-      });
+      return res.json({ success: false, message: "Please enter a valid email" });
     }
     if (password.length < 8) {
-      return res.json({
-        success: false,
-        message: "Please enter a strong password",
-      });
+      return res.json({ success: false, message: "Please enter a strong password" });
+    }
+
+    // Check email and phone separately with OR so either duplicate is caught
+    const existingEmail = await userModel.findOne({ email });
+    if (existingEmail) {
+      return res.json({ success: false, message: "Email is already registered" });
+    }
+
+    const existingPhone = await userModel.findOne({ phone });
+    if (existingPhone) {
+      return res.json({ success: false, message: "Phone number is already registered" });
     }
 
     // Hashing user password
@@ -136,6 +136,11 @@ const registerUser = async (req, res) => {
     res.json({ success: true, token });
   } catch (error) {
     console.log(error);
+    // Handle MongoDB duplicate key error (race condition fallback)
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern || {})[0];
+      return res.json({ success: false, message: `${field === "email" ? "Email" : "Phone number"} is already registered` });
+    }
     res.json({ success: false, message: error.message });
   }
 };
@@ -166,15 +171,17 @@ const adminLogin = async (req, res) => {
 };
 
 const checkPhone = async (req, res) => {
-  const { phone } = req.body;
-  const existingUser = await userModel.findOne({ phone });
-  if (existingUser) {
-    return res.json({
-      success: false,
-      message: "Phone number is already registered",
-    });
+  try {
+    const { phone } = req.body;
+    const existingUser = await userModel.findOne({ phone });
+    if (existingUser) {
+      return res.json({ success: false, message: "Phone number is already registered" });
+    }
+    res.json({ success: true, message: "Phone number is available" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
-  res.json({ success: true, message: "Phone number is available" });
 };
 
 // Route for user list
@@ -269,4 +276,45 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser, adminLogin, profileUser, checkPhone, usersList, sendResetCode, resetPassword };
+// Route for updating user profile (name, phone, avatar)
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { name, phone } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.json({ success: false, message: 'Name is required' });
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const updates = { name: name.trim() };
+    if (phone) updates.phone = phone;
+
+    // If a new avatar file was uploaded, push it to MinIO and delete the old one
+    if (req.file) {
+      if (user.avatar) {
+        await deleteFile(user.avatar);
+      }
+      const avatarUrl = await uploadFile(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype,
+        'profile'
+      );
+      updates.avatar = avatarUrl;
+    }
+
+    const updatedUser = await userModel.findByIdAndUpdate(userId, updates, { new: true });
+
+    res.json({ success: true, message: 'Profile updated', user: updatedUser });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { loginUser, registerUser, adminLogin, profileUser, checkPhone, usersList, sendResetCode, resetPassword, updateProfile };
