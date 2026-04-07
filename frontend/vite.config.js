@@ -92,8 +92,10 @@ export default defineConfig({
           if (id.includes('@mui/icons-material')) return 'mui-icons';
           // MUI core + system
           if (id.includes('@mui/material') || id.includes('@mui/system') || id.includes('@mui/base') || id.includes('@mui/utils')) return 'mui-core';
-          // CSS-in-JS runtime (emotion + styled-components)
-          if (id.includes('@emotion') || id.includes('styled-components')) return 'css-in-js';
+          // NOTE: @emotion and styled-components are intentionally NOT split into their
+          // own chunk — they depend on React and splitting them causes a TDZ crash
+          // ("Cannot access 'R' before initialization") due to Rollup chunk init order.
+          // They fall through to the 'vendor' chunk below.
           // Swiper (carousel) — heavy, rarely changes
           if (id.includes('swiper')) return 'swiper';
           // Icon libraries
