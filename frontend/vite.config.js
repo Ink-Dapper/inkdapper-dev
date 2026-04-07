@@ -18,7 +18,8 @@ export default defineConfig({
       exclude: [/\.(br)$/, /\.(gz)$/],
       threshold: 1024,
     }),
-    // Temporarily disabled imagetools to fix image processing errors
+    // imagetools disabled — import is missing; re-enable after adding:
+    // import imagetools from 'vite-imagetools'
     // imagetools({
     //   defaultDirectives: new URLSearchParams([
     //     ['format', 'webp'],
@@ -29,7 +30,6 @@ export default defineConfig({
     //   silent: true,
     //   failOnError: false,
     //   extendURL: (url, { searchParams }) => {
-    //     // Add cache busting to prevent stale image references
     //     searchParams.set('v', Date.now());
     //     return url;
     //   },
@@ -71,14 +71,6 @@ export default defineConfig({
         secure: false
       }
     },
-    middlewares: [
-      (req, res, next) => {
-        if (req.url.endsWith('.jsx')) {
-          res.setHeader('Content-Type', 'application/javascript');
-        }
-        next();
-      }
-    ],
     hmr: {
       overlay: false
     }
