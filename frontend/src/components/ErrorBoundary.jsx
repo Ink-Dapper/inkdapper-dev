@@ -12,8 +12,8 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log the error to console
-    console.warn('ErrorBoundary caught an error:', error, errorInfo);
+    console.error('[ErrorBoundary] Caught error:', error);
+    console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
 
     this.setState({
       error: error,
@@ -23,23 +23,26 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      // Fallback UI
+      const { error, errorInfo } = this.state;
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
-              Something went wrong
-            </h2>
-            <p className="text-gray-600 mb-6">
-              We're working to fix this issue. Please refresh the page.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-            >
-              Refresh Page
-            </button>
-          </div>
+        <div style={{ minHeight: '100vh', padding: '2rem', fontFamily: 'monospace', background: '#fff8f8' }}>
+          <h2 style={{ color: '#c00', fontSize: '1.4rem', marginBottom: '1rem' }}>
+            App Error — check browser console for full details
+          </h2>
+          <details open style={{ background: '#fff', border: '1px solid #f99', borderRadius: 6, padding: '1rem', marginBottom: '1rem' }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 'bold', color: '#c00' }}>
+              {error && error.toString()}
+            </summary>
+            <pre style={{ marginTop: '0.75rem', whiteSpace: 'pre-wrap', fontSize: '0.8rem', color: '#333' }}>
+              {errorInfo && errorInfo.componentStack}
+            </pre>
+          </details>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ padding: '0.5rem 1.5rem', background: '#f97316', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '1rem' }}
+          >
+            Refresh Page
+          </button>
         </div>
       );
     }
