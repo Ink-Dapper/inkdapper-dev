@@ -55,6 +55,24 @@ const App = () => {
     setupGlobalErrorHandling();
   }, []);
 
+  // Prefetch the most-visited routes during browser idle time so they are
+  // already in the module cache when the user navigates to them.
+  useEffect(() => {
+    const prefetch = () => {
+      // Each import() call resolves from the chunk Vite/Rollup already split.
+      // We intentionally ignore the returned promise — this is fire-and-forget.
+      import('./pages/Collection');
+      import('./pages/Product');
+      import('./pages/Cart');
+    };
+    if ('requestIdleCallback' in window) {
+      const id = requestIdleCallback(prefetch, { timeout: 3000 });
+      return () => cancelIdleCallback(id);
+    }
+    const t = setTimeout(prefetch, 3000);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="app-container">
       {/* Global Background */}
@@ -68,7 +86,7 @@ const App = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 px-0 pt-20 md:pt-0 pb-5 md:pb-0 ">
+      <div className={`relative z-10 px-0 md:pb-0 ${isLoginPage ? 'pt-0 pb-0' : 'pt-[4.5rem] md:pt-0 pb-[4rem]'}`}>
         <ToastContainer />
         <PerformanceTracker />
         <Navbar />

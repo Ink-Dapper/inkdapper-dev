@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import ProductItem from './ProductItem';
 
@@ -10,4 +10,4 @@ const ProductItemWrapper = (props) => {
   );
 };
 
-export default ProductItemWrapper;
+export default memo(ProductItemWrapper);

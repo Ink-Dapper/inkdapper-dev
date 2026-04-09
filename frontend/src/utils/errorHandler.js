@@ -27,48 +27,15 @@ export const setupGlobalErrorHandling = () => {
     }
   };
 
-  // Override console.error to catch and handle DOM errors
-  const originalConsoleError = console.error;
-  
-  console.error = (...args) => {
-    const errorMessage = args.join(' ');
-    
-    // Check for specific DOM errors we want to suppress
-    if (errorMessage.includes('removeChild') || 
-        errorMessage.includes('insertBefore') ||
-        errorMessage.includes('NotFoundError') ||
-        errorMessage.includes('Failed to execute')) {
-      // Log as warning instead of error
-      console.warn('DOM operation error (suppressed):', ...args);
-      return;
-    }
-    
-    // For all other errors, use original console.error
-    originalConsoleError.apply(console, args);
-  };
-
-  // Global error handler for unhandled errors
+  // Global error handler — log ALL unhandled errors so they appear in the
+  // browser console and are not silently swallowed.
   window.addEventListener('error', (event) => {
-    if (event.error && event.error.message && 
-        (event.error.message.includes('removeChild') || 
-         event.error.message.includes('insertBefore') ||
-         event.error.message.includes('NotFoundError'))) {
-      event.preventDefault();
-      console.warn('DOM error caught and handled:', event.error.message);
-      return false;
-    }
+    console.error('[Global error]', event.error || event.message, event);
   });
 
   // Global handler for unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
-    if (event.reason && event.reason.message && 
-        (event.reason.message.includes('removeChild') || 
-         event.reason.message.includes('insertBefore') ||
-         event.reason.message.includes('NotFoundError'))) {
-      event.preventDefault();
-      console.warn('DOM promise rejection caught and handled:', event.reason.message);
-      return false;
-    }
+    console.error('[Unhandled promise rejection]', event.reason);
   });
 };
 

@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import axiosInstance from '../utils/axios'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 const Login = ({ setToken }) => {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const navigate = useNavigate()
 
     const onSubmitHandler = async (e) => {
         try {
@@ -21,6 +23,7 @@ const Login = ({ setToken }) => {
             if (response.data.success) {
                 setToken(response.data.token)
                 toast.success('Login successful!')
+                navigate('/')
             } else {
                 toast.error(response.data.message)
             }
@@ -35,73 +38,198 @@ const Login = ({ setToken }) => {
     }
 
     return (
-        <div className='min-h-screen flex items-center justify-center w-full bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50'>
-            {/* Background decorative elements */}
-            <div className="absolute top-0 left-1/4 w-72 h-72 bg-gradient-to-r from-orange-200/20 to-red-200/20 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-            <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gradient-to-r from-yellow-200/20 to-orange-200/20 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-2000"></div>
-            <div className="absolute top-1/2 left-0 w-48 h-48 bg-gradient-to-r from-red-200/15 to-pink-200/15 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-1000"></div>
+        <div
+            className="min-h-screen flex items-center justify-center w-full relative overflow-hidden"
+            style={{ background: '#0a0a0b' }}
+        >
+            {/* ── Ambient glow blobs ── */}
+            <div
+                className="absolute top-[-80px] left-[-80px] w-[420px] h-[420px] rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.13) 0%, transparent 70%)', filter: 'blur(40px)' }}
+            />
+            <div
+                className="absolute bottom-[-60px] right-[-60px] w-[320px] h-[320px] rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)', filter: 'blur(40px)' }}
+            />
 
-            <div className='bg-white/95 backdrop-blur-sm shadow-2xl rounded-2xl px-8 py-8 max-w-md w-full mx-4 border border-white/20 relative z-10'>
-                {/* Logo and Header */}
-                <div className='text-center mb-8'>
-                    <div className='flex justify-center mb-4'>
-                        <img
-                            src="/ink_dapper_logo_white.svg"
-                            alt="Ink Dapper Logo"
-                            className='h-12 w-auto filter brightness-0'
-                        />
+            {/* ── Ragged top edge strip ── */}
+            <div
+                className="absolute top-0 left-0 right-0 h-1 pointer-events-none"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.6), rgba(245,158,11,0.4), rgba(249,115,22,0.6), transparent)' }}
+            />
+
+            {/* ── Grid noise texture overlay ── */}
+            <div
+                className="absolute inset-0 pointer-events-none opacity-[0.03]"
+                style={{
+                    backgroundImage: `repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 40px),
+                        repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 40px)`
+                }}
+            />
+
+            {/* ── Card ── */}
+            <div
+                className="relative z-10 w-full max-w-md mx-4 rounded-2xl px-8 py-9"
+                style={{
+                    background: 'linear-gradient(160deg, #111113 0%, #0d0d0e 60%, #0a0a0b 100%)',
+                    border: '1px solid rgba(249,115,22,0.25)',
+                    boxShadow: '0 0 0 1px rgba(249,115,22,0.06) inset, 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(249,115,22,0.07)',
+                }}
+            >
+                {/* Inner top shimmer line */}
+                <div
+                    className="absolute top-0 left-8 right-8 h-px rounded-full pointer-events-none"
+                    style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.5), transparent)' }}
+                />
+
+                {/* ── Header ── */}
+                <div className="text-center mb-9">
+                    <div className="flex justify-center mb-5">
+                        <div
+                            className="p-3 rounded-xl"
+                            style={{
+                                background: 'rgba(249,115,22,0.08)',
+                                border: '1px solid rgba(249,115,22,0.2)',
+                                boxShadow: '0 0 24px rgba(249,115,22,0.1)',
+                            }}
+                        >
+                            <img
+                                src="/ink_dapper_logo_white.svg"
+                                alt="Ink Dapper Logo"
+                                className="h-10 w-auto"
+                                style={{ filter: 'brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(10deg)' }}
+                            />
+                        </div>
                     </div>
-                    <h1 className='text-3xl font-bold text-slate-800 mb-2'>Admin Panel</h1>
-                    <p className='text-slate-600 text-sm'>Sign in to manage your store</p>
+
+                    <h1
+                        className="text-2xl font-extrabold uppercase tracking-widest mb-1"
+                        style={{ color: '#f5f5f0', letterSpacing: '0.18em' }}
+                    >
+                        Admin Panel
+                    </h1>
+
+                    {/* Divider with diamond */}
+                    <div className="flex items-center justify-center gap-2 mt-2 mb-1">
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.4))' }} />
+                        <div
+                            className="w-1.5 h-1.5 rotate-45"
+                            style={{ background: '#f97316' }}
+                        />
+                        <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.4), transparent)' }} />
+                    </div>
+
+                    <p className="text-xs uppercase tracking-[0.15em] mt-2" style={{ color: 'rgba(253,186,116,0.6)' }}>
+                        Secure Access
+                    </p>
                 </div>
 
-                {/* Login Form */}
-                <form onSubmit={onSubmitHandler} className='space-y-6'>
-                    <div className='space-y-2'>
-                        <label className='text-sm font-semibold text-slate-700 block'>
+                {/* ── Form ── */}
+                <form onSubmit={onSubmitHandler} className="space-y-5">
+
+                    {/* Email */}
+                    <div className="space-y-1.5">
+                        <label
+                            className="text-[11px] font-bold uppercase tracking-[0.14em] block"
+                            style={{ color: 'rgba(253,186,116,0.75)' }}
+                        >
                             Email Address
                         </label>
-                        <div className='relative'>
+                        <div className="relative">
                             <input
                                 onChange={(e) => setEmail(e.target.value)}
                                 value={email}
-                                className='w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all duration-200 bg-white/80 backdrop-blur-sm'
+                                className="w-full px-4 py-3 rounded-lg outline-none transition-all duration-200 text-sm"
+                                style={{
+                                    background: 'rgba(255,255,255,0.04)',
+                                    border: '1px solid rgba(249,115,22,0.2)',
+                                    color: '#f5f5f0',
+                                    caretColor: '#f97316',
+                                }}
+                                onFocus={e => {
+                                    e.target.style.border = '1px solid rgba(249,115,22,0.6)'
+                                    e.target.style.boxShadow = '0 0 0 3px rgba(249,115,22,0.08), 0 0 16px rgba(249,115,22,0.08)'
+                                }}
+                                onBlur={e => {
+                                    e.target.style.border = '1px solid rgba(249,115,22,0.2)'
+                                    e.target.style.boxShadow = 'none'
+                                }}
                                 type="email"
                                 name="email"
-                                placeholder="Enter your email address"
+                                placeholder="admin@inkdapper.com"
                                 required
                                 disabled={isLoading}
                             />
                         </div>
                     </div>
 
-                    <div className='space-y-2'>
-                        <label className='text-sm font-semibold text-slate-700 block'>
+                    {/* Password */}
+                    <div className="space-y-1.5">
+                        <label
+                            className="text-[11px] font-bold uppercase tracking-[0.14em] block"
+                            style={{ color: 'rgba(253,186,116,0.75)' }}
+                        >
                             Password
                         </label>
-                        <div className='relative'>
+                        <div className="relative">
                             <input
                                 onChange={(e) => setPassword(e.target.value)}
                                 value={password}
-                                className='w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all duration-200 bg-white/80 backdrop-blur-sm'
+                                className="w-full px-4 py-3 rounded-lg outline-none transition-all duration-200 text-sm"
+                                style={{
+                                    background: 'rgba(255,255,255,0.04)',
+                                    border: '1px solid rgba(249,115,22,0.2)',
+                                    color: '#f5f5f0',
+                                    caretColor: '#f97316',
+                                }}
+                                onFocus={e => {
+                                    e.target.style.border = '1px solid rgba(249,115,22,0.6)'
+                                    e.target.style.boxShadow = '0 0 0 3px rgba(249,115,22,0.08), 0 0 16px rgba(249,115,22,0.08)'
+                                }}
+                                onBlur={e => {
+                                    e.target.style.border = '1px solid rgba(249,115,22,0.2)'
+                                    e.target.style.boxShadow = 'none'
+                                }}
                                 type="password"
                                 name="password"
-                                placeholder="Enter your password"
+                                placeholder="••••••••••••"
                                 required
                                 disabled={isLoading}
                             />
                         </div>
                     </div>
 
+                    {/* Submit */}
                     <button
-                        type='submit'
+                        type="submit"
                         disabled={isLoading}
-                        className='w-full py-3 px-4 rounded-lg text-white font-semibold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transform transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl'
+                        className="w-full py-3 px-4 rounded-lg font-bold uppercase tracking-widest text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                        style={{
+                            background: isLoading
+                                ? 'rgba(249,115,22,0.5)'
+                                : 'linear-gradient(135deg, #f97316 0%, #f59e0b 100%)',
+                            color: '#0a0a0b',
+                            boxShadow: isLoading ? 'none' : '0 4px 24px rgba(249,115,22,0.35), 0 0 0 1px rgba(249,115,22,0.2)',
+                            letterSpacing: '0.14em',
+                        }}
+                        onMouseEnter={e => {
+                            if (!isLoading) {
+                                e.target.style.boxShadow = '0 6px 32px rgba(249,115,22,0.5), 0 0 0 1px rgba(249,115,22,0.3)'
+                                e.target.style.transform = 'translateY(-1px)'
+                            }
+                        }}
+                        onMouseLeave={e => {
+                            e.target.style.boxShadow = '0 4px 24px rgba(249,115,22,0.35), 0 0 0 1px rgba(249,115,22,0.2)'
+                            e.target.style.transform = 'translateY(0)'
+                        }}
                     >
                         {isLoading ? (
-                            <div className='flex items-center justify-center'>
-                                <div className='animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2'></div>
-                                Signing in...
+                            <div className="flex items-center justify-center gap-2">
+                                <div
+                                    className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin"
+                                    style={{ borderColor: 'rgba(10,10,11,0.4)', borderTopColor: 'transparent' }}
+                                />
+                                Authenticating...
                             </div>
                         ) : (
                             'Sign In'
@@ -109,12 +237,22 @@ const Login = ({ setToken }) => {
                     </button>
                 </form>
 
-                {/* Footer */}
-                <div className='mt-8 text-center'>
-                    <p className='text-xs text-slate-500'>
-                        Secure access to your admin dashboard
-                    </p>
+                {/* ── Footer ── */}
+                <div className="mt-8 pt-5 text-center" style={{ borderTop: '1px solid rgba(249,115,22,0.1)' }}>
+                    <div className="flex items-center justify-center gap-2">
+                        <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(249,115,22,0.5)' }} />
+                        <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'rgba(253,186,116,0.35)' }}>
+                            Ink Dapper © 2026
+                        </p>
+                        <div className="w-1 h-1 rounded-full" style={{ background: 'rgba(249,115,22,0.5)' }} />
+                    </div>
                 </div>
+
+                {/* Inner bottom shimmer line */}
+                <div
+                    className="absolute bottom-0 left-8 right-8 h-px rounded-full pointer-events-none"
+                    style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.2), transparent)' }}
+                />
             </div>
         </div>
     )

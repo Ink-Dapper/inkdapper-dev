@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Menu, LogOut, ChevronDown, User, Settings, Bell } from 'lucide-react'
 import { assets } from '../assets/assets'
 import NotificationBell from './NotificationBell'
@@ -24,10 +24,13 @@ const PAGE_TITLES = {
   '/coupons': 'Coupons',
   '/storage': 'Storage Manager',
   '/performance-reports': 'Control & Performance Reports',
+  '/profile': 'My Profile',
+  '/settings': 'Settings',
 }
 
 const Navbar = ({ setToken, onMenuClick }) => {
   const location = useLocation()
+  const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -110,11 +113,15 @@ const Navbar = ({ setToken, onMenuClick }) => {
                 <p className="text-xs text-gray-400 truncate">admin@inkdapper.com</p>
               </div>
               <div className="py-1">
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors">
+                <button
+                  onClick={() => { navigate('/profile'); setDropdownOpen(false) }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors">
                   <User className="w-4 h-4" />
                   Profile
                 </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors">
+                <button
+                  onClick={() => { navigate('/settings'); setDropdownOpen(false) }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors">
                   <Settings className="w-4 h-4" />
                   Settings
                 </button>

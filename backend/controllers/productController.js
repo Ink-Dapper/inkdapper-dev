@@ -32,11 +32,16 @@ const addProduct = async (req, res) => {
     } = req.body;
 
     const image1 = req.files.image1 && req.files.image1[0];
+    if (!image1) {
+      return res.status(400).json({ success: false, message: 'At least one product image is required.' });
+    }
+
     const image2 = req.files.image2 && req.files.image2[0];
     const image3 = req.files.image3 && req.files.image3[0];
     const image4 = req.files.image4 && req.files.image4[0];
-
-    const images = [image1, image2, image3, image4].filter(Boolean);
+    const reviewImage1 = req.files.reviewImage1 && req.files.reviewImage1[0];
+    const reviewImage2 = req.files.reviewImage2 && req.files.reviewImage2[0];
+    const reviewImage3 = req.files.reviewImage3 && req.files.reviewImage3[0];
 
     // Build structured folder: products/{code}/{primaryColor}/
     const parsedColors = colors ? JSON.parse(colors) : [];
@@ -45,24 +50,27 @@ const addProduct = async (req, res) => {
       : 'default';
     const safeCode = (code || '').replace(/[^a-zA-Z0-9\-_]/g, '') || 'unknown';
     const productFolder = `products/${safeCode}/${primaryColor}`;
+    const reviewFolder = `products/${safeCode}/reviews`;
 
-    const imagesUrl = await Promise.all(
-      images.map((item) =>
-        uploadFile(item.buffer, item.originalname, item.mimetype, productFolder)
+    // Upload all images in parallel (product + review images at once)
+    const allFiles = [
+      { file: image1, folder: productFolder },
+      { file: image2, folder: productFolder },
+      { file: image3, folder: productFolder },
+      { file: image4, folder: productFolder },
+      { file: reviewImage1, folder: reviewFolder },
+      { file: reviewImage2, folder: reviewFolder },
+      { file: reviewImage3, folder: reviewFolder },
+    ];
+
+    const uploadResults = await Promise.all(
+      allFiles.map(({ file, folder }) =>
+        file ? uploadFile(file.buffer, file.originalname, file.mimetype, folder) : Promise.resolve(null)
       )
     );
 
-    const reviewImage1 = req.files.reviewImage1 && req.files.reviewImage1[0];
-    const reviewImage2 = req.files.reviewImage2 && req.files.reviewImage2[0];
-    const reviewImage3 = req.files.reviewImage3 && req.files.reviewImage3[0];
-
-    const reviewImages = [reviewImage1, reviewImage2, reviewImage3].filter(Boolean);
-
-    const reviewImagesUrl = await Promise.all(
-      reviewImages.map((item) =>
-        uploadFile(item.buffer, item.originalname, item.mimetype, `products/${safeCode}/reviews`)
-      )
-    );
+    const imagesUrl = uploadResults.slice(0, 4).filter(Boolean);
+    const reviewImagesUrl = uploadResults.slice(4).filter(Boolean);
 
     const productData = {
       name,
@@ -81,8 +89,6 @@ const addProduct = async (req, res) => {
       slug: slugify(name),
       comboPrices: comboPrices ? JSON.parse(comboPrices) : [],
     };
-
-    console.log(productData);
 
     const product = new productModel(productData);
     await product.save();
@@ -283,7 +289,6 @@ const deleteBanner = async (req, res) => {
   try {
     const { id } = req.params;
     const banner = await AddBannerModel.findByIdAndDelete(id);
-    console.log(id);
     if (!banner) {
       return res.status(404).json({ success: false, message: "Banner not found" });
     }

@@ -33,6 +33,8 @@ const PlaceOrder = () => {
   const [creditPtsVisible, setCreditPtsVisible] = useState(false)
   const [showThankYou, setShowThankYou] = useState(false)
   const [receiptData, setReceiptData] = useState(null)
+  const [savedAddresses, setSavedAddresses] = useState([])
+  const [showAddressModal, setShowAddressModal] = useState(false)
   const redirectTimeoutRef = useRef(null)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -295,6 +297,45 @@ const PlaceOrder = () => {
     }
   }
 
+  const selectSavedAddress = (addr) => {
+    setFormData({
+      firstName: addr.firstName || '',
+      lastName: addr.lastName || '',
+      email: addr.email || '',
+      street: addr.street || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      zipcode: addr.zipcode || '',
+      country: addr.country || '',
+      phone: addr.phone || ''
+    })
+    setShowAddressModal(false)
+  }
+
+  useEffect(() => {
+    if (!token) return
+    const fetchSavedAddresses = async () => {
+      try {
+        const { data } = await apiInstance.post('/order/user-orders', {})
+        if (data.success && data.orders?.length) {
+          // Extract unique addresses by street+zipcode key
+          const seen = new Set()
+          const unique = []
+          data.orders.forEach(order => {
+            if (!order.address) return
+            const key = `${order.address.street}-${order.address.zipcode}`
+            if (!seen.has(key)) {
+              seen.add(key)
+              unique.push(order.address)
+            }
+          })
+          setSavedAddresses(unique)
+        }
+      } catch (_) {}
+    }
+    fetchSavedAddresses()
+  }, [token])
+
   useEffect(() => {
     getCreditScore()
   }, [])
@@ -308,40 +349,52 @@ const PlaceOrder = () => {
   return (
     <>
       {showThankYou && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
-            <div className="rounded-2xl p-3 sm:p-4" style={{ background: '#38b2ac' }}>
-              <div className="relative bg-white text-slate-700 mx-auto max-w-md shadow-2xl overflow-hidden">
-                <div className="h-4" style={{ backgroundImage: 'repeating-linear-gradient(-45deg, #ffffff 0, #ffffff 8px, transparent 8px, transparent 16px)', backgroundSize: '16px 16px', backgroundColor: '#e2e8f0' }} />
-                <div className="px-5 sm:px-6 py-5">
-                  <h2 className="text-center text-4xl sm:text-5xl font-black tracking-wide text-slate-700">RECEIPT</h2>
-                  <div className="my-3 border-t-2 border-slate-500" />
-                  <div className="text-xs sm:text-sm space-y-1">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-1">
+          <div className="w-full max-w-md" style={{ maxHeight: '100vh' }}>
+            <div className="rounded-2xl p-2.5" style={{ background: '#38b2ac' }}>
+              <div className="relative bg-white text-slate-700 mx-auto shadow-2xl overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 16px)' }}>
+                {/* Top ticket edge */}
+                <div className="shrink-0 h-3" style={{ backgroundImage: 'repeating-linear-gradient(-45deg, #ffffff 0, #ffffff 8px, transparent 8px, transparent 16px)', backgroundSize: '16px 16px', backgroundColor: '#e2e8f0' }} />
+
+                {/* Scrollable body */}
+                <div className="overflow-y-auto flex-1 px-4 py-3">
+                  {/* Header row: title + success icon */}
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-2xl font-black tracking-wide text-slate-700">RECEIPT</h2>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 flex items-center justify-center shrink-0">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="border-t-2 border-slate-500 mb-2" />
+
+                  {/* Meta info */}
+                  <div className="text-sm space-y-0.5">
                     <div className="flex justify-between gap-3">
-                      <span className='text-slate-600'>Receipt No</span>
+                      <span className="text-slate-500">Receipt No</span>
                       <span className="font-semibold text-slate-600">{receiptData?.receiptNo}</span>
                     </div>
                     <div className="flex justify-between gap-3">
-                      <span className='text-slate-600'>Date</span>
+                      <span className="text-slate-500">Date</span>
                       <span className="font-semibold text-slate-600">
                         {receiptData?.date ? new Date(receiptData.date).toLocaleString() : ''}
                       </span>
                     </div>
                     <div className="flex justify-between gap-3">
-                      <span className='text-slate-600'>Payment</span>
+                      <span className="text-slate-500">Payment</span>
                       <span className="font-semibold text-slate-600">{receiptData?.paymentMethod}</span>
                     </div>
                   </div>
 
-                  <div className="my-4 border-t border-dashed border-slate-400" />
+                  <div className="my-2 border-t border-dashed border-slate-400" />
 
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  {/* Items — scroll only this section if many items */}
+                  <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
                     {(receiptData?.items || []).map((item, index) => (
-                      <div key={`${item._id}-${item.size}-${index}`} className="text-xs sm:text-sm">
+                      <div key={`${item._id}-${item.size}-${index}`} className="text-sm">
                         <div className="flex justify-between gap-3">
-                          <span className="truncate text-slate-600">
-                            {item.name} ({item.size}) x {item.quantity}
-                          </span>
+                          <span className="truncate text-slate-600">{item.name} ({item.size}) x {item.quantity}</span>
                           <span className="font-semibold whitespace-nowrap text-slate-600">
                             {formatCurrency((item.price || 0) * (item.quantity || 0))}
                           </span>
@@ -350,64 +403,59 @@ const PlaceOrder = () => {
                     ))}
                   </div>
 
-                  <div className="my-4 border-t border-dashed border-slate-400" />
+                  <div className="my-2 border-t border-dashed border-slate-400" />
 
-                  <div className="space-y-1 text-xs sm:text-sm">
+                  {/* Totals */}
+                  <div className="space-y-0.5 text-sm">
                     <div className="flex justify-between">
-                      <span className='text-slate-600'>Subtotal</span>
-                      <span className='text-slate-600'>{formatCurrency(receiptData?.subtotal)}</span>
+                      <span className="text-slate-500">Subtotal</span>
+                      <span className="text-slate-600">{formatCurrency(receiptData?.subtotal)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className='text-slate-600'>Shipping</span>
-                      <span className='text-slate-600'>{formatCurrency(receiptData?.shipping)}</span>
+                      <span className="text-slate-500">Shipping</span>
+                      <span className="text-slate-600">{formatCurrency(receiptData?.shipping)}</span>
                     </div>
                     {Number(receiptData?.discount) > 0 && (
-                      <div className="flex justify-between text-emerald-700">
-                        <span className='text-slate-600'>Discount</span>
-                        <span className='text-slate-600'>- {formatCurrency(receiptData?.discount)}</span>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Discount</span>
+                        <span className="text-slate-600">- {formatCurrency(receiptData?.discount)}</span>
                       </div>
                     )}
                     {Number(receiptData?.creditUsed) > 0 && (
-                      <div className="flex justify-between text-emerald-700">
-                        <span className='text-slate-600'>Credit Used</span>
-                        <span className='text-slate-600'>- {formatCurrency(receiptData?.creditUsed)}</span>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Credit Used</span>
+                        <span className="text-slate-600">- {formatCurrency(receiptData?.creditUsed)}</span>
                       </div>
                     )}
-                    <div className="pt-1 mt-1 border-t border-slate-400 flex justify-between text-base sm:text-lg font-extrabold">
-                      <span className='text-slate-600'>Total</span>
-                      <span className='text-slate-600'>{formatCurrency(receiptData?.total)}</span>
+                    <div className="pt-1 mt-1 border-t border-slate-400 flex justify-between text-sm font-extrabold">
+                      <span className="text-slate-700">Total</span>
+                      <span className="text-slate-700">{formatCurrency(receiptData?.total)}</span>
                     </div>
                   </div>
 
-                  <div className="my-4 border-t border-dashed border-slate-400" />
+                  <div className="my-2 border-t border-dashed border-slate-400" />
 
-                  <div className="text-[11px] sm:text-xs leading-relaxed">
-                    <p className="font-semibold text-slate-800">Billing Address</p>
-                    <p className='text-slate-600'>
+                  {/* Billing address */}
+                  <div className="text-[14px] leading-snug">
+                    <p className="font-semibold text-slate-700 mb-0.5">Billing Address</p>
+                    <p className="text-slate-500">
                       {receiptData?.address?.firstName} {receiptData?.address?.lastName}, {receiptData?.address?.street},{' '}
                       {receiptData?.address?.city}, {receiptData?.address?.state} - {receiptData?.address?.zipcode},{' '}
                       {receiptData?.address?.country}
                     </p>
-                    <p className='text-slate-600'>Phone: {receiptData?.address?.phone}</p>
-                    <p className='text-slate-600'>Email: {receiptData?.address?.email}</p>
+                    <p className="text-slate-500">Ph: {receiptData?.address?.phone} &nbsp;|&nbsp; {receiptData?.address?.email}</p>
                   </div>
 
-                  <div className="mt-4 h-12 rounded" style={{ background: 'repeating-linear-gradient(90deg, #1f2937 0, #1f2937 2px, transparent 2px, transparent 6px)' }} />
-                  <p className="mt-3 text-center text-[11px] text-slate-500">
-                    Order confirmed. You can download the receipt PDF or close this dialog.
-                  </p>
-                  <div className="mt-3 flex justify-center">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {/* Barcode strip */}
+                  <div className="mt-3 h-6 rounded" style={{ background: 'repeating-linear-gradient(90deg, #1f2937 0, #1f2937 2px, transparent 2px, transparent 6px)' }} />
+                  <p className="mt-1.5 text-center text-[14px] text-slate-400">Order confirmed. Download the receipt or close.</p>
+
+                  {/* Action buttons */}
+                  <div className="mt-3 grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={downloadReceiptPdf}
-                      className="w-full rounded-lg px-3 py-2.5 text-xs sm:text-sm font-bold uppercase tracking-[0.08em] text-white"
+                      className="w-full rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-white"
                       style={{ background: 'linear-gradient(135deg, #f97316, #f59e0b)' }}
                     >
                       Download PDF
@@ -415,14 +463,66 @@ const PlaceOrder = () => {
                     <button
                       type="button"
                       onClick={closeReceiptDialog}
-                      className="w-full rounded-lg px-3 py-2.5 text-xs sm:text-sm font-bold uppercase tracking-[0.08em] text-slate-700 border border-slate-300 bg-white"
+                      className="w-full rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-slate-700 border border-slate-300 bg-white"
                     >
                       Close
                     </button>
                   </div>
                 </div>
-                <div className="h-4" style={{ backgroundImage: 'repeating-linear-gradient(-45deg, #ffffff 0, #ffffff 8px, transparent 8px, transparent 16px)', backgroundSize: '16px 16px', backgroundColor: '#e2e8f0' }} />
+
+                {/* Bottom ticket edge */}
+                <div className="shrink-0 h-3" style={{ backgroundImage: 'repeating-linear-gradient(-45deg, #ffffff 0, #ffffff 8px, transparent 8px, transparent 16px)', backgroundSize: '16px 16px', backgroundColor: '#e2e8f0' }} />
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAddressModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={() => setShowAddressModal(false)}>
+          <div
+            className="w-full max-w-md rounded-2xl overflow-hidden"
+            style={{ background: '#1a1a1e', border: '1px solid rgba(249,115,22,0.25)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(249,115,22,0.15)' }}>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-orange-400">Saved Addresses</h3>
+              </div>
+              <button type="button" onClick={() => setShowAddressModal(false)} className="text-slate-400 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Address list */}
+            <div className="p-4 space-y-3 max-h-80 overflow-y-auto">
+              {savedAddresses.map((addr, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => selectSavedAddress(addr)}
+                  className="w-full text-left rounded-xl px-4 py-3 transition-all hover:border-orange-500/60 hover:bg-orange-500/5 group"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(148,163,184,0.15)' }}
+                >
+                  <p className="text-sm font-semibold text-slate-200 group-hover:text-orange-300 transition-colors">
+                    {addr.firstName} {addr.lastName}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">{addr.street}</p>
+                  <p className="text-xs text-slate-400">{addr.city}, {addr.state} - {addr.zipcode}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{addr.phone}</p>
+                </button>
+              ))}
+            </div>
+
+            <div className="px-5 py-3" style={{ borderTop: '1px solid rgba(249,115,22,0.1)' }}>
+              <p className="text-[11px] text-slate-500 text-center">Select an address to auto-fill the delivery form</p>
             </div>
           </div>
         </div>
@@ -446,20 +546,44 @@ const PlaceOrder = () => {
             <h2 className="sr-only">Place Order</h2>
 
             <div
-              className='relative rounded-2xl overflow-hidden p-6 sm:p-8 h-full flex flex-col'
+              className='relative rounded-2xl p-6 sm:p-8'
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(249,115,22,0.15)' }}
             >
-              <div className="absolute top-0 left-0 w-full h-0.5" style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b, transparent)' }} />
-              <div className='mb-8'>
-                <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4' style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  <span className="text-xs font-bold uppercase tracking-[0.18em] text-orange-400">Delivery Details</span>
+              <div className="absolute top-0 left-0 w-full h-0.5 rounded-t-2xl" style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b, transparent)' }} />
+              <div className='mb-5'>
+                {/* Single compact row: label left, button right */}
+                <div className='flex items-center justify-between gap-2'>
+                  {/* Left: icon + title stacked */}
+                  <div className='flex items-center gap-2 min-w-0'>
+                    <div className='shrink-0 w-7 h-7 rounded-lg flex items-center justify-center' style={{ background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.3)' }}>
+                      <span className="w-2 h-2 rounded-full bg-orange-500" />
+                    </div>
+                    <div className='min-w-0'>
+                      <p className='text-[10px] font-bold uppercase tracking-[0.18em] text-orange-400 leading-none'>Delivery Details</p>
+                      <h3 className='ragged-title text-lg sm:text-2xl leading-tight truncate'>Delivery Information</h3>
+                    </div>
+                  </div>
+
+                  {/* Right: saved address button */}
+                  {savedAddresses.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAddressModal(true)}
+                      className='shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-[0.1em] text-orange-300 transition-all active:scale-95'
+                      style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)' }}
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className='hidden xs:inline'>Use </span>Saved
+                    </button>
+                  )}
                 </div>
-                <h3 className='ragged-title text-2xl sm:text-3xl'>Delivery Information</h3>
-                <div className="mt-3 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.2), transparent)' }} />
+                <div className="mt-2.5 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.25), transparent)' }} />
               </div>
 
-              <div className='space-y-6 flex flex-col h-full'>
+              <div className='space-y-6'>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div className='space-y-2'>
                     <label className='text-sm font-medium text-slate-300'>First Name</label>
@@ -589,47 +713,49 @@ const PlaceOrder = () => {
                   />
                 </div>
 
+                {/* Delivery Assurance */}
                 <div
-                  className='relative rounded-xl p-4 sm:p-5 overflow-hidden'
+                  className='relative rounded-xl px-3 py-2.5 sm:p-5'
                   style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(249,115,22,0.14)' }}
                 >
-                  <div className='absolute inset-x-0 top-0 h-0.5' style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.65), rgba(245,158,11,0.5), transparent)' }} />
-                  <div className='flex items-center gap-2 mb-3'>
-                    <span className='w-1.5 h-1.5 rounded-full bg-orange-400' />
-                    <p className='text-xs font-bold uppercase tracking-[0.18em] text-orange-300'>Delivery Assurance</p>
+                  <div className='absolute inset-x-0 top-0 h-0.5 rounded-t-xl' style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.65), rgba(245,158,11,0.5), transparent)' }} />
+                  <div className='flex items-center justify-between gap-3'>
+                    <p className='text-[10px] font-bold uppercase tracking-[0.16em] text-orange-300'>Delivery Assurance</p>
                   </div>
-
-                  <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
-                    <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
-                      <p className='text-[11px] font-semibold text-slate-200'>Secure Address</p>
-                      <p className='text-[11px] text-slate-500 mt-0.5'>Your details stay encrypted.</p>
-                    </div>
-                    <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
-                      <p className='text-[11px] font-semibold text-slate-200'>Quick Dispatch</p>
-                      <p className='text-[11px] text-slate-500 mt-0.5'>Orders move fast after payment.</p>
-                    </div>
-                    <div className='rounded-lg px-3 py-2.5' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
-                      <p className='text-[11px] font-semibold text-slate-200'>Easy Support</p>
-                      <p className='text-[11px] text-slate-500 mt-0.5'>Help available for address issues.</p>
-                    </div>
+                  <div className='mt-2 grid grid-cols-3 gap-2'>
+                    {[
+                      { icon: '🔒', title: 'Secure', sub: 'Encrypted' },
+                      { icon: '⚡', title: 'Fast Ship', sub: 'After payment' },
+                      { icon: '💬', title: 'Support', sub: 'Help ready' },
+                    ].map(({ icon, title, sub }) => (
+                      <div key={title} className='flex flex-col items-center text-center rounded-lg px-2 py-2' style={{ background: 'rgba(15,23,42,0.36)', border: '1px solid rgba(148,163,184,0.18)' }}>
+                        <span className='text-base leading-none mb-1'>{icon}</span>
+                        <p className='text-[10px] font-semibold text-slate-200 leading-tight'>{title}</p>
+                        <p className='text-[9px] text-slate-500 leading-tight mt-0.5'>{sub}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
+                {/* Order Confidence — compact single row on mobile */}
                 <div
-                  className='mt-auto relative rounded-xl p-4 sm:p-5 overflow-hidden'
+                  className='relative rounded-xl p-3 sm:p-5 overflow-hidden'
                   style={{ background: 'rgba(249,115,22,0.05)', border: '1px solid rgba(249,115,22,0.18)' }}
                 >
-                  <div className='absolute -top-10 -right-8 w-28 h-28 rounded-full blur-2xl opacity-40' style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.65), transparent 70%)' }} />
-                  <div className='absolute -bottom-12 -left-8 w-32 h-32 rounded-full blur-2xl opacity-30' style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.6), transparent 70%)' }} />
+                  <div className='absolute -top-10 -right-8 w-24 h-24 rounded-full blur-2xl opacity-30' style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.65), transparent 70%)' }} />
                   <div className='relative'>
-                    <p className='text-xs font-bold uppercase tracking-[0.18em] text-orange-300 mb-2'>Order Confidence</p>
-                    <p className='text-sm text-slate-300 leading-relaxed mb-3'>
-                      Double-check your address for faster delivery and smoother order tracking.
-                    </p>
-                    <div className='flex flex-wrap gap-2'>
-                      <span className='text-[11px] px-2.5 py-1 rounded-full' style={{ background: 'rgba(15,23,42,0.55)', border: '1px solid rgba(148,163,184,0.24)', color: '#cbd5e1' }}>Address Verified</span>
-                      <span className='text-[11px] px-2.5 py-1 rounded-full' style={{ background: 'rgba(15,23,42,0.55)', border: '1px solid rgba(148,163,184,0.24)', color: '#cbd5e1' }}>Live Tracking</span>
-                      <span className='text-[11px] px-2.5 py-1 rounded-full' style={{ background: 'rgba(15,23,42,0.55)', border: '1px solid rgba(148,163,184,0.24)', color: '#cbd5e1' }}>Support Ready</span>
+                    <div className='flex items-start justify-between gap-3'>
+                      <div className='min-w-0'>
+                        <p className='text-[10px] font-bold uppercase tracking-[0.18em] text-orange-300 mb-1'>Order Confidence</p>
+                        <p className='text-[11px] sm:text-sm text-slate-400 leading-snug'>
+                          Double-check your address for faster delivery.
+                        </p>
+                      </div>
+                    </div>
+                    <div className='flex flex-wrap gap-1.5 mt-2'>
+                      {['Address Verified', 'Live Tracking', 'Support Ready'].map(label => (
+                        <span key={label} className='text-[10px] px-2 py-0.5 rounded-full' style={{ background: 'rgba(15,23,42,0.55)', border: '1px solid rgba(148,163,184,0.24)', color: '#cbd5e1' }}>{label}</span>
+                      ))}
                     </div>
                   </div>
                 </div>

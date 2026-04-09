@@ -79,9 +79,7 @@
     </script>
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="/src/assets/logo_only.png" as="image" type="image/png" fetchpriority="high">
-    <!-- Removed banner-01 preload as it's not used immediately -->
-    <link rel="modulepreload" href="/src/main.jsx" crossorigin="anonymous">
+    <!-- NOTE: modulepreload for main.jsx removed — Vite injects correct hashed paths during build -->
     <link rel="preconnect" href="https://checkout.razorpay.com">
     
     <!-- Preload fonts with display swap -->
@@ -92,6 +90,9 @@
     <link rel="dns-prefetch" href="https://checkout.razorpay.com">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preconnect to backend API so first XHR has no TCP/TLS overhead -->
+    <link rel="preconnect" href="https://api.inkdapper.com">
+    <link rel="dns-prefetch" href="https://api.inkdapper.com">
     
     <!-- Inline critical CSS -->
     <style>
@@ -198,8 +199,7 @@
       }
     </style>
     
-    <!-- Defer non-critical CSS -->
-    <link rel="stylesheet" href="/src/styles/swiper-custom.css" media="print" onload="this.media='all'">
+    <!-- swiper-custom.css is imported via JS bundle — no separate link needed -->
   </head>
   <body>
     <!-- Page Loader -->
@@ -208,7 +208,7 @@
         <div class="logo-container">
           <div class="loader-spinner"></div>
           <img
-            src="./src/assets/logo_only.png"
+            src="/ink_dapper_logo.svg"
             alt="Ink Dapper Logo"
             width="90"
             height="90"
@@ -246,6 +246,13 @@
           }, 500);
         }
       });
+
+      // Register service worker for asset caching & offline support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js', { scope: '/' }).catch(() => {});
+        });
+      }
 
       // Preload critical images
       const preloadImages = () => {

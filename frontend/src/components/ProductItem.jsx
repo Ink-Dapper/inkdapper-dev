@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { useContext, useEffect, useMemo, useState, useRef } from 'react';
+import { useContext, useEffect, useMemo, useState, useRef, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
@@ -522,4 +522,4 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   );
 };
 
-export default ProductItem;
+export default memo(ProductItem);

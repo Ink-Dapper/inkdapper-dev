@@ -32,12 +32,13 @@ const Collection = () => {
   const [showMobileFilter, setShowMobileFilter] = useState(false)
   const [displayedProducts, setDisplayedProducts] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(15)
+  const [itemsPerPage] = useState(16)
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [isSidebarFixed, setIsSidebarFixed] = useState(false)
   const layoutRef = useRef(null)
   const [heroBannerImages, setHeroBannerImages] = useState([])
+  const [bannerImgLoaded, setBannerImgLoaded] = useState([false, false, false])
   const heroImagePool = useMemo(
     () => [...new Set(products.flatMap((item) => (Array.isArray(item.image) ? item.image : [])).filter(Boolean))],
     [products]
@@ -164,6 +165,7 @@ const Collection = () => {
     if (!heroImagePool.length) return undefined
 
     setHeroBannerImages(pickRandomHeroImages(heroImagePool))
+    setBannerImgLoaded([false, false, false])
 
     const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 640
     const isDataSaver = typeof navigator !== 'undefined' && Boolean(navigator.connection?.saveData)
@@ -172,6 +174,7 @@ const Collection = () => {
 
     const rotateInterval = setInterval(() => {
       setHeroBannerImages(pickRandomHeroImages(heroImagePool))
+      setBannerImgLoaded([false, false, false])
     }, 5000)
 
     return () => clearInterval(rotateInterval)
@@ -316,11 +319,11 @@ const Collection = () => {
           </div>
           <div className="space-y-1">
             {[
-              { value: 'Customtshirt',  label: 'Custom T-shirt'  },
-              { value: 'Solidoversized',label: 'Solid Oversized' },
-              { value: 'Quotesdesigns', label: 'Quotes Designs'  },
-              { value: 'Plaintshirt',   label: 'Solid T-shirt'   },
-              { value: 'Acidwash',      label: 'Acid Wash'       },
+              { value: 'Customtshirt', label: 'Custom T-shirt' },
+              { value: 'Solidoversized', label: 'Solid Oversized' },
+              { value: 'Quotesdesigns', label: 'Quotes Designs' },
+              { value: 'Plaintshirt', label: 'Solid T-shirt' },
+              { value: 'Acidwash', label: 'Acid Wash' },
             ].map((type) => {
               const active = subCategory.includes(type.value)
               return (
@@ -448,14 +451,51 @@ const Collection = () => {
                 style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.4), rgba(245,158,11,0.22))' }} />
               <div className="relative grid grid-cols-2 gap-3 p-3 rounded-2xl"
                 style={{ background: 'rgba(15,16,18,0.7)', border: '1px solid rgba(249,115,22,0.22)' }}>
-                <div className="col-span-2 rounded-xl overflow-hidden h-40 sm:h-48 border border-orange-500/20">
-                  <img src={heroBannerImages[0] || ''} alt="Collection featured product" className="w-full h-full object-cover opacity-90" loading="eager" fetchPriority="high" decoding="async" />
+                {/* Main banner image */}
+                <div className="col-span-2 rounded-xl overflow-hidden h-40 sm:h-48 border border-orange-500/20 relative">
+                  {!bannerImgLoaded[0] && (
+                    <div className="absolute inset-0 banner-skeleton rounded-xl" />
+                  )}
+                  <img
+                    src={heroBannerImages[0] || ''}
+                    alt="Collection featured product"
+                    className="w-full h-full object-cover opacity-90 transition-opacity duration-500"
+                    style={{ opacity: bannerImgLoaded[0] ? 0.9 : 0 }}
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                    onLoad={() => setBannerImgLoaded(prev => { const n = [...prev]; n[0] = true; return n })}
+                  />
                 </div>
-                <div className="rounded-xl overflow-hidden h-32 sm:h-36 border border-orange-500/20">
-                  <img src={heroBannerImages[1] || heroBannerImages[0] || ''} alt="Streetwear product preview one" className="w-full h-full object-cover opacity-90" loading="lazy" decoding="async" />
+                {/* Secondary image left */}
+                <div className="rounded-xl overflow-hidden h-32 sm:h-36 border border-orange-500/20 relative">
+                  {!bannerImgLoaded[1] && (
+                    <div className="absolute inset-0 banner-skeleton rounded-xl" />
+                  )}
+                  <img
+                    src={heroBannerImages[1] || heroBannerImages[0] || ''}
+                    alt="Streetwear product preview one"
+                    className="w-full h-full object-cover opacity-90 transition-opacity duration-500"
+                    style={{ opacity: bannerImgLoaded[1] ? 0.9 : 0 }}
+                    loading="lazy"
+                    decoding="async"
+                    onLoad={() => setBannerImgLoaded(prev => { const n = [...prev]; n[1] = true; return n })}
+                  />
                 </div>
-                <div className="rounded-xl overflow-hidden h-32 sm:h-36 border border-orange-500/20">
-                  <img src={heroBannerImages[2] || heroBannerImages[0] || ''} alt="Streetwear product preview two" className="w-full h-full object-cover opacity-90" loading="lazy" decoding="async" />
+                {/* Secondary image right */}
+                <div className="rounded-xl overflow-hidden h-32 sm:h-36 border border-orange-500/20 relative">
+                  {!bannerImgLoaded[2] && (
+                    <div className="absolute inset-0 banner-skeleton rounded-xl" />
+                  )}
+                  <img
+                    src={heroBannerImages[2] || heroBannerImages[0] || ''}
+                    alt="Streetwear product preview two"
+                    className="w-full h-full object-cover opacity-90 transition-opacity duration-500"
+                    style={{ opacity: bannerImgLoaded[2] ? 0.9 : 0 }}
+                    loading="lazy"
+                    decoding="async"
+                    onLoad={() => setBannerImgLoaded(prev => { const n = [...prev]; n[2] = true; return n })}
+                  />
                 </div>
                 <div className="absolute top-5 right-5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] rounded-full"
                   style={{ background: 'rgba(13,13,14,0.75)', border: '1px solid rgba(249,115,22,0.3)', color: '#fdba74' }}>
@@ -483,75 +523,75 @@ const Collection = () => {
 
         {/* ── DESKTOP SIDEBAR — spacer holds layout, aside is conditionally fixed ── */}
         <div className="hidden lg:block flex-shrink-0 w-64">
-        <aside
-          className="flex flex-col w-64 max-h-[calc(100vh-76px)] overflow-hidden rounded-2xl"
-          style={{
-            position: isSidebarFixed ? 'fixed' : 'relative',
-            top: isSidebarFixed ? '35px' : 'auto',
-            background: 'linear-gradient(180deg, #0a0a0b 0%, #0d0d0e 100%)',
-            border: '1px solid rgba(249,115,22,0.2)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(249,115,22,0.06) inset',
-          }}
-        >
-          {/* Top shimmer line */}
-          <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.45), transparent)' }} />
-          {/* Ambient glow */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl pointer-events-none" />
+          <aside
+            className="flex flex-col w-64 max-h-[calc(100vh-76px)] overflow-hidden rounded-2xl"
+            style={{
+              position: isSidebarFixed ? 'fixed' : 'relative',
+              top: isSidebarFixed ? '35px' : 'auto',
+              background: 'linear-gradient(180deg, #0a0a0b 0%, #0d0d0e 100%)',
+              border: '1px solid rgba(249,115,22,0.2)',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(249,115,22,0.06) inset',
+            }}
+          >
+            {/* Top shimmer line */}
+            <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.45), transparent)' }} />
+            {/* Ambient glow */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl pointer-events-none" />
 
-          {/* Header */}
-          <div className="flex-shrink-0 px-5 pt-5 pb-4 relative">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.3), rgba(245,158,11,0.2))', border: '1px solid rgba(249,115,22,0.35)' }}>
-                  <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
-                  </svg>
+            {/* Header */}
+            <div className="flex-shrink-0 px-5 pt-5 pb-4 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.3), rgba(245,158,11,0.2))', border: '1px solid rgba(249,115,22,0.35)' }}>
+                    <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="ragged-title text-2xl leading-none">Filters</h2>
+                    <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mt-0.5">Refine Results</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="ragged-title text-2xl leading-none">Filters</h2>
-                  <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mt-0.5">Refine Results</p>
-                </div>
+                {(category || subCategory.length > 0 || colors.length > 0) && (
+                  <button
+                    onClick={() => { setCategory(''); setSubCategory([]); setColors([]) }}
+                    className="text-[10px] font-extrabold text-orange-400 hover:text-orange-300 uppercase tracking-widest transition-colors px-2.5 py-1 rounded-lg border border-orange-500/30 hover:border-orange-500/50"
+                    style={{ background: 'rgba(249,115,22,0.08)' }}
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
+
+              {/* Active filter pill */}
               {(category || subCategory.length > 0 || colors.length > 0) && (
-                <button
-                  onClick={() => { setCategory(''); setSubCategory([]); setColors([]) }}
-                  className="text-[10px] font-extrabold text-orange-400 hover:text-orange-300 uppercase tracking-widest transition-colors px-2.5 py-1 rounded-lg border border-orange-500/30 hover:border-orange-500/50"
-                  style={{ background: 'rgba(249,115,22,0.08)' }}
-                >
-                  Clear
-                </button>
+                <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl"
+                  style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.25)' }}>
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                  <span className="text-xs font-bold text-orange-300">
+                    {[category ? 1 : 0, subCategory.length, colors.length].reduce((a, b) => a + b, 0)} filter{[category ? 1 : 0, subCategory.length, colors.length].reduce((a, b) => a + b, 0) > 1 ? 's' : ''} active
+                  </span>
+                  <span className="ml-auto text-[10px] text-slate-500">{filterProducts.length} results</span>
+                </div>
               )}
+
+              <div className="mt-4 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.45), rgba(249,115,22,0.1), transparent)' }} />
             </div>
 
-            {/* Active filter pill */}
-            {(category || subCategory.length > 0 || colors.length > 0) && (
-              <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl"
-                style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.25)' }}>
-                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                <span className="text-xs font-bold text-orange-300">
-                  {[category ? 1 : 0, subCategory.length, colors.length].reduce((a, b) => a + b, 0)} filter{[category ? 1 : 0, subCategory.length, colors.length].reduce((a, b) => a + b, 0) > 1 ? 's' : ''} active
-                </span>
-                <span className="ml-auto text-[10px] text-slate-500">{filterProducts.length} results</span>
+            {/* Scrollable filters */}
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-4">
+              <FilterContents />
+            </div>
+
+            {/* Footer */}
+            <div className="flex-shrink-0 px-5 py-3" style={{ borderTop: '1px solid rgba(249,115,22,0.08)' }}>
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-orange-500/40" />
+                <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest">Ink Dapper</span>
               </div>
-            )}
-
-            <div className="mt-4 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.45), rgba(249,115,22,0.1), transparent)' }} />
-          </div>
-
-          {/* Scrollable filters */}
-          <div className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-4">
-            <FilterContents />
-          </div>
-
-          {/* Footer */}
-          <div className="flex-shrink-0 px-5 py-3" style={{ borderTop: '1px solid rgba(249,115,22,0.08)' }}>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-orange-500/40" />
-              <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest">Ink Dapper</span>
             </div>
-          </div>
-        </aside>
+          </aside>
         </div>
 
         {/* ── CONTENT: mobile filter bar + products ── */}
@@ -682,147 +722,147 @@ const Collection = () => {
           )}
 
           {/* Products header */}
-        <div className="rounded-2xl p-4 lg:p-5 mb-5 lg:mb-6"
-          style={{
-            background: 'rgba(13,13,14,0.97)',
-            border: '1px solid rgba(249,115,22,0.2)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-          }}>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h2 className="ragged-title text-3xl md:text-4xl leading-none mb-1">All Collections</h2>
-              <p className="text-sm text-slate-500 mt-1">
-                Showing <span className="font-bold text-orange-400">{displayedProducts.length}</span> of{' '}
-                <span className="font-bold text-slate-300">{filterProducts.length}</span> products
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest hidden sm:block">Sort by</span>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-orange-500/25"
-                style={{ background: 'rgba(249,115,22,0.07)' }}>
-                <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M7 8h10M9 12h6M11 16h2" />
-                </svg>
-                <FormControl sx={{ minWidth: 150 }} size="small">
-                  <Select value={sortType} onChange={(e) => SetSortType(e.target.value)}
-                    sx={muiSelectDarkSx} MenuProps={muiMenuProps}>
-                    <MenuItem value="relevant" sx={muiMenuItemSx}>
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Most Relevant
-                      </div>
-                    </MenuItem>
-                    <MenuItem value="low-high" sx={muiMenuItemSx}>
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                        </svg>
-                        Price: Low to High
-                      </div>
-                    </MenuItem>
-                    <MenuItem value="high-low" sx={muiMenuItemSx}>
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8V4m0 0l4 4m-4-4l-4 4m-6 0v12m0 0l-4-4m4 4l4-4" />
-                        </svg>
-                        Price: High to Low
-                      </div>
-                    </MenuItem>
-                  </Select>
-                </FormControl>
+          <div className="rounded-2xl p-4 lg:p-5 mb-5 lg:mb-6"
+            style={{
+              background: 'rgba(13,13,14,0.97)',
+              border: '1px solid rgba(249,115,22,0.2)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            }}>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="ragged-title text-3xl md:text-4xl leading-none mb-1">All Collections</h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  Showing <span className="font-bold text-orange-400">{displayedProducts.length}</span> of{' '}
+                  <span className="font-bold text-slate-300">{filterProducts.length}</span> products
+                </p>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Products grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
-          {displayedProducts.map((item, index) => (
-            <div
-              key={index}
-              className="group transition-all duration-300 hover:-translate-y-1.5"
-              style={{ animationDelay: `${index * 80}ms` }}
-            >
-              <div
-                className="rounded-2xl overflow-hidden transition-all duration-300"
-                style={{
-                  border: '1px solid rgba(249,115,22,0.12)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.border = '1px solid rgba(249,115,22,0.35)'
-                  e.currentTarget.style.boxShadow = '0 16px 40px rgba(249,115,22,0.18)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.border = '1px solid rgba(249,115,22,0.12)'
-                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)'
-                }}
-              >
-                <ProductItem
-                  id={item._id}
-                  name={item.name}
-                  image={item.image}
-                  price={item.price}
-                  beforePrice={item.beforePrice}
-                  subCategory={item.subCategory}
-                  soldout={item.soldout}
-                  slug={item.slug}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Load more */}
-        {hasMore && displayedProducts.length > 0 && (
-          <div className="flex justify-center mt-10 lg:mt-14">
-            <button
-              onClick={loadMore}
-              disabled={isLoading}
-              className="ragged-solid-btn px-10 py-4 font-extrabold uppercase tracking-widest text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
-            >
-              {isLoading ? (
-                <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest hidden sm:block">Sort by</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-orange-500/25"
+                  style={{ background: 'rgba(249,115,22,0.07)' }}>
+                  <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M7 8h10M9 12h6M11 16h2" />
                   </svg>
-                  Loading...
-                </>
-              ) : (
-                <>
-                  Load More
-                  <span className="bg-white/20 rounded-full px-2.5 py-0.5 text-xs font-extrabold">
-                    {filterProducts.length - displayedProducts.length}
-                  </span>
-                </>
-              )}
-            </button>
-          </div>
-        )}
-
-        {/* Empty state */}
-        {displayedProducts.length === 0 && (
-          <div className="text-center py-16 lg:py-24">
-            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full flex items-center justify-center mx-auto mb-6"
-              style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}>
-              <svg className="w-10 h-10 text-orange-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
+                  <FormControl sx={{ minWidth: 150 }} size="small">
+                    <Select value={sortType} onChange={(e) => SetSortType(e.target.value)}
+                      sx={muiSelectDarkSx} MenuProps={muiMenuProps}>
+                      <MenuItem value="relevant" sx={muiMenuItemSx}>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Most Relevant
+                        </div>
+                      </MenuItem>
+                      <MenuItem value="low-high" sx={muiMenuItemSx}>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                          </svg>
+                          Price: Low to High
+                        </div>
+                      </MenuItem>
+                      <MenuItem value="high-low" sx={muiMenuItemSx}>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8V4m0 0l4 4m-4-4l-4 4m-6 0v12m0 0l-4-4m4 4l4-4" />
+                          </svg>
+                          Price: High to Low
+                        </div>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+              </div>
             </div>
-            <h3 className="ragged-title text-3xl lg:text-4xl mb-3">No Products Found</h3>
-            <p className="ragged-subtitle text-sm mb-7 max-w-xs mx-auto">
-              Try adjusting your filters to discover amazing products
-            </p>
-            <button
-              onClick={() => { setCategory(''); setSubCategory([]); setColors([]) }}
-              className="ragged-solid-btn px-8 py-3.5 font-extrabold text-sm uppercase tracking-widest"
-            >
-              Clear All Filters
-            </button>
           </div>
-        )}
+
+          {/* Products grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+            {displayedProducts.map((item, index) => (
+              <div
+                key={index}
+                className="group transition-all duration-300 hover:-translate-y-1.5"
+                style={{ animationDelay: `${index * 80}ms` }}
+              >
+                <div
+                  className="rounded-2xl overflow-hidden transition-all duration-300"
+                  style={{
+                    border: '1px solid rgba(249,115,22,0.12)',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.border = '1px solid rgba(249,115,22,0.35)'
+                    e.currentTarget.style.boxShadow = '0 16px 40px rgba(249,115,22,0.18)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.border = '1px solid rgba(249,115,22,0.12)'
+                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)'
+                  }}
+                >
+                  <ProductItem
+                    id={item._id}
+                    name={item.name}
+                    image={item.image}
+                    price={item.price}
+                    beforePrice={item.beforePrice}
+                    subCategory={item.subCategory}
+                    soldout={item.soldout}
+                    slug={item.slug}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Load more */}
+          {hasMore && displayedProducts.length > 0 && (
+            <div className="flex justify-center mt-10 lg:mt-14">
+              <button
+                onClick={loadMore}
+                disabled={isLoading}
+                className="ragged-solid-btn px-10 py-4 font-extrabold uppercase tracking-widest text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    Load More
+                    <span className="bg-white/20 rounded-full px-2.5 py-0.5 text-xs font-extrabold text-slate-600">
+                      {filterProducts.length - displayedProducts.length}
+                    </span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {displayedProducts.length === 0 && (
+            <div className="text-center py-16 lg:py-24">
+              <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full flex items-center justify-center mx-auto mb-6"
+                style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                <svg className="w-10 h-10 text-orange-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <h3 className="ragged-title text-3xl lg:text-4xl mb-3">No Products Found</h3>
+              <p className="ragged-subtitle text-sm mb-7 max-w-xs mx-auto">
+                Try adjusting your filters to discover amazing products
+              </p>
+              <button
+                onClick={() => { setCategory(''); setSubCategory([]); setColors([]) }}
+                className="ragged-solid-btn px-8 py-3.5 font-extrabold text-sm uppercase tracking-widest"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

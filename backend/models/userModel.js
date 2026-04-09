@@ -9,8 +9,9 @@ const userSchema = new mongoose.Schema({
     wishlistData: {type: Object, default: {}},
     customData: {type: Object, default: {}},
     creditPoints: { type: Number, default: 0 },
+    avatar: { type: String, default: '' },
     resetCode: { type: String },
-    resetCodeExpiry: { type: Date },  
+    resetCodeExpiry: { type: Date },
     //ReturnsOrders: { type: Number, default: 0 }
 },{minimize:false})
 
