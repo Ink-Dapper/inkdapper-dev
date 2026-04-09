@@ -3,6 +3,7 @@ import { useContext, useEffect, useMemo, useState, useRef, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
+import { storageUrl } from '../utils/storageUrl';
 
 const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug, comboPrices }) => {
   let safeSlug = slug || (name ? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') : '');
@@ -284,7 +285,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
             )}
 
             <img
-              src={image[0]}
+              src={storageUrl(image[0])}
               alt={name}
               loading="lazy"
               decoding="async"

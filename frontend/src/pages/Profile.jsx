@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState, memo, useCallback } fro
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { ShopContext } from '../context/ShopContext'
+import { storageUrl } from '../utils/storageUrl'
 import ProfileListItems from '../components/ProfileListItems'
 import CreditPoints from '../components/CreditPoints'
 import {
@@ -139,7 +140,7 @@ const Overview = ({ user, orderCount, creditPoints, wishlistCount, cartCount }) 
           <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 border-2"
             style={{ borderColor: 'rgba(249,115,22,0.4)' }}>
             {avatar
-              ? <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
+              ? <img src={storageUrl(avatar)} alt="avatar" className="w-full h-full object-cover" />
               : <div className="w-full h-full flex items-center justify-center"
                   style={{ background: 'linear-gradient(135deg,#f97316,#f59e0b)' }}>
                   <span className="text-xl font-extrabold text-black">{initials}</span>
@@ -289,7 +290,7 @@ const EditProfile = ({ user, backendUrl, token, onRefresh }) => {
             <div className="w-24 h-24 rounded-2xl overflow-hidden border-2"
               style={{ borderColor: 'rgba(249,115,22,0.4)' }}>
               {avatar
-                ? <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
+                ? <img src={storageUrl(avatar)} alt="avatar" className="w-full h-full object-cover" />
                 : <div className="w-full h-full flex items-center justify-center"
                     style={{ background: 'linear-gradient(135deg,#f97316,#f59e0b)' }}>
                     <span className="text-2xl font-extrabold text-black">{initials}</span>
@@ -802,7 +803,7 @@ const RecentlyViewed = () => {
             className="group relative rounded-xl overflow-hidden border transition-all hover:-translate-y-0.5"
             style={{ borderColor: 'rgba(249,115,22,0.15)' }}>
             <div className="aspect-square bg-slate-900">
-              <img src={Array.isArray(product.image) ? product.image[0] : product.image}
+              <img src={storageUrl(Array.isArray(product.image) ? product.image[0] : product.image)}
                 alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
             </div>
             <div className="p-2 bg-black/40">

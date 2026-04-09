@@ -13,6 +13,7 @@ import ProductReviewSection from '../components/ProductReviewSection';
 import RelatedProducts from '../components/RelatedProducts';
 
 import { ShopContext } from '../context/ShopContext';
+import { storageUrl } from '../utils/storageUrl';
 import '../styles/swiper-custom.css';
 import { Paintbrush, Shirt, Circle, Leaf, Calendar, Hand, Truck, Shield, RotateCcw, Heart, Share2 } from 'lucide-react';
 
@@ -391,7 +392,7 @@ const Product = () => {
                 {productData.image.map((item, index) => (
                   <SwiperSlide key={index} className='relative'>
                     <img
-                      src={item}
+                      src={storageUrl(item)}
                       alt={`${productData.name} - view ${index + 1}`}
                       className='w-full h-full object-cover'
                     />
@@ -520,7 +521,7 @@ const Product = () => {
                       }}
                     >
                       <img
-                        src={item}
+                        src={storageUrl(item)}
                         alt={`${productData.name} thumbnail ${index + 1}`}
                         className='w-full h-16 md:h-20 object-cover'
                       />
