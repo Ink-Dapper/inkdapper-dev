@@ -52,8 +52,16 @@ storageRouter.get('/file', async (req, res) => {
     });
     stream.pipe(res);
   } catch (err) {
-    console.error('[storage/file] error for key', key, ':', err.message);
-    res.status(404).end();
+    const isConnErr = err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND';
+    const isNotFound = err.code === 'NoSuchKey' || err.message?.includes('NoSuchKey') || err.message?.includes('does not exist');
+    if (isConnErr) {
+      console.error('[storage/file] MinIO unreachable — check that MinIO is running on', process.env.MINIO_ENDPOINT || 'localhost', ':', process.env.MINIO_PORT || 9000);
+    } else if (isNotFound) {
+      console.warn('[storage/file] key not found in MinIO (file may have been uploaded from a different environment):', key);
+    } else {
+      console.error('[storage/file] error for key', key, ':', err.message);
+    }
+    res.status(isConnErr ? 503 : 404).end();
   }
 });
 
