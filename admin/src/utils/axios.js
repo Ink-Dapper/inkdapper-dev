@@ -11,16 +11,9 @@ const getBaseURL = () => {
   const isDevelopment = import.meta.env.DEV;
   const productionAPI = 'https://api.inkdapper.com/api';
   
-  console.log('Environment detection:');
-  console.log('import.meta.env.DEV:', import.meta.env.DEV);
-  console.log('import.meta.env.MODE:', import.meta.env.MODE);
-  console.log('import.meta.env.PROD:', import.meta.env.PROD);
-  console.log('isDevelopment:', isDevelopment);
-  
   // In development, hit local backend via Vite proxy (/api -> localhost:4000)
   // In production, talk directly to the API domain
   const baseURL = isDevelopment ? '/api' : productionAPI;
-  console.log('Final baseURL:', baseURL);
   
   return baseURL;
 };
@@ -42,58 +35,19 @@ instance.interceptors.request.use(
     if (token) {
       config.headers.token = token;
     }
-    
-    // Add device type header
     config.headers['X-Device-Type'] = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop';
-    
-    console.log('Admin making request to:', config.url);
     return config;
   },
-  (error) => {
-    console.error('Admin request error:', error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Add response interceptor for better error handling
 instance.interceptors.response.use(
-  (response) => {
-    console.log('Admin response received from:', response.config.url);
-    return response;
-  },
+  (response) => response,
   (error) => {
-    console.error('Admin response error for:', error.config?.url);
-    
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error('Admin Response Error:', {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        data: error.response.data,
-        url: error.config?.url,
-      });
-      
-      // Handle specific error cases
-      if (error.response.status === 401) {
-        // Unauthorized - clear token and redirect to login
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-      } else if (error.response.status === 403) {
-        console.error('CORS or permission error');
-      }
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('Admin Request Error:', {
-        message: error.message,
-        code: error.code,
-        url: error.config?.url,
-      });
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error('Admin Error:', error.message);
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
-    
     return Promise.reject(error);
   }
 );

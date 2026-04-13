@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import axiosInstance from '../utils/axios';
 import { ShopContext } from './ShopContext';
 
@@ -10,49 +10,40 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const { token } = useContext(ShopContext);
+  // Track last fetch time to avoid stampeding polls
+  const lastFetchRef = useRef(0);
 
   const fetchNotifications = async () => {
-    if (!token) {
-      return; // Don't fetch if not authenticated
-    }
+    if (!token) return;
     try {
       const response = await axiosInstance.get('/notifications');
       if (response.data.success) {
-        // Only keep unread notifications in state so seen ones stay cleared
-        const unread = response.data.notifications.filter(n => !n.isRead);
-        setNotifications(unread);
-        setUnreadCount(unread.length);
+        const all = response.data.notifications || [];
+        setNotifications(all);
+        setUnreadCount(all.filter(n => !n.isRead).length);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      // Silently ignore network errors during background polling
     }
   };
 
-  // Initial load and polling for new notifications while admin is logged in
   useEffect(() => {
     if (!token) return;
 
-    // Initial fetch
     fetchNotifications();
 
-    // Poll every 5 seconds for new notifications
-    const intervalId = setInterval(() => {
-      fetchNotifications();
-    }, 5000);
-
+    // Poll every 30 seconds (was 5s — 5s is too aggressive and floods the console)
+    const intervalId = setInterval(fetchNotifications, 30000);
     return () => clearInterval(intervalId);
   }, [token]);
 
   const markAsRead = async (notificationId) => {
-    if (!token) {
-      return; // Don't mark as read if not authenticated
-    }
+    if (!token) return;
     try {
       const response = await axiosInstance.patch(`/notifications/${notificationId}/read`, {});
       if (response.data.success) {
-        // Remove the notification from the list after it has been read
         setNotifications(prev =>
-          prev.filter(notification => notification._id !== notificationId)
+          prev.map(n => n._id === notificationId ? { ...n, isRead: true } : n)
         );
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
@@ -66,16 +57,16 @@ export const NotificationProvider = ({ children }) => {
     const unreadIds = notifications.filter(n => !n.isRead).map(n => n._id);
     if (!unreadIds.length) return;
 
-    // Optimistic UI update so count drops as soon as admin sees notifications
-    setNotifications([]);
+    // Update UI first so badge clears immediately
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     setUnreadCount(0);
 
     try {
       await Promise.allSettled(
-        unreadIds.map((id) => axiosInstance.patch(`/notifications/${id}/read`, {}))
+        unreadIds.map(id => axiosInstance.patch(`/notifications/${id}/read`, {}))
       );
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      // Refresh to get real state if something failed
       fetchNotifications();
     }
   };
@@ -85,7 +76,7 @@ export const NotificationProvider = ({ children }) => {
     unreadCount,
     markAsRead,
     markAllAsRead,
-    fetchNotifications
+    fetchNotifications,
   };
 
   return (
@@ -95,4 +86,4 @@ export const NotificationProvider = ({ children }) => {
   );
 };
 
-export { useNotifications }; 
+export { useNotifications };
