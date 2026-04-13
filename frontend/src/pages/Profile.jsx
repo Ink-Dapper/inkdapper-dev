@@ -238,11 +238,31 @@ const EditProfile = ({ user, backendUrl, token, onRefresh }) => {
   const handleAvatar = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) { toast.error('Image must be under 2 MB'); return }
-    setAvatarFile(file)
-    const reader = new FileReader()
-    reader.onload = ev => setAvatar(ev.target.result)
-    reader.readAsDataURL(file)
+    if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return }
+
+    // Resize + compress to JPEG ≤ 800px, quality 0.85 — keeps upload well under 500 KB
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      const MAX = 800
+      let { width, height } = img
+      if (width > MAX || height > MAX) {
+        if (width > height) { height = Math.round(height * MAX / width); width = MAX }
+        else { width = Math.round(width * MAX / height); height = MAX }
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+      canvas.toBlob(blob => {
+        const compressed = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
+        setAvatarFile(compressed)
+        setAvatar(canvas.toDataURL('image/jpeg', 0.85))
+      }, 'image/jpeg', 0.85)
+    }
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); toast.error('Could not load image') }
+    img.src = objectUrl
   }
 
   const save = async (e) => {
