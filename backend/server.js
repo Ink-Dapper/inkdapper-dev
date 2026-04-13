@@ -98,20 +98,13 @@ const corsOptions = {
   maxAge: 86400 // 24 hours
 }
 
-// middlewares
-app.use(express.json())
-
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(bodyParser.json());
-
-// Apply CORS before other middleware
+// CORS must be first — before body parsers — so error responses also carry the header
 app.use(cors(corsOptions));
-
-// Handle preflight requests explicitly
 app.options('*', cors(corsOptions));
 
-app.use(bodyParser.json())
+// Body parsers (single registration each, with size limits)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Request logging — method + URL only, dev mode only (headers/body omitted for security)
 if (process.env.NODE_ENV !== 'production') {
