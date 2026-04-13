@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { Link } from 'react-router-dom'
+import { storageUrl } from '../utils/storageUrl'
 
 const Wishlist = () => {
   const { products, currency, wishlist, updateWishlistQuantity } = useContext(ShopContext)
@@ -91,7 +92,7 @@ const Wishlist = () => {
                   <div className='relative aspect-square overflow-hidden' style={{ background: 'rgba(15,23,42,0.35)' }}>
                     <img
                       className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
-                      src={productData.image[0]}
+                      src={storageUrl(productData.image[0])}
                       alt={productData.name}
                     />
 

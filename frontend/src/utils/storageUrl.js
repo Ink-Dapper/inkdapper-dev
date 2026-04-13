@@ -1,20 +1,38 @@
 /**
- * Normalize a MinIO storage URL.
+ * All MinIO image URLs are served through the Express backend proxy
+ * (/api/storage/file?key=…) so the browser never needs direct MinIO access.
  *
- * During early development, images were saved with localhost:9000 as the base,
- * e.g. http://localhost:9000/inkdapper/products/...
- * These URLs are inaccessible from browsers in production.
+ * URL flow:
+ *   http://localhost:9000/inkdapper/products/uuid.jpg
+ *   → /api/storage/file?key=products%2Fuuid.jpg          (dev, via Vite proxy)
+ *   → https://api.inkdapper.com/api/storage/file?key=…   (production)
  *
- * This utility rewrites such URLs to the public storage domain so that both
- * newly-uploaded images and any legacy database records display correctly.
+ * This is more reliable than a storage.inkdapper.com reverse proxy because
+ * the backend can always reach MinIO at localhost:9000 internally.
  */
-const STORAGE_URL = import.meta.env.VITE_STORAGE_URL?.replace(/\/$/, '');
+// In dev, use '' so requests go to /api/... and are proxied by Vite → localhost:4000.
+// In production, use the full API domain.
+const BACKEND_URL = import.meta.env.DEV
+  ? ''
+  : (import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || 'https://api.inkdapper.com');
 
-export const storageUrl = (url) => {
+/**
+ * Extract the MinIO object key from any stored URL and return a
+ * backend-proxied URL. Passes through data: and blob: URLs unchanged.
+ */
+const extractKeyAndProxy = (url) => {
   if (!url) return url;
-  if (STORAGE_URL) {
-    // Replace any http(s)://localhost:<port>/ prefix with the public storage domain
-    return url.replace(/^https?:\/\/localhost:\d+\//, `${STORAGE_URL}/`);
+  if (url.startsWith('data:') || url.startsWith('blob:')) return url;
+  // Matches http://localhost:9000/inkdapper/key  OR  https://storage.inkdapper.com/inkdapper/key
+  const match = url.match(/\/inkdapper\/(.+)$/);
+  if (match) {
+    return `${BACKEND_URL}/api/storage/file?key=${encodeURIComponent(match[1])}`;
   }
-  return url;
+  return url; // already a plain external URL — use as-is
 };
+
+/** Used for all product / banner / general MinIO images. */
+export const storageUrl = extractKeyAndProxy;
+
+/** Used for avatar / profile images (same proxy, kept as separate export for clarity). */
+export const avatarProxyUrl = extractKeyAndProxy;

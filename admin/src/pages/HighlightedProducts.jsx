@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { backendUrl, currency } from '../App'
+import { imageProxyUrl } from '../utils/storageUrl'
 import { toast } from 'react-toastify'
 import {
   Star,
@@ -391,7 +392,7 @@ const HighlightedProducts = ({ token }) => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <img
-                            src={product.productId.image[0]}
+                            src={imageProxyUrl(product.productId.image[0])}
                             alt={product.productId.name}
                             className="w-12 h-12 object-cover rounded-lg"
                           />
@@ -462,7 +463,7 @@ const HighlightedProducts = ({ token }) => {
                   <div key={product._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-start gap-3 mb-3">
                       <img
-                        src={product.productId.image[0]}
+                        src={imageProxyUrl(product.productId.image[0])}
                         alt={product.productId.name}
                         className="w-16 h-16 object-cover rounded-lg"
                       />

@@ -21,6 +21,7 @@ import {
   Info,
 } from 'lucide-react'
 import { backendUrl } from '../App'
+import { imageProxyUrl } from '../utils/storageUrl'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -117,7 +118,7 @@ const FileDetail = ({ file, onClose, onDelete, deleting }) => (
     <div className="p-4 border-b border-slate-100 bg-slate-50">
       {isImage(file.displayName) ? (
         <img
-          src={file.url}
+          src={imageProxyUrl(file.url)}
           alt={file.displayName}
           className="w-full max-h-48 object-contain rounded-xl bg-white border border-slate-200"
           onError={(e) => { e.target.style.display = 'none' }}
@@ -623,7 +624,7 @@ const StorageManager = ({ token }) => {
                       <div className="w-full aspect-square rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
                         {isImage(file.displayName) ? (
                           <img
-                            src={file.url}
+                            src={imageProxyUrl(file.url)}
                             alt={file.displayName}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -678,7 +679,7 @@ const StorageManager = ({ token }) => {
                       <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center flex-shrink-0">
                         {isImage(file.displayName) ? (
                           <img
-                            src={file.url}
+                            src={imageProxyUrl(file.url)}
                             alt=""
                             className="w-full h-full object-cover"
                             onError={(e) => { e.target.style.display = 'none' }}

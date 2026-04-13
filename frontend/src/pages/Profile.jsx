@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState, memo, useCallback } fro
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { ShopContext } from '../context/ShopContext'
-import { storageUrl } from '../utils/storageUrl'
+import { storageUrl, avatarProxyUrl } from '../utils/storageUrl'
 import ProfileListItems from '../components/ProfileListItems'
 import CreditPoints from '../components/CreditPoints'
 import {
@@ -103,6 +103,28 @@ const Card = ({ children, className = '' }) => (
   </div>
 )
 
+// Avatar image with automatic fallback to initials if the image fails to load
+const AvatarImg = ({ src, initials, textSize = 'text-xl' }) => {
+  const [errored, setErrored] = useState(false)
+  const proxied = avatarProxyUrl(src)
+
+  // Reset error state whenever the URL changes so a new src gets a fresh attempt
+  React.useEffect(() => { setErrored(false) }, [proxied])
+
+  if (!proxied || errored) {
+    return (
+      <div className="w-full h-full flex items-center justify-center"
+        style={{ background: 'linear-gradient(135deg,#f97316,#f59e0b)' }}>
+        <span className={`${textSize} font-extrabold text-black`}>{initials}</span>
+      </div>
+    )
+  }
+  return (
+    <img src={proxied} alt="avatar" className="w-full h-full object-cover"
+      onError={() => setErrored(true)} />
+  )
+}
+
 const FieldLabel = ({ children }) => (
   <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-orange-400/70 mb-1.5">{children}</p>
 )
@@ -139,13 +161,7 @@ const Overview = ({ user, orderCount, creditPoints, wishlistCount, cartCount }) 
           {/* Avatar */}
           <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 border-2"
             style={{ borderColor: 'rgba(249,115,22,0.4)' }}>
-            {avatar
-              ? <img src={storageUrl(avatar)} alt="avatar" className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg,#f97316,#f59e0b)' }}>
-                  <span className="text-xl font-extrabold text-black">{initials}</span>
-                </div>
-            }
+            <AvatarImg src={avatar} initials={initials} textSize="text-xl" />
           </div>
           <div className="text-center sm:text-left">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-2"
@@ -242,7 +258,7 @@ const EditProfile = ({ user, backendUrl, token, onRefresh }) => {
       const res = await axios.put(
         `${backendUrl}/api/user/update-profile`,
         formData,
-        { headers: { token, 'Content-Type': 'multipart/form-data' } }
+        { headers: { token } }
       )
       if (res.data?.success) {
         const avatarUrl = res.data.user?.avatar || null
@@ -252,6 +268,9 @@ const EditProfile = ({ user, backendUrl, token, onRefresh }) => {
           key: 'inkdapper_profile_local',
           newValue: JSON.stringify({ ...load(PROF_KEY, {}), avatar: avatarUrl })
         }))
+        // Update avatar state to the stored MinIO URL so it renders via proxy
+        // after tab switches or remounts (avatarProxyUrl will handle the transformation)
+        if (avatarUrl) setAvatar(avatarUrl)
         setAvatarFile(null)
         toast.success('Profile updated!')
         onRefresh?.()
@@ -289,13 +308,7 @@ const EditProfile = ({ user, backendUrl, token, onRefresh }) => {
           <div className="relative shrink-0">
             <div className="w-24 h-24 rounded-2xl overflow-hidden border-2"
               style={{ borderColor: 'rgba(249,115,22,0.4)' }}>
-              {avatar
-                ? <img src={storageUrl(avatar)} alt="avatar" className="w-full h-full object-cover" />
-                : <div className="w-full h-full flex items-center justify-center"
-                    style={{ background: 'linear-gradient(135deg,#f97316,#f59e0b)' }}>
-                    <span className="text-2xl font-extrabold text-black">{initials}</span>
-                  </div>
-              }
+              <AvatarImg src={avatar} initials={initials} textSize="text-2xl" />
             </div>
             <button type="button" onClick={() => fileRef.current?.click()}
               className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl flex items-center justify-center transition-all hover:scale-110"
@@ -819,7 +832,7 @@ const RecentlyViewed = () => {
 
 // ── Main Profile Page ─────────────────────────────────────────────────────────
 const Profile = () => {
-  const { usersDetails, orderCount, fetchOrderDetails, getCreditScore,
+  const { usersDetails, orderCount, fetchOrderDetails, fetchUsersDetails, getCreditScore,
           creditPoints, backendUrl, token, wishlist, getWishlistCount, getCartCount } = useContext(ShopContext)
   const effectRan = useRef(false)
   const [activeTab, setActiveTab] = useState('overview')
@@ -870,7 +883,7 @@ const Profile = () => {
         )}
         {activeTab === 'edit' && (
           <EditProfile user={user} backendUrl={backendUrl} token={token}
-            onRefresh={() => { getCreditScore(); fetchOrderDetails() }} />
+            onRefresh={() => { getCreditScore(); fetchOrderDetails(); fetchUsersDetails() }} />
         )}
         {activeTab === 'addresses' && <AddressBook />}
         {activeTab === 'security'  && <Security backendUrl={backendUrl} token={token} />}

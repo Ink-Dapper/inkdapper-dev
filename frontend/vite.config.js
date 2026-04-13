@@ -72,6 +72,7 @@ export default defineConfig({
       }
     },
     hmr: {
+      host: 'localhost',
       overlay: false
     }
   },

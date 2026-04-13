@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { backendUrl } from '../App'
+import { imageProxyUrl } from '../utils/storageUrl'
 import { FaTimes, FaEdit, FaSave, FaSpinner, FaEye, FaEyeSlash, FaTag, FaImage, FaStar, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 
@@ -349,7 +350,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
           {product.image.map((img, index) => (
             <div key={index} className='relative group'>
               <img
-                src={img}
+                src={imageProxyUrl(img)}
                 alt={`Product Image ${index + 1}`}
                 className='w-full h-32 object-cover rounded-lg border-2 border-gray-200 group-hover:border-blue-400 transition-all duration-200'
               />
@@ -369,7 +370,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
           {product.reviewImage.map((img, index) => (
             <div key={index} className='relative group'>
               <img
-                src={img}
+                src={imageProxyUrl(img)}
                 alt={`Review Image ${index + 1}`}
                 className='w-full h-24 object-cover rounded-lg border-2 border-gray-200 group-hover:border-yellow-400 transition-all duration-200'
               />
@@ -548,7 +549,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
                           <div className='relative overflow-hidden rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-400 transition-all duration-200'>
                             <img
                               className='w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200'
-                              src={img.state ? URL.createObjectURL(img.state) : img.fallback}
+                              src={img.state ? URL.createObjectURL(img.state) : imageProxyUrl(img.fallback)}
                               alt={`Product Image ${index + 1}`}
                             />
                             <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center z-10'>
@@ -580,7 +581,7 @@ const EditProductModal = ({ token, product, close, onSuccess }) => {
                           <div className='relative overflow-hidden rounded-lg border-2 border-dashed border-gray-300 hover:border-orange-400 transition-all duration-200'>
                             <img
                               className='w-full h-24 object-cover group-hover:scale-105 transition-transform duration-200'
-                              src={img.state ? URL.createObjectURL(img.state) : img.fallback}
+                              src={img.state ? URL.createObjectURL(img.state) : imageProxyUrl(img.fallback)}
                               alt={`Review Image ${index + 1}`}
                             />
                             <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center z-10'>

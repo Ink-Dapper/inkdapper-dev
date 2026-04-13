@@ -647,7 +647,7 @@ const ShopContextProvider = (props) => {
     scrollToTop, productSearch, clearSearchBar, orderData,
     orderCount, creditPoints, setCreditPoints, getCustomData,
     updateCustomQuantity, customDataArray, getUserCustomData, getCreditScore,
-    fetchOrderDetails, validateCoupon, removeCoupon, appliedCoupon,
+    fetchOrderDetails, fetchUsersDetails, validateCoupon, removeCoupon, appliedCoupon,
     couponDiscount, getFinalAmount, hasMultipleProducts, getMultiProductDiscount,
     recentlyViewed, addToRecentlyViewed, getRecentlyViewed,
     highlightedProducts, fetchHighlightedProducts,

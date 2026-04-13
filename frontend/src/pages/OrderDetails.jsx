@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import axios from '../utils/axios';
+import { storageUrl } from '../utils/storageUrl';
 
 const InfoCard = ({ icon, label, accentColor = '#f97316', children }) => (
   <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(249,115,22,0.12)' }}>
@@ -173,7 +174,9 @@ const OrderDetails = () => {
                   <div className="lg:col-span-2 relative group">
                     <img
                       className="w-full h-72 lg:h-full object-cover"
-                      src={order.items?.[0]?.image?.[0]}
+                      src={storageUrl(order.items?.[0]?.isCustom
+                        ? (Array.isArray(order.items[0].reviewImageCustom) ? order.items[0].reviewImageCustom[0] : order.items[0].reviewImageCustom)
+                        : order.items?.[0]?.image?.[0])}
                       alt={order.items?.[0]?.name}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0e] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#0d0d0e]" />

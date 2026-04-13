@@ -34,6 +34,29 @@ storageRouter.get('/health', adminAuth, async (_req, res) => {
   }
 });
 
+// GET /api/storage/file?key=profile/uuid.jpg
+// Public — no auth needed (bucket has public-read policy).
+// Proxies the object from MinIO so the browser never needs to reach MinIO directly.
+const MIME_MAP = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml' };
+storageRouter.get('/file', async (req, res) => {
+  const { key } = req.query;
+  if (!key || key.includes('..') || key.startsWith('/')) return res.status(400).end();
+  try {
+    const stream = await minioClient.getObject(BUCKET_NAME, key);
+    const ext = key.split('.').pop().toLowerCase();
+    res.setHeader('Content-Type', MIME_MAP[ext] || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    stream.on('error', (err) => {
+      console.error('[storage/file] stream error:', err.message);
+      if (!res.headersSent) res.status(500).end();
+    });
+    stream.pipe(res);
+  } catch (err) {
+    console.error('[storage/file] error for key', key, ':', err.message);
+    res.status(404).end();
+  }
+});
+
 // GET /api/storage/browse?prefix=products/
 // File-explorer style listing — returns virtual folders + files at the given prefix level
 storageRouter.get('/browse', adminAuth, async (req, res) => {

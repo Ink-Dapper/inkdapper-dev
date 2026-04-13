@@ -11,7 +11,8 @@
       "Bash(xargs cat)",
       "Bash(grep -rn \"Loading\\\\|loader\\\\|Loader\\\\|loading\" 'd:/T-shirt branding/Latest-Updated-Dev/inkdapper-dev/frontend/src' --include=*.jsx --include=*.js -l)",
       "Bash(find 'd:/T-shirt branding/Latest-Updated-Dev/inkdapper-dev/frontend/src' -name *AI* -o -name *ai*design* -o -name *Designer* -o -name *Custom*)",
-      "Read(//dev/**)"
+      "Read(//dev/**)",
+      "Bash(ls \"d:/backup/14-03-2026/inkdapper-dev-main/frontend/.env\"*)"
     ]
   }
 }

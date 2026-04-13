@@ -3,7 +3,7 @@ import { assets } from "../assets/assets";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import axios from "../utils/axios";
-import { storageUrl } from "../utils/storageUrl";
+import { avatarProxyUrl } from "../utils/storageUrl";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
@@ -260,7 +260,7 @@ const Navbar = () => {
                 {token ? (
                   profileAvatar ? (
                     <img
-                      src={storageUrl(profileAvatar)}
+                      src={avatarProxyUrl(profileAvatar)}
                       alt="profile"
                       className="w-7 h-7 object-cover"
                       style={{ clipPath: 'polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)' }}
@@ -453,7 +453,7 @@ const Navbar = () => {
               {token ? (
                 profileAvatar ? (
                   <img
-                    src={profileAvatar}
+                    src={avatarProxyUrl(profileAvatar)}
                     alt="profile"
                     className="w-7 h-7 object-cover"
                     style={{ clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)' }}

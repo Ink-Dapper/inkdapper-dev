@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { backendUrl, currency } from '../App';
 import { toast } from 'react-toastify';
 import EditProductModal from '../components/EditProductModal';
+import { imageProxyUrl } from '../utils/storageUrl';
 import { ShopContext } from '../context/ShopContext';
 import {
   Package,
@@ -541,7 +542,7 @@ const List = ({ token }) => {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-12 w-12">
                           <img
-                            src={product.image[0]}
+                            src={imageProxyUrl(product.image[0])}
                             alt={product.name}
                             className="h-12 w-12 rounded-lg object-cover border border-gray-200"
                           />
@@ -657,7 +658,7 @@ const List = ({ token }) => {
             <div key={index} className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 ${selectedIds.has(product._id) ? 'ring-2 ring-orange-400' : ''}`}>
               <div className="relative">
                 <img
-                  src={product.image[0]}
+                  src={imageProxyUrl(product.image[0])}
                   alt={product.name}
                   className="w-full h-48 object-cover"
                 />

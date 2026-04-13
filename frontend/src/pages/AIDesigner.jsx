@@ -334,6 +334,16 @@ const AIDesigner = () => {
 
       if (designMode === "ai" && generatedImage) {
         formData.append("aiDesignUrl", generatedImage);
+        // Also save the raw AI image to MinIO so admin can download the original design
+        try {
+          const rawRes = await fetch(generatedImage);
+          const rawBlob = await rawRes.blob();
+          const rawFile = new File([rawBlob], `ai-raw-${customOrderId}.png`, { type: rawBlob.type || "image/png" });
+          formData.append("rawDesignImage", rawFile);
+        } catch (err) {
+          console.warn("Could not save raw AI design to storage:", err.message);
+          // Non-fatal — aiDesignUrl fallback is still stored
+        }
       }
       if (designMode === "upload" && uploadedImage) {
         const rawRes = await fetch(uploadedImage);

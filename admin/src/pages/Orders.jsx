@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { currency } from '../App';
 import { assets } from '../assets/assets';
 import { ShopContext } from '../context/ShopContext';
+import { imageProxyUrl } from '../utils/storageUrl';
 import { Link } from 'react-router-dom';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -14,17 +15,23 @@ import DialogActions from '@mui/material/DialogActions';
 import OrderSummaryPrint from './OrderSummaryPrint';
 
 const handleDownloadAiDesign = async (url, itemName) => {
+  // Route through the backend proxy so MinIO URLs are accessible from the browser
+  const proxied = imageProxyUrl(url);
   try {
-    const res = await fetch(url);
+    const res = await fetch(proxied);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const blob = await res.blob();
     const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = blobUrl;
     a.download = `ai-design-${itemName || 'inkdapper'}.png`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(blobUrl);
-  } catch {
-    window.open(url, '_blank');
+  } catch (err) {
+    console.error('Download failed:', err.message);
+    window.open(proxied, '_blank');
   }
 };
 
@@ -175,7 +182,14 @@ const Orders = () => {
                         {order.items.map((item, index) => (
                           <div key={index} className="py-2 px-3 bg-gray-50 rounded-lg">
                             <div className="flex justify-between items-center">
-                              <span className="font-medium text-gray-900">{item.name}</span>
+                              <div>
+                                <span className="font-medium text-gray-900">{item.name}</span>
+                                {item.code && (
+                                  <span className="ml-2 text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
+                                    {item.code}
+                                  </span>
+                                )}
+                              </div>
                               <div className="flex items-center gap-2 text-sm text-gray-600">
                                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
                                   Qty: {item.quantity}
@@ -190,7 +204,7 @@ const Orders = () => {
                               return imgSrc ? (
                                 <div className="mt-2 pt-2 border-t border-purple-100 flex items-center gap-3">
                                   <img
-                                    src={imgSrc}
+                                    src={imageProxyUrl(imgSrc)}
                                     alt="Custom Design"
                                     className="w-16 h-16 object-contain rounded-lg border border-purple-200 bg-white"
                                   />
@@ -205,10 +219,10 @@ const Orders = () => {
                                       </svg>
                                       Download Mockup
                                     </button>
-                                    {item.rawDesignUrl && (
+                                    {(item.rawDesignUrl || item.aiDesignUrl) && (
                                       <button
-                                        onClick={() => handleDownloadAiDesign(item.rawDesignUrl, `original-${item.name}`)}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors"
+                                        onClick={() => handleDownloadAiDesign(item.rawDesignUrl || item.aiDesignUrl, `original-${item.name}`)}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors ml-1"
                                       >
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

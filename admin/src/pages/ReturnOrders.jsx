@@ -102,7 +102,14 @@ const ReturnOrders = () => {
                       <div className="space-y-2">
                         {order.items.map((item, index) => (
                           <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <span className="font-medium text-gray-800">{item.name}</span>
+                            <div>
+                              <span className="font-medium text-gray-800">{item.name}</span>
+                              {item.code && (
+                                <span className="ml-2 text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
+                                  {item.code}
+                                </span>
+                              )}
+                            </div>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">Qty: {item.quantity}</span>
                               <span className="bg-green-100 text-green-800 px-2 py-1 rounded">Size: {item.size}</span>

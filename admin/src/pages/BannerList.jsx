@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { backendUrl } from '../App';
+import { imageProxyUrl } from '../utils/storageUrl';
 import { toast } from 'react-toastify';
 import {
   Image,
@@ -245,7 +246,7 @@ const BannerList = ({ token }) => {
             <div key={banner._id || index} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
               <div className="relative group">
                 <img
-                  src={banner.imageBanner[0]}
+                  src={imageProxyUrl(banner.imageBanner[0])}
                   alt={`Banner ${index + 1}`}
                   className="w-full h-48 object-cover"
                 />
@@ -365,7 +366,7 @@ const BannerList = ({ token }) => {
                     <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
                     <div className="relative inline-block">
                       <img
-                        src={imageBanner}
+                        src={imageProxyUrl(imageBanner)}
                         alt="Banner preview"
                         className="w-32 h-32 object-cover rounded-lg border border-gray-200"
                       />
@@ -440,7 +441,7 @@ const BannerList = ({ token }) => {
 
               <div className="mb-6">
                 <img
-                  src={bannerToDelete?.imageBanner[0]}
+                  src={imageProxyUrl(bannerToDelete?.imageBanner[0])}
                   alt="Banner to delete"
                   className="w-full h-32 object-cover rounded-lg border border-gray-200"
                 />

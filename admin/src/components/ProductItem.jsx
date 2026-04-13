@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Eye, Edit, Trash2, Star, Zap } from 'lucide-react'
+import { imageProxyUrl } from '../utils/storageUrl'
 
 const ProductItem = ({
   id,
@@ -21,7 +22,7 @@ const ProductItem = ({
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         {image && image.length > 0 ? (
           <img
-            src={image[0]}
+            src={imageProxyUrl(image[0])}
             alt={name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />

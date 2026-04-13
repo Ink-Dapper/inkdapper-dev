@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title'
 import { assets } from '../assets/assets'
+import { storageUrl } from '../utils/storageUrl'
 import CartTotal from '../components/CartTotal'
 import CheckoutProgress from '../components/CheckoutProgress'
 import InputLabel from '@mui/material/InputLabel';
@@ -179,7 +180,7 @@ const Cart = () => {
                               <img
                                 className='w-44 h-48 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover rounded-xl transition-all duration-300'
                                 style={{ border: '1px solid rgba(249,115,22,0.2)' }}
-                                src={productData.image[0]}
+                                src={storageUrl(productData.image[0])}
                                 alt={productData.name}
                               />
                             </div>
@@ -327,7 +328,7 @@ const Cart = () => {
                           <img
                             className='w-24 h-[115px] sm:w-28 sm:h-[134px] md:w-32 md:h-[154px] object-contain rounded-xl transition-all duration-300'
                             style={{ border: '1px solid rgba(168,85,247,0.25)' }}
-                            src={(Array.isArray(data.reviewImageCustom) ? data.reviewImageCustom[0] : data.reviewImageCustom) || data.aiDesignUrl}
+                            src={storageUrl((Array.isArray(data.reviewImageCustom) ? data.reviewImageCustom[0] : data.reviewImageCustom) || data.aiDesignUrl)}
                             alt={data.name}
                           />
                         </div>
