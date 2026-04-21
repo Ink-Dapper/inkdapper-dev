@@ -317,4 +317,49 @@ const updateProfile = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser, adminLogin, profileUser, checkPhone, usersList, sendResetCode, resetPassword, updateProfile };
+// Save a delivery address to the user's profile (upsert by street+zipcode, keep max 5)
+const saveAddress = async (req, res) => {
+  try {
+    const userId = req.userId
+    const { firstName, lastName, email, street, city, state, zipcode, country, phone } = req.body
+
+    if (!street || !zipcode) {
+      return res.json({ success: false, message: 'Street and zipcode are required' })
+    }
+
+    const user = await userModel.findById(userId)
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' })
+
+    const newAddr = { firstName, lastName, email, street, city, state, zipcode, country, phone }
+    const key = `${String(street).trim().toLowerCase()}-${String(zipcode).trim()}`
+
+    // Remove existing entry with same street+zipcode (avoid duplicates)
+    const filtered = (user.savedAddresses || []).filter(a => {
+      return `${String(a.street).trim().toLowerCase()}-${String(a.zipcode).trim()}` !== key
+    })
+
+    // Prepend the new address, keep only the latest 5
+    user.savedAddresses = [newAddr, ...filtered].slice(0, 5)
+    await user.save()
+
+    res.json({ success: true, message: 'Address saved', savedAddresses: user.savedAddresses })
+  } catch (error) {
+    console.log(error)
+    res.json({ success: false, message: error.message })
+  }
+}
+
+// Get all saved addresses for the logged-in user
+const getSavedAddresses = async (req, res) => {
+  try {
+    const userId = req.userId
+    const user = await userModel.findById(userId).select('savedAddresses')
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' })
+    res.json({ success: true, savedAddresses: user.savedAddresses || [] })
+  } catch (error) {
+    console.log(error)
+    res.json({ success: false, message: error.message })
+  }
+}
+
+export { loginUser, registerUser, adminLogin, profileUser, checkPhone, usersList, sendResetCode, resetPassword, updateProfile, saveAddress, getSavedAddresses };

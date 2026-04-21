@@ -46,6 +46,8 @@ const PlaceOrder = () => {
   const [receiptData, setReceiptData] = useState(null)
   const [savedAddresses, setSavedAddresses] = useState([])
   const [showAddressModal, setShowAddressModal] = useState(false)
+  const [zipLookup, setZipLookup] = useState({ loading: false, error: '', success: false })
+  const [locLoading, setLocLoading] = useState(false)
   const redirectTimeoutRef = useRef(null)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -92,6 +94,11 @@ const PlaceOrder = () => {
       creditUsed,
       total: orderData.amount
     }
+  }
+
+  const persistAddress = () => {
+    if (!token) return
+    apiInstance.post('/user/save-address', formData).catch(() => {})
   }
 
   const showThankYouAndRedirect = ({
@@ -205,6 +212,7 @@ const PlaceOrder = () => {
           if (data.success) {
             console.log('Verification successful:', data)
             const receipt = buildReceiptData(orderData, 'Online (Razorpay)')
+            persistAddress()
             clearCart()
             showThankYouAndRedirect({
               message: 'Thank you! Your payment was successful and your order has been placed.',
@@ -284,6 +292,7 @@ const PlaceOrder = () => {
           const response = await apiInstance.post('/order/place', orderData)
           if (response.data.success) {
             const receipt = buildReceiptData(orderData, 'Cash on Delivery')
+            persistAddress()
             clearCart()
             showThankYouAndRedirect({
               message: 'Thank you! Your order has been placed successfully.',
@@ -331,20 +340,9 @@ const PlaceOrder = () => {
     if (!token) return
     const fetchSavedAddresses = async () => {
       try {
-        const { data } = await apiInstance.post('/order/user-orders', {})
-        if (data.success && data.orders?.length) {
-          // Extract unique addresses by street+zipcode key
-          const seen = new Set()
-          const unique = []
-          data.orders.forEach(order => {
-            if (!order.address) return
-            const key = `${order.address.street}-${order.address.zipcode}`
-            if (!seen.has(key)) {
-              seen.add(key)
-              unique.push(order.address)
-            }
-          })
-          setSavedAddresses(unique)
+        const { data } = await apiInstance.post('/user/get-addresses', {})
+        if (data.success) {
+          setSavedAddresses(data.savedAddresses || [])
         }
       } catch (_) {}
     }
@@ -355,11 +353,84 @@ const PlaceOrder = () => {
     getCreditScore()
   }, [])
 
+  // Pre-fill email and phone from profile on mount
+  useEffect(() => {
+    const profileEmail = localStorage.getItem('user_email')
+    const profilePhone = localStorage.getItem('user_phone')
+    setFormData(prev => ({
+      ...prev,
+      email: prev.email || profileEmail || '',
+      phone: prev.phone || profilePhone || '',
+    }))
+  }, [])
+
   useEffect(() => {
     return () => {
       if (redirectTimeoutRef.current) clearTimeout(redirectTimeoutRef.current)
     }
   }, [])
+
+  // Auto-fill city/state/country when a complete zip code is entered
+  useEffect(() => {
+    const zip = formData.zipcode.trim()
+    let cancelled = false
+
+    const isIndian = /^\d{6}$/.test(zip)
+    const isUS = /^\d{5}$/.test(zip)
+
+    if (!zip) {
+      setZipLookup({ loading: false, error: '', success: false })
+      return
+    }
+    if (!isIndian && !isUS) return
+
+    setZipLookup({ loading: true, error: '', success: false })
+
+    const url = isIndian
+      ? `https://api.postalpincode.in/pincode/${zip}`
+      : `https://api.zippopotam.us/us/${zip}`
+
+    fetch(url)
+      .then(r => {
+        if (!r.ok && !isIndian) throw new Error('not found')
+        return r.json()
+      })
+      .then(data => {
+        if (cancelled) return
+        if (isIndian) {
+          if (data[0]?.Status === 'Success' && data[0]?.PostOffice?.length > 0) {
+            const po = data[0].PostOffice[0]
+            setFormData(prev => ({
+              ...prev,
+              city: po.District || po.Name || prev.city,
+              state: po.State || prev.state,
+              country: 'India'
+            }))
+            setZipLookup({ loading: false, error: '', success: true })
+          } else {
+            setZipLookup({ loading: false, error: 'Pincode not found. Fill manually.', success: false })
+          }
+        } else {
+          if (data.places?.length > 0) {
+            setFormData(prev => ({
+              ...prev,
+              city: data.places[0]['place name'] || prev.city,
+              state: data.places[0]['state'] || prev.state,
+              country: 'United States'
+            }))
+            setZipLookup({ loading: false, error: '', success: true })
+          } else {
+            setZipLookup({ loading: false, error: 'ZIP not found. Fill manually.', success: false })
+          }
+        }
+      })
+      .catch(() => {
+        if (cancelled) return
+        setZipLookup({ loading: false, error: 'Lookup failed. Fill manually.', success: false })
+      })
+
+    return () => { cancelled = true }
+  }, [formData.zipcode])
 
   return (
     <>
@@ -566,9 +637,9 @@ const PlaceOrder = () => {
             >
               <div className="absolute top-0 left-0 w-full h-0.5 rounded-t-2xl" style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b, transparent)' }} />
               <div className='mb-5'>
-                {/* Single compact row: label left, button right */}
+                {/* Single compact row: label left, buttons right */}
                 <div className='flex items-center justify-between gap-2'>
-                  {/* Left: icon + title stacked */}
+                  {/* Left: icon + title */}
                   <div className='flex items-center gap-2 min-w-0'>
                     <div className='shrink-0 w-7 h-7 rounded-lg flex items-center justify-center' style={{ background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.3)' }}>
                       <span className="w-2 h-2 rounded-full bg-orange-500" />
@@ -579,21 +650,130 @@ const PlaceOrder = () => {
                     </div>
                   </div>
 
-                  {/* Right: saved address button */}
-                  {savedAddresses.length > 0 && (
+                  {/* Right: Home (profile address) + Use Saved (order history) */}
+                  <div className='shrink-0 flex items-center gap-2'>
+                    {/* Home button — reads default address from Profile localStorage */}
                     <button
                       type="button"
-                      onClick={() => setShowAddressModal(true)}
-                      className='shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-[0.1em] text-orange-300 transition-all active:scale-95'
+                      title="Fill from profile address"
+                      onClick={() => {
+                        try {
+                          const raw = localStorage.getItem('inkdapper_addresses')
+                          const list = raw ? JSON.parse(raw) : []
+                          if (!list.length) {
+                            toast.info('No address in your profile. Go to Profile → Addresses to add one.', { autoClose: 3000 })
+                            return
+                          }
+                          const addr = list.find(a => a.isDefault) || list[0]
+                          const nameParts = (addr.name || '').trim().split(' ')
+                          const firstName = nameParts[0] || ''
+                          const lastName = nameParts.slice(1).join(' ') || ''
+                          const street = [addr.line1, addr.line2].filter(Boolean).join(', ')
+                          setFormData(prev => ({
+                            ...prev,
+                            firstName,
+                            lastName,
+                            email: localStorage.getItem('user_email') || prev.email,
+                            phone: addr.phone || localStorage.getItem('user_phone') || prev.phone,
+                            street: street || prev.street,
+                            city: addr.city || prev.city,
+                            state: addr.state || prev.state,
+                            zipcode: addr.pincode || prev.zipcode,
+                            country: prev.country || 'India',
+                          }))
+                          toast.success('Profile address filled!', { autoClose: 1200 })
+                        } catch {
+                          toast.error('Could not load profile address.')
+                        }
+                      }}
+                      className='shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95'
                       style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)' }}
                     >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                       </svg>
-                      <span className='hidden xs:inline'>Use </span>Saved
                     </button>
-                  )}
+
+                    {/* Location button — reverse geocode current position */}
+                    <button
+                      type="button"
+                      title="Use current location"
+                      disabled={locLoading}
+                      onClick={() => {
+                        if (!navigator.geolocation) {
+                          toast.error('Geolocation is not supported by your browser.')
+                          return
+                        }
+                        setLocLoading(true)
+                        navigator.geolocation.getCurrentPosition(
+                          async ({ coords }) => {
+                            try {
+                              const res = await fetch(
+                                `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`,
+                                { headers: { 'Accept-Language': 'en' } }
+                              )
+                              const data = await res.json()
+                              const a = data.address || {}
+                              const street = [a.road, a.suburb || a.neighbourhood].filter(Boolean).join(', ')
+                              const city = a.city || a.town || a.village || a.county || ''
+                              const state = a.state || ''
+                              const zipcode = a.postcode || ''
+                              const country = a.country || ''
+                              setFormData(prev => ({
+                                ...prev,
+                                street: street || prev.street,
+                                city: city || prev.city,
+                                state: state || prev.state,
+                                zipcode: zipcode || prev.zipcode,
+                                country: country || prev.country,
+                              }))
+                              toast.success('Location address filled!', { autoClose: 1500 })
+                            } catch {
+                              toast.error('Could not fetch address. Try again.')
+                            } finally {
+                              setLocLoading(false)
+                            }
+                          },
+                          (err) => {
+                            setLocLoading(false)
+                            if (err.code === 1) toast.error('Location permission denied. Please allow access.')
+                            else toast.error('Could not get your location. Try again.')
+                          },
+                          { timeout: 10000 }
+                        )
+                      }}
+                      className='shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95 disabled:opacity-60'
+                      style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)' }}
+                    >
+                      {locLoading ? (
+                        <svg className='animate-spin w-4 h-4 text-orange-400' fill='none' viewBox='0 0 24 24'>
+                          <circle cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' className='opacity-25' />
+                          <path fill='currentColor' className='opacity-75' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z' />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Use Saved — opens modal for order-history addresses */}
+                    {savedAddresses.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAddressModal(true)}
+                        className='shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-[0.1em] text-orange-300 transition-all active:scale-95'
+                        style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)' }}
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className='hidden xs:inline'>Use </span>Saved
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-2.5 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.25), transparent)' }} />
               </div>
@@ -656,9 +836,51 @@ const PlaceOrder = () => {
                   />
                 </div>
 
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium text-slate-300'>Zipcode</label>
+                  <div className='relative'>
+                    <input
+                      required
+                      onChange={onChangeHandler}
+                      name='zipcode'
+                      value={formData.zipcode}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={10}
+                      className='w-full px-4 py-3 pr-10 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                      style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
+                      placeholder='Enter zipcode to auto-fill city, state & country'
+                    />
+                    {zipLookup.loading && (
+                      <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
+                        <svg className='animate-spin w-4 h-4 text-orange-400' fill='none' viewBox='0 0 24 24'>
+                          <circle cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' className='opacity-25' />
+                          <path fill='currentColor' className='opacity-75' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z' />
+                        </svg>
+                      </div>
+                    )}
+                    {zipLookup.success && !zipLookup.loading && (
+                      <div className='absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none'>
+                        <svg className='w-4 h-4 text-emerald-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M5 13l4 4L19 7' />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  {zipLookup.success && (
+                    <p className='text-[11px] text-emerald-400'>✓ City, state &amp; country auto-filled</p>
+                  )}
+                  {zipLookup.error && (
+                    <p className='text-[11px] text-red-400'>{zipLookup.error}</p>
+                  )}
+                </div>
+
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <div className='space-y-2'>
-                    <label className='text-sm font-medium text-slate-300'>City</label>
+                    <label className='text-sm font-medium text-slate-300'>
+                      City
+                      {zipLookup.success && <span className='ml-2 text-[10px] font-bold text-emerald-400 uppercase tracking-wide'>Auto-filled</span>}
+                    </label>
                     <input
                       required
                       onChange={onChangeHandler}
@@ -666,12 +888,15 @@ const PlaceOrder = () => {
                       value={formData.city}
                       type="text"
                       className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
-                      style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
+                      style={{ background: 'rgba(15,23,42,0.35)', borderColor: zipLookup.success ? 'rgba(52,211,153,0.55)' : 'rgba(148,163,184,0.3)' }}
                       placeholder='Enter city'
                     />
                   </div>
                   <div className='space-y-2'>
-                    <label className='text-sm font-medium text-slate-300'>State</label>
+                    <label className='text-sm font-medium text-slate-300'>
+                      State
+                      {zipLookup.success && <span className='ml-2 text-[10px] font-bold text-emerald-400 uppercase tracking-wide'>Auto-filled</span>}
+                    </label>
                     <input
                       required
                       onChange={onChangeHandler}
@@ -679,39 +904,27 @@ const PlaceOrder = () => {
                       value={formData.state}
                       type="text"
                       className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
-                      style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
+                      style={{ background: 'rgba(15,23,42,0.35)', borderColor: zipLookup.success ? 'rgba(52,211,153,0.55)' : 'rgba(148,163,184,0.3)' }}
                       placeholder='Enter state'
                     />
                   </div>
                 </div>
 
-                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                  <div className='space-y-2'>
-                    <label className='text-sm font-medium text-slate-300'>Zipcode</label>
-                    <input
-                      required
-                      onChange={onChangeHandler}
-                      name='zipcode'
-                      value={formData.zipcode}
-                      type="text"
-                      className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
-                      style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
-                      placeholder='Enter zipcode'
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <label className='text-sm font-medium text-slate-300'>Country</label>
-                    <input
-                      required
-                      onChange={onChangeHandler}
-                      name='country'
-                      value={formData.country}
-                      type="text"
-                      className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
-                      style={{ background: 'rgba(15,23,42,0.35)', borderColor: 'rgba(148,163,184,0.3)' }}
-                      placeholder='Enter country'
-                    />
-                  </div>
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium text-slate-300'>
+                    Country
+                    {zipLookup.success && <span className='ml-2 text-[10px] font-bold text-emerald-400 uppercase tracking-wide'>Auto-filled</span>}
+                  </label>
+                  <input
+                    required
+                    onChange={onChangeHandler}
+                    name='country'
+                    value={formData.country}
+                    type="text"
+                    className='w-full px-4 py-3 text-slate-900 placeholder:text-slate-500 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/40'
+                    style={{ background: 'rgba(15,23,42,0.35)', borderColor: zipLookup.success ? 'rgba(52,211,153,0.55)' : 'rgba(148,163,184,0.3)' }}
+                    placeholder='Enter country'
+                  />
                 </div>
 
                 <div className='space-y-2'>
