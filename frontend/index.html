@@ -33,7 +33,7 @@
     <meta property="og:url" content="https://www.inkdapper.com/">
     <meta property="og:title" content="Ink Dapper | Oversized Tees, Acid Wash T-Shirts & Custom Clothing">
     <meta property="og:description" content="Explore Ink Dapper's exclusive collection of oversized t-shirts, acid wash tees, customized oversized tees, and solid color tees. Perfect comfort and style for every vibe.">
-    <meta property="og:image" content="https://www.inkdapper.com/path-to-your-logo-or-banner.jpg">
+    <meta property="og:image" content="https://www.inkdapper.com/ink_dapper_logo.svg">
     <meta property="og:site_name" content="Ink Dapper">
     <meta property="og:locale" content="en_US">
 
@@ -42,7 +42,7 @@
     <meta property="twitter:url" content="https://www.inkdapper.com/">
     <meta property="twitter:title" content="Ink Dapper | Oversized Tees & Custom T-Shirts">
     <meta property="twitter:description" content="Explore Ink Dapper's exclusive collection of oversized t-shirts, acid wash tees, customized oversized tees, and solid color tees. Perfect comfort and style for every vibe.">
-    <meta property="twitter:image" content="https://www.inkdapper.com/path-to-your-logo-or-banner.jpg">
+    <meta property="twitter:image" content="https://www.inkdapper.com/ink_dapper_logo.svg">
 
     <!-- Additional SEO Meta Tags -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -80,19 +80,25 @@
     
     <!-- Preload critical resources -->
     <!-- NOTE: modulepreload for main.jsx removed — Vite injects correct hashed paths during build -->
-    <link rel="preconnect" href="https://checkout.razorpay.com">
-    
-    <!-- Preload fonts with display swap -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Prata&display=swap" as="style">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prata&display=swap" media="print" onload="this.media='all'">
-    
-    <!-- Resource hints -->
-    <link rel="dns-prefetch" href="https://checkout.razorpay.com">
+
+    <!-- Preconnect to all external origins used at startup (eliminates TCP/TLS overhead) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Preconnect to backend API so first XHR has no TCP/TLS overhead -->
     <link rel="preconnect" href="https://api.inkdapper.com">
+    <link rel="preconnect" href="https://storage.inkdapper.com">
+    <link rel="preconnect" href="https://checkout.razorpay.com">
+
+    <!-- DNS prefetch for lower-priority third-party origins -->
+    <link rel="dns-prefetch" href="https://checkout.razorpay.com">
     <link rel="dns-prefetch" href="https://api.inkdapper.com">
+    <link rel="dns-prefetch" href="https://storage.inkdapper.com">
+
+    <!-- Preload the site logo — used immediately by the page loader -->
+    <link rel="preload" href="/ink_dapper_logo.svg" as="image" type="image/svg+xml">
+
+    <!-- Non-blocking font load: stylesheet is fetched async, swapped in on load -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prata&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prata&display=swap"></noscript>
     
     <!-- Inline critical CSS -->
     <style>
@@ -228,7 +234,9 @@
     
     <!-- Defer non-critical JavaScript -->
     <script type="module" src="/src/main.jsx" defer></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+    <!-- Razorpay checkout.js is loaded dynamically inside PlaceOrder.jsx
+         so it only runs when the user actually reaches the checkout page,
+         preventing unused preload warnings on every other route. -->
     
     <!-- Loader Script -->
     <script>

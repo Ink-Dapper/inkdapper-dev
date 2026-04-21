@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { FaStar, FaPaintBrush, FaTshirt, FaRegDotCircle, FaLeaf, FaRegCalendarAlt, FaRegHandPeace, FaHeart, FaShare, FaTruck, FaShieldAlt, FaUndo } from 'react-icons/fa';
-import { Link, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Flip, toast } from "react-toastify";
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -15,7 +15,7 @@ import RelatedProducts from '../components/RelatedProducts';
 import { ShopContext } from '../context/ShopContext';
 import { storageUrl } from '../utils/storageUrl';
 import '../styles/swiper-custom.css';
-import { Paintbrush, Shirt, Circle, Leaf, Calendar, Hand, Truck, Shield, RotateCcw, Heart, Share2 } from 'lucide-react';
+import { Paintbrush, Shirt, Circle, Leaf, Calendar, Hand, Truck, Shield, RotateCcw, Heart, Share2, Star } from 'lucide-react';
 
 // Add this hook to detect screen size
 function useIsMobile() {
@@ -38,6 +38,7 @@ const generateSlugFromName = (name) => {
 
 const Product = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const context = useContext(ShopContext)
 
   // Safety check to prevent destructuring undefined context
@@ -49,7 +50,6 @@ const Product = () => {
   const [productData, setProductData] = useState(false)
   const [image, setImage] = useState('')
   const [size, setSize] = useState('')
-  const [buyNow, setBuyNow] = useState('hidden')
   const [wishlistCta, setWishlistCta] = useState('hidden')
   const [wishlistCount, setWishlistCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0)
@@ -132,10 +132,25 @@ const Product = () => {
 
       // Reset quantity to 1 after adding to cart
       setQuantity(1);
+    }
+  }
 
-      if (getCartCount() >= 0) {
-        setBuyNow('block')
+  const handleBuyNow = () => {
+    if (!token) {
+      toast.error('Please login to continue', { autoClose: 1000 })
+    } else if (!size) {
+      toast.error('Select Product Size', { autoClose: 2000, pauseOnHover: false, transition: Flip })
+    } else {
+      const existingQuantity = cartItems[productData._id]?.[size] || 0;
+      const newQuantity = existingQuantity + quantity;
+      const maxStock = productData.stock;
+      if (maxStock && newQuantity > maxStock) {
+        toast.error(`Only ${maxStock} items available in stock`, { autoClose: 2000, transition: Flip });
+        return;
       }
+      updateQuantity(productData._id, size, newQuantity);
+      scrollToTop();
+      navigate('/place-order');
     }
   }
 
@@ -343,8 +358,63 @@ const Product = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const productUrl = productData ? `https://www.inkdapper.com/product/${productData.slug}` : ''
+  const productImage = productData?.image?.[0] ? storageUrl(productData.image[0]) : 'https://www.inkdapper.com/ink_dapper_logo.svg'
+  const productTitle = productData ? `${productData.name} | Ink Dapper` : 'Product | Ink Dapper'
+  const productDescription = productData
+    ? `Buy ${productData.name} at Ink Dapper — ${productData.description?.slice(0, 120) || 'Premium oversized streetwear, custom DTF prints, acid wash tees'}. ₹${productData.price}. Free shipping in India.`
+    : 'Explore streetwear at Ink Dapper.'
+
+  const jsonLd = productData ? {
+    '@context': 'https://schema.org/',
+    '@type': 'Product',
+    name: productData.name,
+    image: productData.image?.map(img => storageUrl(img)) || [],
+    description: productData.description || `${productData.name} — premium streetwear by Ink Dapper.`,
+    sku: productData._id,
+    brand: { '@type': 'Brand', name: 'Ink Dapper' },
+    offers: {
+      '@type': 'Offer',
+      url: productUrl,
+      priceCurrency: 'INR',
+      price: productData.price,
+      availability: productData.soldout ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+      seller: { '@type': 'Organization', name: 'Ink Dapper' },
+    },
+    ...(averageRating > 0 && reviewCount > 0 ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: averageRating.toFixed(1),
+        reviewCount,
+        bestRating: 5,
+        worstRating: 1,
+      }
+    } : {})
+  } : null
+
   return productData ? (
     <div className='min-h-screen ragged-section'>
+      <Helmet>
+        <title>{productTitle}</title>
+        <meta name="description" content={productDescription} />
+        <link rel="canonical" href={productUrl} />
+        <meta property="og:type" content="product" />
+        <meta property="og:url" content={productUrl} />
+        <meta property="og:title" content={productTitle} />
+        <meta property="og:description" content={productDescription} />
+        <meta property="og:image" content={productImage} />
+        <meta property="og:site_name" content="Ink Dapper" />
+        <meta property="product:price:amount" content={productData.price} />
+        <meta property="product:price:currency" content="INR" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={productTitle} />
+        <meta name="twitter:description" content={productDescription} />
+        <meta name="twitter:image" content={productImage} />
+        {jsonLd && (
+          <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+        )}
+      </Helmet>
+
       <div className='ragged-noise' />
 
       {/* Breadcrumb */}
@@ -395,6 +465,10 @@ const Product = () => {
                       src={storageUrl(item)}
                       alt={`${productData.name} - view ${index + 1}`}
                       className='w-full h-full object-cover'
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement.style.background = '#0d0d10';
+                      }}
                     />
                     <div className='absolute bottom-4 right-4'>
                       <img src={assets.logo_only} alt="logo" className="!w-12 !h-10 md:!w-24 md:!h-20 p-2 opacity-40" />
@@ -524,6 +598,7 @@ const Product = () => {
                         src={storageUrl(item)}
                         alt={`${productData.name} thumbnail ${index + 1}`}
                         className='w-full h-16 md:h-20 object-cover'
+                        onError={(e) => { e.currentTarget.style.opacity = '0'; }}
                       />
                     </div>
                   </SwiperSlide>
@@ -575,7 +650,7 @@ const Product = () => {
               <div className='flex items-center gap-3'>
                 <div className='flex items-center gap-0.5'>
                   {stars.map((starValue) => (
-                    <FaStar key={starValue} className={`w-4 h-4 ${averageRating >= starValue ? 'text-yellow-400' : 'text-slate-700'}`} />
+                    <Star key={starValue} className='w-4 h-4' fill={averageRating >= starValue ? '#facc15' : 'none'} stroke={averageRating >= starValue ? '#facc15' : '#334155'} />
                   ))}
                 </div>
                 <span className='text-sm text-slate-500'>({reviewCount} reviews)</span>
@@ -596,6 +671,22 @@ const Product = () => {
                 {productData.beforePrice && (
                   <span className='px-2.5 py-1 rounded-lg text-sm font-bold' style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
                     {Math.round(((productData.beforePrice - productData.price) / productData.beforePrice) * 100)}% OFF
+                  </span>
+                )}
+              </div>
+
+              {/* You save + stock urgency row */}
+              <div className='flex items-center gap-3 flex-wrap'>
+                {productData.beforePrice && productData.beforePrice > productData.price && (
+                  <span className='inline-flex items-center gap-1.5 text-sm font-bold' style={{ color: '#34d399' }}>
+                    <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M5 13l4 4L19 7' /></svg>
+                    You save {currency}{productData.beforePrice - productData.price}
+                  </span>
+                )}
+                {productData.stock > 0 && productData.stock <= 10 && (
+                  <span className='inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold animate-pulse' style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)', color: '#fca5a5' }}>
+                    <span className='w-1.5 h-1.5 rounded-full bg-red-400' />
+                    Only {productData.stock} left in stock!
                   </span>
                 )}
               </div>
@@ -683,7 +774,7 @@ const Product = () => {
                     <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M12 4v16m8-8H4' /></svg>
                   </button>
                 </div>
-                <span className='text-sm text-slate-500 font-medium'>{productData.stock || 'Unlimited'} available</span>
+                <span className='text-sm text-slate-500 font-medium'>{productData.stock > 10 ? `${productData.stock} available` : productData.stock ? '' : 'In stock'}</span>
               </div>
             </div>
 
@@ -701,17 +792,15 @@ const Product = () => {
                 Add to Cart
               </button>
 
-              {/* Buy Now — appears after add to cart */}
-              <Link to='/cart' className={buyNow}>
-                <button
-                  onClick={scrollToTop}
-                  className='w-full py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-widest text-slate-200 border border-white/12 hover:border-white/25 hover:text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2'
-                  style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)' }}
-                >
-                  <svg className='w-4 h-4 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 7l5 5m0 0l-5 5m5-5H6' /></svg>
-                  Buy Now
-                </button>
-              </Link>
+              {/* Buy Now — skip cart, go straight to checkout */}
+              <button
+                onClick={handleBuyNow}
+                className='w-full py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-widest text-white border border-white/12 hover:border-orange-500/40 hover:text-orange-300 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2'
+                style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)' }}
+              >
+                <svg className='w-4 h-4 flex-shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 7l5 5m0 0l-5 5m5-5H6' /></svg>
+                Buy Now — Checkout Instantly
+              </button>
 
               {/* Wishlist button — full width, always visible */}
               <button

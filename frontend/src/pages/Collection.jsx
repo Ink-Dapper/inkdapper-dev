@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { ShopContext } from '../context/ShopContext'
 import { assets } from '../assets/assets'
 import Title from '../components/Title'
@@ -406,6 +407,20 @@ const Collection = () => {
 
   return (
     <div className="min-h-screen" style={{ background: '#0d0d0e' }}>
+      <Helmet>
+        <title>Shop All T-Shirts | Oversized, Acid Wash & Custom Tees | Ink Dapper</title>
+        <meta name="description" content="Browse Ink Dapper's full streetwear collection — oversized t-shirts, acid wash tees, custom DTF printed tees, solid fits & more. Filter by style, color & size. Free shipping in India." />
+        <link rel="canonical" href="https://www.inkdapper.com/collection" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.inkdapper.com/collection" />
+        <meta property="og:title" content="Shop All T-Shirts | Oversized, Acid Wash & Custom Tees | Ink Dapper" />
+        <meta property="og:description" content="Explore the full Ink Dapper drop room — oversized streetwear, acid wash tees, custom prints. New arrivals weekly." />
+        <meta property="og:image" content="https://www.inkdapper.com/ink_dapper_logo.svg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Shop All T-Shirts | Ink Dapper Collection" />
+        <meta name="twitter:description" content="Explore the full Ink Dapper drop room — oversized streetwear, acid wash tees, custom prints." />
+        <meta name="twitter:image" content="https://www.inkdapper.com/ink_dapper_logo.svg" />
+      </Helmet>
 
       {/* ══════════════════════════════════════════════════
           COLLECTION HERO BANNER — ragged dark

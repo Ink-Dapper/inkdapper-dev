@@ -30,6 +30,17 @@ const PlaceOrder = () => {
     customDataArray
   } = useContext(ShopContext)
 
+  // Load Razorpay checkout.js lazily — only on this page so it doesn't
+  // pollute every route with its internal preload hints.
+  useEffect(() => {
+    const RAZORPAY_URL = 'https://checkout.razorpay.com/v1/checkout.js'
+    if (document.querySelector(`script[src="${RAZORPAY_URL}"]`)) return
+    const script = document.createElement('script')
+    script.src = RAZORPAY_URL
+    script.async = true
+    document.body.appendChild(script)
+  }, [])
+
   const [creditPtsVisible, setCreditPtsVisible] = useState(false)
   const [showThankYou, setShowThankYou] = useState(false)
   const [receiptData, setReceiptData] = useState(null)
@@ -175,6 +186,10 @@ const PlaceOrder = () => {
   }
 
   const initPay = (order, orderData) => {
+    if (!window.Razorpay) {
+      toast.error('Payment gateway is still loading, please try again in a moment.')
+      return
+    }
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY,
       amount: order.amount,

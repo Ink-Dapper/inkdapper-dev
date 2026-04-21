@@ -81,9 +81,14 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        // manualChunks removed — the function-based splitting created circular chunk
-        // dependencies (TDZ crash: "Cannot access 't'/'R' before initialization").
-        // Vite 6's automatic splitting handles ordering correctly and is crash-free.
+        // Object-form manualChunks is safe — Rollup resolves ordering automatically.
+        // Avoid function-form: it caused TDZ crashes ("Cannot access 't' before init")
+        // because circular chunk deps could not be deterministically ordered.
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-swiper': ['swiper'],
+          'vendor-mui': ['@mui/material', '@emotion/react', '@emotion/styled'],
+        },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'style.css') return 'assets/css/[name]-[hash][extname]';
           if (assetInfo.name === 'main.js') return 'assets/js/[name]-[hash][extname]';

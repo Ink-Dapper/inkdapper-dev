@@ -9,7 +9,7 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
   let safeSlug = slug || (name ? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') : '');
   if (safeSlug.endsWith('-')) safeSlug = safeSlug.slice(0, -1);
 
-  const { currency, scrollToTop, addToWishlist, updateWishlistQuantity, token, wishlist, addToCartCombo } = useContext(ShopContext);
+  const { currency, scrollToTop, addToWishlist, updateWishlistQuantity, token, wishlist, addToCartCombo, reviewList } = useContext(ShopContext);
 
   const offerPercentage = useMemo(() => {
     if (beforePrice && price && beforePrice > price) {
@@ -18,8 +18,22 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     return 0;
   }, [beforePrice, price]);
 
+  const savingsAmount = useMemo(() => {
+    if (beforePrice && price && beforePrice > price) return beforePrice - price;
+    return 0;
+  }, [beforePrice, price]);
+
+  const { reviewCount, avgRating } = useMemo(() => {
+    if (!reviewList || !id) return { reviewCount: 0, avgRating: 0 };
+    const productReviews = reviewList.filter(r => r.productId === id);
+    const count = productReviews.length;
+    const avg = count > 0 ? productReviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / count : 0;
+    return { reviewCount: count, avgRating: Math.round(avg) };
+  }, [reviewList, id]);
+
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const shareMenuRef = useRef(null);
   const favWishlist = useMemo(() => Object.keys(wishlist || {}), [wishlist]);
 
@@ -284,22 +298,38 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
               </div>
             )}
 
-            <img
-              src={storageUrl(image[0])}
-              alt={name}
-              loading="lazy"
-              decoding="async"
-              width="300"
-              height="400"
-              onLoad={() => setImgLoaded(true)}
-              className="transition-transform duration-700 group-hover:scale-105"
-              style={{
-                width: '100%', height: '100%',
-                objectFit: 'cover', objectPosition: 'center',
-                opacity: imgLoaded ? (soldout ? 0.45 : 1) : 0,
-                transition: 'opacity 0.4s ease, transform 0.7s ease',
-              }}
-            />
+            {imgError ? (
+              <div style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,
+                background: '#0d0d10',
+              }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(249,115,22,0.3)" strokeWidth="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span style={{ fontSize: 10, color: '#475569', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>No image</span>
+              </div>
+            ) : (
+              <img
+                src={storageUrl(image[0])}
+                alt={name}
+                loading="lazy"
+                decoding="async"
+                width="300"
+                height="400"
+                onLoad={() => setImgLoaded(true)}
+                onError={() => { setImgLoaded(true); setImgError(true); }}
+                className="transition-transform duration-700 group-hover:scale-105"
+                style={{
+                  width: '100%', height: '100%',
+                  objectFit: 'cover', objectPosition: 'center',
+                  opacity: imgLoaded ? (soldout ? 0.45 : 1) : 0,
+                  transition: 'opacity 0.4s ease, transform 0.7s ease',
+                }}
+              />
+            )}
 
             {/* Sold out overlay */}
             {soldout && (
@@ -419,6 +449,20 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
               {name}
             </h3>
 
+            {/* Star rating row */}
+            {reviewCount > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
+                <div style={{ display: 'flex', gap: 1 }}>
+                  {[1,2,3,4,5].map(s => (
+                    <svg key={s} width="11" height="11" viewBox="0 0 24 24" fill={avgRating >= s ? '#facc15' : 'none'} stroke={avgRating >= s ? '#facc15' : '#475569'} strokeWidth="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  ))}
+                </div>
+                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>({reviewCount})</span>
+              </div>
+            )}
+
             {/* Price row */}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
               <span style={{
@@ -438,6 +482,14 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
                 </span>
               )}
             </div>
+
+            {/* You save */}
+            {savingsAmount > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                <span style={{ fontSize: 11, color: '#34d399', fontWeight: 700 }}>You save {currency}{savingsAmount}</span>
+              </div>
+            )}
 
             {/* Combo offers */}
             {comboPrices && comboPrices.length > 0 && (

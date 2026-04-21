@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import Title from '../components/Title';
+import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import ProductItem from './ProductItem';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -28,13 +27,18 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
 
   useEffect(() => {
     if (products.length > 0 && category && subCategory) {
-      const filteredProducts = products.filter(
-        (item) =>
-          item.category === category &&
-          item.subCategory === subCategory &&
-          item._id !== currentProductId // Exclude the current product
+      const sameSubCat = products.filter(
+        (item) => item.category === category && item.subCategory === subCategory && item._id !== currentProductId
       );
-      setRelated(filteredProducts.slice(0, 4)); // Limit to 4 products
+      // Fill up to 6 with same-category products if same subCategory has fewer
+      if (sameSubCat.length >= 6) {
+        setRelated(sameSubCat.slice(0, 6));
+      } else {
+        const sameCat = products.filter(
+          (item) => item.category === category && item.subCategory !== subCategory && item._id !== currentProductId
+        );
+        setRelated([...sameSubCat, ...sameCat].slice(0, 6));
+      }
     }
   }, [products, category, subCategory, currentProductId]);
 
@@ -61,16 +65,16 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
         <div className="text-center mb-8 md:mb-12">
           <div className="inline-flex items-center gap-3 mb-4">
             <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.6))' }}></div>
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">You Might Also Like</span>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400">Customers Also Bought</span>
             <div className="w-8 h-px" style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.6), transparent)' }}></div>
           </div>
 
           <h2 className="ragged-title mb-4" style={{ fontSize: 'clamp(1.8rem,5vw,3.5rem)' }}>
-            Related Products
+            Frequently Bought Together
           </h2>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-500 leading-relaxed px-4">
-            <span className="font-semibold text-orange-400">Perfect Matches:</span> Discover more amazing designs that complement your current selection.
+            <span className="font-semibold text-orange-400">Bundle &amp; Save:</span> Shoppers who viewed this also loved these picks from the same collection.
           </p>
         </div>
 
@@ -94,8 +98,8 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
               style={{ paddingBottom: '40px' }}
               onSwiper={setSwiper}
             >
-              {related.map((item, index) => (
-                <SwiperSlide key={index}>
+              {related.map((item) => (
+                <SwiperSlide key={item._id}>
                   <div className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-1">
                     <div className="relative rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(249,115,22,0.15)' }}>
                       <div className="absolute -inset-1 rounded-3xl blur-lg opacity-0 group-hover:opacity-40 transition-all duration-500" style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.4), rgba(245,158,11,0.3))' }}></div>
@@ -140,10 +144,10 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
         )}
 
         {/* Desktop Grid View */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4 gap-y-6">
-          {related.map((item, index) => (
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4 gap-y-6">
+          {related.map((item) => (
             <div
-              key={index}
+              key={item._id}
               className="group transform transition-all duration-500 hover:scale-105 hover:-translate-y-1"
             >
               <div className="relative rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(249,115,22,0.15)' }}>

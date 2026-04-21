@@ -4,6 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import ShopContextProvider from './context/ShopContext.jsx'
+import { HelmetProvider } from 'react-helmet-async'
 
 function showFatalError(err) {
   console.error('[Fatal] React failed to mount:', err);
@@ -25,11 +26,13 @@ function showFatalError(err) {
 try {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <ShopContextProvider>
-          <App />
-        </ShopContextProvider>
-      </BrowserRouter>
+      <HelmetProvider>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <ShopContextProvider>
+            <App />
+          </ShopContextProvider>
+        </BrowserRouter>
+      </HelmetProvider>
     </React.StrictMode>
   );
 } catch (err) {
