@@ -298,13 +298,6 @@
         }
       });
 
-      // Register service worker for asset caching & offline support
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js', { scope: '/' }).catch(() => {});
-        });
-      }
-
       // Preload critical images
       const preloadImages = () => {
         const images = document.querySelectorAll('img[data-src]');

@@ -23,6 +23,17 @@ function showFatalError(err) {
   }
 }
 
+// Vite fires this when a dynamic import (lazy chunk) fails to fetch —
+// typically after a new deployment invalidates old hashed filenames.
+// Reload once so the browser fetches the fresh index.html + new chunks.
+window.addEventListener('vite:preloadError', () => {
+  const key = 'vite_chunk_reload'
+  if (!sessionStorage.getItem(key)) {
+    sessionStorage.setItem(key, '1')
+    window.location.reload()
+  }
+})
+
 try {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
