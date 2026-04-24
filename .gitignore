@@ -27,4 +27,9 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-node_modules/.env
+#enviro
+node_modules/
+.env
+backend/.env
+frontend/node_modules/
+admin/node_modules/
