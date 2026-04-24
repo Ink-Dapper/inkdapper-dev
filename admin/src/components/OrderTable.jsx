@@ -84,8 +84,9 @@ const OrderTable = ({ token }) => {
 
       <div className='order-details-table overflow-auto pr-4'>
         <div className='w-[1300px] overflow-hidden'>
-          <div className='grid grid-cols-1 sm:grid-cols-[0.2fr_0.8fr_1.5fr_0.8fr_1fr_0.8fr_0.8fr_0.8fr_0.5fr] lg:grid-cols-[0.2fr_0.8fr_1.5fr_0.8fr_1fr_0.8fr_0.8fr_0.8fr_0.5fr] gap-3 items-start justify-items-center border-2 border-gray-200 p-2 px-4 md:p-2 md:px-4 my-3 md:my-2 text-xs sm:text-sm text-white bg-gray-500'>
+          <div className='grid grid-cols-1 sm:grid-cols-[0.2fr_0.6fr_0.8fr_1.5fr_0.8fr_1fr_0.8fr_0.8fr_0.8fr_0.5fr] lg:grid-cols-[0.2fr_0.6fr_0.8fr_1.5fr_0.8fr_1fr_0.8fr_0.8fr_0.8fr_0.5fr] gap-3 items-start justify-items-center border-2 border-gray-200 p-2 px-4 md:p-2 md:px-4 my-3 md:my-2 text-xs sm:text-sm text-white bg-gray-500'>
             <p className='font-medium'>S.No</p>
+            <p className='font-medium'>Image</p>
             <p className='font-medium'>First Name</p>
             <p className='font-medium'>Email Address</p>
             <p className='font-medium'>Phone Number</p>
@@ -96,19 +97,37 @@ const OrderTable = ({ token }) => {
             <p className='font-medium'>Amount</p>
           </div>
           {
-            sliceSection.map((order, index) => (
-              <div key={order._id} className='grid grid-cols-1 sm:grid-cols-[0.2fr_0.8fr_1.5fr_0.8fr_1fr_0.8fr_0.8fr_0.8fr_0.5fr] lg:grid-cols-[0.2fr_0.8fr_1.5fr_0.8fr_1fr_0.8fr_0.8fr_0.8fr_0.5fr] gap-3 items-center justify-items-center py-3 px-2 border-2 text-sm mb-2'>
-                <p>{sliceSectionNext - 10 + index + 1}</p>
-                <p>{order.address.firstName}</p>
-                <p><a href={`mailto:${order.address.email}`}>{order.address.email}</a></p>
-                <p><a href={`tel:${order.address.phone}`}>{order.address.phone}</a></p>
-                <p>{new Date(order.date).toDateString()}</p>
-                <p>{new Date(order.deliveryDate ? order.deliveryDate : order.status).toDateString()}</p>
-                <p>{order.items[0].quantity}</p>
-                <p>{order.status}</p>
-                <p>{order.items[0].price * order.items[0].quantity} {currency}</p>
-              </div>
-            ))
+            sliceSection.map((order, index) => {
+              const firstItem = order.items[0] || {}
+              const imgSrc = firstItem.isCustom
+                ? (firstItem.reviewImageCustom || firstItem.aiDesignUrl || '')
+                : (Array.isArray(firstItem.image) ? firstItem.image[0] : firstItem.image || '')
+              return (
+                <div key={order._id} className='grid grid-cols-1 sm:grid-cols-[0.2fr_0.6fr_0.8fr_1.5fr_0.8fr_1fr_0.8fr_0.8fr_0.8fr_0.5fr] lg:grid-cols-[0.2fr_0.6fr_0.8fr_1.5fr_0.8fr_1fr_0.8fr_0.8fr_0.8fr_0.5fr] gap-3 items-center justify-items-center py-3 px-2 border-2 text-sm mb-2'>
+                  <p>{sliceSectionNext - 10 + index + 1}</p>
+                  <div>
+                    {imgSrc ? (
+                      <img
+                        src={imgSrc}
+                        alt={firstItem.name || 'Product'}
+                        className='w-12 h-12 object-cover rounded-md border border-gray-200'
+                        onError={e => { e.target.style.display = 'none' }}
+                      />
+                    ) : (
+                      <div className='w-12 h-12 rounded-md border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-400 text-xs'>N/A</div>
+                    )}
+                  </div>
+                  <p>{order.address.firstName}</p>
+                  <p><a href={`mailto:${order.address.email}`}>{order.address.email}</a></p>
+                  <p><a href={`tel:${order.address.phone}`}>{order.address.phone}</a></p>
+                  <p>{new Date(order.date).toDateString()}</p>
+                  <p>{new Date(order.deliveryDate ? order.deliveryDate : order.status).toDateString()}</p>
+                  <p>{firstItem.quantity}</p>
+                  <p>{order.status}</p>
+                  <p>{firstItem.price * firstItem.quantity} {currency}</p>
+                </div>
+              )
+            })
           }
         </div>
       </div>
