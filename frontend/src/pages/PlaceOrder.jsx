@@ -48,6 +48,7 @@ const PlaceOrder = () => {
   const [showAddressModal, setShowAddressModal] = useState(false)
   const [zipLookup, setZipLookup] = useState({ loading: false, error: '', success: false })
   const [locLoading, setLocLoading] = useState(false)
+  const [orderLoading, setOrderLoading] = useState(false)
   const redirectTimeoutRef = useRef(null)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -246,6 +247,7 @@ const PlaceOrder = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault()
+    setOrderLoading(true)
     try {
       const orderItems = []
       for (const items in cartItems) {
@@ -318,6 +320,8 @@ const PlaceOrder = () => {
       console.log('Place order error:', error)
       const message = error.response?.data?.message || error.message || 'Something went wrong while placing your order'
       toast.error(message)
+    } finally {
+      setOrderLoading(false)
     }
   }
 
@@ -1108,13 +1112,26 @@ const PlaceOrder = () => {
                 <div className="absolute top-0 left-0 w-full h-0.5" style={{ background: 'linear-gradient(90deg, #f97316, #f59e0b, transparent)' }} />
                 <button
                   type='submit'
-                  className='w-full text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 hover:translate-y-[-1px]'
+                  disabled={orderLoading}
+                  className='w-full text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 hover:translate-y-[-1px] disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0'
                   style={{ background: 'linear-gradient(135deg, #f97316, #f59e0b)' }}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                  </svg>
-                  Place Order
+                  {orderLoading ? (
+                    <>
+                      <svg className='animate-spin w-5 h-5 text-white' fill='none' viewBox='0 0 24 24'>
+                        <circle cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4' className='opacity-25' />
+                        <path fill='currentColor' className='opacity-75' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z' />
+                      </svg>
+                      Placing Order...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      Place Order
+                    </>
+                  )}
                 </button>
                 <p className='text-xs text-slate-300 text-center mt-3'>
                   By placing your order, you agree to our terms and conditions.
