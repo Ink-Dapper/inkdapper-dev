@@ -714,7 +714,10 @@ const PlaceOrder = () => {
                               )
                               const data = await res.json()
                               const a = data.address || {}
-                              const street = [a.road, a.suburb || a.neighbourhood].filter(Boolean).join(', ')
+                              const houseNo = a.house_number || ''
+                              const road = a.road || a.pedestrian || a.footway || a.path || a.construction || ''
+                              const area = a.suburb || a.neighbourhood || a.quarter || a.hamlet || ''
+                              const street = [houseNo, road, area].filter(Boolean).join(', ')
                               const city = a.city || a.town || a.village || a.county || ''
                               const state = a.state || ''
                               const zipcode = a.postcode || ''
