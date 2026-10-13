@@ -5,6 +5,7 @@ import apiInstance from "../utils/axios";
 import { toast } from "react-toastify";
 import SkeletonLoader from "../components/SkeletonLoader";
 import { Flip } from 'react-toastify';
+import { redirectToLogin } from "../utils/authRedirect";
 
 export const ShopContext = createContext(null)
 
@@ -32,6 +33,9 @@ const ShopContextProvider = (props) => {
     }
   })
   const navigate = useNavigate()
+  // True once the signed-in user's cart & wishlist have been loaded from the server.
+  // Pages use this to safely resume a pending action (e.g. add-to-cart after login).
+  const [userDataLoaded, setUserDataLoaded] = useState(false)
   const [reviewList, setReviewList] = useState([])
   const [usersDetails, setUsersDetails] = useState([])
   const [orderData, setOrderData] = useState([])
@@ -77,11 +81,16 @@ const ShopContextProvider = (props) => {
     setWishlist(newWishlistData);
   };
 
+  // Guests can browse everything; the moment they try to do something that needs an
+  // account we send them to /login and bring them back to this exact page afterwards.
+  const requireLogin = (message) => {
+    if (token) return true;
+    redirectToLogin(navigate, { message });
+    return false;
+  };
+
   const addToCart = async (itemId, size) => {
-    if (!token) {
-      toast.error('Please login to add items to cart');
-      return;
-    }
+    if (!requireLogin('Please login to add items to your cart')) return;
 
     try {
       const response = await apiInstance.post('/cart/add', { itemId, size });
@@ -99,10 +108,7 @@ const ShopContextProvider = (props) => {
   }
 
   const addToCartCombo = async (itemId, quantity, size = 'M') => {
-    if (!token) {
-      toast.error('Please login to add items to cart');
-      return;
-    }
+    if (!requireLogin('Please login to add this combo to your cart')) return;
 
     try {
       // Add multiple items to cart based on combo quantity
@@ -151,10 +157,7 @@ const ShopContextProvider = (props) => {
   }
 
   const updateQuantity = async (itemId, size, quantity) => {
-    if (!token) {
-      toast.error('Please login to update cart');
-      return;
-    }
+    if (!requireLogin('Please login to update your cart')) return;
 
     try {
       const response = await apiInstance.post('/cart/update', { itemId, size, quantity });
@@ -259,10 +262,7 @@ const ShopContextProvider = (props) => {
 
 
   const addToWishlist = async (itemId) => {
-    if (!token) {
-      toast.error('Please login to add items to wishlist');
-      return;
-    }
+    if (!requireLogin('Please login to save items to your wishlist')) return;
 
     try {
       const response = await apiInstance.post('/wishlist/add', { itemId });
@@ -287,10 +287,7 @@ const ShopContextProvider = (props) => {
   }
 
   const updateWishlistQuantity = async (itemId, quantity = -1) => {
-    if (!token) {
-      toast.error('Please login to update wishlist');
-      return;
-    }
+    if (!requireLogin('Please login to update your wishlist')) return;
 
     try {
       // Send the quantity to backend (0 for deletion, actual quantity for updates)
@@ -411,10 +408,7 @@ const ShopContextProvider = (props) => {
   }
 
   const updateCustomQuantity = async (itemId, size, quantity) => {
-    if (!token) {
-      toast.error('Please login to update cart');
-      return;
-    }
+    if (!requireLogin('Please login to update your cart')) return;
     try {
       const response = await apiInstance.post('/cart/update-custom', { itemId, size, quantity });
       if (response.data.success) {
@@ -442,10 +436,7 @@ const ShopContextProvider = (props) => {
   // Coupon functions
   const validateCoupon = async (couponCode) => {
     try {
-      if (!token) {
-        toast.error('Please login to apply coupon', { autoClose: 2000 });
-        return false;
-      }
+      if (!requireLogin('Please login to apply a coupon')) return false;
 
       const orderAmount = getCartAmount();
       const productIds = Object.keys(cartItems);
@@ -605,17 +596,25 @@ const ShopContextProvider = (props) => {
   }, []);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setUserDataLoaded(false);
+      return;
+    }
 
-    const cleanup = scheduleLowPriority(() => {
+    let cancelled = false;
+    const cleanup = scheduleLowPriority(async () => {
       fetchOrderDetails();
       getUserCustomData();
       fetchUsersDetails();
-      getUserWishlist(token);
-      getUserCart(token);
+      // Cart & wishlist both swallow their own errors, so this always settles.
+      await Promise.all([getUserWishlist(token), getUserCart(token)]);
+      if (!cancelled) setUserDataLoaded(true);
     }, 700);
 
-    return () => cleanup && cleanup();
+    return () => {
+      cancelled = true;
+      cleanup && cleanup();
+    };
   }, [token]);
 
   useEffect(() => {
@@ -641,7 +640,7 @@ const ShopContextProvider = (props) => {
     search, setSearch, showSearch, setShowSearch,
     cartItems, addToCart, addToCartCombo, setCartItems, getCartCount,
     updateQuantity, getCartAmount, clearCart, updateCartAndSave,
-    navigate, backendUrl, setToken, token, wishlist,
+    navigate, backendUrl, setToken, token, userDataLoaded, wishlist,
     addToWishlist, getWishlistCount, updateWishlistQuantity,
     setWishlist, updateWishlistAndSave, reviewList, fetchReviewList, usersDetails,
     scrollToTop, productSearch, clearSearchBar, orderData,

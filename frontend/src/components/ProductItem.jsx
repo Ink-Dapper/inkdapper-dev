@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import { storageUrl } from '../utils/storageUrl';
+import { redirectToLogin } from '../utils/authRedirect';
 
 const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout, slug, comboPrices }) => {
   let safeSlug = slug || (name ? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') : '');
   if (safeSlug.endsWith('-')) safeSlug = safeSlug.slice(0, -1);
 
-  const { currency, scrollToTop, addToWishlist, updateWishlistQuantity, token, wishlist, addToCartCombo, reviewList } = useContext(ShopContext);
+  const { currency, scrollToTop, addToWishlist, updateWishlistQuantity, token, wishlist, addToCartCombo, reviewList, navigate } = useContext(ShopContext);
 
   const offerPercentage = useMemo(() => {
     if (beforePrice && price && beforePrice > price) {
@@ -58,7 +59,8 @@ const ProductItem = ({ id, image, name, price, beforePrice, subCategory, soldout
     e.preventDefault();
     e.stopPropagation();
     if (!token) {
-      toast.error('Please login to manage wishlist', { autoClose: 1000 });
+      // Send guests to login and bring them back to this page afterwards
+      redirectToLogin(navigate, { message: 'Please login to manage your wishlist' });
     } else {
       isWishlisted ? updateWishlistQuantity(id, 0) : addToWishlist(id);
     }

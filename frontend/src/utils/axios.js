@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { buildCurrentPath, savePostLoginRedirect } from './authRedirect';
 
 // Determine the base URL based on environment
 const normalizeBaseUrl = (url) => {
@@ -80,9 +81,20 @@ instance.interceptors.response.use(
       
       // Handle specific error cases
       if (error.response.status === 401) {
-        // Unauthorized - clear token and redirect to login
-        localStorage.removeItem('token');
-        window.location.href = '/login';
+        const requestUrl = error.config?.url || '';
+        // A rejected login / register attempt is not an expired session —
+        // let the form show its own error instead of reloading the page.
+        const isAuthAttempt = /\/user\/(login|register)(\?|$)/.test(requestUrl);
+
+        if (!isAuthAttempt) {
+          // Session expired / invalid token: clear it and send the user to login,
+          // remembering the page they were on so they land straight back there.
+          localStorage.removeItem('token');
+          if (window.location.pathname !== '/login') {
+            savePostLoginRedirect(buildCurrentPath());
+            window.location.href = '/login';
+          }
+        }
       } else if (error.response.status === 403) {
         console.error('CORS or permission error');
       }

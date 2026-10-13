@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Flip, toast } from "react-toastify";
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -14,6 +14,7 @@ import RelatedProducts from '../components/RelatedProducts';
 
 import { ShopContext } from '../context/ShopContext';
 import { storageUrl } from '../utils/storageUrl';
+import { PENDING_ACTIONS, redirectToLogin } from '../utils/authRedirect';
 import '../styles/swiper-custom.css';
 import { Paintbrush, Shirt, Circle, Leaf, Calendar, Hand, Truck, Shield, RotateCcw, Heart, Share2, Star } from 'lucide-react';
 
@@ -39,6 +40,7 @@ const generateSlugFromName = (name) => {
 const Product = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const context = useContext(ShopContext)
 
   // Safety check to prevent destructuring undefined context
@@ -46,7 +48,7 @@ const Product = () => {
     return <div>Loading...</div>
   }
 
-  const { products, currency, addToCart, addToCartCombo, token, getCartCount, addToWishlist, getWishlistCount, reviewList, scrollToTop, cartItems, updateQuantity, addToRecentlyViewed } = context
+  const { products, currency, addToCart, addToCartCombo, token, userDataLoaded, getCartCount, addToWishlist, getWishlistCount, updateWishlistQuantity, wishlist, reviewList, scrollToTop, cartItems, updateQuantity, addToRecentlyViewed } = context
   const [productData, setProductData] = useState(false)
   const [image, setImage] = useState('')
   const [size, setSize] = useState('')
@@ -66,6 +68,9 @@ const Product = () => {
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const shareMenuRef = useRef(null);
+  // Post-login resume guards (see the resume effect below)
+  const resumeHandledRef = useRef(false);
+  const selectionRestoredRef = useRef(false);
   const [popupPosition, setPopupPosition] = useState({ left: '0', bottom: '12' });
   const [thumbsSwiperInstance, setThumbsSwiperInstance] = useState(null);
   const isMobile = useIsMobile();
@@ -98,76 +103,103 @@ const Product = () => {
     }
   }
 
+  // ── Auth gate ──────────────────────────────────────────────────────────────
+  // Guests can view everything. When they try to add / buy / wishlist we remember
+  // this exact product URL plus their chosen size & quantity, send them to /login,
+  // and finish the action automatically once they're back (see the resume effect).
+  const askToLogin = (action, message, overrides = {}) => {
+    redirectToLogin(navigate, {
+      message,
+      resume: {
+        action,
+        productId: productData._id,
+        size,
+        quantity,
+        ...overrides,
+      },
+    });
+  };
+
+  // Shared cart write used by Add to Cart, Buy Now and the post-login resume.
+  // Returns true when the cart was updated.
+  const commitToCart = (selectedSize, selectedQuantity) => {
+    if (!selectedSize) {
+      toast.error('Select Product Size', { autoClose: 2000, pauseOnHover: false, transition: Flip });
+      return false;
+    }
+    const qty = Math.max(1, Number(selectedQuantity) || 1);
+    const existingQuantity = cartItems[productData._id]?.[selectedSize] || 0;
+    const newQuantity = existingQuantity + qty;
+
+    // Check stock availability
+    const maxStock = productData.stock;
+    if (maxStock && newQuantity > maxStock) {
+      toast.error(`Only ${maxStock} items available in stock`, { autoClose: 2000, pauseOnHover: false, transition: Flip });
+      return false;
+    }
+
+    // updateQuantity sets the absolute quantity for this size
+    updateQuantity(productData._id, selectedSize, newQuantity);
+    return true;
+  };
+
   const addCartPageDetails = () => {
+    if (!size) {
+      toast.error('Select Product Size', { autoClose: 2000, pauseOnHover: false, transition: Flip });
+      return;
+    }
     if (!token) {
-      toast.error('Please login to add product to cart', { autoClose: 1000, })
-    } else if (!size) {
-      toast.error('Select Product Size', {
-        autoClose: 2000, pauseOnHover: false,
-        transition: Flip
-      })
-    } else {
-      // Check if item already exists in cart
-      const existingQuantity = cartItems[productData._id]?.[size] || 0;
-      const newQuantity = existingQuantity + quantity;
-
-      // Check stock availability
-      const maxStock = productData.stock;
-      if (maxStock && newQuantity > maxStock) {
-        toast.error(`Only ${maxStock} items available in stock`, {
-          autoClose: 2000, pauseOnHover: false,
-          transition: Flip
-        });
-        return;
-      }
-
-      // Use updateQuantity to set the total quantity
-      updateQuantity(productData._id, size, newQuantity);
-
+      askToLogin(PENDING_ACTIONS.ADD_TO_CART, 'Please login to add this product to your cart');
+      return;
+    }
+    if (commitToCart(size, quantity)) {
       const itemText = quantity === 1 ? 'Item' : 'Items';
-      toast.success(`${quantity} ${itemText} Added To Cart`, {
-        autoClose: 1000, pauseOnHover: false,
-        transition: Flip
-      })
-
+      toast.success(`${quantity} ${itemText} Added To Cart`, { autoClose: 1000, pauseOnHover: false, transition: Flip });
       // Reset quantity to 1 after adding to cart
       setQuantity(1);
     }
   }
 
   const handleBuyNow = () => {
+    if (!size) {
+      toast.error('Select Product Size', { autoClose: 2000, pauseOnHover: false, transition: Flip });
+      return;
+    }
     if (!token) {
-      toast.error('Please login to continue', { autoClose: 1000 })
-    } else if (!size) {
-      toast.error('Select Product Size', { autoClose: 2000, pauseOnHover: false, transition: Flip })
-    } else {
-      const existingQuantity = cartItems[productData._id]?.[size] || 0;
-      const newQuantity = existingQuantity + quantity;
-      const maxStock = productData.stock;
-      if (maxStock && newQuantity > maxStock) {
-        toast.error(`Only ${maxStock} items available in stock`, { autoClose: 2000, transition: Flip });
-        return;
-      }
-      updateQuantity(productData._id, size, newQuantity);
+      askToLogin(PENDING_ACTIONS.BUY_NOW, 'Please login to continue to checkout');
+      return;
+    }
+    if (commitToCart(size, quantity)) {
       scrollToTop();
       navigate('/place-order');
     }
   }
 
+  const handleAddCombo = (comboQuantity) => {
+    const comboSize = size || 'M';
+    if (!token) {
+      askToLogin(PENDING_ACTIONS.ADD_COMBO, 'Please login to add this combo to your cart', { size: comboSize, quantity: comboQuantity });
+      return;
+    }
+    addToCartCombo(productData._id, comboQuantity, comboSize);
+  }
+
+  const saveToWishlist = () => {
+    setIsWishlisted(true);
+    setWishlistCta('block');
+    addToWishlist(productData._id);
+  }
+
   const addToWishlistPage = () => {
     if (!token) {
-      toast.error('Please login to add product to wishlist', { autoClose: 1000, })
+      askToLogin(PENDING_ACTIONS.WISHLIST, 'Please login to save this product to your wishlist');
+      return;
+    }
+    if (isWishlisted) {
+      setIsWishlisted(false);
+      updateWishlistQuantity(productData._id, 0);
     } else {
-      addToWishlist(productData._id)
-      setIsWishlisted(!isWishlisted);
-      toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist', {
-        autoClose: 1000, pauseOnHover: false,
-        transition: Flip
-      })
-
-      if (wishlistCount >= 0) {
-        setWishlistCta('block')
-      }
+      saveToWishlist();
     }
   }
 
@@ -297,6 +329,67 @@ const Product = () => {
   useEffect(() => {
     fetchProductData();
   }, [slug, products]);
+
+  // Keep the heart in sync with the server-side wishlist (also covers the post-login refresh)
+  useEffect(() => {
+    if (!productData) return;
+    setIsWishlisted((wishlist?.[productData._id] ?? 0) > 0);
+  }, [wishlist, productData]);
+
+  // ── Post-login resume ──────────────────────────────────────────────────────
+  // Login sends the user back here with `location.state.resume` describing what
+  // they were doing. Restore their size / quantity straight away, then complete
+  // the action once the token is set and the cart & wishlist have loaded.
+  useEffect(() => {
+    const resume = location.state?.resume;
+    if (!resume || resumeHandledRef.current) return;
+    if (!productData || resume.productId !== productData._id) return;
+
+    const sizeIsValid = Boolean(resume.size) && (productData.sizes || []).includes(resume.size);
+    const resumeQty = Math.max(1, Number(resume.quantity) || 1);
+
+    if (!selectionRestoredRef.current) {
+      selectionRestoredRef.current = true;
+      if (sizeIsValid) setSize(resume.size);
+      setQuantity(resumeQty);
+    }
+
+    if (!token || !userDataLoaded) return;
+
+    resumeHandledRef.current = true;
+    // Drop the resume payload from history so a refresh / back-navigation doesn't replay it
+    navigate(`${location.pathname}${location.search}${location.hash}`, { replace: true, state: null });
+
+    const resumeSize = sizeIsValid ? resume.size : size;
+
+    switch (resume.action) {
+      case PENDING_ACTIONS.ADD_TO_CART:
+        if (commitToCart(resumeSize, resumeQty)) {
+          toast.success(`Welcome back! ${resumeQty} ${resumeQty === 1 ? 'item' : 'items'} added to your cart`, { autoClose: 2000, pauseOnHover: false, transition: Flip });
+          setQuantity(1);
+        }
+        break;
+      case PENDING_ACTIONS.BUY_NOW:
+        if (commitToCart(resumeSize, resumeQty)) {
+          toast.success('Welcome back! Taking you to checkout…', { autoClose: 2000, pauseOnHover: false, transition: Flip });
+          scrollToTop();
+          navigate('/place-order');
+        }
+        break;
+      case PENDING_ACTIONS.ADD_COMBO:
+        addToCartCombo(productData._id, resumeQty, resumeSize || 'M');
+        break;
+      case PENDING_ACTIONS.WISHLIST:
+        if ((wishlist?.[productData._id] ?? 0) > 0) {
+          toast.info('This product is already in your wishlist', { autoClose: 1500, pauseOnHover: false, transition: Flip });
+        } else {
+          saveToWishlist();
+        }
+        break;
+      default:
+        break;
+    }
+  }, [location.state, productData, token, userDataLoaded]);
 
   // Update review counts and labels when product or reviews change
   useEffect(() => {
@@ -716,7 +809,7 @@ const Product = () => {
                           )}
                         </div>
                         <button
-                          onClick={() => addToCartCombo(productData._id, combo.quantity, size || 'M')}
+                          onClick={() => handleAddCombo(combo.quantity)}
                           disabled={productData.soldout}
                           className='w-full ragged-solid-btn py-2.5 px-4 font-bold text-sm uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed'
                         >

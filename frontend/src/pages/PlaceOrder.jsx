@@ -6,6 +6,7 @@ import { ShopContext } from '../context/ShopContext'
 import apiInstance from '../utils/axios'
 import { toast } from 'react-toastify'
 import CheckoutProgress from '../components/CheckoutProgress'
+import { redirectToLogin } from '../utils/authRedirect'
 
 const PlaceOrder = () => {
   const {
@@ -40,6 +41,13 @@ const PlaceOrder = () => {
     script.async = true
     document.body.appendChild(script)
   }, [])
+
+  // Checkout needs an account — send guests to login and bring them back here afterwards
+  useEffect(() => {
+    if (!token) {
+      redirectToLogin(navigate, { path: '/place-order', message: 'Please login to checkout' })
+    }
+  }, [token])
 
   const [creditPtsVisible, setCreditPtsVisible] = useState(false)
   const [showThankYou, setShowThankYou] = useState(false)

@@ -83,11 +83,27 @@ const buildWhatsAppTemplateParams = (user, orderData, paymentMethod) => {
   ];
 };
 
-//Gateway initialization
-const razorpayInstance = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Gateway initialization is lazy so local/dev servers can still start when
+// Razorpay keys are missing. Razorpay endpoints return a clear error instead.
+let razorpayInstance = null;
+
+const getRazorpayInstance = () => {
+  if (razorpayInstance) return razorpayInstance;
+
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!keyId || !keySecret) {
+    throw new Error("Razorpay is not configured. Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to backend/.env");
+  }
+
+  razorpayInstance = new Razorpay({
+    key_id: keyId,
+    key_secret: keySecret,
+  });
+
+  return razorpayInstance;
+};
 
 // Placing Order using COD Method
 const placeOrder = async (req, res) => {
@@ -187,6 +203,7 @@ const placeOrderStripe = async (req, res) => {};
 // Placing Order using Razorpay Method
 const placeOrderRazorpay = async (req, res) => {
   try {
+    const razorpay = getRazorpayInstance();
     const userId = req.userId;
     const { items, amount, address } = req.body;
 
@@ -196,7 +213,7 @@ const placeOrderRazorpay = async (req, res) => {
       receipt: userId.toString(),
     };
 
-    await razorpayInstance.orders.create(options, (err, order) => {
+    await razorpay.orders.create(options, (err, order) => {
       if (err) {
         console.log(err);
         return res.json({ success: false, message: err.message });
@@ -211,6 +228,7 @@ const placeOrderRazorpay = async (req, res) => {
 
 const verifyRazorpay = async (req, res) => {
   try {
+    const razorpay = getRazorpayInstance();
     const userId = req.userId;
     const {
       razorpay_order_id,
@@ -225,7 +243,7 @@ const verifyRazorpay = async (req, res) => {
       return res.json({ success: false, message: "Order ID is required" });
     }
 
-    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+    const orderInfo = await razorpay.orders.fetch(razorpay_order_id);
 
     if (orderInfo.status === "paid") {
       const expectedDeliveryDate = new Date();

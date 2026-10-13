@@ -7,6 +7,7 @@ import OrderStatus from '../components/OrderStatus';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import { redirectToLogin } from '../utils/authRedirect';
 
 const Orders = () => {
   const { token, currency } = useContext(ShopContext);
@@ -210,8 +211,8 @@ const Orders = () => {
 
   useEffect(() => {
     if (!token) {
-      toast.error('Please login to view your orders');
-      navigate('/login');
+      // Login brings the user back to their orders afterwards
+      redirectToLogin(navigate, { path: '/orders', message: 'Please login to view your orders' });
       return;
     }
     loadOrderData();

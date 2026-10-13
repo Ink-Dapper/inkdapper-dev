@@ -18,5 +18,7 @@
     "Toastify",
     "Vellore",
     "Vettuvanam"
-  ]
+  ],
+  "chatgpt.openOnStartup": true,
+  "chatgpt.runCodexInWindowsSubsystemForLinux": true
 }

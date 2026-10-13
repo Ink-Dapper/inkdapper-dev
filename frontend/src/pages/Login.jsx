@@ -1,12 +1,24 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import axios from '../utils/axios';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash, FaEnvelope, FaPhone, FaUser, FaLock, FaArrowLeft } from 'react-icons/fa';
+import { consumePostLoginRedirect, isSafeRedirectPath, peekPostLoginRedirect } from '../utils/authRedirect';
 
 const Login = () => {
   const [currentState, setCurrentState] = useState('Login');
   const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
+  const location = useLocation();
+
+  // Set by redirectToLogin() when a guest tried to do something that needs an account
+  // (add to cart, buy now, wishlist, checkout…). We show a hint and return them there.
+  const pendingRedirect = useMemo(() => {
+    const stored = peekPostLoginRedirect();
+    if (stored) return stored;
+    const from = location.state?.from;
+    return isSafeRedirectPath(from) ? { path: from, resume: location.state?.resume ?? null } : null;
+  }, [location.state]);
 
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -84,7 +96,7 @@ const Login = () => {
               localStorage.setItem('user_phone', phone);
             }
 
-            navigate('/');
+            // The token effect below sends the user back to where they came from
           } else {
             toast.error(registerResponse.data.message);
           }
@@ -129,7 +141,7 @@ const Login = () => {
             }
           }
 
-          navigate('/');
+          // The token effect below sends the user back to where they came from
         } else {
           toast.error(response.data.message);
         }
@@ -142,10 +154,17 @@ const Login = () => {
     }
   };
 
+  // Once signed in (or if already signed in), go back to the exact page the user
+  // came from — e.g. the product they were about to add to cart — instead of home.
   useEffect(() => {
-    if (token) {
-      navigate('/');
-    }
+    if (!token) return;
+    const stored = consumePostLoginRedirect();
+    const target = stored?.path || location.state?.from;
+    const resume = stored?.resume ?? location.state?.resume ?? null;
+    navigate(isSafeRedirectPath(target) ? target : '/', {
+      replace: true,
+      state: resume ? { resume } : null,
+    });
   }, [token]);
 
   const InputField = useCallback(({ icon: Icon, type = "text", placeholder, value, onChange, required = true, className = "" }) => (
@@ -322,6 +341,12 @@ const Login = () => {
                 <div className="h-[2px] w-10" style={{ background: 'linear-gradient(90deg, rgba(251,146,60,0.9), rgba(245,158,11,0.6))' }} />
                 <div className="h-px flex-1 bg-slate-800" />
               </div>
+              {pendingRedirect && (
+                <p className="mt-4 text-[11px] font-bold tracking-[0.06em] text-slate-400 px-3 py-2.5"
+                  style={{ background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(251,146,60,0.2)', clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)' }}>
+                  Sign in to continue. We&apos;ll take you right back to where you left off.
+                </p>
+              )}
             </div>
 
             <form onSubmit={onSubmitHandler} className="space-y-5">

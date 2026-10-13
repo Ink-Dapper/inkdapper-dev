@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import axios from "../utils/axios";
 import { teesCollection } from "../assets/assets";
 import { ShopContext } from "../context/ShopContext";
+import { redirectToLogin } from "../utils/authRedirect";
 
 const STYLES = [
   { id: "vector", label: "Vector", icon: "◈", desc: "Clean bold lines & shapes" },
@@ -245,7 +246,7 @@ const AIDesigner = () => {
   };
 
   const handleOrderCustomShirt = () => {
-    if (!token) { toast.error("Please log in to place an order."); return; }
+    if (!token) { redirectToLogin(navigate, { message: "Please login to order your custom design" }); return; }
     if (!activeDesign) { toast.error("Please generate or upload a design first."); return; }
     setOrderSize("");
     setOrderQuantity(1);

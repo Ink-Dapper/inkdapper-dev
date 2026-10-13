@@ -4,6 +4,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import axios from "../utils/axios";
 import { avatarProxyUrl } from "../utils/storageUrl";
+import { clearPostLoginRedirect, redirectToLogin } from "../utils/authRedirect";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
@@ -152,6 +153,8 @@ const Navbar = () => {
   };
 
   const logout = () => {
+    // Don't carry a previous visitor's pending "return to page" into the next sign-in
+    clearPostLoginRedirect();
     navigate("/login");
     localStorage.removeItem("token");
     setToken("");
@@ -254,7 +257,8 @@ const Navbar = () => {
                 }}
                 onClick={() => {
                   const currentToken = token || localStorage.getItem('token');
-                  if (!currentToken) navigate("/login");
+                  // Remember the current page so login brings the user straight back here
+                  if (!currentToken) redirectToLogin(navigate, { message: null });
                 }}
               >
                 {token ? (
@@ -436,7 +440,8 @@ const Navbar = () => {
                 e.stopPropagation();
                 const currentToken = token || localStorage.getItem('token');
                 if (!currentToken) {
-                  navigate("/login");
+                  // Remember the current page so login brings the user straight back here
+                  redirectToLogin(navigate, { message: null });
                   scrollToTop();
                 } else {
                   subMenuVisible();
